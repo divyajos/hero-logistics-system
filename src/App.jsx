@@ -1,10 +1,25 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AuthProvider, ProtectedRoute } from './context/AuthContext';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import LandingPage from './components/LandingPage';
 import AuthPages from './components/AuthPages';
 import OnboardingWizard from './components/OnboardingWizard';
 import DashboardLayout from './layouts/DashboardLayout';
+
+// Public Layout containing Navbar and Footer
+function PublicLayout() {
+  return (
+    <div className="min-h-screen bg-[#0B0F19] text-slate-100 flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+      <Navbar />
+      <div className="flex-grow">
+        <Outlet />
+      </div>
+      <Footer />
+    </div>
+  );
+}
 
 function App() {
   return (
@@ -12,7 +27,9 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* Public Routes */}
-          <Route path="/" element={<LandingPage />} />
+          <Route element={<PublicLayout />}>
+            <Route path="/" element={<LandingPage />} />
+          </Route>
           <Route path="/login" element={<AuthPages view="login" />} />
           <Route path="/register" element={<AuthPages view="register" />} />
           <Route path="/forgot-password" element={<AuthPages view="forgot-password" />} />

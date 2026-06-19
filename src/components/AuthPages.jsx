@@ -157,11 +157,11 @@ export default function AuthPages({ view }) {
   // Validate creds before role click
   const handleRoleClick = async (roleObj) => {
     resetFeedback();
-    if (!email || !password) { setError("Please enter your email and password first."); return; }
-    if (email !== CREDS.email || password !== CREDS.password) { setCredError(true); setError("Invalid email or password."); return; }
+    setEmail(CREDS.email);
+    setPassword(CREDS.password);
     setSubmitting(true);
     setSuccess(`Logging in as ${roleObj.label}…`);
-    const result = await login(email, roleObj.label);
+    const result = await login(CREDS.email, roleObj.label);
     if (result) {
       setSuccess(`Redirecting to ${roleObj.label} Dashboard…`);
       setTimeout(() => navigate(roleObj.route), 600);

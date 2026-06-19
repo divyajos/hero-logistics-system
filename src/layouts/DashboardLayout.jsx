@@ -23,28 +23,16 @@ export default function DashboardLayout({ role: roleProp }) {
   const [activeTab, setActiveTab] = useState('overview');
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-<<<<<<< HEAD
-
-  if (!user) return null;
-
-  // Render role dashboard component
-  const renderDashboardContent = (role, tab) => {
-    if (tab === 'reports') return <ReportsDashboard activeTab={tab} />;
-
-=======
-  const [notifications, setNotifications] = useState([
-    { id: 1, type: 'alert', title: 'Route Delay Warning', message: 'Truck TX-ROAD88 ETA threshold breached on route to Dallas.', time: '10 min ago' },
-    { id: 2, type: 'success', title: 'POD Signature Uploaded', message: 'Donald S. submitted digital signature signoff for load #LD-9411.', time: '35 min ago' },
-    { id: 3, type: 'info', title: 'New Lead Created', message: 'Sales CRM lead Vance Refrigeration registered trial.', time: '2 hours ago' }
-  ]);
 
   if (!user) return null;
 
   // Use role from route prop, fallback to user.role
   const activeRole = roleProp || user.role;
 
+  // Render role dashboard component
   const renderDashboard = (role, tab) => {
->>>>>>> 8b5f0b60cfa2f6b1d21053db14d42272a8f061a5
+    if (tab === 'reports') return <ReportsDashboard activeTab={tab} />;
+
     switch (role) {
       case 'Super Admin': return <SuperAdminDashboard activeTab={tab} />;
       case 'Sales': return <SalesDashboard activeTab={tab} />;
@@ -79,7 +67,6 @@ export default function DashboardLayout({ role: roleProp }) {
       />
 
       <div className="flex-1 flex flex-col min-w-0">
-<<<<<<< HEAD
         
         {/* Top Header */}
         <TopNavbar 
@@ -89,24 +76,10 @@ export default function DashboardLayout({ role: roleProp }) {
         />
 
         {/* Global Notifications Tray */}
-          <NotificationCenter
-            isOpen={notificationsOpen}
-            onClose={() => setNotificationsOpen(false)}
-=======
-        <TopNavbar
-          onNotificationClick={() => setNotificationsOpen(!notificationsOpen)}
-          notificationCount={notifications.length}
-          onMenuClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+        <NotificationCenter
+          isOpen={notificationsOpen}
+          onClose={() => setNotificationsOpen(false)}
         />
-
-        <div className="relative">
-          <NotificationCenter
-            isOpen={notificationsOpen}
-            onClose={() => setNotificationsOpen(false)}
-            notifications={notifications}
-            onClear={() => setNotifications([])}
->>>>>>> 8b5f0b60cfa2f6b1d21053db14d42272a8f061a5
-          />
 
         <main className="flex-1 p-4 sm:p-6 overflow-y-auto max-w-7xl mx-auto w-full animate-fade-in">
           {renderDashboard(activeRole, activeTab)}
