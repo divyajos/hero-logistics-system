@@ -35,6 +35,8 @@ import vehiclesReducer from './slices/vehiclesSlice';
 import warehouseReducer from './slices/warehouseSlice';
 import accountsReducer from './slices/accountsSlice';
 import customersReducer from './slices/customersSlice';
+import notificationsReducer from './slices/notificationsSlice';
+import reportsReducer from './slices/reportsSlice';
 
 const persistConfig = {
   key: 'hero_root',
@@ -53,6 +55,8 @@ const rootReducer = combineReducers({
   warehouse: warehouseReducer,
   accounts: accountsReducer,
   customers: customersReducer,
+  notifications: notificationsReducer,
+  reports: reportsReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

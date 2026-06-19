@@ -23,6 +23,7 @@ export default function Sidebar({ activeTab, setActiveTab, mobileOpen, setMobile
           { id: 'plans', label: 'Subscription Plans', icon: Layers },
           { id: 'white-label', label: 'White Label', icon: Settings },
           { id: 'analytics', label: 'Platform Analytics', icon: BarChart3 },
+          { id: 'reports', label: 'Reports Center', icon: FileText },
           { id: 'support', label: 'Support Tickets', icon: FileText }
         ];
       case 'Sales':
@@ -43,7 +44,8 @@ export default function Sidebar({ activeTab, setActiveTab, mobileOpen, setMobile
           { id: 'fleet', label: 'Fleet Register', icon: Truck },
           { id: 'trailers', label: 'Trailer Spots', icon: Layers },
           { id: 'workforce', label: 'Workforce Leaves', icon: Users },
-          { id: 'assets', label: 'Asset Register', icon: Shield }
+          { id: 'assets', label: 'Asset Register', icon: Shield },
+          { id: 'reports', label: 'Reports Center', icon: BarChart3 }
         ];
       case 'Dispatcher':
         return [
@@ -85,7 +87,8 @@ export default function Sidebar({ activeTab, setActiveTab, mobileOpen, setMobile
           { id: 'invoices', label: 'Shipper Invoices', icon: FileText },
           { id: 'payroll', label: 'Driver Payroll', icon: Users },
           { id: 'expenses', label: 'Expenses Manager', icon: DollarSign },
-          { id: 'profitability', label: 'Vehicle Margins', icon: BarChart3 }
+          { id: 'profitability', label: 'Vehicle Margins', icon: BarChart3 },
+          { id: 'reports', label: 'Reports Center', icon: FileText }
         ];
       case 'Customer':
         return [
