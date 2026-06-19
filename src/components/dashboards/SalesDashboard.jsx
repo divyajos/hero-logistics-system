@@ -1,3 +1,4 @@
+import { useParams } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchSalesDashboard } from '../../store/slices/companySlice';
@@ -21,7 +22,9 @@ import {
   Plus, Check, ArrowRight, ArrowLeft, Trash2, Edit, FileText, ChevronRight
 } from 'lucide-react';
 
-export default function SalesDashboard({ activeTab = 'overview' }) {
+export default function SalesDashboard() {
+  const { tab } = useParams();
+  const activeTab = tab || 'overview';
   const dispatch = useDispatch();
   const reduxCompany = useSelector((state) => state.company);
 

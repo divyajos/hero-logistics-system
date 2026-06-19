@@ -1,3 +1,4 @@
+import { useParams } from 'react-router-dom';
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addGateLog } from '../../store/slices/warehouseSlice';
@@ -12,7 +13,9 @@ import DataTable from '../common/DataTable';
 import StatusBadge from '../common/StatusBadge';
 import { Layers, MapPin, Database, Award, Check, Truck, QrCode, AlertTriangle } from 'lucide-react';
 
-export default function YardAttendantDashboard({ activeTab = 'overview' }) {
+export default function YardAttendantDashboard() {
+  const { tab } = useParams();
+  const activeTab = tab || 'overview';
   const dispatch = useDispatch();
   const gateLogs = useSelector((state) => state.warehouse.gateLogs);
 

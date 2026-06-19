@@ -1,3 +1,4 @@
+import { useParams } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCustomerLoads, createBooking } from '../../store/slices/customersSlice';
@@ -16,7 +17,9 @@ import Drawer from '../common/Drawer';
 import FileUploader from '../common/FileUploader';
 import { Layers, MapPin, Database, Award, Plus, Check, CreditCard, FileText, Send, HelpCircle } from 'lucide-react';
 
-export default function CustomerDashboard({ activeTab = 'overview' }) {
+export default function CustomerDashboard() {
+  const { tab } = useParams();
+  const activeTab = tab || 'overview';
   const dispatch = useDispatch();
   const { customerLoads: shipments, loading } = useSelector((state) => state.customers);
 

@@ -1,3 +1,4 @@
+import { useParams } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchLoads, createLoad, updateLoadStatus } from '../../store/slices/loadsSlice';
@@ -25,7 +26,9 @@ import {
   MapPin, MessageSquare, ArrowRight, ArrowLeft, Send, Calendar as CalendarIcon, FileText, Activity, Trash2
 } from 'lucide-react';
 
-export default function DispatchDashboard({ activeTab = 'overview' }) {
+export default function DispatchDashboard() {
+  const { tab } = useParams();
+  const activeTab = tab || 'overview';
   const dispatch = useDispatch();
   const { items: loads, unassignedCount, driverCount, delayCount, loading } = useSelector((state) => state.loads);
   const { drivers } = useSelector((state) => state.drivers);

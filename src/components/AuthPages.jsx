@@ -1,574 +1,458 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import { Mail, Lock, Building, User, Phone, CheckCircle2, AlertCircle, ArrowRight, Shield } from 'lucide-react';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import {
+  Mail, Lock, Building, User, Phone,
+  CheckCircle2, AlertCircle, ArrowRight, Eye, EyeOff,
+  Truck, Shield, BarChart3, Package, Warehouse, 
+  ClipboardList, UserCheck, Calculator, ShoppingCart, ChevronRight
+} from "lucide-react";
 
-const GoogleIcon = (props) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
-    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
-    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
-  </svg>
-);
+// ─── Role Config ────────────────────────────────────────────────────────────
+const ROLES = [
+  { label: "Super Admin",       icon: Shield,        route: "/super-admin-dashboard",     color: "#a855f7", bg: "rgba(168,85,247,0.12)" },
+  { label: "Sales",             icon: BarChart3,     route: "/sales-dashboard",            color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
+  { label: "Company Admin",     icon: Building,      route: "/company-admin-dashboard",    color: "#0ea5e9", bg: "rgba(14,165,233,0.12)" },
+  { label: "Dispatcher",        icon: ClipboardList, route: "/dispatcher-dashboard",       color: "#10b981", bg: "rgba(16,185,129,0.12)" },
+  { label: "Driver",            icon: Truck,         route: "/driver-dashboard",           color: "#f97316", bg: "rgba(249,115,22,0.12)" },
+  { label: "Warehouse Manager", icon: Warehouse,     route: "/warehouse-dashboard",        color: "#06b6d4", bg: "rgba(6,182,212,0.12)" },
+  { label: "Yard Attendant",    icon: Package,       route: "/yard-attendant-dashboard",   color: "#84cc16", bg: "rgba(132,204,22,0.12)" },
+  { label: "Accounts",          icon: Calculator,    route: "/accounts-dashboard",         color: "#ec4899", bg: "rgba(236,72,153,0.12)" },
+  { label: "Customer",          icon: ShoppingCart,  route: "/customer-dashboard",         color: "#8b5cf6", bg: "rgba(139,92,246,0.12)" },
+];
 
-const MicrosoftIcon = (props) => (
-  <svg viewBox="0 0 23 23" fill="currentColor" {...props}>
-    <path fill="#f25022" d="M1 1h10v10H1z"/>
-    <path fill="#7fba00" d="M12 1h10v10H12z"/>
-    <path fill="#00a4ef" d="M1 12h10v10H1z"/>
-    <path fill="#ffb900" d="M12 12h10v10H12z"/>
-  </svg>
-);
+const CREDS = { email: "admin@hero.com", password: "123456" };
 
+// ─── Shared field component ──────────────────────────────────────────────────
+function Field({ label, icon: Icon, type = "text", value, onChange, placeholder, action }) {
+  const [show, setShow] = useState(false);
+  const isPassword = type === "password";
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-1">
+        <label style={{ fontSize: 12, fontWeight: 600, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</label>
+        {action}
+      </div>
+      <div style={{ position: "relative" }}>
+        <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#475569", display: "flex" }}>
+          <Icon size={16} />
+        </span>
+        <input
+          type={isPassword && show ? "text" : type}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          required
+          style={{
+            width: "100%", boxSizing: "border-box",
+            paddingLeft: 40, paddingRight: isPassword ? 40 : 14,
+            paddingTop: 11, paddingBottom: 11,
+            background: "rgba(15,23,42,0.6)",
+            border: "1px solid rgba(51,65,85,0.8)",
+            borderRadius: 10, color: "#f1f5f9", fontSize: 14,
+            outline: "none", transition: "border-color 0.2s",
+          }}
+          onFocus={e => e.target.style.borderColor = "#0ea5e9"}
+          onBlur={e => e.target.style.borderColor = "rgba(51,65,85,0.8)"}
+        />
+        {isPassword && (
+          <button type="button" onClick={() => setShow(!show)}
+            style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#475569", background: "none", border: "none", cursor: "pointer", display: "flex" }}>
+            {show ? <EyeOff size={15} /> : <Eye size={15} />}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Left Branding Panel ─────────────────────────────────────────────────────
+function BrandPanel() {
+  return (
+    <div style={{
+      width: "42%", minHeight: "100vh", position: "relative", overflow: "hidden",
+      background: "linear-gradient(135deg, #0f172a 0%, #0c1a2e 50%, #071020 100%)",
+      display: "flex", flexDirection: "column", justifyContent: "center", padding: "48px 44px",
+      flexShrink: 0,
+    }}>
+      {/* Grid lines */}
+      <div style={{
+        position: "absolute", inset: 0, opacity: 0.06,
+        backgroundImage: "linear-gradient(rgba(14,165,233,1) 1px, transparent 1px), linear-gradient(90deg, rgba(14,165,233,1) 1px, transparent 1px)",
+        backgroundSize: "40px 40px",
+      }} />
+      {/* Glow orbs */}
+      <div style={{ position: "absolute", top: "15%", left: "10%", width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, rgba(14,165,233,0.2) 0%, transparent 70%)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", bottom: "15%", right: "-5%", width: 220, height: 220, borderRadius: "50%", background: "radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%)", pointerEvents: "none" }} />
+
+      <div style={{ position: "relative", zIndex: 1 }}>
+        {/* Logo */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 52 }}>
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: "linear-gradient(135deg, #0ea5e9, #6366f1)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 24px rgba(14,165,233,0.5)" }}>
+            <Truck size={22} color="#fff" />
+          </div>
+          <div>
+            <div style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 18, color: "#f1f5f9", letterSpacing: "-0.02em" }}>Hero Logistics</div>
+            <div style={{ fontSize: 11, color: "#64748b", letterSpacing: "0.1em", textTransform: "uppercase" }}>Enterprise Suite</div>
+          </div>
+        </div>
+
+        <h1 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 36, lineHeight: 1.15, color: "#f1f5f9", marginBottom: 16, letterSpacing: "-0.03em" }}>
+          The Complete<br />
+          <span style={{ background: "linear-gradient(90deg, #0ea5e9, #a855f7)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Logistics OS</span>
+        </h1>
+        <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.7, marginBottom: 48, maxWidth: 320 }}>
+          Manage fleets, dispatch loads, track drivers, run warehouses — all from one powerful platform built for modern logistics companies.
+        </p>
+
+        {/* Stats row */}
+        <div style={{ display: "flex", gap: 24, marginBottom: 48 }}>
+          {[["9", "Dashboards"], ["24/7", "Live GPS"], ["100%", "Uptime SLA"]].map(([val, lbl]) => (
+            <div key={lbl}>
+              <div style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 22, color: "#0ea5e9" }}>{val}</div>
+              <div style={{ fontSize: 11, color: "#475569", textTransform: "uppercase", letterSpacing: "0.05em" }}>{lbl}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Feature pills */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+          {["Real-time GPS", "AI Dispatch", "Driver App", "Warehouse WMS", "Payroll", "Customer Portal"].map(f => (
+            <span key={f} style={{ padding: "5px 12px", borderRadius: 20, fontSize: 11, fontWeight: 600, background: "rgba(14,165,233,0.08)", border: "1px solid rgba(14,165,233,0.2)", color: "#7dd3fc" }}>
+              {f}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Bottom hint */}
+      <div style={{ position: "absolute", bottom: 24, left: 44, right: 44, zIndex: 1 }}>
+        <div style={{ padding: "12px 16px", borderRadius: 10, background: "rgba(14,165,233,0.06)", border: "1px solid rgba(14,165,233,0.12)", fontSize: 12, color: "#475569" }}>
+          <span style={{ color: "#0ea5e9", fontWeight: 700 }}>Demo credentials:</span>  admin@hero.com &nbsp;/&nbsp; 123456
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── MAIN EXPORT ─────────────────────────────────────────────────────────────
 export default function AuthPages({ view }) {
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [selectedRole, setSelectedRole] = useState('Company Admin');
-  
-  // Registration state
-  const [companyName, setCompanyName] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [phone, setPhone] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  
-  // Feedback alerts
-  const [error, setError] = useState('');
-  const [successMsg, setSuccessMsg] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
-  const roles = [
-    'Super Admin',
-    'Sales',
-    'Company Admin',
-    'Dispatcher',
-    'Driver',
-    'Warehouse Manager',
-    'Yard Attendant',
-    'Accounts',
-    'Customer'
-  ];
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [credError, setCredError] = useState(false);
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccessMsg('');
-    
-    if (!email || !password) {
-      setError('Please fill in all credentials.');
-      return;
+  const resetFeedback = () => { setError(""); setSuccess(""); setCredError(false); };
+
+  // Validate creds before role click
+  const handleRoleClick = async (roleObj) => {
+    resetFeedback();
+    if (!email || !password) { setError("Please enter your email and password first."); return; }
+    if (email !== CREDS.email || password !== CREDS.password) { setCredError(true); setError("Invalid email or password."); return; }
+    setSubmitting(true);
+    setSuccess(`Logging in as ${roleObj.label}…`);
+    const result = await login(email, roleObj.label);
+    if (result) {
+      setSuccess(`Redirecting to ${roleObj.label} Dashboard…`);
+      setTimeout(() => navigate(roleObj.route), 600);
+    } else {
+      setSubmitting(false);
+      setError("Login failed. Please try again.");
+      setSuccess("");
     }
-    
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSuccessMsg(`Login Successful! Redirecting to ${selectedRole} dashboard...`);
-      setTimeout(() => {
-        login(email, selectedRole);
-        navigate('/dashboard');
-      }, 1500);
-    }, 1200);
   };
 
-  const handleRegister = (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccessMsg('');
-
-    if (!companyName || !fullName || !email || !phone || !password || !confirmPassword) {
-      setError('All fields are required.');
-      return;
+  const handleRegister = async (e) => {
+    e.preventDefault(); resetFeedback();
+    if (!companyName || !fullName || !email || !phone || !password || !confirmPassword) { setError("All fields are required."); return; }
+    if (password !== confirmPassword) { setError("Passwords do not match."); return; }
+    setSubmitting(true);
+    const result = await login(email, "Company Admin");
+    if (result) {
+      navigate("/company-admin-dashboard");
+    } else {
+      setSubmitting(false);
+      setError("Registration failed. Please try again.");
     }
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match.');
-      return;
-    }
-
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSuccessMsg('Account created successfully! Launching Onboarding Wizard...');
-      setTimeout(() => {
-        login(email, 'Company Admin');
-        navigate('/onboarding');
-      }, 1500);
-    }, 1200);
   };
 
-  const handleForgotPassword = (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccessMsg('');
-
-    if (!email) {
-      setError('Please provide your registered email address.');
-      return;
-    }
-
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSuccessMsg('Reset link dispatched! Please check your email inbox.');
-    }, 1000);
+  const handleForgot = (e) => {
+    e.preventDefault(); resetFeedback();
+    if (!email) { setError("Please enter your registered email."); return; }
+    setSubmitting(true);
+    setTimeout(() => { setSubmitting(false); setSuccess("Reset link sent! Check your inbox."); }, 1000);
   };
 
-  const handleResetPassword = (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccessMsg('');
-
-    if (!password || !confirmPassword) {
-      setError('Please fill out all password fields.');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match.');
-      return;
-    }
-
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSuccessMsg('Password updated! Redirecting to login portal...');
-      setTimeout(() => {
-        navigate('/login');
-      }, 1500);
-    }, 1000);
+  const handleReset = (e) => {
+    e.preventDefault(); resetFeedback();
+    if (!password || !confirmPassword) { setError("Fill in both password fields."); return; }
+    if (password !== confirmPassword) { setError("Passwords do not match."); return; }
+    setSubmitting(true);
+    setTimeout(() => { setSubmitting(false); navigate("/login"); }, 1200);
   };
 
-  return (
-    <div className="min-h-screen pt-28 pb-16 flex items-center justify-center bg-[#0B0F19] relative px-4 overflow-hidden">
-      {/* Decorative Blur Spheres */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-500/10 rounded-full blur-[100px] pointer-events-none"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/5 rounded-full blur-[120px] pointer-events-none"></div>
+  // Shared wrapper styles
+  const pageStyle = {
+    minHeight: "100vh", display: "flex", background: "#080e1a",
+    fontFamily: "'Outfit', 'Inter', sans-serif",
+  };
 
-      <div className="w-full max-w-lg glass rounded-2xl p-8 sm:p-10 shadow-2xl relative z-10 animate-fade-in border border-[#23324C]/80">
-        
-        {/* Success Modal Overlay */}
-        {successMsg && (
-          <div className="absolute inset-0 bg-[#0B0F19]/95 rounded-2xl flex flex-col items-center justify-center text-center p-8 z-50 animate-fade-in">
-            <CheckCircle2 className="h-16 w-16 text-emerald-400 mb-4 animate-bounce" />
-            <h3 className="text-2xl font-bold text-white mb-2">Success</h3>
-            <p className="text-slate-300 max-w-xs">{successMsg}</p>
-            <div className="w-12 h-1 border-t-2 border-brand-500 rounded-full animate-spin mt-6"></div>
-          </div>
-        )}
+  const rightStyle = {
+    flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
+    padding: "32px 40px", overflowY: "auto",
+    background: "radial-gradient(ellipse at 60% 40%, rgba(14,165,233,0.04) 0%, transparent 60%)",
+  };
 
-        {/* --- 1. LOGIN SCREEN --- */}
-        {view === 'login' && (
-          <div>
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-extrabold tracking-tight text-white mb-1.5">Sign In</h2>
-              <p className="text-slate-400 text-sm">Enter your credentials to access the logistics suite</p>
-            </div>
+  const cardStyle = {
+    width: "100%", maxWidth: 480,
+  };
 
-            {error && (
-              <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-start text-sm">
-                <AlertCircle className="h-5 w-5 mr-2.5 flex-shrink-0" />
-                <span>{error}</span>
-              </div>
-            )}
+  const headingStyle = {
+    fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 28,
+    color: "#f1f5f9", letterSpacing: "-0.03em", marginBottom: 6,
+  };
 
-            <form onSubmit={handleLogin} className="space-y-5">
-              {/* Simulated Role Selection for demo */}
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-                  Simulated Portal Role
-                </label>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 pointer-events-none">
-                    <Shield className="h-5 w-5 text-brand-400" />
-                  </span>
-                  <select
-                    value={selectedRole}
-                    onChange={(e) => setSelectedRole(e.target.value)}
-                    className="block w-full pl-10.5 pr-4 py-3 bg-[#111827]/80 border border-[#23324C] hover:border-brand-500/40 rounded-xl text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/35 focus:border-brand-500 transition-all cursor-pointer"
-                  >
-                    {roles.map((r) => (
-                      <option key={r} value={r} className="bg-[#111827]">
-                        {r} Dashboard Redirect
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+  const subStyle = { fontSize: 13, color: "#64748b", marginBottom: 28 };
 
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">Email Address</label>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
-                    <Mail className="h-5 w-5" />
-                  </span>
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@company.com"
-                    className="block w-full pl-10.5 pr-4 py-3 bg-[#111827]/80 border border-[#23324C] hover:border-brand-500/40 rounded-xl text-slate-200 text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500/35 focus:border-brand-500 transition-all"
-                  />
-                </div>
-              </div>
+  const btnPrimary = {
+    width: "100%", padding: "12px 20px", borderRadius: 10, border: "none", cursor: "pointer",
+    background: "linear-gradient(135deg, #0ea5e9, #6366f1)", color: "#fff",
+    fontWeight: 700, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+    boxShadow: "0 4px 20px rgba(14,165,233,0.3)", transition: "opacity 0.2s",
+    opacity: submitting ? 0.6 : 1,
+    fontFamily: "'Outfit', sans-serif",
+  };
 
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="block text-sm font-medium text-slate-300">Password</label>
-                  <a
-                    href="#forgot-password"
-                    onClick={(e) => { e.preventDefault(); navigate('/forgot-password'); setError(''); }}
-                    className="text-xs text-brand-400 hover:text-brand-300 font-semibold"
-                  >
-                    Forgot password?
-                  </a>
-                </div>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
-                    <Lock className="h-5 w-5" />
-                  </span>
-                  <input
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="block w-full pl-10.5 pr-4 py-3 bg-[#111827]/80 border border-[#23324C] hover:border-brand-500/40 rounded-xl text-slate-200 text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500/35 focus:border-brand-500 transition-all"
-                  />
-                </div>
-              </div>
+  const linkBtn = { background: "none", border: "none", cursor: "pointer", color: "#0ea5e9", fontWeight: 700, fontSize: 13 };
 
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 bg-[#111827] border-[#23324C] text-brand-500 focus:ring-brand-500 rounded cursor-pointer"
-                />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-slate-400 cursor-pointer select-none">
-                  Remember this device
-                </label>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-3.5 px-4 font-bold text-white bg-brand-500 hover:bg-brand-600 rounded-xl shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 transition-all focus:outline-none disabled:opacity-50 flex items-center justify-center cursor-pointer"
-              >
-                {isSubmitting ? 'Verifying...' : 'Login to Account'}
-                {!isSubmitting && <ArrowRight className="ml-2 h-4 w-4" />}
-              </button>
-            </form>
-
-            <div className="relative my-7">
-              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[#23324C]"></div></div>
-              <div className="relative flex justify-center text-xs uppercase"><span className="bg-[#161F30] px-3 text-slate-400">Or continue with</span></div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3.5">
-              <button
-                onClick={() => { setSuccessMsg('Mock Google Sign-In Successful!'); setTimeout(() => setRoleDashboard('Company Admin'), 1200); }}
-                className="py-2.5 px-4 rounded-xl border border-[#23324C] hover:border-brand-500/40 bg-slate-800/20 hover:bg-slate-800/40 text-slate-300 hover:text-white transition-all flex items-center justify-center text-sm cursor-pointer"
-              >
-                <GoogleIcon className="h-4.5 w-4.5 mr-2 text-brand-400" />
-                Google
-              </button>
-              <button
-                onClick={() => { setSuccessMsg('Mock Microsoft Sign-In Successful!'); setTimeout(() => setRoleDashboard('Company Admin'), 1200); }}
-                className="py-2.5 px-4 rounded-xl border border-[#23324C] hover:border-brand-500/40 bg-slate-800/20 hover:bg-slate-800/40 text-slate-300 hover:text-white transition-all flex items-center justify-center text-sm cursor-pointer"
-              >
-                <MicrosoftIcon className="h-4.5 w-4.5 mr-2 text-purple-400" />
-                Microsoft
-              </button>
-            </div>
-
-            <div className="mt-8 text-center text-sm">
-              <span className="text-slate-400">New to the platform? </span>
-              <button
-                onClick={() => { navigate('/register'); setError(''); }}
-                className="text-brand-400 hover:text-brand-300 font-bold ml-1 transition-colors"
-              >
-                Start Free Trial
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* --- 2. REGISTRATION SCREEN --- */}
-        {view === 'register' && (
-          <div>
-            <div className="text-center mb-6">
-              <h2 className="text-3xl font-extrabold tracking-tight text-white mb-1.5">Free Trial</h2>
-              <p className="text-slate-400 text-sm">Create your 14-day full access trial company</p>
-            </div>
-
-            {error && (
-              <div className="mb-4 p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-start text-sm">
-                <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0" />
-                <span>{error}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleRegister} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Company Name</label>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
-                    <Building className="h-4.5 w-4.5" />
-                  </span>
-                  <input
-                    type="text"
-                    required
-                    value={companyName}
-                    onChange={(e) => setCompanyName(e.target.value)}
-                    placeholder="Apex Logistics LLC"
-                    className="block w-full pl-10.5 pr-4 py-2.5 bg-[#111827]/80 border border-[#23324C] hover:border-brand-500/40 rounded-xl text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/35 focus:border-brand-500 transition-all"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Full Name</label>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
-                    <User className="h-4.5 w-4.5" />
-                  </span>
-                  <input
-                    type="text"
-                    required
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Alexander Wright"
-                    className="block w-full pl-10.5 pr-4 py-2.5 bg-[#111827]/80 border border-[#23324C] hover:border-brand-500/40 rounded-xl text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/35 focus:border-brand-500 transition-all"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Business Email</label>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
-                      <Mail className="h-4.5 w-4.5" />
-                    </span>
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="alex@company.com"
-                      className="block w-full pl-10.5 pr-3 py-2.5 bg-[#111827]/80 border border-[#23324C] hover:border-brand-500/40 rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/35 focus:border-brand-500 transition-all"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Phone Number</label>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
-                      <Phone className="h-4.5 w-4.5" />
-                    </span>
-                    <input
-                      type="tel"
-                      required
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="+1 (555) 019-2834"
-                      className="block w-full pl-10.5 pr-3 py-2.5 bg-[#111827]/80 border border-[#23324C] hover:border-brand-500/40 rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/35 focus:border-brand-500 transition-all"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Password</label>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
-                      <Lock className="h-4.5 w-4.5" />
-                    </span>
-                    <input
-                      type="password"
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="block w-full pl-10.5 pr-3 py-2.5 bg-[#111827]/80 border border-[#23324C] hover:border-brand-500/40 rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/35 focus:border-brand-500 transition-all"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-1">Confirm</label>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
-                      <Lock className="h-4.5 w-4.5" />
-                    </span>
-                    <input
-                      type="password"
-                      required
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="block w-full pl-10.5 pr-3 py-2.5 bg-[#111827]/80 border border-[#23324C] hover:border-brand-500/40 rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/35 focus:border-brand-500 transition-all"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-start pt-1">
-                <input
-                  id="agree-terms"
-                  type="checkbox"
-                  required
-                  className="h-4 w-4 mt-0.5 bg-[#111827] border-[#23324C] text-brand-500 focus:ring-brand-500 rounded cursor-pointer"
-                />
-                <label htmlFor="agree-terms" className="ml-2 block text-xs text-slate-400 cursor-pointer select-none leading-relaxed">
-                  I agree to the <a href="#" className="text-brand-400 hover:underline">Terms of Service</a> & <a href="#" className="text-brand-400 hover:underline">Privacy Policy</a>
-                </label>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-3 px-4 font-bold text-white bg-brand-500 hover:bg-brand-600 rounded-xl shadow-lg shadow-brand-500/20 transition-all focus:outline-none disabled:opacity-50 flex items-center justify-center cursor-pointer mt-2"
-              >
-                {isSubmitting ? 'Creating Workspace...' : 'Create Account & Start Trial'}
-                {!isSubmitting && <ArrowRight className="ml-2 h-4 w-4" />}
-              </button>
-            </form>
-
-            <div className="mt-6 text-center text-sm border-t border-[#23324C]/50 pt-5">
-              <span className="text-slate-400">Already registered? </span>
-              <button
-                onClick={() => { navigate('/login'); setError(''); }}
-                className="text-brand-400 hover:text-brand-300 font-bold ml-1 transition-colors"
-              >
-                Login Portal
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* --- 3. FORGOT PASSWORD --- */}
-        {view === 'forgot-password' && (
-          <div>
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-extrabold tracking-tight text-white mb-2">Forgot Password</h2>
-              <p className="text-slate-400 text-sm leading-relaxed max-w-sm mx-auto">
-                Enter your account email. We will generate and dispatch a secure reset link.
-              </p>
-            </div>
-
-            {error && (
-              <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-start text-sm">
-                <AlertCircle className="h-5 w-5 mr-2.5 flex-shrink-0" />
-                <span>{error}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleForgotPassword} className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">Email Address</label>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
-                    <Mail className="h-5 w-5" />
-                  </span>
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@company.com"
-                    className="block w-full pl-10.5 pr-4 py-3 bg-[#111827]/80 border border-[#23324C] hover:border-brand-500/40 rounded-xl text-slate-200 text-sm placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-brand-500/35 focus:border-brand-500 transition-all"
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-3.5 px-4 font-bold text-white bg-brand-500 hover:bg-brand-600 rounded-xl shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 transition-all focus:outline-none disabled:opacity-50 flex items-center justify-center cursor-pointer"
-              >
-                {isSubmitting ? 'Sending Link...' : 'Send Reset Link'}
-              </button>
-            </form>
-
-            <div className="mt-8 text-center text-sm border-t border-[#23324C]/50 pt-6">
-              <button
-                onClick={() => { navigate('/login'); setError(''); }}
-                className="text-slate-400 hover:text-white font-semibold transition-colors"
-              >
-                Back to Login
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* --- 4. RESET PASSWORD --- */}
-        {view === 'reset-password' && (
-          <div>
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-extrabold tracking-tight text-white mb-2">Reset Password</h2>
-              <p className="text-slate-400 text-sm">Create a new secure password for your credentials</p>
-            </div>
-
-            {error && (
-              <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-start text-sm">
-                <AlertCircle className="h-5 w-5 mr-2.5 flex-shrink-0" />
-                <span>{error}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleResetPassword} className="space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">New Password</label>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
-                    <Lock className="h-5 w-5" />
-                  </span>
-                  <input
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="block w-full pl-10.5 pr-4 py-3 bg-[#111827]/80 border border-[#23324C] hover:border-brand-500/40 rounded-xl text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/35 focus:border-brand-500 transition-all"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1.5">Confirm New Password</label>
-                <div className="relative">
-                  <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500">
-                    <Lock className="h-5 w-5" />
-                  </span>
-                  <input
-                    type="password"
-                    required
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="block w-full pl-10.5 pr-4 py-3 bg-[#111827]/80 border border-[#23324C] hover:border-brand-500/40 rounded-xl text-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/35 focus:border-brand-500 transition-all"
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full py-3.5 px-4 font-bold text-white bg-brand-500 hover:bg-brand-600 rounded-xl shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 transition-all focus:outline-none disabled:opacity-50 flex items-center justify-center cursor-pointer"
-              >
-                {isSubmitting ? 'Updating...' : 'Update Password'}
-              </button>
-            </form>
-          </div>
-        )}
-        
-      </div>
+  const divider = (
+    <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "18px 0" }}>
+      <div style={{ flex: 1, height: 1, background: "rgba(51,65,85,0.5)" }} />
+      <span style={{ fontSize: 11, color: "#475569", textTransform: "uppercase", letterSpacing: "0.05em" }}>Or sign in as</span>
+      <div style={{ flex: 1, height: 1, background: "rgba(51,65,85,0.5)" }} />
     </div>
   );
+
+  const alertBox = (msg, isError) => (
+    <div style={{
+      display: "flex", alignItems: "center", gap: 10, padding: "10px 14px",
+      borderRadius: 10, marginBottom: 18, fontSize: 13,
+      background: isError ? "rgba(239,68,68,0.1)" : "rgba(16,185,129,0.1)",
+      border: `1px solid ${isError ? "rgba(239,68,68,0.25)" : "rgba(16,185,129,0.25)"}`,
+      color: isError ? "#fca5a5" : "#6ee7b7",
+    }}>
+      {isError ? <AlertCircle size={15} /> : <CheckCircle2 size={15} />}
+      {msg}
+    </div>
+  );
+
+  // ── LOGIN VIEW ──────────────────────────────────────────────────────────────
+  if (view === "login") {
+    return (
+      <div style={pageStyle}>
+        <BrandPanel />
+        <div style={rightStyle}>
+          {success ? (
+            <div style={{ textAlign: "center" }}>
+              <div style={{ width: 72, height: 72, borderRadius: "50%", background: "rgba(16,185,129,0.1)", border: "2px solid rgba(16,185,129,0.3)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
+                <CheckCircle2 size={32} color="#10b981" />
+              </div>
+              <h2 style={{ ...headingStyle, textAlign: "center" }}>Authenticated!</h2>
+              <p style={{ ...subStyle, textAlign: "center" }}>{success}</p>
+              <div style={{ width: 40, height: 3, background: "linear-gradient(90deg, #0ea5e9, #6366f1)", borderRadius: 4, margin: "0 auto", animation: "pulse 1s infinite" }} />
+            </div>
+          ) : (
+            <div style={cardStyle}>
+              <div style={{ marginBottom: 28 }}>
+                <h2 style={headingStyle}>Welcome back</h2>
+                <p style={subStyle}>Enter credentials, then select your role dashboard</p>
+              </div>
+
+              {error && alertBox(error, true)}
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                <Field label="Email Address" icon={Mail} type="email" value={email}
+                  onChange={e => { setEmail(e.target.value); resetFeedback(); }}
+                  placeholder="admin@hero.com" />
+                <Field label="Password" icon={Lock} type="password" value={password}
+                  onChange={e => { setPassword(e.target.value); resetFeedback(); }}
+                  placeholder="••••••••"
+                  action={
+                    <button style={{ ...linkBtn, fontSize: 11 }} onClick={() => navigate("/forgot-password")}>
+                      Forgot password?
+                    </button>
+                  } />
+              </div>
+
+              {divider}
+
+              {/* 9 Role Cards */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+                {ROLES.map(r => {
+                  const Icon = r.icon;
+                  return (
+                    <button
+                      key={r.label}
+                      onClick={() => handleRoleClick(r)}
+                      style={{
+                        padding: "12px 8px", borderRadius: 10, cursor: "pointer",
+                        background: r.bg, border: `1px solid ${r.color}30`,
+                        display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
+                        transition: "all 0.2s", fontFamily: "'Outfit', sans-serif",
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.border = `1px solid ${r.color}80`; e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = `0 8px 24px ${r.color}20`; }}
+                      onMouseLeave={e => { e.currentTarget.style.border = `1px solid ${r.color}30`; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}
+                    >
+                      <span style={{ width: 32, height: 32, borderRadius: 8, background: `${r.color}18`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        <Icon size={15} color={r.color} />
+                      </span>
+                      <span style={{ fontSize: 10, fontWeight: 600, color: "#cbd5e1", textAlign: "center", lineHeight: 1.3 }}>
+                        {r.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              <div style={{ textAlign: "center", marginTop: 24, fontSize: 13, color: "#475569" }}>
+                New to platform?{" "}
+                <button style={linkBtn} onClick={() => navigate("/register")}>Start Free Trial</button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ── REGISTER VIEW ───────────────────────────────────────────────────────────
+  if (view === "register") {
+    return (
+      <div style={pageStyle}>
+        <BrandPanel />
+        <div style={rightStyle}>
+          <div style={cardStyle}>
+            <div style={{ marginBottom: 24 }}>
+              <h2 style={headingStyle}>Start Free Trial</h2>
+              <p style={subStyle}>14-day full access · No credit card required</p>
+            </div>
+
+            {error && alertBox(error, true)}
+            {success && alertBox(success, false)}
+
+            <form onSubmit={handleRegister} style={{ display: "flex", flexDirection: "column", gap: 13 }}>
+              <Field label="Company Name" icon={Building} value={companyName}
+                onChange={e => setCompanyName(e.target.value)} placeholder="Apex Logistics LLC" />
+              <Field label="Full Name" icon={User} value={fullName}
+                onChange={e => setFullName(e.target.value)} placeholder="John Smith" />
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <Field label="Business Email" icon={Mail} type="email" value={email}
+                  onChange={e => setEmail(e.target.value)} placeholder="you@company.com" />
+                <Field label="Phone" icon={Phone} type="tel" value={phone}
+                  onChange={e => setPhone(e.target.value)} placeholder="+91 98765 43210" />
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <Field label="Password" icon={Lock} type="password" value={password}
+                  onChange={e => setPassword(e.target.value)} placeholder="••••••••" />
+                <Field label="Confirm" icon={Lock} type="password" value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)} placeholder="••••••••" />
+              </div>
+
+              <label style={{ display: "flex", gap: 8, alignItems: "flex-start", fontSize: 12, color: "#64748b", cursor: "pointer" }}>
+                <input type="checkbox" required style={{ marginTop: 2, accentColor: "#0ea5e9" }} />
+                <span>I agree to the <button type="button" style={{ ...linkBtn, fontSize: 12 }}>Terms of Service</button> and <button type="button" style={{ ...linkBtn, fontSize: 12 }}>Privacy Policy</button></span>
+              </label>
+
+              <button type="submit" style={btnPrimary} disabled={submitting}>
+                {submitting ? "Creating workspace…" : "Create Account & Start Trial"} <ArrowRight size={15} />
+              </button>
+            </form>
+
+            <div style={{ textAlign: "center", marginTop: 20, fontSize: 13, color: "#475569" }}>
+              Already registered?{" "}
+              <button style={linkBtn} onClick={() => navigate("/login")}>Login Portal</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── FORGOT PASSWORD VIEW ────────────────────────────────────────────────────
+  if (view === "forgot-password") {
+    return (
+      <div style={pageStyle}>
+        <BrandPanel />
+        <div style={rightStyle}>
+          <div style={cardStyle}>
+            <div style={{ marginBottom: 28 }}>
+              <h2 style={headingStyle}>Forgot Password?</h2>
+              <p style={subStyle}>Enter your email to receive a secure reset link</p>
+            </div>
+
+            {error && alertBox(error, true)}
+            {success && alertBox(success, false)}
+
+            <form onSubmit={handleForgot} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <Field label="Email Address" icon={Mail} type="email" value={email}
+                onChange={e => setEmail(e.target.value)} placeholder="name@company.com" />
+              <button type="submit" style={btnPrimary} disabled={submitting}>
+                {submitting ? "Sending…" : "Send Reset Link"} <ArrowRight size={15} />
+              </button>
+            </form>
+
+            <div style={{ textAlign: "center", marginTop: 24 }}>
+              <button style={linkBtn} onClick={() => navigate("/login")}>← Back to Login</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── RESET PASSWORD VIEW ─────────────────────────────────────────────────────
+  if (view === "reset-password") {
+    return (
+      <div style={pageStyle}>
+        <BrandPanel />
+        <div style={rightStyle}>
+          <div style={cardStyle}>
+            <div style={{ marginBottom: 28 }}>
+              <h2 style={headingStyle}>Reset Password</h2>
+              <p style={subStyle}>Create a new secure password for your account</p>
+            </div>
+
+            {error && alertBox(error, true)}
+            {success && alertBox(success, false)}
+
+            <form onSubmit={handleReset} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <Field label="New Password" icon={Lock} type="password" value={password}
+                onChange={e => setPassword(e.target.value)} placeholder="••••••••" />
+              <Field label="Confirm New Password" icon={Lock} type="password" value={confirmPassword}
+                onChange={e => setConfirmPassword(e.target.value)} placeholder="••••••••" />
+              <button type="submit" style={btnPrimary} disabled={submitting}>
+                {submitting ? "Updating…" : "Update Password"} <ArrowRight size={15} />
+              </button>
+            </form>
+
+            <div style={{ textAlign: "center", marginTop: 24 }}>
+              <button style={linkBtn} onClick={() => navigate("/login")}>← Back to Login</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
 }

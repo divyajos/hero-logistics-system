@@ -34,19 +34,31 @@ export function useAuth() {
   return useContext(AuthContext);
 }
 
+const ROLE_ROUTES = {
+  'Super Admin': '/super-admin-dashboard',
+  'Sales': '/sales-dashboard',
+  'Company Admin': '/company-admin-dashboard',
+  'Dispatcher': '/dispatcher-dashboard',
+  'Driver': '/driver-dashboard',
+  'Warehouse Manager': '/warehouse-dashboard',
+  'Yard Attendant': '/yard-attendant-dashboard',
+  'Accounts': '/accounts-dashboard',
+  'Customer': '/customer-dashboard',
+};
+
 // Protected Route Component with Role Based Access Control
 export function ProtectedRoute({ children, allowedRoles }) {
   const { user } = useAuth();
   const location = useLocation();
 
   if (!user) {
-    // Redirect to login page but save the original location they tried to access
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    // User role is not permitted to see this page. Redirect to dashboard root.
-    return <Navigate to="/dashboard" replace />;
+    // Redirect to user's own dashboard
+    const correctRoute = ROLE_ROUTES[user.role] || '/dashboard';
+    return <Navigate to={correctRoute} replace />;
   }
 
   return children;
