@@ -22,9 +22,7 @@ import {
   Plus, Check, ArrowRight, ArrowLeft, Trash2, Edit, FileText, ChevronRight
 } from 'lucide-react';
 
-export default function SalesDashboard() {
-  const { tab } = useParams();
-  const activeTab = tab || 'overview';
+export default function SalesDashboard({ activeTab = 'overview' }) {
   const dispatch = useDispatch();
   const reduxCompany = useSelector((state) => state.company);
 

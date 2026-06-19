@@ -25,9 +25,7 @@ import {
 } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
-export default function CompanyAdminDashboard() {
-  const { tab } = useParams();
-  const activeTab = tab || 'overview';
+export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
   const dispatch = useDispatch();
   const { fleet, loading: fleetLoading } = useSelector((state) => state.vehicles);
   const { drivers, loading: driversLoading } = useSelector((state) => state.drivers);

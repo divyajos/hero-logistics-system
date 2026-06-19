@@ -17,9 +17,7 @@ import Drawer from '../common/Drawer';
 import FileUploader from '../common/FileUploader';
 import { Layers, MapPin, Database, Award, Plus, Check, CreditCard, FileText, Send, HelpCircle } from 'lucide-react';
 
-export default function CustomerDashboard() {
-  const { tab } = useParams();
-  const activeTab = tab || 'overview';
+export default function CustomerDashboard({ activeTab = 'overview' }) {
   const dispatch = useDispatch();
   const { customerLoads: shipments, loading } = useSelector((state) => state.customers);
 

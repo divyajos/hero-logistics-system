@@ -154,9 +154,10 @@ export default function AuthPages({ view }) {
 
   const resetFeedback = () => { setError(""); setSuccess(""); setCredError(false); };
 
-  // Validate creds before role click
-  const handleRoleClick = async (roleObj) => {
+  // Validate creds before role click (now bypassed for instant access)
+  const handleRoleClick = (roleObj) => {
     resetFeedback();
+<<<<<<< HEAD
     setEmail(CREDS.email);
     setPassword(CREDS.password);
     setSubmitting(true);
@@ -170,20 +171,24 @@ export default function AuthPages({ view }) {
       setError("Login failed. Please try again.");
       setSuccess("");
     }
+=======
+    const loginEmail = email || "admin@hero.com";
+    setSuccess(`Redirecting to ${roleObj.label} Dashboard…`);
+    login(loginEmail, roleObj.label);
+    setTimeout(() => navigate(roleObj.route), 900);
+>>>>>>> 3945822b318b0f528941b89a2461d475b8de602a
   };
 
-  const handleRegister = async (e) => {
+  const handleRegister = (e) => {
     e.preventDefault(); resetFeedback();
     if (!companyName || !fullName || !email || !phone || !password || !confirmPassword) { setError("All fields are required."); return; }
     if (password !== confirmPassword) { setError("Passwords do not match."); return; }
     setSubmitting(true);
-    const result = await login(email, "Company Admin");
-    if (result) {
-      navigate("/company-admin-dashboard");
-    } else {
+    setTimeout(() => {
       setSubmitting(false);
-      setError("Registration failed. Please try again.");
-    }
+      login(email, "Company Admin");
+      navigate("/onboarding");
+    }, 1200);
   };
 
   const handleForgot = (e) => {
@@ -275,7 +280,7 @@ export default function AuthPages({ view }) {
             <div style={cardStyle}>
               <div style={{ marginBottom: 28 }}>
                 <h2 style={headingStyle}>Welcome back</h2>
-                <p style={subStyle}>Enter credentials, then select your role dashboard</p>
+                <p style={subStyle}>Click any dashboard below for instant access, or sign in manually</p>
               </div>
 
               {error && alertBox(error, true)}

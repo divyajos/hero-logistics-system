@@ -27,9 +27,7 @@ import {
   QrCode, Camera, RefreshCw, Move, CheckSquare, Shield, Activity, List
 } from 'lucide-react';
 
-export default function WarehouseDashboard() {
-  const { tab } = useParams();
-  const activeTab = tab || 'overview';
+export default function WarehouseDashboard({ activeTab = 'overview' }) {
   const dispatch = useDispatch();
   const { inventory, occupancy, scansCount, crossDockCount, movements, assets, loading } = useSelector((state) => state.warehouse);
 
