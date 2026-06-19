@@ -1,3 +1,4 @@
+import { useParams } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAccountsData, addLedgerEntry } from '../../store/slices/accountsSlice';
@@ -20,7 +21,9 @@ import {
   Trash2, Edit2, Download, TrendingUp, Users, Calendar
 } from 'lucide-react';
 
-export default function AccountsDashboard({ activeTab = 'overview' }) {
+export default function AccountsDashboard() {
+  const { tab } = useParams();
+  const activeTab = tab || 'overview';
   const dispatch = useDispatch();
   const { ledgers, factoringCount, payrollCount, balanceDue, loading } = useSelector((state) => state.accounts);
 

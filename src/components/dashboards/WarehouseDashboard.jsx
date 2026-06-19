@@ -1,3 +1,4 @@
+import { useParams } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { 
@@ -26,7 +27,9 @@ import {
   QrCode, Camera, RefreshCw, Move, CheckSquare, Shield, Activity, List
 } from 'lucide-react';
 
-export default function WarehouseDashboard({ activeTab = 'overview' }) {
+export default function WarehouseDashboard() {
+  const { tab } = useParams();
+  const activeTab = tab || 'overview';
   const dispatch = useDispatch();
   const { inventory, occupancy, scansCount, crossDockCount, movements, assets, loading } = useSelector((state) => state.warehouse);
 
