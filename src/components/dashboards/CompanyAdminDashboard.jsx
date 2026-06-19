@@ -1,3 +1,4 @@
+import { useParams } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchVehicles, addVehicle, updateVehicle, deleteVehicle } from '../../store/slices/vehiclesSlice';
@@ -24,7 +25,9 @@ import {
 } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
-export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
+export default function CompanyAdminDashboard() {
+  const { tab } = useParams();
+  const activeTab = tab || 'overview';
   const dispatch = useDispatch();
   const { fleet, loading: fleetLoading } = useSelector((state) => state.vehicles);
   const { drivers, loading: driversLoading } = useSelector((state) => state.drivers);

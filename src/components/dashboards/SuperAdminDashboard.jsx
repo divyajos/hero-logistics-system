@@ -1,3 +1,4 @@
+import { useParams } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchTenants, provisionTenant } from '../../store/slices/companySlice';
@@ -22,7 +23,9 @@ import {
   AlertCircle, MessageSquare
 } from 'lucide-react';
 
-export default function SuperAdminDashboard({ activeTab = 'overview' }) {
+export default function SuperAdminDashboard() {
+  const { tab } = useParams();
+  const activeTab = tab || 'overview';
   const dispatch = useDispatch();
   const { tenants, mrr, platformLoad, slaTarget, loading } = useSelector((state) => state.company);
 

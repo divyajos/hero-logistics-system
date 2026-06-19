@@ -1,3 +1,4 @@
+import { useParams } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchLoads, updateLoadStatus } from '../../store/slices/loadsSlice';
@@ -16,7 +17,9 @@ import {
   DollarSign, ShieldAlert, Plus, Upload, Heart, Lock
 } from 'lucide-react';
 
-export default function DriverDashboard({ activeTab = 'overview' }) {
+export default function DriverDashboard() {
+  const { tab } = useParams();
+  const activeTab = tab || 'overview';
   const dispatch = useDispatch();
   const { items: loads } = useSelector((state) => state.loads);
 
