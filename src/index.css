@@ -1,0 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-800 dark:bg-[#0B0F19] dark:text-slate-200 antialiased selection:bg-brand-500 selection:text-white transition-colors duration-200;
+    font-family: 'Outfit', 'Inter', sans-serif;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-slate-100 dark:bg-[#0B0F19];
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 dark:bg-[#23324C];
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #0ea0ea;
+  }
+}
+
+/* Custom premium styles */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.dark .glass {
+  background: rgba(22, 31, 48, 0.7);
+  border: 1px solid rgba(35, 50, 76, 0.5);
+  box-shadow: none;
+}
+
+.glass-light {
+  background: rgba(248, 250, 252, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(226, 232, 240, 0.5);
+}
+
+.dark .glass-light {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glow-hover:hover {
+  box-shadow: 0 0 20px rgba(14, 160, 234, 0.4);
+  border-color: rgba(14, 160, 234, 0.6);
+}
+
+/* Animations helpers */
+.animate-delay-100 {
+  animation-delay: 100ms;
+}
+.animate-delay-200 {
+  animation-delay: 200ms;
+}
+.animate-delay-300 {
+  animation-delay: 300ms;
+}
+.animate-delay-400 {
+  animation-delay: 400ms;
+}
+.animate-delay-500 {
+  animation-delay: 500ms;
+}
+
+/* Hide arrow scroll buttons in number input */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+/* Light mode overrides for hardcoded dark classes */
+.light header,
+.light aside,
+.light footer,
+.light .bg-\[\#161F30\],
+.light .bg-\[\#111827\],
+.light .bg-\[\#111827\]\/80,
+.light .bg-\[\#161F30\]\/30,
+.light .bg-\[\#161F30\]\/40,
+.light .bg-\[\#161F30\]\/50,
+.light .bg-\[\#161F30\]\/60,
+.light .bg-\[\#161f30\]\/60,
+.light .bg-\[\#161F30\]\/80,
+.light .bg-\[\#0f1624\]\/40,
+.light .bg-\[\#0f1624\]\/60,
+.light .bg-slate-900,
+.light .bg-\[\#111827\]\/95 {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.light .border-\[\#23324C\],
+.light .border-\[\#23324C\]\/30,
+.light .border-\[\#23324C\]\/40,
+.light .border-\[\#23324C\]\/60 {
+  border-color: #e2e8f0 !important;
+}
+
+.light .text-slate-100,
+.light .text-slate-200,
+.light .text-slate-300,
+.light .text-white {
+  color: #0f172a !important;
+}
+
+.light .text-slate-400 {
+  color: #475569 !important;
+}
+
+.light .text-slate-500 {
+  color: #64748b !important;
+}
+
+.light input,
+.light select,
+.light textarea {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.light table thead,
+.light .bg-\[\#161F30\] {
+  background-color: #f8fafc !important;
+  color: #334155 !important;
+}
+
+.light tr:hover {
+  background-color: rgba(241, 245, 249, 0.6) !important;
+}
+
+.light .text-brand-400 {
+  color: #0280c7 !important;
+}
+
+.light .bg-brand-500\/10 {
+  background-color: rgba(14, 160, 234, 0.1) !important;
+}
+
