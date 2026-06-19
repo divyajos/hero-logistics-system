@@ -26,9 +26,7 @@ import {
   MapPin, MessageSquare, ArrowRight, ArrowLeft, Send, Calendar as CalendarIcon, FileText, Activity, Trash2
 } from 'lucide-react';
 
-export default function DispatchDashboard() {
-  const { tab } = useParams();
-  const activeTab = tab || 'overview';
+export default function DispatchDashboard({ activeTab = 'overview' }) {
   const dispatch = useDispatch();
   const { items: loads, unassignedCount, driverCount, delayCount, loading } = useSelector((state) => state.loads);
   const { drivers } = useSelector((state) => state.drivers);

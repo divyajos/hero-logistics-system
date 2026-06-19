@@ -21,9 +21,7 @@ import {
   Trash2, Edit2, Download, TrendingUp, Users, Calendar
 } from 'lucide-react';
 
-export default function AccountsDashboard() {
-  const { tab } = useParams();
-  const activeTab = tab || 'overview';
+export default function AccountsDashboard({ activeTab = 'overview' }) {
   const dispatch = useDispatch();
   const { ledgers, factoringCount, payrollCount, balanceDue, loading } = useSelector((state) => state.accounts);
 

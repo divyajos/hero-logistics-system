@@ -17,9 +17,7 @@ import {
   DollarSign, ShieldAlert, Plus, Upload, Heart, Lock
 } from 'lucide-react';
 
-export default function DriverDashboard() {
-  const { tab } = useParams();
-  const activeTab = tab || 'overview';
+export default function DriverDashboard({ activeTab = 'overview' }) {
   const dispatch = useDispatch();
   const { items: loads } = useSelector((state) => state.loads);
 

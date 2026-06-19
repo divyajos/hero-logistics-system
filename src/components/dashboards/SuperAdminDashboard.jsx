@@ -23,9 +23,7 @@ import {
   AlertCircle, MessageSquare
 } from 'lucide-react';
 
-export default function SuperAdminDashboard() {
-  const { tab } = useParams();
-  const activeTab = tab || 'overview';
+export default function SuperAdminDashboard({ activeTab = 'overview' }) {
   const dispatch = useDispatch();
   const { tenants, mrr, platformLoad, slaTarget, loading } = useSelector((state) => state.company);
 
