@@ -18,7 +18,7 @@ import MiniChart from '../common/MiniChart';
 import { KpiGridSkeleton, TableSkeleton } from '../common/Skeletons';
 import { 
   Layers, MapPin, Database, Award, Check, DollarSign, 
-  Trash2, Edit2, Download, TrendingUp, Users, Calendar
+  Trash2, Edit2, Download, TrendingUp, Users, Calendar, Plus
 } from 'lucide-react';
 
 export default function AccountsDashboard({ activeTab = 'overview' }) {
