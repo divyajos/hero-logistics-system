@@ -56,7 +56,12 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-12">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center cursor-pointer" onClick={() => navigate('/')}>
-            <img src={heroLogo} alt="Hero Logistics Logo" className="h-10 w-auto object-contain hover:scale-105 transition-transform duration-300" />
+            <div className="mr-2.5 p-1 bg-neutral-900 rounded-xl border border-[#2E2E2E] shadow-lg shadow-black/20 flex items-center justify-center hover:scale-105 transition-transform duration-300">
+              <img src={heroLogo} alt="Hero Logistics Logo" className="h-7 w-auto object-contain" />
+            </div>
+            <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-slate-100 to-brand-500 bg-clip-text text-transparent">
+              HERO<span className="text-brand-500 font-medium">LOGISTICS</span>
+            </span>
           </div>
 
           {/* Desktop Navigation */}
@@ -94,10 +99,10 @@ export default function Navbar() {
             </a>
             <button
               onClick={() => navigate('/register')}
-              className="px-4.5 py-2 text-sm font-extrabold text-slate-950 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 rounded-lg shadow-md shadow-brand-500/20 hover:shadow-brand-500/35 transition-all duration-200 flex items-center group cursor-pointer"
+              className="px-6 py-2 text-sm font-extrabold text-slate-950 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 rounded-lg shadow-md shadow-brand-500/20 hover:shadow-brand-500/35 hover:scale-[1.03] active:scale-[0.97] transition-all duration-200 flex items-center justify-center gap-1 group cursor-pointer"
             >
               Start Free Trial
-              <ChevronRight className="h-4 w-4 ml-0.5 group-hover:translate-x-0.5 transition-transform" />
+              <ChevronRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
             </button>
           </div>
 

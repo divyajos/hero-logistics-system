@@ -119,12 +119,13 @@ export default function Sidebar({ activeTab, setActiveTab, mobileOpen, setMobile
       <div>
         <div className="flex items-center justify-between p-4.5 border-b border-[#2E2E2E]/60 h-16">
           <div className="flex items-center overflow-hidden">
-            {collapsed ? (
-              <div className="w-9 h-9 flex items-center justify-center rounded-xl bg-neutral-900 border border-[#2E2E2E] shadow-lg shadow-black/20 flex-shrink-0">
-                <img src={heroLogo} alt="Hero Logo" className="h-6 w-6 object-contain" />
-              </div>
-            ) : (
-              <img src={heroLogo} alt="Hero Logistics Logo" className="h-10 w-auto object-contain hover:scale-105 transition-transform duration-300 animate-fade-in" />
+            <div className="mr-3 p-1 bg-neutral-900 border border-[#2E2E2E] rounded-xl flex-shrink-0 w-9 h-9 flex items-center justify-center shadow-lg shadow-black/20 hover:scale-105 transition-transform duration-300">
+              <img src={heroLogo} alt="Hero Logistics Logo" className="h-6 w-auto object-contain" />
+            </div>
+            {!collapsed && (
+              <span className="font-extrabold text-md tracking-tight text-white whitespace-nowrap animate-fade-in">
+                HERO<span className="text-brand-500 font-medium">LOGISTICS</span>
+              </span>
             )}
           </div>
           

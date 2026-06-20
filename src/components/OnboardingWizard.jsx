@@ -100,7 +100,10 @@ export default function OnboardingWizard() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#23324C]/60 pb-6 mb-8 gap-4">
           <div>
             <span className="font-extrabold text-lg tracking-tight text-white flex items-center gap-2">
-              <img src={heroLogo} alt="Hero Logistics Logo" className="h-10 w-auto object-contain hover:scale-105 transition-transform duration-300" />
+              <div className="p-0.5 bg-neutral-900 border border-[#2E2E2E] rounded-lg">
+                <img src={heroLogo} alt="Hero Logistics Logo" className="h-6 w-auto object-contain" />
+              </div>
+              HERO<span className="text-brand-500 font-medium">LOGISTICS</span>
             </span>
             <h2 className="text-xl font-bold text-slate-200 mt-1.5">SaaS Onboarding Setup Wizard</h2>
           </div>
@@ -574,7 +577,7 @@ export default function OnboardingWizard() {
             <button
               onClick={prevStep}
               disabled={currentStep === 1}
-              className="px-4.5 py-2.5 rounded-xl border border-[#23324C] hover:border-brand-500/30 text-slate-300 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center text-sm cursor-pointer"
+              className="px-5 py-2.5 rounded-xl border border-[#23324C] hover:border-brand-500/30 text-slate-300 hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-all flex items-center text-sm cursor-pointer"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back
