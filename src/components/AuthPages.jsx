@@ -90,13 +90,7 @@ function BrandPanel() {
       <div style={{ position: "relative", zIndex: 1 }}>
         {/* Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 52 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 12, background: "#141414", border: "1px solid #2E2E2E", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 24px rgba(255,212,0,0.2)" }}>
-            <img src={heroLogo} alt="Hero Logistics Logo" style={{ height: 26, width: "auto", objectFit: "contain" }} />
-          </div>
-          <div>
-            <div style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 18, color: "#f1f5f9", letterSpacing: "-0.02em" }}>Hero Logistics</div>
-            <div style={{ fontSize: 11, color: "#64748b", letterSpacing: "0.1em", textTransform: "uppercase" }}>Enterprise Suite</div>
-          </div>
+          <img src={heroLogo} alt="Hero Logistics Logo" style={{ height: 36, width: "auto", objectFit: "contain" }} />
         </div>
 
         <h1 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 36, lineHeight: 1.15, color: "#f1f5f9", marginBottom: 16, letterSpacing: "-0.03em" }}>

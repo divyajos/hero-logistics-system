@@ -38,12 +38,7 @@ export default function Footer() {
           {/* Logo & Description */}
           <div className="lg:col-span-2">
             <div className="flex items-center mb-4">
-              <div className="mr-2.5 p-1 bg-neutral-900 border border-[#2E2E2E] rounded-xl flex items-center justify-center shadow-lg shadow-black/20 hover:scale-105 transition-transform duration-300">
-                <img src={heroLogo} alt="Hero Logistics Logo" className="h-6 w-auto object-contain" />
-              </div>
-              <span className="font-extrabold text-lg tracking-tight text-white">
-                HERO<span className="text-brand-500 font-medium">LOGISTICS</span>
-              </span>
+              <img src={heroLogo} alt="Hero Logistics Logo" className="h-8 w-auto object-contain hover:scale-105 transition-transform duration-300" />
             </div>
             <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-sm">
               The complete logistics operating system. Streamline your dispatching, routing, drivers, billing, and fleet tracking under one secure, cloud-based platform.
