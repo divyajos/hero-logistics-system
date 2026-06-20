@@ -56,7 +56,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-12">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center cursor-pointer" onClick={() => navigate('/')}>
-            <img src={heroLogo} alt="Hero Logistics Logo" className="h-9 w-auto object-contain hover:scale-105 transition-transform duration-300" />
+            <img src={heroLogo} alt="Hero Logistics Logo" className="h-10 w-auto object-contain hover:scale-105 transition-transform duration-300" />
           </div>
 
           {/* Desktop Navigation */}

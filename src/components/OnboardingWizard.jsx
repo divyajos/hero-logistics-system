@@ -100,7 +100,7 @@ export default function OnboardingWizard() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#23324C]/60 pb-6 mb-8 gap-4">
           <div>
             <span className="font-extrabold text-lg tracking-tight text-white flex items-center gap-2">
-              <img src={heroLogo} alt="Hero Logistics Logo" className="h-7 w-auto object-contain hover:scale-105 transition-transform duration-300" />
+              <img src={heroLogo} alt="Hero Logistics Logo" className="h-10 w-auto object-contain hover:scale-105 transition-transform duration-300" />
             </span>
             <h2 className="text-xl font-bold text-slate-200 mt-1.5">SaaS Onboarding Setup Wizard</h2>
           </div>
