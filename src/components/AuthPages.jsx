@@ -95,7 +95,7 @@ function BrandPanel() {
           </div>
           <div>
             <div style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 18, color: "#f1f5f9", letterSpacing: "-0.02em" }}>Hero Logistics</div>
-            <div style={{ fontSize: 11, color: "#64748b", letterSpacing: "0.1em", textTransform: "uppercase" }}>Enterprise Suite</div>
+            <div style={{ fontSize: 11, color: "#64748b", letterSpacing: "0.1em", textTransform: "uppercase" }}>logistic software</div>
           </div>
         </div>
 
