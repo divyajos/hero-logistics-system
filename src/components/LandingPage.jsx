@@ -309,7 +309,7 @@ export default function LandingPage({ setView }) {
             
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.08]">
               Complete Logistics <br className="hidden sm:inline" />
-              <span className="bg-gradient-to-r from-brand-500 via-brand-400 to-indigo-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-brand-500 via-brand-500 to-brand-600 bg-clip-text text-transparent">
                 Operating System
               </span>
             </h1>
@@ -321,7 +321,7 @@ export default function LandingPage({ setView }) {
             <div className="flex flex-col sm:flex-row gap-4 pt-2">
               <button 
                 onClick={() => setView('register')}
-                className="px-8 py-4 bg-brand-500 hover:bg-brand-600 font-extrabold text-white rounded-xl shadow-xl shadow-brand-500/25 hover:shadow-brand-500/40 transition-all text-sm flex items-center justify-center gap-2 group cursor-pointer"
+                className="px-8 py-4 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 font-extrabold text-slate-950 rounded-xl shadow-xl shadow-brand-500/25 hover:shadow-brand-500/40 transition-all text-sm flex items-center justify-center gap-2 group cursor-pointer"
               >
                 Start Free Trial
                 <ArrowRight className="h-4.5 w-4.5 group-hover:translate-x-1 transition-transform" />
@@ -381,7 +381,7 @@ export default function LandingPage({ setView }) {
             </div>
 
             {/* Overlapping Floating Driver App Panel */}
-            <div className="absolute -bottom-6 -left-4 w-44 bg-[#161F30] border border-[#23324C]/80 rounded-2xl p-3 shadow-2xl flex flex-col justify-between hover:translate-y-[-5px] transition-transform duration-300 animate-float">
+            <div className="hidden sm:flex absolute -bottom-6 -left-4 w-44 bg-[#161F30] border border-[#23324C]/80 rounded-2xl p-3 shadow-2xl flex-col justify-between hover:translate-y-[-5px] transition-transform duration-300 animate-float">
               <div className="text-[8px] text-slate-400 font-bold border-b border-[#23324C] pb-1 flex justify-between items-center">
                 <span>DRIVER: DONALD S.</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
@@ -397,7 +397,7 @@ export default function LandingPage({ setView }) {
             </div>
 
             {/* Overlapping Floating GPS Path Panel */}
-            <div className="absolute -top-6 -right-4 w-48 bg-[#161F30] border border-[#23324C]/80 rounded-2xl p-3 shadow-2xl flex flex-col justify-between hover:translate-y-[-5px] transition-transform duration-300 animate-float animate-delay-300">
+            <div className="hidden sm:flex absolute -top-6 -right-4 w-48 bg-[#161F30] border border-[#23324C]/80 rounded-2xl p-3 shadow-2xl flex-col justify-between hover:translate-y-[-5px] transition-transform duration-300 animate-float animate-delay-300">
               <div className="text-[8px] text-slate-400 font-bold border-b border-[#23324C] pb-1 flex justify-between items-center">
                 <span>📍 LIVE GPS ROUTE</span>
                 <span className="text-[7px] text-brand-400">ETA 12 MIN</span>
@@ -499,7 +499,7 @@ export default function LandingPage({ setView }) {
                 onClick={() => setActiveSolution(sol.name)}
                 className={`px-5 py-2.5 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
                   activeSolution === sol.name
-                    ? 'bg-brand-500 border-brand-400 text-white shadow-lg shadow-brand-500/20'
+                    ? 'bg-brand-500 border-brand-400 text-slate-950 font-black shadow-lg shadow-brand-500/20'
                     : 'bg-[#161F30] border-[#23324C] text-slate-400 hover:text-white'
                 }`}
               >
@@ -583,7 +583,7 @@ export default function LandingPage({ setView }) {
               <p className="text-slate-400 text-xs leading-relaxed">{screenshots.find(s => s.name === activeScreenshot)?.desc}</p>
               <button 
                 onClick={() => setView('register')}
-                className="px-4 py-2 bg-brand-500 hover:bg-brand-600 rounded-lg text-xs font-bold text-white transition-all cursor-pointer"
+                className="px-4 py-2 bg-brand-500 hover:bg-brand-600 rounded-lg text-xs font-black text-slate-950 transition-all cursor-pointer"
               >
                 Try Interface
               </button>
@@ -621,7 +621,7 @@ export default function LandingPage({ setView }) {
                 }`}
               >
                 {plan.popular && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-brand-500 border border-brand-400 rounded-full text-[10px] font-black text-white uppercase tracking-wider">
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-brand-500 border border-brand-400 rounded-full text-[10px] font-black text-slate-950 uppercase tracking-wider">
                     Most Popular
                   </span>
                 )}
@@ -648,9 +648,9 @@ export default function LandingPage({ setView }) {
 
                 <button 
                   onClick={() => setView(plan.name === 'Enterprise' ? 'login' : 'register')}
-                  className={`w-full py-3 px-4 font-bold text-sm rounded-xl transition-all cursor-pointer ${
+                  className={`w-full py-3 px-4 font-black text-sm rounded-xl transition-all cursor-pointer ${
                     plan.popular
-                      ? 'bg-brand-500 hover:bg-brand-600 text-white shadow-lg shadow-brand-500/25'
+                      ? 'bg-brand-500 hover:bg-brand-600 text-slate-950 shadow-lg shadow-brand-500/25'
                       : 'bg-slate-800/40 hover:bg-slate-800 text-slate-300 hover:text-white border border-[#23324C]'
                   }`}
                 >
@@ -893,7 +893,7 @@ export default function LandingPage({ setView }) {
                   <div className="flex flex-col sm:flex-row gap-3.5 pt-2">
                     <button
                       type="submit"
-                      className="px-6 py-3 bg-brand-500 hover:bg-brand-600 text-white font-extrabold rounded-xl shadow-lg shadow-brand-500/20 hover:shadow-brand-500/35 transition-all text-xs cursor-pointer flex-1 text-center"
+                      className="px-6 py-3 bg-brand-500 hover:bg-brand-600 text-slate-950 font-black rounded-xl shadow-lg shadow-brand-500/20 hover:shadow-brand-500/35 transition-all text-xs cursor-pointer flex-1 text-center"
                     >
                       Send Inquiry
                     </button>

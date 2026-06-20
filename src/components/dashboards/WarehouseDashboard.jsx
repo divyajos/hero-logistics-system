@@ -300,14 +300,14 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
               <div className="lg:col-span-8 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
                 <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
                   <h3 className="text-sm font-extrabold text-white">Pallets Database</h3>
-                  <div className="flex gap-2 w-full sm:w-auto">
-                    <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} onClear={() => setSearch('')} placeholder="Search SKU..." className="max-w-[150px]" />
+                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                    <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} onClear={() => setSearch('')} placeholder="Search SKU..." className="w-full sm:max-w-[150px]" />
                     <SelectInput value={filterBay} onChange={(e) => setFilterBay(e.target.value)} options={[
                       { value: '', label: 'All Bays' },
                       { value: 'Bay A', label: 'Bay A' },
                       { value: 'Bay B', label: 'Bay B' },
                       { value: 'Bay C', label: 'Bay C' }
-                    ]} className="max-w-[120px]" />
+                    ]} className="w-full sm:max-w-[120px]" />
                   </div>
                 </div>
 

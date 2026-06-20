@@ -24,7 +24,7 @@ export default function Drawer({ isOpen, onClose, title, children }) {
         onClick={onClose}
       ></div>
 
-      <div className="absolute inset-y-0 right-0 max-w-full flex pl-10">
+      <div className="absolute inset-y-0 right-0 max-w-full flex pl-4 sm:pl-10">
         {/* Sliding Panel */}
         <div className="w-screen max-w-md bg-[#161F30] border-l border-[#23324C] shadow-2xl flex flex-col justify-between animate-slide-in-right relative">
           

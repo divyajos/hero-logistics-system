@@ -7,6 +7,7 @@ import {
   Truck, Shield, BarChart3, Package, Warehouse, 
   ClipboardList, UserCheck, Calculator, ShoppingCart, ChevronRight
 } from "lucide-react";
+import heroLogo from "../assets/hero.png";
 
 // ─── Role Config ────────────────────────────────────────────────────────────
 const ROLES = [
@@ -69,27 +70,28 @@ function Field({ label, icon: Icon, type = "text", value, onChange, placeholder,
 // ─── Left Branding Panel ─────────────────────────────────────────────────────
 function BrandPanel() {
   return (
-    <div style={{
+    <div className="hidden lg:flex" style={{
       width: "42%", minHeight: "100vh", position: "relative", overflow: "hidden",
-      background: "linear-gradient(135deg, #0f172a 0%, #0c1a2e 50%, #071020 100%)",
-      display: "flex", flexDirection: "column", justifyContent: "center", padding: "48px 44px",
+      background: "linear-gradient(135deg, #0B0B0B 0%, #1F1F1F 50%, #0B0B0B 100%)",
+      flexDirection: "column", justifyContent: "center", padding: "48px 44px",
       flexShrink: 0,
+      borderRight: "1px solid #2E2E2E"
     }}>
       {/* Grid lines */}
       <div style={{
-        position: "absolute", inset: 0, opacity: 0.06,
-        backgroundImage: "linear-gradient(rgba(14,165,233,1) 1px, transparent 1px), linear-gradient(90deg, rgba(14,165,233,1) 1px, transparent 1px)",
+        position: "absolute", inset: 0, opacity: 0.05,
+        backgroundImage: "linear-gradient(rgba(255,212,0,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,212,0,1) 1px, transparent 1px)",
         backgroundSize: "40px 40px",
       }} />
       {/* Glow orbs */}
-      <div style={{ position: "absolute", top: "15%", left: "10%", width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, rgba(14,165,233,0.2) 0%, transparent 70%)", pointerEvents: "none" }} />
-      <div style={{ position: "absolute", bottom: "15%", right: "-5%", width: 220, height: 220, borderRadius: "50%", background: "radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", top: "15%", left: "10%", width: 280, height: 280, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,212,0,0.12) 0%, transparent 70%)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", bottom: "15%", right: "-5%", width: 220, height: 220, borderRadius: "50%", background: "radial-gradient(circle, rgba(255,154,0,0.08) 0%, transparent 70%)", pointerEvents: "none" }} />
 
       <div style={{ position: "relative", zIndex: 1 }}>
         {/* Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 52 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 12, background: "linear-gradient(135deg, #0ea5e9, #6366f1)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 24px rgba(14,165,233,0.5)" }}>
-            <Truck size={22} color="#fff" />
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: "#141414", border: "1px solid #2E2E2E", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 0 24px rgba(255,212,0,0.2)" }}>
+            <img src={heroLogo} alt="Hero Logistics Logo" style={{ height: 26, width: "auto", objectFit: "contain" }} />
           </div>
           <div>
             <div style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 18, color: "#f1f5f9", letterSpacing: "-0.02em" }}>Hero Logistics</div>
@@ -99,7 +101,7 @@ function BrandPanel() {
 
         <h1 style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 36, lineHeight: 1.15, color: "#f1f5f9", marginBottom: 16, letterSpacing: "-0.03em" }}>
           The Complete<br />
-          <span style={{ background: "linear-gradient(90deg, #0ea5e9, #a855f7)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Logistics OS</span>
+          <span style={{ background: "linear-gradient(90deg, #FFD400, #FF9A00)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Logistics OS</span>
         </h1>
         <p style={{ fontSize: 14, color: "#64748b", lineHeight: 1.7, marginBottom: 48, maxWidth: 320 }}>
           Manage fleets, dispatch loads, track drivers, run warehouses — all from one powerful platform built for modern logistics companies.
@@ -109,7 +111,7 @@ function BrandPanel() {
         <div style={{ display: "flex", gap: 24, marginBottom: 48 }}>
           {[["9", "Dashboards"], ["24/7", "Live GPS"], ["100%", "Uptime SLA"]].map(([val, lbl]) => (
             <div key={lbl}>
-              <div style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 22, color: "#0ea5e9" }}>{val}</div>
+              <div style={{ fontFamily: "'Outfit', sans-serif", fontWeight: 800, fontSize: 22, color: "#FFD400" }}>{val}</div>
               <div style={{ fontSize: 11, color: "#475569", textTransform: "uppercase", letterSpacing: "0.05em" }}>{lbl}</div>
             </div>
           ))}
@@ -118,7 +120,7 @@ function BrandPanel() {
         {/* Feature pills */}
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
           {["Real-time GPS", "AI Dispatch", "Driver App", "Warehouse WMS", "Payroll", "Customer Portal"].map(f => (
-            <span key={f} style={{ padding: "5px 12px", borderRadius: 20, fontSize: 11, fontWeight: 600, background: "rgba(14,165,233,0.08)", border: "1px solid rgba(14,165,233,0.2)", color: "#7dd3fc" }}>
+            <span key={f} style={{ padding: "5px 12px", borderRadius: 20, fontSize: 11, fontWeight: 600, background: "rgba(255,212,0,0.06)", border: "1px solid rgba(255,212,0,0.2)", color: "#FFD400" }}>
               {f}
             </span>
           ))}
@@ -127,8 +129,8 @@ function BrandPanel() {
 
       {/* Bottom hint */}
       <div style={{ position: "absolute", bottom: 24, left: 44, right: 44, zIndex: 1 }}>
-        <div style={{ padding: "12px 16px", borderRadius: 10, background: "rgba(14,165,233,0.06)", border: "1px solid rgba(14,165,233,0.12)", fontSize: 12, color: "#475569" }}>
-          <span style={{ color: "#0ea5e9", fontWeight: 700 }}>Demo credentials:</span>  admin@hero.com &nbsp;/&nbsp; 123456
+        <div style={{ padding: "12px 16px", borderRadius: 10, background: "rgba(255,212,0,0.04)", border: "1px solid rgba(255,212,0,0.1)", fontSize: 12, color: "#64748b" }}>
+          <span style={{ color: "#FFD400", fontWeight: 700 }}>Demo credentials:</span>  admin@hero.com &nbsp;/&nbsp; 123456
         </div>
       </div>
     </div>
@@ -155,14 +157,14 @@ export default function AuthPages({ view }) {
   const resetFeedback = () => { setError(""); setSuccess(""); setCredError(false); };
 
   // Validate creds before role click (now bypassed for instant access)
-  const handleRoleClick = (roleObj) => {
+  const handleRoleClick = async (roleObj) => {
     resetFeedback();
-<<<<<<< HEAD
-    setEmail(CREDS.email);
+    const loginEmail = email || CREDS.email;
+    setEmail(loginEmail);
     setPassword(CREDS.password);
     setSubmitting(true);
     setSuccess(`Logging in as ${roleObj.label}…`);
-    const result = await login(CREDS.email, roleObj.label);
+    const result = await login(loginEmail, roleObj.label);
     if (result) {
       setSuccess(`Redirecting to ${roleObj.label} Dashboard…`);
       setTimeout(() => navigate(roleObj.route), 600);
@@ -171,12 +173,6 @@ export default function AuthPages({ view }) {
       setError("Login failed. Please try again.");
       setSuccess("");
     }
-=======
-    const loginEmail = email || "admin@hero.com";
-    setSuccess(`Redirecting to ${roleObj.label} Dashboard…`);
-    login(loginEmail, roleObj.label);
-    setTimeout(() => navigate(roleObj.route), 900);
->>>>>>> 3945822b318b0f528941b89a2461d475b8de602a
   };
 
   const handleRegister = (e) => {
@@ -208,18 +204,18 @@ export default function AuthPages({ view }) {
 
   // Shared wrapper styles
   const pageStyle = {
-    minHeight: "100vh", display: "flex", background: "#080e1a",
+    minHeight: "100vh", display: "flex", background: "#0B0B0B",
     fontFamily: "'Outfit', 'Inter', sans-serif",
   };
 
   const rightStyle = {
     flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
     padding: "32px 40px", overflowY: "auto",
-    background: "radial-gradient(ellipse at 60% 40%, rgba(14,165,233,0.04) 0%, transparent 60%)",
+    background: "radial-gradient(ellipse at 60% 40%, rgba(255,212,0,0.03) 0%, transparent 60%)",
   };
 
   const cardStyle = {
-    width: "100%", maxWidth: 480,
+    width: "100%", maxWidth: 480, margin: "0 auto"
   };
 
   const headingStyle = {
@@ -231,14 +227,14 @@ export default function AuthPages({ view }) {
 
   const btnPrimary = {
     width: "100%", padding: "12px 20px", borderRadius: 10, border: "none", cursor: "pointer",
-    background: "linear-gradient(135deg, #0ea5e9, #6366f1)", color: "#fff",
-    fontWeight: 700, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
-    boxShadow: "0 4px 20px rgba(14,165,233,0.3)", transition: "opacity 0.2s",
+    background: "linear-gradient(135deg, #FFD400, #FF9A00)", color: "#0B0B0B",
+    fontWeight: 800, fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+    boxShadow: "0 4px 20px rgba(255,212,0,0.25)", transition: "opacity 0.2s",
     opacity: submitting ? 0.6 : 1,
     fontFamily: "'Outfit', sans-serif",
   };
 
-  const linkBtn = { background: "none", border: "none", cursor: "pointer", color: "#0ea5e9", fontWeight: 700, fontSize: 13 };
+  const linkBtn = { background: "none", border: "none", cursor: "pointer", color: "#FF9A00", fontWeight: 700, fontSize: 13 };
 
   const divider = (
     <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "18px 0" }}>
@@ -264,9 +260,11 @@ export default function AuthPages({ view }) {
   // ── LOGIN VIEW ──────────────────────────────────────────────────────────────
   if (view === "login") {
     return (
-      <div style={pageStyle}>
+      <div className="min-h-screen flex flex-col lg:flex-row bg-[#0B0B0B]" style={{ fontFamily: "'Outfit', 'Inter', sans-serif" }}>
         <BrandPanel />
-        <div style={rightStyle}>
+        <div className="flex-1 flex items-center justify-center px-4 py-8 sm:px-10 overflow-y-auto" style={{
+          background: "radial-gradient(ellipse at 60% 40%, rgba(255,212,0,0.03) 0%, transparent 60%)",
+        }}>
           {success ? (
             <div style={{ textAlign: "center" }}>
               <div style={{ width: 72, height: 72, borderRadius: "50%", background: "rgba(16,185,129,0.1)", border: "2px solid rgba(16,185,129,0.3)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 20px" }}>
@@ -274,7 +272,7 @@ export default function AuthPages({ view }) {
               </div>
               <h2 style={{ ...headingStyle, textAlign: "center" }}>Authenticated!</h2>
               <p style={{ ...subStyle, textAlign: "center" }}>{success}</p>
-              <div style={{ width: 40, height: 3, background: "linear-gradient(90deg, #0ea5e9, #6366f1)", borderRadius: 4, margin: "0 auto", animation: "pulse 1s infinite" }} />
+              <div style={{ width: 40, height: 3, background: "linear-gradient(90deg, #FFD400, #FF9A00)", borderRadius: 4, margin: "0 auto", animation: "pulse 1s infinite" }} />
             </div>
           ) : (
             <div style={cardStyle}>
@@ -302,7 +300,7 @@ export default function AuthPages({ view }) {
               {divider}
 
               {/* 9 Role Cards */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                 {ROLES.map(r => {
                   const Icon = r.icon;
                   return (
@@ -343,9 +341,11 @@ export default function AuthPages({ view }) {
   // ── REGISTER VIEW ───────────────────────────────────────────────────────────
   if (view === "register") {
     return (
-      <div style={pageStyle}>
+      <div className="min-h-screen flex flex-col lg:flex-row bg-[#0B0B0B]" style={{ fontFamily: "'Outfit', 'Inter', sans-serif" }}>
         <BrandPanel />
-        <div style={rightStyle}>
+        <div className="flex-1 flex items-center justify-center px-4 py-8 sm:px-10 overflow-y-auto" style={{
+          background: "radial-gradient(ellipse at 60% 40%, rgba(255,212,0,0.03) 0%, transparent 60%)",
+        }}>
           <div style={cardStyle}>
             <div style={{ marginBottom: 24 }}>
               <h2 style={headingStyle}>Start Free Trial</h2>
@@ -360,13 +360,13 @@ export default function AuthPages({ view }) {
                 onChange={e => setCompanyName(e.target.value)} placeholder="Apex Logistics LLC" />
               <Field label="Full Name" icon={User} value={fullName}
                 onChange={e => setFullName(e.target.value)} placeholder="John Smith" />
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Field label="Business Email" icon={Mail} type="email" value={email}
                   onChange={e => setEmail(e.target.value)} placeholder="you@company.com" />
                 <Field label="Phone" icon={Phone} type="tel" value={phone}
                   onChange={e => setPhone(e.target.value)} placeholder="+91 98765 43210" />
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Field label="Password" icon={Lock} type="password" value={password}
                   onChange={e => setPassword(e.target.value)} placeholder="••••••••" />
                 <Field label="Confirm" icon={Lock} type="password" value={confirmPassword}
@@ -374,7 +374,7 @@ export default function AuthPages({ view }) {
               </div>
 
               <label style={{ display: "flex", gap: 8, alignItems: "flex-start", fontSize: 12, color: "#64748b", cursor: "pointer" }}>
-                <input type="checkbox" required style={{ marginTop: 2, accentColor: "#0ea5e9" }} />
+                <input type="checkbox" required style={{ marginTop: 2, accentColor: "#FF9A00" }} />
                 <span>I agree to the <button type="button" style={{ ...linkBtn, fontSize: 12 }}>Terms of Service</button> and <button type="button" style={{ ...linkBtn, fontSize: 12 }}>Privacy Policy</button></span>
               </label>
 
@@ -396,9 +396,11 @@ export default function AuthPages({ view }) {
   // ── FORGOT PASSWORD VIEW ────────────────────────────────────────────────────
   if (view === "forgot-password") {
     return (
-      <div style={pageStyle}>
+      <div className="min-h-screen flex flex-col lg:flex-row bg-[#0B0B0B]" style={{ fontFamily: "'Outfit', 'Inter', sans-serif" }}>
         <BrandPanel />
-        <div style={rightStyle}>
+        <div className="flex-1 flex items-center justify-center px-4 py-8 sm:px-10 overflow-y-auto" style={{
+          background: "radial-gradient(ellipse at 60% 40%, rgba(255,212,0,0.03) 0%, transparent 60%)",
+        }}>
           <div style={cardStyle}>
             <div style={{ marginBottom: 28 }}>
               <h2 style={headingStyle}>Forgot Password?</h2>
@@ -428,9 +430,11 @@ export default function AuthPages({ view }) {
   // ── RESET PASSWORD VIEW ─────────────────────────────────────────────────────
   if (view === "reset-password") {
     return (
-      <div style={pageStyle}>
+      <div className="min-h-screen flex flex-col lg:flex-row bg-[#0B0B0B]" style={{ fontFamily: "'Outfit', 'Inter', sans-serif" }}>
         <BrandPanel />
-        <div style={rightStyle}>
+        <div className="flex-1 flex items-center justify-center px-4 py-8 sm:px-10 overflow-y-auto" style={{
+          background: "radial-gradient(ellipse at 60% 40%, rgba(255,212,0,0.03) 0%, transparent 60%)",
+        }}>
           <div style={cardStyle}>
             <div style={{ marginBottom: 28 }}>
               <h2 style={headingStyle}>Reset Password</h2>

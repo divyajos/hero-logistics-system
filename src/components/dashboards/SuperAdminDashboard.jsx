@@ -231,14 +231,14 @@ export default function SuperAdminDashboard({ activeTab = 'overview' }) {
             <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
               <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
                 <h3 className="text-sm font-extrabold text-white">Registered Tenant workspaces</h3>
-                <div className="flex gap-2 w-full sm:w-auto">
-                  <SearchInput value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onClear={() => setSearchQuery('')} placeholder="Search workspaces..." className="max-w-[200px]" />
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                  <SearchInput value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onClear={() => setSearchQuery('')} placeholder="Search workspaces..." className="w-full sm:max-w-[200px]" />
                   <SelectInput value={filterPlan} onChange={(e) => setFilterPlan(e.target.value)} options={[
                     { value: '', label: 'All Tiers' },
                     { value: 'Starter', label: 'Starter Tier' },
                     { value: 'Professional', label: 'Professional Tier' },
                     { value: 'Enterprise', label: 'Enterprise Tier' }
-                  ]} className="max-w-[150px]" />
+                  ]} className="w-full sm:max-w-[150px]" />
                 </div>
               </div>
 

@@ -4,6 +4,7 @@ import {
   Building2, MapPin, Users, Truck, Briefcase, CheckCircle2, 
   Plus, Trash2, ArrowLeft, ArrowRight, Upload, Shield 
 } from 'lucide-react';
+import heroLogo from '../assets/hero.png';
 
 export default function OnboardingWizard() {
   const navigate = useNavigate();
@@ -98,10 +99,13 @@ export default function OnboardingWizard() {
         {/* Header Branding */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#23324C]/60 pb-6 mb-8 gap-4">
           <div>
-            <span className="font-extrabold text-lg tracking-tight text-white">
+            <span className="font-extrabold text-lg tracking-tight text-white flex items-center gap-2">
+              <div className="p-0.5 bg-neutral-900 border border-[#2E2E2E] rounded-lg">
+                <img src={heroLogo} alt="Hero Logistics Logo" className="h-6 w-auto object-contain" />
+              </div>
               HERO<span className="text-brand-500 font-medium">LOGISTICS</span>
             </span>
-            <h2 className="text-xl font-bold text-slate-200 mt-1">SaaS Onboarding Setup Wizard</h2>
+            <h2 className="text-xl font-bold text-slate-200 mt-1.5">SaaS Onboarding Setup Wizard</h2>
           </div>
           <span className="text-xs font-semibold px-3 py-1.5 bg-brand-500/10 border border-brand-500/30 text-brand-400 rounded-lg self-start sm:self-center">
             Step {currentStep} of 6
@@ -126,7 +130,7 @@ export default function OnboardingWizard() {
               <div key={step.num} className="relative z-10 flex flex-col items-center">
                 <div className={`h-11 w-11 rounded-xl flex items-center justify-center border transition-all duration-300 ${
                   isActive 
-                    ? 'bg-brand-500 border-brand-400 text-white shadow-lg shadow-brand-500/30 scale-110' 
+                    ? 'bg-brand-500 border-brand-400 text-slate-950 shadow-lg shadow-brand-500/30 scale-110' 
                     : isCompleted
                       ? 'bg-emerald-500 border-emerald-400 text-white'
                       : 'bg-[#161F30] border-[#23324C] text-slate-400'
@@ -255,7 +259,7 @@ export default function OnboardingWizard() {
                   />
                   <button
                     onClick={addBranch}
-                    className="px-4 py-2 bg-brand-500 hover:bg-brand-600 rounded-lg text-white text-xs font-bold flex items-center gap-1 cursor-pointer"
+                    className="px-4 py-2 bg-brand-500 hover:bg-brand-600 rounded-lg text-slate-950 text-xs font-black flex items-center gap-1 cursor-pointer"
                   >
                     <Plus className="h-4 w-4" /> Add
                   </button>
@@ -323,7 +327,7 @@ export default function OnboardingWizard() {
                   </select>
                   <button
                     onClick={addUser}
-                    className="px-4 py-2 bg-brand-500 hover:bg-brand-600 rounded-lg text-white text-xs font-bold flex items-center gap-1 cursor-pointer"
+                    className="px-4 py-2 bg-brand-500 hover:bg-brand-600 rounded-lg text-slate-950 text-xs font-black flex items-center gap-1 cursor-pointer"
                   >
                     <Plus className="h-4 w-4" /> Invite
                   </button>
@@ -414,7 +418,7 @@ export default function OnboardingWizard() {
                   </select>
                   <button
                     onClick={addVehicle}
-                    className="px-4 py-2 bg-brand-500 hover:bg-brand-600 rounded-lg text-white text-xs font-bold flex items-center gap-1 cursor-pointer"
+                    className="px-4 py-2 bg-brand-500 hover:bg-brand-600 rounded-lg text-slate-950 text-xs font-black flex items-center gap-1 cursor-pointer"
                   >
                     <Plus className="h-4 w-4" /> Add
                   </button>
@@ -491,7 +495,7 @@ export default function OnboardingWizard() {
                   </select>
                   <button
                     onClick={addCustomer}
-                    className="px-4 py-2 bg-brand-500 hover:bg-brand-600 rounded-lg text-white text-xs font-bold flex items-center gap-1 cursor-pointer"
+                    className="px-4 py-2 bg-brand-500 hover:bg-brand-600 rounded-lg text-slate-950 text-xs font-black flex items-center gap-1 cursor-pointer"
                   >
                     <Plus className="h-4 w-4" /> Add
                   </button>
@@ -557,7 +561,7 @@ export default function OnboardingWizard() {
 
               <button
                 onClick={() => navigate('/dashboard')}
-                className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-brand-500 to-emerald-500 hover:from-brand-600 hover:to-emerald-600 text-white font-extrabold rounded-xl shadow-xl shadow-brand-500/20 hover:shadow-brand-500/35 transition-all text-sm cursor-pointer"
+                className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-brand-500 to-emerald-500 hover:from-brand-600 hover:to-emerald-600 text-slate-950 font-black rounded-xl shadow-xl shadow-brand-500/20 hover:shadow-brand-500/35 transition-all text-sm cursor-pointer"
               >
                 Launch Company Admin Dashboard
                 <ArrowRight className="h-4.5 w-4.5 ml-2" />
@@ -590,7 +594,7 @@ export default function OnboardingWizard() {
               )}
               <button
                 onClick={nextStep}
-                className="px-6 py-2.5 bg-brand-500 hover:bg-brand-600 text-white font-bold rounded-xl shadow-lg shadow-brand-500/20 transition-all flex items-center text-sm cursor-pointer"
+                className="px-6 py-2.5 bg-gradient-to-r from-brand-500 to-brand-600 hover:from-brand-600 hover:to-brand-700 text-slate-950 font-extrabold rounded-xl shadow-lg shadow-brand-500/20 hover:shadow-brand-500/35 transition-all flex items-center text-sm cursor-pointer"
               >
                 Save & Continue
                 <ArrowRight className="h-4 w-4 ml-2" />

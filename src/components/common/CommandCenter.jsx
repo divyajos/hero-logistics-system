@@ -154,14 +154,14 @@ export default function CommandCenter({ setActiveTab }) {
                   onClick={() => handleSelect(item)}
                   className={`w-full flex items-center justify-between p-3 rounded-xl transition-all text-left cursor-pointer select-none gap-4 ${
                     isSelected 
-                      ? 'bg-brand-500 text-white shadow-md shadow-brand-500/15' 
+                      ? 'bg-brand-500 text-slate-950 shadow-md shadow-brand-500/15' 
                       : 'hover:bg-slate-50 dark:hover:bg-[#0b0f19]/40 text-slate-700 dark:text-slate-300'
                   }`}
                   onMouseEnter={() => setSelectedIndex(idx)}
                 >
                   <div className="flex items-center gap-3">
                     <CategoryIcon className={`h-4.5 w-4.5 flex-shrink-0 ${
-                      isSelected ? 'text-white' : 'text-slate-400 dark:text-slate-500'
+                      isSelected ? 'text-slate-950' : 'text-slate-400 dark:text-slate-500'
                     }`} />
                     <div className="text-xs">
                       <span className="font-extrabold block leading-tight">{item.title}</span>
@@ -169,7 +169,7 @@ export default function CommandCenter({ setActiveTab }) {
                   </div>
                   <span className={`text-[9px] font-bold font-mono uppercase tracking-wider px-2 py-0.5 rounded-md ${
                     isSelected 
-                      ? 'bg-white/20 text-white' 
+                      ? 'bg-slate-950/15 text-slate-950' 
                       : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500'
                   }`}>
                     {item.category}

@@ -15,6 +15,7 @@ import StatusBadge from '../common/StatusBadge';
 import Modal from '../common/Modal';
 import Drawer from '../common/Drawer';
 import FileUploader from '../common/FileUploader';
+import { TableSkeleton } from '../common/Skeletons';
 import { Layers, MapPin, Database, Award, Plus, Check, CreditCard, FileText, Send, HelpCircle } from 'lucide-react';
 
 export default function CustomerDashboard({ activeTab = 'overview' }) {
@@ -200,15 +201,15 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
             <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
               <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
                 <h3 className="text-sm font-extrabold text-white">Shipped Cargo Manifests</h3>
-                <div className="flex gap-2 w-full sm:w-auto">
-                  <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} onClear={() => setSearch('')} className="max-w-[200px]" />
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                  <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} onClear={() => setSearch('')} className="w-full sm:max-w-[200px]" />
                   <SelectInput value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} options={[
                     { value: '', label: 'All Shipments' },
                     { value: 'Transit', label: 'In Transit' },
                     { value: 'Scheduled', label: 'Scheduled Match' },
                     { value: 'Delivered', label: 'Delivered' },
                     { value: 'Pending', label: 'Awaiting Matching' }
-                  ]} className="max-w-[150px]" />
+                  ]} className="w-full sm:max-w-[150px]" />
                 </div>
               </div>
 
@@ -335,7 +336,7 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
       <Modal isOpen={bookModalOpen} onClose={() => setBookModalOpen(false)} title="Book New Cargo Shipment Load">
         <form onSubmit={handleBookLoadSubmit} className="space-y-4">
           <TextInput label="Cargo Specs / Items" required placeholder="e.g. Dry Grocery Pallets" value={cargoName} onChange={(e) => setCargoName(e.target.value)} />
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <TextInput label="Cargo Weight (lbs)" required type="number" placeholder="e.g. 12000" value={cargoWeight} onChange={(e) => setCargoWeight(e.target.value)} />
             <TextInput label="Route Path Origin/Dest" required placeholder="e.g. Chicago IL ➔ Atlanta GA" value={routePath} onChange={(e) => setRoutePath(e.target.value)} />
           </div>
@@ -355,7 +356,7 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
             </div>
             
             <TextInput label="Credit Card Number" required placeholder="xxxx-xxxx-xxxx-xxxx" value={cardNumber} onChange={(e) => setCardNumber(e.target.value)} />
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <TextInput label="Expiration Date" required placeholder="MM/YY" value={cardExpiry} onChange={(e) => setCardExpiry(e.target.value)} />
               <TextInput label="Security Code CVV" required type="password" placeholder="***" maxLength={3} />
             </div>

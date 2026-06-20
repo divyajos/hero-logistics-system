@@ -197,14 +197,14 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
             <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
               <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
                 <h3 className="text-sm font-extrabold text-white">Shippers invoice ledger</h3>
-                <div className="flex gap-2 w-full sm:w-auto">
-                  <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} onClear={() => setSearch('')} className="max-w-[200px]" />
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                  <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} onClear={() => setSearch('')} className="w-full sm:max-w-[200px]" />
                   <SelectInput value={filterType} onChange={(e) => setFilterType(e.target.value)} options={[
                     { value: '', label: 'All Ledgers' },
                     { value: 'Invoice', label: 'Shipper Invoices' },
                     { value: 'Driver Pay', label: 'Driver Pay' },
                     { value: 'Factoring', label: 'Factoring Funding' }
-                  ]} className="max-w-[150px]" />
+                  ]} className="w-full sm:max-w-[150px]" />
                 </div>
               </div>
 

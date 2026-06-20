@@ -329,7 +329,7 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
       {/* Branches Setup Screen */}
       {activeTab === 'branches' && (
         <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
             <h3 className="text-sm font-extrabold text-white">Branch Depots</h3>
             <SearchInput value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onClear={() => setSearchQuery('')} className="max-w-[200px]" />
           </div>
@@ -349,7 +349,7 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
       {/* Customer / Shipper Settings Screen */}
       {activeTab === 'customers' && (
         <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
             <h3 className="text-sm font-extrabold text-white">Customer Shipper Database</h3>
             <SearchInput value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onClear={() => setSearchQuery('')} className="max-w-[200px]" />
           </div>
@@ -369,7 +369,7 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
       {/* Driver Registry Screen */}
       {activeTab === 'drivers' && (
         <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
             <h3 className="text-sm font-extrabold text-white">Active Driver Registry</h3>
             <SearchInput value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onClear={() => setSearchQuery('')} className="max-w-[200px]" />
           </div>
@@ -390,7 +390,7 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
       {/* Fleet Register Screen */}
       {activeTab === 'fleet' && (
         <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
             <h3 className="text-sm font-extrabold text-white">Active Fleet Vehicles</h3>
             <SearchInput value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onClear={() => setSearchQuery('')} className="max-w-[200px]" />
           </div>
@@ -417,7 +417,7 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
       {/* Trailer Spots Screen */}
       {activeTab === 'trailers' && (
         <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
             <h3 className="text-sm font-extrabold text-white">Trailer Spots Registry</h3>
             <SearchInput value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onClear={() => setSearchQuery('')} className="max-w-[200px]" />
           </div>

@@ -6,6 +6,7 @@ import {
   ChevronRight, MapPin, Layers, Key, Home, HelpCircle, Calendar,
   Bell, FileSignature, DollarSign, Activity, AlertTriangle, QrCode
 } from 'lucide-react';
+import heroLogo from '../../assets/hero.png';
 
 export default function Sidebar({ activeTab, setActiveTab, mobileOpen, setMobileOpen }) {
   const { user, logout } = useAuth();
@@ -108,18 +109,18 @@ export default function Sidebar({ activeTab, setActiveTab, mobileOpen, setMobile
 
   return (
     <aside className={`
-      bg-[#161F30] border-r border-[#23324C] h-screen flex flex-col justify-between
-      fixed md:sticky top-0 bottom-0 left-0 transition-all duration-300 z-40
+      bg-[#1F1F1F] border-r border-[#2E2E2E] h-screen flex flex-col justify-between
+      fixed md:sticky top-0 bottom-0 left-0 transition-all duration-300 z-50
       ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
       ${collapsed ? 'w-20' : 'w-64'}
     `}>
       
       {/* Top Brand Logo */}
       <div>
-        <div className="flex items-center justify-between p-4.5 border-b border-[#23324C]/60 h-16">
+        <div className="flex items-center justify-between p-4.5 border-b border-[#2E2E2E]/60 h-16">
           <div className="flex items-center overflow-hidden">
-            <div className="p-2 bg-brand-500 rounded-xl mr-3 flex-shrink-0">
-              <Truck className="h-5 w-5 text-white" />
+            <div className="mr-3 p-1 bg-neutral-900 border border-[#2E2E2E] rounded-xl flex-shrink-0 w-9 h-9 flex items-center justify-center shadow-lg shadow-black/20 hover:scale-105 transition-transform duration-300">
+              <img src={heroLogo} alt="Hero Logistics Logo" className="h-6 w-auto object-contain" />
             </div>
             {!collapsed && (
               <span className="font-extrabold text-md tracking-tight text-white whitespace-nowrap animate-fade-in">
@@ -151,12 +152,12 @@ export default function Sidebar({ activeTab, setActiveTab, mobileOpen, setMobile
                 }}
                 className={`w-full flex items-center p-3 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                   isActive 
-                    ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/20' 
+                    ? 'bg-brand-500 text-slate-950 font-black shadow-lg shadow-brand-500/20' 
                     : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/20'
                 }`}
                 title={item.label}
               >
-                <Icon className={`h-5 w-5 flex-shrink-0 ${isActive ? 'text-white' : 'text-slate-400 group-hover:text-slate-200'}`} />
+                <Icon className={`h-5 w-5 flex-shrink-0 ${isActive ? 'text-slate-950' : 'text-slate-400 group-hover:text-slate-200'}`} />
                 {!collapsed && <span className="ml-3 animate-fade-in">{item.label}</span>}
               </button>
             );

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Truck } from 'lucide-react';
+import heroLogo from '../assets/hero.png';
 
 const TwitterIcon = (props) => (
   <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -31,14 +32,14 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-[#070A12] border-t border-[#23324C]/60 pt-16 pb-8">
+    <footer className="bg-[#0B0B0B] border-t border-[#2E2E2E]/60 pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
           {/* Logo & Description */}
           <div className="lg:col-span-2">
             <div className="flex items-center mb-4">
-              <div className="p-2 bg-brand-500 rounded-xl mr-2.5 flex items-center justify-center">
-                <Truck className="h-5 w-5 text-white" />
+              <div className="mr-2.5 p-1 bg-neutral-900 border border-[#2E2E2E] rounded-xl flex items-center justify-center shadow-lg shadow-black/20 hover:scale-105 transition-transform duration-300">
+                <img src={heroLogo} alt="Hero Logistics Logo" className="h-6 w-auto object-contain" />
               </div>
               <span className="font-extrabold text-lg tracking-tight text-white">
                 HERO<span className="text-brand-500 font-medium">LOGISTICS</span>
@@ -103,7 +104,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-[#23324C]/40 pt-8 mt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <div className="border-t border-[#2E2E2E]/40 pt-8 mt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div>
             &copy; {currentYear} Hero Systems Inc. All rights reserved. Built for logistics excellence.
           </div>

@@ -266,7 +266,7 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
             
             <div className="divide-y divide-[#23324C]/40">
               {reports.map(rep => (
-                <div key={rep.id} className="py-3 flex justify-between items-center text-xs gap-4">
+                <div key={rep.id} className="py-3 flex flex-col sm:flex-row justify-between sm:items-center text-xs gap-4">
                   <div className="space-y-1">
                     <div className="flex gap-2 items-center">
                       <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${

@@ -54,7 +54,7 @@ export default function DashboardLayout({ role: roleProp }) {
 
       {mobileSidebarOpen && (
         <div
-          className="fixed inset-0 bg-[#0B0F19]/60 backdrop-blur-xs z-39 md:hidden"
+          className="fixed inset-0 bg-[#0B0F19]/60 backdrop-blur-xs z-45 md:hidden"
           onClick={() => setMobileSidebarOpen(false)}
         />
       )}

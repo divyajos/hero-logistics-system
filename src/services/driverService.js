@@ -2,8 +2,7 @@ import apiClient from '../api/apiClient';
 
 const driverService = {
   getDrivers: async () => {
-    // In our mock, dispatch returns drivers count and lists, or we can resolve a general user role query
-    const response = await apiClient.get('dashboard/dispatch');
+    const response = await apiClient.get('drivers');
     return response.data;
   },
 

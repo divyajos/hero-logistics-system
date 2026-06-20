@@ -248,15 +248,15 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
             <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
               <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
                 <h3 className="text-sm font-extrabold text-white">Active leads index</h3>
-                <div className="flex gap-2 w-full sm:w-auto">
-                  <SearchInput value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onClear={() => setSearchQuery('')} placeholder="Search leads..." className="max-w-[200px]" />
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                  <SearchInput value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onClear={() => setSearchQuery('')} placeholder="Search leads..." className="w-full sm:max-w-[200px]" />
                   <SelectInput value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} options={[
                     { value: '', label: 'All Pipelines' },
                     { value: 'Pending', label: 'Pending Inquiry' },
                     { value: 'Demo Scheduled', label: 'Demo Scheduled' },
                     { value: 'Completed', label: 'Completed' },
                     { value: 'Delayed', label: 'Delayed Follow Up' }
-                  ]} className="max-w-[150px]" />
+                  ]} className="w-full sm:max-w-[150px]" />
                 </div>
               </div>
 
@@ -388,7 +388,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                     }`}>
                       <span className="text-[10px] font-mono font-bold text-slate-500">{day}</span>
                       {hasEvent && (
-                        <div className="bg-brand-500 text-white rounded p-1 text-[8px] font-extrabold font-sans leading-tight truncate" title="Follow up call scheduled.">
+                        <div className="bg-brand-500 text-slate-950 rounded p-1 text-[8px] font-extrabold font-sans leading-tight truncate" title="Follow up call scheduled.">
                           Follow Up
                         </div>
                       )}

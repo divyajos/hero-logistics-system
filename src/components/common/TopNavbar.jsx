@@ -40,7 +40,7 @@ export default function TopNavbar({ onNotificationClick, notificationCount = 3, 
   if (!user) return null;
 
   return (
-    <header className="bg-[#161F30] border-b border-[#23324C] h-16 flex items-center justify-between px-6 sticky top-0 z-35">
+    <header className="bg-[#161F30] border-b border-[#23324C] h-16 flex items-center justify-between px-6 sticky top-0 z-40">
       {/* Mobile Sidebar Hamburger Toggle */}
       <button
         onClick={onMenuClick}

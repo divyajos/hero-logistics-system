@@ -223,7 +223,7 @@ export default function DataTable({
       </div>
 
       {/* Main Table Container (Sticky Header and Height Caps) */}
-      <div className="border border-slate-200 dark:border-[#23324C] rounded-2xl overflow-hidden bg-white dark:bg-[#161F30]/30 shadow-sm dark:shadow-inner max-h-[500px] overflow-y-auto relative">
+      <div className="border border-slate-200 dark:border-[#23324C] rounded-2xl overflow-x-auto overflow-y-auto bg-white dark:bg-[#161F30]/30 shadow-sm dark:shadow-inner max-h-[500px] relative">
         <table className="min-w-full text-left border-collapse text-slate-600 dark:text-slate-300">
           <thead className="bg-slate-100 dark:bg-[#161F30] border-b border-slate-200 dark:border-[#23324C] text-[10px] font-bold tracking-wider uppercase text-slate-500 dark:text-slate-400 sticky top-0 z-20">
             <tr>
@@ -303,7 +303,7 @@ export default function DataTable({
 
       {/* Pagination Footer */}
       {!loading && totalPages > 1 && (
-        <div className="border-t border-slate-200 dark:border-[#23324C] bg-slate-50 dark:bg-[#161F30]/50 p-4 flex items-center justify-between gap-4 text-xs font-semibold rounded-b-2xl">
+        <div className="border-t border-slate-200 dark:border-[#23324C] bg-slate-50 dark:bg-[#161F30]/50 p-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold rounded-b-2xl text-center sm:text-left">
           <span className="text-slate-500 dark:text-slate-400 font-semibold font-mono">
             Showing <strong className="text-slate-700 dark:text-slate-200">{(currentPage - 1) * itemsPerPage + 1}</strong> to{' '}
             <strong className="text-slate-700 dark:text-slate-200">{Math.min(currentPage * itemsPerPage, data.length)}</strong> of{' '}

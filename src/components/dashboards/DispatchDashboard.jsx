@@ -461,8 +461,8 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
             <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
               <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
                 <h3 className="text-sm font-extrabold text-white">Active Cargo Loads</h3>
-                <div className="flex gap-2 w-full sm:w-auto">
-                  <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} onClear={() => setSearch('')} className="max-w-[200px]" />
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                  <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} onClear={() => setSearch('')} className="w-full sm:max-w-[200px]" />
                   <SelectInput value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} options={[
                     { value: '', label: 'All Statuses' },
                     { value: 'Draft', label: 'Draft' },
@@ -472,7 +472,7 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                     { value: 'Delivered', label: 'Delivered' },
                     { value: 'Invoiced', label: 'Invoiced' },
                     { value: 'Closed', label: 'Closed' }
-                  ]} className="max-w-[150px]" />
+                  ]} className="w-full sm:max-w-[150px]" />
                 </div>
               </div>
 
@@ -534,7 +534,7 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                 </div>
                 
                 <form onSubmit={handleCalculateRoute} className="space-y-3.5">
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <TextInput label="Route Origin" required value={plannerOrigin} onChange={(e) => setPlannerOrigin(e.target.value)} />
                     <TextInput label="Route Destination" required value={plannerDest} onChange={(e) => setPlannerDest(e.target.value)} />
                   </div>
@@ -561,7 +561,7 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                     
                     <div className="space-y-2.5">
                       <TextInput placeholder="Stop location name..." value={plannerStopAddress} onChange={(e) => setPlannerStopAddress(e.target.value)} />
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <SelectInput value={plannerStopType} onChange={(e) => setPlannerStopType(e.target.value)} options={[
                           { value: 'Layover', label: 'Layover Rest' },
                           { value: 'Customs', label: 'Customs Clear' },
@@ -580,7 +580,7 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                   <div className="p-3.5 bg-[#111827]/40 border border-[#23324C] rounded-xl space-y-3">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">ETA Simulation Controls</span>
                     
-                    <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                       <div>
                         <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Avg Speed (mph)</label>
                         <input 
@@ -1016,7 +1016,7 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
             <div className="flex-1 overflow-y-auto py-2">
               {drawerTab === 'details' && (
                 <div className="space-y-4 animate-fade-in">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="p-3 bg-slate-50 dark:bg-slate-800/10 border border-slate-200 dark:border-slate-800/40 rounded-xl">
                       <span className="text-[9px] text-slate-500 font-bold uppercase block">Driver</span>
                       <strong className="text-slate-800 dark:text-white text-xs block mt-1">{selectedLoadDetail.driver}</strong>
@@ -1069,7 +1069,7 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                         )}
                         <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border flex-shrink-0 z-10 ${
                           isCurrent 
-                            ? 'bg-brand-500 border-brand-500 text-white animate-pulse-slow' 
+                            ? 'bg-brand-500 border-brand-500 text-slate-950 animate-pulse-slow' 
                             : isCompleted
                             ? 'bg-brand-500/10 border-brand-500/30 text-brand-400'
                             : 'bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-600'
