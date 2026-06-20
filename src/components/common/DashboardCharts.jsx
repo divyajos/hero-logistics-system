@@ -160,6 +160,11 @@ export function PieChartWidget({ data = [], nameKey = 'name', valueKey = 'value'
   
   const COLORS = ['#0ea0ea', '#10B981', '#F59E0B', '#EF4444', '#6366F1', '#EC4899'];
 
+  // Scale center and radii dynamically based on height to prevent layout clipping & label overlap
+  const cy = height < 180 ? '38%' : '45%';
+  const outerRadius = height < 180 ? 55 : 75;
+  const innerRadius = height < 180 ? 35 : 50;
+
   return (
     <div className="relative w-full overflow-hidden flex justify-center items-center" style={{ height }}>
       {loading && <ChartLoader />}
@@ -184,9 +189,9 @@ export function PieChartWidget({ data = [], nameKey = 'name', valueKey = 'value'
           <Pie
             data={data}
             cx="50%"
-            cy="45%"
-            innerRadius={50}
-            outerRadius={75}
+            cy={cy}
+            innerRadius={innerRadius}
+            outerRadius={outerRadius}
             paddingAngle={3}
             dataKey={valueKey}
             nameKey={nameKey}
