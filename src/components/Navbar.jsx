@@ -56,12 +56,9 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-12">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center cursor-pointer" onClick={() => navigate('/')}>
-            <div className="mr-2.5 px-2 py-1 bg-neutral-900 rounded-xl border border-[#2E2E2E] shadow-lg shadow-black/20 flex items-center justify-center hover:scale-105 transition-transform duration-300">
+            <div className="px-2 py-1 bg-neutral-900 rounded-xl border border-[#2E2E2E] shadow-lg shadow-black/20 flex items-center justify-center hover:scale-105 transition-transform duration-300">
               <img src={heroLogo} alt="Hero Logistics Logo" className="h-9 w-auto object-contain" />
             </div>
-            <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-slate-100 to-brand-500 bg-clip-text text-transparent">
-              HERO<span className="text-brand-500 font-medium">LOGISTICS</span>
-            </span>
           </div>
 
           {/* Desktop Navigation */}

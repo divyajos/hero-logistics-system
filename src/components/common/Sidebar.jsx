@@ -119,14 +119,9 @@ export default function Sidebar({ activeTab, setActiveTab, mobileOpen, setMobile
       <div>
         <div className="flex items-center justify-between p-4.5 border-b border-[#2E2E2E]/60 h-16">
           <div className="flex items-center overflow-hidden">
-            <div className="mr-3 px-2 py-1 bg-neutral-900 border border-[#2E2E2E] rounded-xl flex-shrink-0 flex items-center justify-center shadow-lg shadow-black/20 hover:scale-105 transition-transform duration-300">
+            <div className="px-2 py-1 bg-neutral-900 border border-[#2E2E2E] rounded-xl flex-shrink-0 flex items-center justify-center shadow-lg shadow-black/20 hover:scale-105 transition-transform duration-300">
               <img src={heroLogo} alt="Hero Logistics Logo" className="h-8 w-auto object-contain" />
             </div>
-            {!collapsed && (
-              <span className="font-extrabold text-md tracking-tight text-white whitespace-nowrap animate-fade-in">
-                HERO<span className="text-brand-500 font-medium">LOGISTICS</span>
-              </span>
-            )}
           </div>
           
           <button 
