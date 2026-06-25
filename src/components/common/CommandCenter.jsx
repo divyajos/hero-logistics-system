@@ -67,13 +67,28 @@ export default function CommandCenter({ setActiveTab }) {
     { id: 'ld4822', title: 'Load #LD-4822 (Cargo: Paper roll - Delivered)', category: 'Loads', icon: FileText },
     { id: 'ld7519', title: 'Load #LD-7519 (Cargo: Electronics - Pending)', category: 'Loads', icon: FileText },
     { id: 'tx88', title: 'Semi Truck CA-ROAD88 (Plate CA88-TX)', category: 'Vehicles', icon: Truck },
-    { id: 'ca77', title: 'Reefer Trailer TR-HAUL77 (Temps monitored)', category: 'Vehicles', icon: Truck }
+    { id: 'ca77', title: 'Reefer Trailer TR-HAUL77 (Temps monitored)', category: 'Vehicles', icon: Truck },
+    { id: 'wh-chicago', title: 'Chicago HQ Terminal Warehouse (Zone A/B)', category: 'Warehouses', icon: FileText },
+    { id: 'inv-8812', title: 'Invoice #INV-8812 (Amount: $4,290.00 - Paid)', category: 'Invoices', icon: FileText },
+    { id: 'tx-custody', title: 'Transfer Custody #TX-702 (Hero ➔ Super Freight)', category: 'Transfers', icon: Compass }
   ];
 
   const searchItems = [...pages, ...dataRecords];
 
+  const [activeFilter, setActiveFilter] = useState('All');
+  const [recentSearches, setRecentSearches] = useState(() => {
+    try {
+      const saved = localStorage.getItem('hero_recent_searches');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
   // Fuzzy filter results matching search text
   const filteredResults = searchItems.filter(item => {
+    const matchesFilter = activeFilter === 'All' || item.category === activeFilter;
+    if (!matchesFilter) return false;
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase();
     return item.title.toLowerCase().includes(q) || item.category.toLowerCase().includes(q);
@@ -83,8 +98,13 @@ export default function CommandCenter({ setActiveTab }) {
     if (item.category === 'Pages') {
       setActiveTab(item.id);
     } else {
-      alert(`Inspecting database record: ${item.title}`);
+      localStorage.setItem('hero_global_search_query', item.title);
+      setActiveTab('search-results');
     }
+    // Save to recent searches
+    const updated = [item.title, ...recentSearches.filter(t => t !== item.title)].slice(0, 4);
+    setRecentSearches(updated);
+    localStorage.setItem('hero_recent_searches', JSON.stringify(updated));
     setIsOpen(false);
   };
 
@@ -92,14 +112,18 @@ export default function CommandCenter({ setActiveTab }) {
   const handleKeyDown = (e) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setSelectedIndex(prev => (prev + 1) % filteredResults.length);
+      setSelectedIndex(prev => (prev + 1) % Math.max(1, filteredResults.length));
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setSelectedIndex(prev => (prev - 1 + filteredResults.length) % filteredResults.length);
+      setSelectedIndex(prev => (prev - 1 + filteredResults.length) % Math.max(1, filteredResults.length));
     } else if (e.key === 'Enter') {
       e.preventDefault();
       if (filteredResults[selectedIndex]) {
         handleSelect(filteredResults[selectedIndex]);
+      } else if (searchQuery.trim()) {
+        localStorage.setItem('hero_global_search_query', searchQuery.trim());
+        setActiveTab('search-results');
+        setIsOpen(false);
       }
     }
   };
@@ -129,13 +153,38 @@ export default function CommandCenter({ setActiveTab }) {
               setSelectedIndex(0);
             }}
             onKeyDown={handleKeyDown}
-            placeholder="Type a command or search record (e.g. loads, drivers, vehicles)..."
+            placeholder="Search loads, drivers, vehicles, warehouses, invoices, transfers..."
             className="w-full bg-transparent text-slate-800 dark:text-slate-200 text-xs focus:outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
           />
           <span className="text-[10px] font-bold font-mono text-slate-400 border border-slate-200 dark:border-slate-800 px-1.5 py-0.5 rounded-lg select-none flex-shrink-0">
             ESC
           </span>
         </div>
+
+        {/* Category Filters Bar */}
+        <div className="flex gap-1.5 px-4 py-2 border-b border-slate-100 dark:border-[#23324C]/40 bg-slate-50/50 dark:bg-[#0f1624]/20 overflow-x-auto scrollbar-none text-[9px] font-extrabold uppercase tracking-wider text-slate-400">
+          {['All', 'Pages', 'Loads', 'Drivers', 'Vehicles', 'Customers', 'Warehouses', 'Invoices', 'Transfers'].map(f => (
+            <button
+              key={f}
+              onClick={() => { setActiveFilter(f); setSelectedIndex(0); }}
+              className={`px-2 py-1 rounded transition-colors cursor-pointer ${
+                activeFilter === f ? 'bg-brand-500 text-slate-950 font-black' : 'hover:bg-slate-200 dark:hover:bg-[#1f2937] text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+
+        {/* Recent Searches */}
+        {recentSearches.length > 0 && !searchQuery && (
+          <div className="px-4 py-2 border-b border-slate-100 dark:border-[#23324C]/25 text-[10px] font-bold text-slate-400 flex items-center gap-2">
+            <span>Recent:</span>
+            {recentSearches.map((term, i) => (
+              <span key={i} className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-slate-300 font-mono text-[9px]">{term}</span>
+            ))}
+          </div>
+        )}
 
         {/* Results List */}
         <div className="p-2.5 max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/20">

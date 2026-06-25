@@ -4,7 +4,8 @@ import {
   LayoutDashboard, Users, Truck, Briefcase, FileText, Settings, 
   ShieldAlert, BarChart3, Navigation, Shield, LogOut, ChevronLeft, 
   ChevronRight, MapPin, Layers, Key, Home, HelpCircle, Calendar,
-  Bell, FileSignature, DollarSign, Activity, AlertTriangle, QrCode
+  Bell, FileSignature, DollarSign, Activity, AlertTriangle, QrCode, Cpu,
+  MessageSquare, Clock, Plus
 } from 'lucide-react';
 import heroLogo from '../../assets/hero.png';
 
@@ -19,86 +20,131 @@ export default function Sidebar({ activeTab, setActiveTab, mobileOpen, setMobile
     switch (role) {
       case 'Super Admin':
         return [
-          { id: 'overview', label: 'Dashboard', icon: LayoutDashboard },
+          { id: 'overview', label: 'Platform Dashboard', icon: LayoutDashboard },
           { id: 'companies', label: 'Companies', icon: Users },
-          { id: 'plans', label: 'Subscription Plans', icon: Layers },
+          { id: 'subscriptions', label: 'Subscriptions', icon: Key },
+          { id: 'plans', label: 'Membership Plans', icon: Layers },
+          { id: 'feature-access', label: 'Feature Access', icon: Shield },
           { id: 'white-label', label: 'White Label', icon: Settings },
-          { id: 'analytics', label: 'Platform Analytics', icon: BarChart3 },
-          { id: 'reports', label: 'Reports Center', icon: FileText },
-          { id: 'support', label: 'Support Tickets', icon: FileText }
+          { id: 'support', label: 'Support Tickets', icon: FileText },
+          { id: 'billing', label: 'Billing', icon: DollarSign },
+          { id: 'analytics', label: 'System Analytics', icon: BarChart3 },
+          { id: 'transfers', label: 'Inter-Company Transfers', icon: Activity },
+          { id: 'ai-controls', label: 'AI Controls', icon: Cpu },
+          { id: 'settings', label: 'Settings', icon: Settings }
         ];
       case 'Sales':
         return [
-          { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-          { id: 'leads', label: 'Lead List', icon: Users },
-          { id: 'kanban', label: 'Pipeline Kanban', icon: Layers },
-          { id: 'scheduler', label: 'Demo Scheduler', icon: Calendar },
-          { id: 'calendar', label: 'Follow-Up Calendar', icon: Calendar },
-          { id: 'reports', label: 'Sales Reports', icon: BarChart3 }
+          { id: 'overview', label: 'Sales Dashboard', icon: LayoutDashboard },
+          { id: 'leads', label: 'Leads', icon: Users },
+          { id: 'kanban', label: 'Pipeline Board', icon: Layers },
+          { id: 'scheduler', label: 'Demo Bookings', icon: Calendar },
+          { id: 'trials', label: 'Trial Companies', icon: Users },
+          { id: 'proposals', label: 'Proposals', icon: FileText },
+          { id: 'calendar', label: 'Follow-Ups', icon: Calendar },
+          { id: 'onboarding', label: 'Onboarding Handover', icon: Briefcase },
+          { id: 'reports', label: 'Sales Reports', icon: BarChart3 },
+          { id: 'settings', label: 'Settings', icon: Settings }
         ];
       case 'Company Admin':
         return [
-          { id: 'overview', label: 'Dashboard', icon: LayoutDashboard },
-          { id: 'branches', label: 'Branches Setup', icon: MapPin },
+          { id: 'overview', label: 'Company Dashboard', icon: LayoutDashboard },
+          { id: 'branches', label: 'Branches', icon: MapPin },
+          { id: 'loads', label: 'Loads', icon: Layers },
+          { id: 'dispatch', label: 'Dispatch', icon: Navigation },
           { id: 'customers', label: 'Customers', icon: Briefcase },
-          { id: 'drivers', label: 'Driver Registry', icon: Users },
-          { id: 'fleet', label: 'Fleet Register', icon: Truck },
-          { id: 'trailers', label: 'Trailer Spots', icon: Layers },
-          { id: 'workforce', label: 'Workforce Leaves', icon: Users },
+          { id: 'drivers', label: 'Drivers / Staff', icon: Users },
+          { id: 'fleet', label: 'Vehicles', icon: Truck },
+          { id: 'trailers', label: 'Trailers', icon: Layers },
+          { id: 'warehouse-yard', label: 'Warehouse / Yard', icon: Home },
+          { id: 'workforce', label: 'Workforce / Rostering', icon: Users },
+          { id: 'availability', label: 'Availability / Leave', icon: Calendar },
+          { id: 'accounts', label: 'Accounts', icon: DollarSign },
+          { id: 'payroll', label: 'Payroll', icon: Users },
+          { id: 'expenses', label: 'Expenses', icon: DollarSign },
           { id: 'assets', label: 'Asset Register', icon: Shield },
-          { id: 'reports', label: 'Reports Center', icon: BarChart3 }
+          { id: 'instructions', label: 'Customer Instructions', icon: FileText },
+          { id: 'transfers', label: 'Inter-Company Transfers', icon: AlertTriangle },
+          { id: 'reports', label: 'Reports', icon: BarChart3 },
+          { id: 'permissions', label: 'Permissions', icon: Key },
+          { id: 'settings', label: 'Settings – Profile, Subscriptions', icon: Settings }
         ];
       case 'Dispatcher':
         return [
-          { id: 'overview', label: 'Dashboard', icon: LayoutDashboard },
-          { id: 'loads', label: 'Loads Control', icon: Layers },
+          { id: 'overview', label: 'Dispatch Dashboard', icon: LayoutDashboard },
+          { id: 'create-load', label: 'Create Load', icon: Plus },
+          { id: 'ai-inbox', label: 'Load Inbox', icon: QrCode },
+          { id: 'active-loads', label: 'Active Loads', icon: Layers },
           { id: 'planning-board', label: 'Planning Board', icon: Layers },
-          { id: 'route-planner', label: 'Route Planner', icon: Navigation },
-          { id: 'calendar', label: 'Dispatch Calendar', icon: Calendar },
-          { id: 'tracking', label: 'Live Tracking', icon: Navigation }
+          { id: 'tracking', label: 'Live GPS Map', icon: Navigation },
+          { id: 'drivers', label: 'Drivers', icon: Users },
+          { id: 'vehicles-trailers', label: 'Vehicles / Trailers', icon: Truck },
+          { id: 'customers', label: 'Customers', icon: Briefcase },
+          { id: 'yard-warehouse', label: 'Yard / Warehouse', icon: Home },
+          { id: 'workforce-availability', label: 'Workforce Availability', icon: Calendar },
+          { id: 'messages', label: 'Messages', icon: MessageSquare },
+          { id: 'reports', label: 'Reports', icon: BarChart3 }
         ];
       case 'Driver':
         return [
-          { id: 'overview', label: 'My Loads', icon: LayoutDashboard },
-          { id: 'pickup-delivery', label: 'Pickup & Delivery', icon: Navigation },
-          { id: 'pod', label: 'POD Upload', icon: FileSignature },
-          { id: 'expenses', label: 'Toll Expenses', icon: DollarSign },
-          { id: 'compliance', label: 'Compliance Forms', icon: Shield },
-          { id: 'earnings', label: 'My Earnings', icon: BarChart3 }
+          { id: 'start-finish', label: 'Start Work / Finish Work', icon: Clock },
+          { id: 'overview', label: 'Jobs', icon: LayoutDashboard },
+          { id: 'create-draft-load', label: 'Create Draft Load', icon: Plus },
+          { id: 'add-expense', label: 'Add Expense', icon: DollarSign },
+          { id: 'earnings', label: 'My Pay', icon: BarChart3 },
+          { id: 'chat', label: 'Contact Dispatch', icon: MessageSquare }
         ];
       case 'Warehouse Manager':
         return [
           { id: 'overview', label: 'Dashboard', icon: LayoutDashboard },
-          { id: 'inbound', label: 'Inbound Queue', icon: Bell },
-          { id: 'outbound', label: 'Outbound Queue', icon: Bell },
+          { id: 'inbound', label: 'Inbound', icon: Bell },
+          { id: 'outbound', label: 'Outbound', icon: Bell },
           { id: 'stock', label: 'Current Stock', icon: Layers },
-          { id: 'yard-map', label: 'Yard Map', icon: MapPin },
-          { id: 'load-lanes', label: 'Load Lanes', icon: Layers }
+          { id: 'yard-map', label: 'Yard / Warehouse Map', icon: MapPin },
+          { id: 'holding-areas', label: 'Holding Areas', icon: Home },
+          { id: 'load-lanes', label: 'Load Lanes', icon: Layers },
+          { id: 'scanning', label: 'Scanning', icon: QrCode },
+          { id: 'labels', label: 'Labels', icon: QrCode },
+          { id: 'movements', label: 'Movements', icon: Activity },
+          { id: 'reports', label: 'Reports', icon: BarChart3 }
         ];
       case 'Yard Attendant':
         return [
-          { id: 'overview', label: 'Task Queue', icon: LayoutDashboard },
-          { id: 'move-asset', label: 'Move Asset', icon: Truck },
-          { id: 'scan', label: 'Gate Scan In/Out', icon: QrCode },
-          { id: 'inspections', label: 'Damage Reports', icon: AlertTriangle }
+          { id: 'start-finish', label: 'Start Work / Finish Work', icon: Clock },
+          { id: 'overview', label: 'Assigned tasks', icon: LayoutDashboard },
+          { id: 'scan-btn', label: 'Scan button', icon: QrCode },
+          { id: 'move-asset', label: 'Move item', icon: Truck },
+          { id: 'scan-in', label: 'Scan into location', icon: QrCode },
+          { id: 'scan-out', label: 'Scan out of location', icon: QrCode },
+          { id: 'lane-assignment', label: 'Load lane assignment', icon: Layers },
+          { id: 'inspections', label: 'Report issue', icon: AlertTriangle }
         ];
       case 'Accounts':
         return [
-          { id: 'overview', label: 'Ledger Dashboard', icon: LayoutDashboard },
-          { id: 'invoices', label: 'Shipper Invoices', icon: FileText },
-          { id: 'payroll', label: 'Driver Payroll', icon: Users },
-          { id: 'expenses', label: 'Expenses Manager', icon: DollarSign },
-          { id: 'profitability', label: 'Vehicle Margins', icon: BarChart3 },
-          { id: 'reports', label: 'Reports Center', icon: FileText }
+          { id: 'overview', label: 'Accounts Dashboard', icon: LayoutDashboard },
+          { id: 'invoice-review', label: 'Invoice Review', icon: FileText },
+          { id: 'sent-invoices', label: 'Sent Invoices', icon: FileText },
+          { id: 'payments', label: 'Payments', icon: DollarSign },
+          { id: 'payroll', label: 'Payroll', icon: Users },
+          { id: 'contractor-pay', label: 'Contractor Pay', icon: DollarSign },
+          { id: 'employee-pay', label: 'Employee Pay', icon: Users },
+          { id: 'expenses', label: 'Expenses', icon: DollarSign },
+          { id: 'tax', label: 'GST / PAYG', icon: FileText },
+          { id: 'p-l', label: 'P&L', icon: BarChart3 },
+          { id: 'profitability', label: 'Vehicle Costs', icon: BarChart3 },
+          { id: 'reports', label: 'Reports', icon: FileText }
         ];
       case 'Customer':
         return [
           { id: 'overview', label: 'Dashboard', icon: LayoutDashboard },
           { id: 'my-loads', label: 'My Loads', icon: Layers },
-          { id: 'tracking', label: 'Live Tracking', icon: Navigation },
-          { id: 'documents', label: 'Documents Center', icon: FileText },
-          { id: 'invoices', label: 'Invoices & Bills', icon: DollarSign },
-          { id: 'support', label: 'Support Tickets', icon: FileText }
+          { id: 'tracking', label: 'Track Delivery', icon: Navigation },
+          { id: 'documents', label: 'Documents', icon: FileText },
+          { id: 'invoices', label: 'Invoices', icon: DollarSign },
+          { id: 'payments', label: 'Payments', icon: DollarSign },
+          { id: 'load-requests', label: 'Load Requests', icon: Plus },
+          { id: 'support', label: 'Support', icon: FileText },
+          { id: 'settings', label: 'Settings', icon: Settings }
         ];
       default:
         return [{ id: 'overview', label: 'Dashboard', icon: LayoutDashboard }];
@@ -119,9 +165,14 @@ export default function Sidebar({ activeTab, setActiveTab, mobileOpen, setMobile
       <div>
         <div className="flex items-center justify-between p-4.5 border-b border-[#2E2E2E]/60 h-16">
           <div className="flex items-center overflow-hidden">
-            <div className="px-2 py-1 bg-neutral-900 border border-[#2E2E2E] rounded-xl flex-shrink-0 flex items-center justify-center shadow-lg shadow-black/20 hover:scale-105 transition-transform duration-300">
+            <div className="mr-3 px-2 py-1 bg-neutral-900 border border-[#2E2E2E] rounded-xl flex-shrink-0 flex items-center justify-center shadow-lg shadow-black/20 hover:scale-105 transition-transform duration-300">
               <img src={heroLogo} alt="Hero Logistics Logo" className="h-8 w-auto object-contain" />
             </div>
+            {!collapsed && (
+              <span className="font-extrabold text-md tracking-tight text-white whitespace-nowrap animate-fade-in">
+                HERO<span className="text-brand-500 font-medium">LOGISTICS</span>
+              </span>
+            )}
           </div>
           
           <button 
@@ -169,8 +220,12 @@ export default function Sidebar({ activeTab, setActiveTab, mobileOpen, setMobile
             </div>
             {!collapsed && (
               <div className="text-left overflow-hidden animate-fade-in">
-                <h5 className="text-xs font-extrabold text-white truncate">{user.name}</h5>
-                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider block mt-0.5">{user.role}</span>
+                <h5 className="text-xs font-extrabold text-white truncate">
+                  {user.role === 'Super Admin' ? 'Role: Super Admin' : user.name}
+                </h5>
+                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider block mt-0.5">
+                  {user.role === 'Super Admin' ? 'Platform Owner' : user.role}
+                </span>
               </div>
             )}
           </div>

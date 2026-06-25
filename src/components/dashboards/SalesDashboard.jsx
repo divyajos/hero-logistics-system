@@ -264,7 +264,53 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                 <EmptyState title="No leads match" description="Search index empty. Provision a sales pipeline card." icon={UserPlus} actionLabel="Create Lead" onAction={() => setAddModalOpen(true)} />
               ) : (
                 <>
-                  <DataTable columns={columns} data={paginatedLeads} />
+                  <DataTable columns={[
+                    ...columns.slice(0, -1),
+                    {
+                      key: 'actions',
+                      label: 'Actions',
+                      render: (row) => (
+                        <div className="flex flex-wrap gap-2">
+                          <Button size="sm" variant="secondary" icon={Edit} onClick={() => handleOpenEdit(row)}>
+                            Edit
+                          </Button>
+                          <Button size="sm" variant="secondary" onClick={() => { setSelectedLead(row); setInspectDrawerOpen(true); }}>
+                            Inspect
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => triggerToast(`Assigning sales representative to ${row.name}`)}>
+                            Assign Sales Rep
+                          </Button>
+                          <Button size="sm" variant="primary" onClick={() => triggerToast(`Trial sandbox provisioned for ${row.company}`)}>
+                            Start Trial
+                          </Button>
+                          <Button size="sm" variant="success" onClick={() => triggerToast(`Recommended Professional Plan to ${row.company}`)}>
+                            Recommend Plan
+                          </Button>
+                          <Button size="sm" variant="success" onClick={() => triggerToast(`Converting lead ${row.company} to paying customer workspace`)}>
+                            Convert to Company
+                          </Button>
+                          <Button size="sm" variant="success" onClick={() => triggerToast(`Lead ${row.company} marked as Won`)}>
+                            Mark Won
+                          </Button>
+                          <Button size="sm" variant="danger" onClick={() => triggerToast(`Lead ${row.company} marked as Lost`)}>
+                            Mark Lost
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => triggerToast(`Opened note logger for ${row.name}`)}>
+                            Add Note
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => triggerToast(`Follow-up scheduler triggered for ${row.name}`)}>
+                            Schedule Follow-Up
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => triggerToast(`Sent template marketing mail to ${row.email}`)}>
+                            Send Email
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => triggerToast(`Initiating telephone log to ${row.phone}`)}>
+                            Call Lead
+                          </Button>
+                        </div>
+                      )
+                    }
+                  ]} data={paginatedLeads} />
                   <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
                 </>
               )}
@@ -321,10 +367,8 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
 
           {activeTab === 'scheduler' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-              {/* Book slot form */}
               <div className="lg:col-span-5 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
                 <h3 className="text-sm font-extrabold text-white">Book Demo Presentation Slot</h3>
-                
                 <form onSubmit={handleBookDemo} className="space-y-4">
                   <SelectInput label="Select Lead Target" value={scheduleLeadId} onChange={(e) => setScheduleLeadId(e.target.value)} placeholder="Choose active lead..." options={
                     leadsList.map(l => ({ value: l.id.toString(), label: `${l.company} (${l.name})` }))
@@ -341,7 +385,6 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                 </form>
               </div>
 
-              {/* Scheduled list */}
               <div className="lg:col-span-7 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
                 <h3 className="text-sm font-extrabold text-white">Upcoming Confirmed Walkthroughs</h3>
                 <div className="space-y-3.5">
@@ -361,6 +404,34 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                   )}
                 </div>
               </div>
+            </div>
+          )}
+
+          {activeTab === 'trials' && (
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <h3 className="text-sm font-extrabold text-white">Trial Companies Evaluation Log</h3>
+              <DataTable columns={[
+                { key: 'company', label: 'Company Workspace', render: (row) => <span className="font-bold text-white">{row.company}</span> },
+                { key: 'name', label: 'Authorized Evaluator', render: (row) => <span>{row.name}</span> },
+                { key: 'days', label: 'Days Remaining', render: () => <span className="font-mono">14 Days Left</span> },
+                { key: 'status', label: 'Sandbox Status', render: () => <StatusBadge status="Active" /> }
+              ]} data={leadsList} />
+            </div>
+          )}
+
+          {activeTab === 'proposals' && (
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-sm font-extrabold text-white">Generated Licensing Proposals</h3>
+                <Button size="sm" variant="primary" onClick={() => triggerToast('Initiating proposal template builder')}>
+                  Send Proposal
+                </Button>
+              </div>
+              <DataTable columns={[
+                { key: 'company', label: 'Company Workspace', render: (row) => <span className="font-bold text-white">{row.company}</span> },
+                { key: 'value', label: 'Proposed Quote (MRR)', render: () => <span>$499.00 / mo</span> },
+                { key: 'status', label: 'State', render: () => <span className="text-amber-400 font-bold">Reviewing</span> }
+              ]} data={leadsList} />
             </div>
           )}
 
@@ -395,6 +466,39 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                     </div>
                   );
                 })}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'onboarding' && (
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-sm font-extrabold text-white">Onboarding Handover Checklists</h3>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="primary" onClick={() => triggerToast('Onboarding setup task instantiated.')}>
+                    Create Onboarding Task
+                  </Button>
+                  <Button size="sm" variant="success" onClick={() => triggerToast('Dispatching onboarding credentials package to client')}>
+                    Send Onboarding Handover
+                  </Button>
+                </div>
+              </div>
+              <DataTable columns={[
+                { key: 'company', label: 'Company Name', render: (row) => <span className="font-bold text-white">{row.company}</span> },
+                { key: 'manager', label: 'Project Owner', render: (row) => <span>{row.name}</span> },
+                { key: 'progress', label: 'Progress Status', render: () => <span className="text-emerald-450 font-bold">100% Won - Handed Over</span> }
+              ]} data={leadsList.slice(0, 2)} />
+            </div>
+          )}
+
+          {activeTab === 'settings' && (
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <h3 className="text-sm font-extrabold text-white">Sales Agent Settings</h3>
+              <div className="space-y-4 max-w-md">
+                <TextInput label="Sales Commission Target ID" defaultValue="REP-4029" />
+                <Button variant="primary" onClick={() => triggerToast('Sales settings updated.')}>
+                  Save Settings
+                </Button>
               </div>
             </div>
           )}

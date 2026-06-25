@@ -1,8 +1,8 @@
 import React from 'react';
 
-export default function StatusBadge({ status }) {
+export default function StatusBadge({ status = '' }) {
   const getBadgeStyle = (str) => {
-    const raw = str.toLowerCase();
+    const raw = (str || '').toLowerCase();
     
     // Emerald / Success States
     if (['delivered', 'completed', 'active', 'online', 'paid', 'verified', 'docked'].includes(raw)) {
@@ -10,7 +10,7 @@ export default function StatusBadge({ status }) {
     }
     
     // Blue / Action States
-    if (['transit', 'in transit', 'dispatched', 'loaded', 'shipping', 'scheduled', 'demo scheduled'].includes(raw)) {
+    if (['transit', 'in transit', 'dispatched', 'loaded', 'shipping', 'scheduled', 'demo scheduled', 'accepted'].includes(raw)) {
       return 'bg-brand-500/10 border-brand-500/25 text-brand-400';
     }
     

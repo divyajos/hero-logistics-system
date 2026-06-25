@@ -68,11 +68,181 @@ if (isMockMode) {
   // Default seeds for all dashboard operations
   const defaultDb = {
     tenants: [
-      { id: 1, name: 'Falcon Logistics LLC', plan: 'Professional', status: 'Active', drivers: 24, joined: '03/12/2026' },
-      { id: 2, name: 'Swift Cargo Express', plan: 'Starter', status: 'Active', drivers: 5, joined: '04/19/2026' },
-      { id: 3, name: 'Global Shipping Solutions', plan: 'Enterprise', status: 'Active', drivers: 142, joined: '02/01/2026' },
-      { id: 4, name: 'Texas Hotshot Carriers', plan: 'Starter', status: 'Hold', drivers: 3, joined: '05/20/2026' },
-      { id: 5, name: 'Apex Logistics LLC', plan: 'Professional', status: 'Active', drivers: 18, joined: '06/19/2026' }
+      { 
+        id: 1, 
+        name: 'Falcon Logistics LLC', 
+        plan: 'Professional', 
+        status: 'Active', 
+        branches: 4, 
+        users: 12, 
+        drivers: 24, 
+        vehicles: 15, 
+        activeLoads: 8, 
+        revenue: 8500, 
+        lastLogin: 'Today, 02:15 PM', 
+        trialExpiry: 'N/A', 
+        joined: '03/12/2026', 
+        manager: 'Alex W.', 
+        country: 'USA',
+        subscriptionId: 'SUB-1001',
+        billingPeriod: 'Monthly',
+        startDate: '03/12/2026',
+        nextRenewalDate: '07/24/2026',
+        autoRenewal: true,
+        invoices: [
+          { id: 'INV-1001A', date: '06/12/2026', amount: 8500, status: 'Paid', period: '06/12/2026 - 07/12/2026' },
+          { id: 'INV-1001B', date: '05/12/2026', amount: 8500, status: 'Paid', period: '05/12/2026 - 06/12/2026' },
+          { id: 'INV-1001C', date: '04/12/2026', amount: 8500, status: 'Paid', period: '04/12/2026 - 05/12/2026' },
+          { id: 'INV-1001D', date: '03/12/2026', amount: 8500, status: 'Paid', period: '03/12/2026 - 04/12/2026' }
+        ],
+        payments: [
+          { id: 'PAY-1001A', date: '06/12/2026', amount: 8500, method: 'Visa ending 4022', status: 'Completed' },
+          { id: 'PAY-1001B', date: '05/12/2026', amount: 8500, method: 'Visa ending 4022', status: 'Completed' },
+          { id: 'PAY-1001C', date: '04/12/2026', amount: 8500, method: 'Visa ending 4022', status: 'Completed' },
+          { id: 'PAY-1001D', date: '03/12/2026', amount: 8500, method: 'Visa ending 4022', status: 'Completed' }
+        ],
+        audits: [
+          { id: 1, action: 'Company Created', detail: 'Falcon Logistics LLC provisioned on Professional Plan.', time: '03/12/2026, 09:00:00 AM' }
+        ]
+      },
+      { 
+        id: 2, 
+        name: 'Swift Cargo Express', 
+        plan: 'Starter', 
+        status: 'Active', 
+        branches: 2, 
+        users: 2, 
+        drivers: 3, 
+        vehicles: 4, 
+        activeLoads: 2, 
+        revenue: 1500, 
+        lastLogin: 'Yesterday, 04:30 PM', 
+        trialExpiry: '07/15/2026', 
+        joined: '04/19/2026', 
+        manager: 'Alex W.', 
+        country: 'USA',
+        subscriptionId: 'SUB-1002',
+        billingPeriod: 'Monthly',
+        startDate: '04/19/2026',
+        nextRenewalDate: '07/19/2026',
+        autoRenewal: true,
+        invoices: [
+          { id: 'INV-1002A', date: '06/19/2026', amount: 1500, status: 'Paid', period: '06/19/2026 - 07/19/2026' },
+          { id: 'INV-1002B', date: '05/19/2026', amount: 1500, status: 'Paid', period: '05/19/2026 - 06/19/2026' },
+          { id: 'INV-1002C', date: '04/19/2026', amount: 1500, status: 'Paid', period: '04/19/2026 - 05/19/2026' }
+        ],
+        payments: [
+          { id: 'PAY-1002A', date: '06/19/2026', amount: 1500, method: 'MasterCard ending 8192', status: 'Completed' },
+          { id: 'PAY-1002B', date: '05/19/2026', amount: 1500, method: 'MasterCard ending 8192', status: 'Completed' },
+          { id: 'PAY-1002C', date: '04/19/2026', amount: 1500, method: 'MasterCard ending 8192', status: 'Completed' }
+        ],
+        audits: [
+          { id: 1, action: 'Company Created', detail: 'Swift Cargo Express trial subscription configured.', time: '04/19/2026, 10:15:00 AM' }
+        ]
+      },
+      { 
+        id: 3, 
+        name: 'Global Shipping Solutions', 
+        plan: 'Enterprise', 
+        status: 'Active', 
+        branches: 15, 
+        users: 84, 
+        drivers: 142, 
+        vehicles: 98, 
+        activeLoads: 45, 
+        revenue: 28000, 
+        lastLogin: 'Today, 03:24 PM', 
+        trialExpiry: 'N/A', 
+        joined: '02/01/2026', 
+        manager: 'Sarah K.', 
+        country: 'Canada',
+        subscriptionId: 'SUB-1003',
+        billingPeriod: 'Monthly',
+        startDate: '02/01/2026',
+        nextRenewalDate: '07/01/2026',
+        autoRenewal: true,
+        invoices: [
+          { id: 'INV-1003A', date: '06/01/2026', amount: 28000, status: 'Paid', period: '06/01/2026 - 07/01/2026' },
+          { id: 'INV-1003B', date: '05/01/2026', amount: 28000, status: 'Paid', period: '05/01/2026 - 06/01/2026' },
+          { id: 'INV-1003C', date: '04/01/2026', amount: 28000, status: 'Paid', period: '04/01/2026 - 05/01/2026' },
+          { id: 'INV-1003D', date: '03/01/2026', amount: 28000, status: 'Paid', period: '03/01/2026 - 04/01/2026' },
+          { id: 'INV-1003E', date: '02/01/2026', amount: 28000, status: 'Paid', period: '02/01/2026 - 03/01/2026' }
+        ],
+        payments: [
+          { id: 'PAY-1003A', date: '06/01/2026', amount: 28000, method: 'ACH Transfer', status: 'Completed' },
+          { id: 'PAY-1003B', date: '05/01/2026', amount: 28000, method: 'ACH Transfer', status: 'Completed' },
+          { id: 'PAY-1003C', date: '04/01/2026', amount: 28000, method: 'ACH Transfer', status: 'Completed' },
+          { id: 'PAY-1003D', date: '03/01/2026', amount: 28000, method: 'ACH Transfer', status: 'Completed' },
+          { id: 'PAY-1003E', date: '02/01/2026', amount: 28000, method: 'ACH Transfer', status: 'Completed' }
+        ],
+        audits: [
+          { id: 1, action: 'Company Created', detail: 'Global Enterprise subscription established.', time: '02/01/2026, 08:30:00 AM' }
+        ]
+      },
+      { 
+        id: 4, 
+        name: 'Texas Hotshot Carriers', 
+        plan: 'Starter', 
+        status: 'Hold', 
+        branches: 1, 
+        users: 4, 
+        drivers: 6, 
+        vehicles: 2, 
+        activeLoads: 0, 
+        revenue: 0, 
+        lastLogin: 'Yesterday, 10:15 AM', 
+        trialExpiry: '06/15/2026', 
+        joined: '05/20/2026', 
+        manager: 'Alex W.', 
+        country: 'USA',
+        subscriptionId: 'SUB-1004',
+        billingPeriod: 'Monthly',
+        startDate: '05/20/2026',
+        nextRenewalDate: '06/20/2026',
+        autoRenewal: false,
+        invoices: [
+          { id: 'INV-1004A', date: '05/20/2026', amount: 1500, status: 'Unpaid', period: '05/20/2026 - 06/20/2026' }
+        ],
+        payments: [],
+        audits: [
+          { id: 1, action: 'Company Created', detail: 'Starter setup created. Payment authorization failed.', time: '05/20/2026, 04:45:00 PM' }
+        ]
+      },
+      { 
+        id: 5, 
+        name: 'Apex Logistics LLC', 
+        plan: 'Professional', 
+        status: 'Active', 
+        branches: 3, 
+        users: 16, 
+        drivers: 18, 
+        vehicles: 12, 
+        activeLoads: 6, 
+        revenue: 4910, 
+        lastLogin: 'Today, 01:10 PM', 
+        trialExpiry: 'N/A', 
+        joined: '06/19/2026', 
+        manager: 'Sarah K.', 
+        country: 'USA',
+        subscriptionId: 'SUB-1005',
+        billingPeriod: 'Monthly',
+        startDate: '06/19/2026',
+        nextRenewalDate: '07/19/2026',
+        autoRenewal: true,
+        invoices: [
+          { id: 'INV-1005A', date: '06/19/2026', amount: 4910, status: 'Paid', period: '06/19/2026 - 07/19/2026' }
+        ],
+        payments: [
+          { id: 'PAY-1005A', date: '06/19/2026', amount: 4910, method: 'American Express ending 1009', status: 'Completed' }
+        ],
+        audits: [
+          { id: 1, action: 'Company Created', detail: 'Professional license activated.', time: '06/19/2026, 11:12:00 AM' }
+        ]
+      }
+    ],
+    auditLogs: [
+      { id: 1, companyId: 1, companyName: 'Falcon Logistics LLC', action: 'Company Created', detail: 'Falcon Logistics LLC provisioned on Professional Plan.', time: '06/24/2026, 02:12:15 PM' },
+      { id: 2, companyId: 2, companyName: 'Swift Cargo Express', action: 'Plan Changed', detail: 'Swift Cargo Express upgraded to Professional Tier.', time: '06/24/2026, 12:45:00 PM' }
     ],
     leads: [
       { id: 1, name: 'Robert Vance', company: 'Vance Refrigeration', email: 'rvance@vancerefrig.com', phone: '555-0912', status: 'Pending', msg: 'Need flatbed rates for regional deliveries.', rate: 1200, source: 'Google', stage: 'Prospect' },
@@ -197,13 +367,19 @@ if (isMockMode) {
         pickupAddress: 'Chicago HQ Terminal, 100 Logistics Blvd',
         pickupDate: '2026-06-18T08:00',
         pickupContact: 'Bob Evans',
-        pickupNotes: 'Open deck loading required.',
+                pickupNotes: 'Open deck loading required.',
         deliveryAddress: 'Dallas Depot, 400 Freight Rd, Dallas TX',
         deliveryDate: '2026-06-20T17:00',
         deliveryContact: 'Alice Cooper',
         deliveryNotes: 'Check seals before opening doors.',
+        items: [
+          { id: 'ITM-9411A', name: 'Automotive Engine Block', weight: '22,000 lbs', status: 'Loaded' },
+          { id: 'ITM-9411B', name: 'Transmission Assembly Gearbox', weight: '20,000 lbs', status: 'Loaded' }
+        ],
         stops: [
-          { id: 1, address: 'St. Louis Transit Yard, MO', type: 'Layover', notes: 'Mandatory rest stop.', sequence: 1 }
+          { id: 1, address: 'Chicago HQ Terminal, 100 Logistics Blvd', type: 'Pickup', itemIds: ['ITM-9411A', 'ITM-9411B'], status: 'Completed', sequence: 1, notes: 'Log terminal gates departure' },
+          { id: 2, address: 'St. Louis Transit Yard, MO', type: 'Layover', itemIds: [], status: 'Completed', sequence: 2, notes: 'Mandatory rest stop.' },
+          { id: 3, address: 'Dallas Depot, 400 Freight Rd, Dallas TX', type: 'Delivery', itemIds: ['ITM-9411A', 'ITM-9411B'], status: 'Pending', sequence: 3, notes: 'Drop off and verify seals' }
         ],
         vehicle: 'TX-ROAD88',
         notes: ['Fragile electronic components', 'Verify trailer tie-downs before departing'],
@@ -347,7 +523,12 @@ if (isMockMode) {
       { id: 2, type: 'Driver Pay', payee: 'Donald S. (Driver)', amount: '$1,420.00', date: '2026-06-19', status: 'Pending', items: [{ name: 'LD-4809 Dispatch run payout', qty: 1, rate: 1420 }], approvalNotes: 'Awaiting toll receipt audits.' },
       { id: 3, type: 'Invoice', payee: 'Memphis Shippers Inc', amount: '$8,500.00', date: '2026-06-15', status: 'Paid', items: [{ name: 'Interstate Flatbed Freight run', qty: 1, rate: 8500 }], approvalNotes: '' },
       { id: 4, type: 'Factoring', payee: 'Apex Invoice Finance', amount: '$12,400.00', date: '2026-06-17', status: 'Active', items: [{ name: 'Pre-factoring bundle allocation', qty: 1, rate: 12400 }], approvalNotes: '' },
-      { id: 5, type: 'Driver Pay', payee: 'Sarah R. (Driver)', amount: '$1,890.00', date: '2026-06-19', status: 'Pending', items: [{ name: 'LD-1102 Dispatch run payout', qty: 1, rate: 1890 }], approvalNotes: '' }
+      { id: 5, type: 'Driver Pay', payee: 'Sarah R. (Driver)', amount: '$1,890.00', date: '2026-06-19', status: 'Pending', items: [{ name: 'LD-1102 Dispatch run payout', qty: 1, rate: 1890 }], approvalNotes: '' },
+      { id: 6, type: 'Expense', payee: 'Brokerage Freight Inc', amount: '$1,850.00', date: '2026-06-19', status: 'Paid', category: 'Contractor', items: [{ name: 'Subcontracted hotshot run', qty: 1, rate: 1850 }] },
+      { id: 7, type: 'Expense', payee: 'Apex Fuel Network', amount: '$4,290.00', date: '2026-06-20', status: 'Paid', category: 'Fuel', items: [{ name: 'Fleet card diesel purchase', qty: 1, rate: 4290 }] },
+      { id: 8, type: 'Expense', payee: 'Penske Fleet Services', amount: '$3,820.00', date: '2026-06-21', status: 'Paid', category: 'Maintenance', items: [{ name: 'Volvo Truck Scheduled Service', qty: 1, rate: 3820 }] },
+      { id: 9, type: 'Expense', payee: 'Progressive Commercial', amount: '$2,100.00', date: '2026-06-22', status: 'Paid', category: 'Insurance', items: [{ name: 'Fleet liability policy premium', qty: 1, rate: 2100 }] },
+      { id: 10, type: 'Expense', payee: 'TX DMV', amount: '$850.00', date: '2026-06-23', status: 'Paid', category: 'Registration', items: [{ name: 'Vehicle registration renewal', qty: 1, rate: 850 }] }
     ],
     notifications: [
       { id: 1, category: 'Dispatch', priority: 'Critical', title: 'Route Delay Warning', message: 'Truck TX-ROAD88 ETA threshold breached on route to Dallas.', time: '10 min ago', isRead: false },
@@ -447,7 +628,186 @@ if (isMockMode) {
     supportTickets: [
       { id: 1, tenantName: 'Falcon Logistics LLC', title: 'Invoice Factoring Delay', msg: 'Cannot sync payroll with factoring payment rules.', status: 'Open', category: 'Accounts', priority: 'High', replies: [{ sender: 'Alexander Wright', msg: 'Checking billing logs.', date: '1 day ago' }] },
       { id: 2, tenantName: 'Swift Cargo Express', title: 'GPS Geofencing Issues', msg: 'Carrier coordinates not updating on interstate tracking map.', status: 'Open', category: 'Dispatch', priority: 'Medium', replies: [] }
+    ],
+    customerInstructions: [
+      { id: 1, scope: 'Customer (Vance Refrigeration)', type: 'Special Handling Instructions', text: 'Do not stack HVAC pallets; keep upright and secure.' },
+      { id: 2, scope: 'Stop Terminal (Chicago HQ)', type: 'Address Instructions', text: 'Gate 4 code: #8911. Security clearances check mandatory.' },
+      { id: 3, scope: 'Load ID (LD-9411)', type: 'Delivery Instructions', text: 'Call recipient phone: +1 982-1002 30 minutes before arrival.' }
+    ],
+    transfers: [
+      {
+        id: 'tx-101',
+        type: 'Load Transfer',
+        target: 'LD-9411 (Chicago ➔ Dallas)',
+        fromCompany: 'Hero Logistics Ltd',
+        toCompany: 'Super Freight Carriers',
+        status: 'pending',
+        custodyChain: [
+          { party: 'Hero Logistics Dispatcher', action: 'Initiated Transfer', timestamp: '06/23/2026 12:00 PM' }
+        ]
+      },
+      {
+        id: 'tx-102',
+        type: 'Asset/Car Transfer',
+        target: 'VIN: 1YV1HP82A81920 (Ford Mustang)',
+        fromCompany: 'Car Transporters Co',
+        toCompany: 'Hero Car Logistics',
+        status: 'accepted',
+        custodyChain: [
+          { party: 'Car Transporters Co Yard Mgr', action: 'Initiated Transfer', timestamp: '06/22/2026 09:00 AM' },
+          { party: 'Hero Car Logistics Gate Attendant', action: 'Accepted Custody', timestamp: '06/22/2026 03:00 PM' }
+        ]
+      }
+    ],
+    driverPayroll: [
+      {
+        id: 'PAY-D-1',
+        workerId: 'driver-1',
+        workerName: 'John D.',
+        workerType: 'Driver',
+        amount: '$1,420.00',
+        paymentDate: '',
+        paymentMethod: 'Direct Deposit EFT',
+        status: 'Pending',
+        processedBy: '',
+        createdAt: '2026-06-19T08:00:00Z',
+        trips: 14
+      },
+      {
+        id: 'PAY-D-2',
+        workerId: 'driver-2',
+        workerName: 'Sarah R.',
+        workerType: 'Driver',
+        amount: '$1,890.00',
+        paymentDate: '',
+        paymentMethod: 'Direct Deposit EFT',
+        status: 'Pending',
+        processedBy: '',
+        createdAt: '2026-06-19T08:00:00Z',
+        trips: 18
+      },
+      {
+        id: 'PAY-D-3',
+        workerId: 'driver-3',
+        workerName: 'Donald S.',
+        workerType: 'Driver',
+        amount: '$2,200.00',
+        paymentDate: '2026-06-20',
+        paymentMethod: 'Direct Deposit EFT',
+        status: 'Paid',
+        processedBy: 'Company Admin',
+        createdAt: '2026-06-19T08:00:00Z',
+        trips: 22
+      }
+    ],
+    employeePayments: [
+      {
+        id: 'PAY-E-1',
+        workerId: 'emp-1',
+        workerName: 'Adam K. (Yard Manager)',
+        workerType: 'Employee',
+        position: 'Warehouse Mgr',
+        rateType: 'Salaried',
+        amount: '$4,800.00',
+        paymentDate: '2026-06-20',
+        paymentMethod: 'Direct Deposit EFT',
+        status: 'Paid',
+        processedBy: 'Company Admin',
+        createdAt: '2026-06-19T08:00:00Z'
+      },
+      {
+        id: 'PAY-E-2',
+        workerId: 'emp-2',
+        workerName: 'Julie B. (Accountant)',
+        workerType: 'Employee',
+        position: 'Accounts Exec',
+        rateType: '$45/hr',
+        amount: '$3,600.00',
+        paymentDate: '',
+        paymentMethod: 'Direct Deposit EFT',
+        status: 'Pending',
+        processedBy: '',
+        createdAt: '2026-06-19T08:00:00Z'
+      }
+    ],
+    contractorPayments: [
+      {
+        id: 'PAY-C-1',
+        workerId: 'cont-1',
+        workerName: 'Apex Fuel Network',
+        workerType: 'Contractor',
+        desc: 'Fleet card diesel purchase',
+        amount: '$4,290.00',
+        paymentDate: '2026-06-20',
+        paymentMethod: 'Direct Deposit EFT',
+        status: 'Paid',
+        processedBy: 'Company Admin',
+        createdAt: '2026-06-19T08:00:00Z'
+      },
+      {
+        id: 'PAY-C-2',
+        workerId: 'cont-2',
+        workerName: 'Brokerage Freight Inc',
+        workerType: 'Contractor',
+        desc: 'Subcontracted hotshot runs',
+        amount: '$1,850.00',
+        paymentDate: '',
+        paymentMethod: 'Direct Deposit EFT',
+        status: 'Pending',
+        processedBy: '',
+        createdAt: '2026-06-19T08:00:00Z'
+      }
+    ],
+    transactions: [
+      { txnId: 'TXN-88192', invId: '1', amount: '$850.00', date: '06/15/2026', method: 'Visa Card Credit' }
     ]
+  };
+
+  // Helper to generate nested real tenant data programmatically to avoid placeholders
+  const generateTenantDetails = (tenant) => {
+    if (!tenant.usersList || tenant.usersList.length === 0) {
+      tenant.usersList = Array.from({ length: tenant.users || 1 }, (_, i) => ({
+        id: i + 1,
+        name: i === 0 ? 'Alexander Wright' : `Operator ${String.fromCharCode(65 + i)}`,
+        email: i === 0 ? (tenant.manager || 'admin@company.com') : `operator${i + 1}@${tenant.name.toLowerCase().replace(/[^a-z0-9]/g, '')}.com`,
+        role: i === 0 ? 'Company Admin' : 'Dispatcher',
+        status: 'Active'
+      }));
+    }
+    if (!tenant.driversList || tenant.driversList.length === 0) {
+      tenant.driversList = Array.from({ length: tenant.drivers || 0 }, (_, i) => ({
+        id: i + 1,
+        name: i === 0 ? 'John D.' : (i === 1 ? 'Sarah R.' : (i === 2 ? 'Donald S.' : `Driver ${String.fromCharCode(65 + i)}.`)),
+        email: `driver${i + 1}@${tenant.name.toLowerCase().replace(/[^a-z0-9]/g, '')}.com`,
+        plate: i === 0 ? 'TX-ROAD88' : (i === 1 ? 'IL-HAUL42' : (i === 2 ? 'CA-CARRI7' : `TX-${1000 + i}`)),
+        rating: (4.8 + (i % 3) * 0.05).toFixed(2),
+        status: 'Active'
+      }));
+    }
+    if (!tenant.vehiclesList || tenant.vehiclesList.length === 0) {
+      tenant.vehiclesList = Array.from({ length: tenant.vehicles || 0 }, (_, i) => ({
+        id: i + 1,
+        plate: i === 0 ? 'TX-ROAD88' : (i === 1 ? 'IL-HAUL42' : (i === 2 ? 'CA-CARRI7' : `TX-${1000 + i}`)),
+        type: i % 2 === 0 ? 'Semi-Truck' : 'Flatbed Trailer',
+        status: 'Active'
+      }));
+    }
+    if (!tenant.branchesList || tenant.branchesList.length === 0) {
+      tenant.branchesList = Array.from({ length: tenant.branches || 1 }, (_, i) => ({
+        id: i + 1,
+        name: i === 0 ? 'Chicago HQ Terminal' : `Branch Depot ${i + 1}`,
+        city: i === 0 ? 'Chicago, IL' : 'Los Angeles, CA',
+        staff: `${Math.floor(4 + (i * 2))} Staff`
+      }));
+    }
+    if (!tenant.loadsList || tenant.loadsList.length === 0) {
+      tenant.loadsList = Array.from({ length: tenant.activeLoads || 0 }, (_, i) => ({
+        id: `LD-${9400 + i}`,
+        route: i % 2 === 0 ? 'Chicago ➔ Dallas' : 'Houston ➔ Atlanta',
+        cargo: i % 2 === 0 ? 'Automotive Components' : 'Dry Grocery Pallets',
+        status: 'In Transit'
+      }));
+    }
   };
 
   // Read or Initialize Mock DB from local storage
@@ -468,6 +828,11 @@ if (isMockMode) {
     }
   } catch (e) {
     mockDb = defaultDb;
+  }
+
+  // Ensure lists are generated on load
+  if (mockDb.tenants) {
+    mockDb.tenants.forEach(generateTenantDetails);
   }
 
   const saveDb = () => {
@@ -493,6 +858,7 @@ if (isMockMode) {
         
         // --- AUTH CONTROLLERS ---
         if (url === 'auth/login' && method === 'POST') {
+          const tenant = mockDb.tenants.find(t => t.name === 'Apex Logistics LLC') || mockDb.tenants[0];
           return resolve({
             status: 200,
             data: {
@@ -500,8 +866,9 @@ if (isMockMode) {
               email: body.email,
               role: body.role || 'Company Admin',
               name: body.email.split('@')[0].split('.').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' '),
-              company: 'Apex Cargo Solutions LLC',
-              joinedAt: new Date().toLocaleDateString()
+              company: tenant.name,
+              plan: tenant.plan,
+              joinedAt: tenant.joined
             }
           });
         }
@@ -530,7 +897,14 @@ if (isMockMode) {
           if (role === 'super-admin') {
             return resolve({
               status: 200,
-              data: { tenants: mockDb.tenants, mrr: 42910, load: '14.2%', sla: '99.98%' }
+              data: { 
+                tenants: mockDb.tenants, 
+                mrr: 42910, 
+                load: '14.2%', 
+                sla: '99.98%',
+                tickets: mockDb.supportTickets || [],
+                auditLogs: mockDb.auditLogs || []
+              }
             });
           }
           if (role === 'sales') {
@@ -565,12 +939,137 @@ if (isMockMode) {
             });
           }
           if (role === 'accounts') {
-            const factoringAmt = mockDb.ledgers.filter(l => l.type === 'Factoring').reduce((acc, current) => acc + parseFloat(current.amount.replace(/[^0-9.]/g, '') || 0), 0);
+            const invoicesList = mockDb.ledgers.filter(l => l.type === 'Invoice');
+            const totalRevenue = invoicesList.reduce((acc, curr) => acc + parseFloat(curr.amount.replace(/[$,]/g, '') || '0'), 0);
+            const paidRevenue = invoicesList.filter(l => l.status === 'Paid').reduce((acc, curr) => acc + parseFloat(curr.amount.replace(/[$,]/g, '') || '0'), 0);
+            
+            const expensesList = mockDb.ledgers.filter(l => l.type === 'Driver Pay' || l.type === 'Expense');
+            const totalExpenses = expensesList.reduce((acc, curr) => acc + parseFloat(curr.amount.replace(/[$,]/g, '') || '0'), 0);
+            
+            const grossProfit = totalRevenue - totalExpenses;
+            const margin = totalRevenue > 0 ? Math.round((grossProfit / totalRevenue) * 100) : 0;
+            
+            const factoringAmt = mockDb.ledgers.filter(l => l.type === 'Factoring').reduce((acc, current) => acc + parseFloat(current.amount.replace(/[^0-9.]/g, '') || '0'), 0);
+            const balanceDue = invoicesList.filter(l => l.status === 'Pending' || l.status === 'Draft').reduce((acc, curr) => acc + parseFloat(curr.amount.replace(/[$,]/g, '') || '0'), 0);
+
             return resolve({
               status: 200,
-              data: { ledgers: mockDb.ledgers, factoring: factoringAmt, payrollCount: mockDb.ledgers.filter(l => l.type === 'Driver Pay').length, balanceDue: 8500 }
+              data: { 
+                ledgers: mockDb.ledgers, 
+                factoring: factoringAmt, 
+                payrollCount: mockDb.ledgers.filter(l => l.type === 'Driver Pay').length, 
+                balanceDue,
+                revenue: totalRevenue,
+                expenses: totalExpenses,
+                grossProfit,
+                margin: `${margin}%`,
+                paidRevenue,
+                driverPayroll: mockDb.driverPayroll || [],
+                employeePayments: mockDb.employeePayments || [],
+                contractorPayments: mockDb.contractorPayments || []
+              }
             });
           }
+        }
+
+        // --- PAYROLL PROCESS ENDPOINT ---
+        if (url.startsWith('payroll/pay/') && method === 'PUT') {
+          const id = url.split('/')[2];
+          let record = null;
+          let collectionName = '';
+          
+          if (mockDb.driverPayroll) {
+            record = mockDb.driverPayroll.find(r => r.id === id);
+            if (record) collectionName = 'driverPayroll';
+          }
+          if (!record && mockDb.employeePayments) {
+            record = mockDb.employeePayments.find(r => r.id === id);
+            if (record) collectionName = 'employeePayments';
+          }
+          if (!record && mockDb.contractorPayments) {
+            record = mockDb.contractorPayments.find(r => r.id === id);
+            if (record) collectionName = 'contractorPayments';
+          }
+          
+          if (record) {
+            record.status = 'Paid';
+            record.paymentDate = new Date().toISOString().split('T')[0];
+            record.processedBy = body.processedBy || 'Company Admin';
+            
+            // Create a ledger entry automatically
+            const amountClean = parseFloat(record.amount.replace(/[$,]/g, '')) || 0;
+            const newLedger = {
+              id: Date.now(),
+              type: record.workerType === 'Driver' ? 'Driver Pay' : 'Expense',
+              payee: record.workerName,
+              amount: record.amount,
+              date: record.paymentDate,
+              status: 'Paid',
+              category: record.workerType === 'Contractor' ? 'Contractor' : (record.workerType === 'Driver' ? 'Driver Pay' : 'Wages'),
+              items: [{ name: `${record.workerType} payroll run payout: ${record.id}`, qty: 1, rate: amountClean }],
+              approvalNotes: `Processed by ${record.processedBy}`
+            };
+            
+            mockDb.ledgers.unshift(newLedger);
+            saveDb();
+            
+            return resolve({
+              status: 200,
+              data: {
+                record,
+                ledger: newLedger
+              }
+            });
+          }
+          return reject({ status: 404, data: { message: 'Payroll record not found' } });
+        }
+
+        // --- INVOICES & PAYMENTS ENDPOINTS ---
+        if (url === 'invoices' && method === 'GET') {
+          return resolve({
+            status: 200,
+            data: mockDb.ledgers.filter(l => l.type === 'Invoice')
+          });
+        }
+
+        if (url === 'transactions' && method === 'GET') {
+          return resolve({
+            status: 200,
+            data: mockDb.transactions || []
+          });
+        }
+
+        if (url.startsWith('invoices/') && url.endsWith('/pay') && method === 'PUT') {
+          const id = url.split('/')[1];
+          const ledgerIndex = mockDb.ledgers.findIndex(l => String(l.id) === String(id));
+          if (ledgerIndex !== -1) {
+            const invoice = mockDb.ledgers[ledgerIndex];
+            invoice.status = 'Paid';
+            invoice.paymentDate = new Date().toISOString().split('T')[0];
+            invoice.paymentMethod = body.paymentMethod || 'Visa Card Credit';
+            
+            // Create transaction receipt record
+            const newTxn = {
+              txnId: `TXN-${Math.floor(10000 + Math.random() * 90000)}`,
+              invId: String(invoice.id),
+              amount: invoice.amount,
+              date: invoice.paymentDate,
+              method: invoice.paymentMethod
+            };
+            
+            if (!mockDb.transactions) mockDb.transactions = [];
+            mockDb.transactions.unshift(newTxn);
+            saveDb();
+            
+            return resolve({
+              status: 200,
+              data: {
+                invoice,
+                transaction: newTxn
+              }
+            });
+          }
+          return reject({ status: 404, data: { message: 'Invoice not found' } });
         }
 
         // --- GLOBAL SEARCH ---
@@ -614,11 +1113,34 @@ if (isMockMode) {
           return resolve({ status: 200, data: mockDb.fleet });
         }
         if (url === 'fleet' && method === 'POST') {
+          const session = localStorage.getItem('hero_session');
+          let companyName = 'Apex Logistics LLC';
+          if (session) {
+            try {
+              const parsed = JSON.parse(session);
+              if (parsed && parsed.company) companyName = parsed.company;
+            } catch (e) {}
+          }
+          const tenant = mockDb.tenants.find(t => t.name.toLowerCase() === companyName.toLowerCase());
+          const limits = {
+            Starter: { users: 3, drivers: 5, vehicles: 5 },
+            Professional: { users: 15, drivers: 30, vehicles: 30 },
+            Enterprise: { users: Infinity, drivers: Infinity, vehicles: Infinity }
+          };
+          const planLimits = tenant ? (limits[tenant.plan] || limits.Professional) : limits.Professional;
+          
+          if (tenant && tenant.vehicles >= planLimits.vehicles) {
+            return reject({
+              status: 403,
+              data: { message: `Plan Limit Exceeded: Your ${tenant.plan} plan allows up to ${planLimits.vehicles} vehicles.` }
+            });
+          }
+
           const newV = { 
             id: Date.now(), 
             plate: body.plate, 
             type: body.type, 
-            capacity: body.capacity || '40,000 lbs', 
+            capacity: body.capacity || '45,000 lbs', 
             branch: 'Chicago HQ Terminal', 
             status: 'Active',
             mileage: '10,000 miles',
@@ -630,6 +1152,13 @@ if (isMockMode) {
             inspections: []
           };
           mockDb.fleet.unshift(newV);
+          
+          if (tenant) {
+            tenant.vehicles = (tenant.vehicles || 0) + 1;
+            tenant.vehiclesList = tenant.vehiclesList || [];
+            tenant.vehiclesList.unshift({ id: newV.id, plate: newV.plate, type: newV.type, status: newV.status });
+          }
+          
           saveDb();
           return resolve({ status: 201, data: newV });
         }
@@ -645,6 +1174,19 @@ if (isMockMode) {
         }
         if (url.startsWith('fleet/') && method === 'DELETE') {
           const id = parseInt(url.split('/')[1]);
+          const session = localStorage.getItem('hero_session');
+          let companyName = 'Apex Logistics LLC';
+          if (session) {
+            try {
+              const parsed = JSON.parse(session);
+              if (parsed && parsed.company) companyName = parsed.company;
+            } catch (e) {}
+          }
+          const tenant = mockDb.tenants.find(t => t.name.toLowerCase() === companyName.toLowerCase());
+          if (tenant) {
+            tenant.vehicles = Math.max(0, (tenant.vehicles || 0) - 1);
+            tenant.vehiclesList = (tenant.vehiclesList || []).filter(v => v.id !== id);
+          }
           mockDb.fleet = mockDb.fleet.filter(v => v.id !== id);
           saveDb();
           return resolve({ status: 200, data: { success: true } });
@@ -655,6 +1197,29 @@ if (isMockMode) {
           return resolve({ status: 200, data: { drivers: mockDb.drivers } });
         }
         if (url === 'drivers' && method === 'POST') {
+          const session = localStorage.getItem('hero_session');
+          let companyName = 'Apex Logistics LLC';
+          if (session) {
+            try {
+              const parsed = JSON.parse(session);
+              if (parsed && parsed.company) companyName = parsed.company;
+            } catch (e) {}
+          }
+          const tenant = mockDb.tenants.find(t => t.name.toLowerCase() === companyName.toLowerCase());
+          const limits = {
+            Starter: { users: 3, drivers: 5, vehicles: 5 },
+            Professional: { users: 15, drivers: 30, vehicles: 30 },
+            Enterprise: { users: Infinity, drivers: Infinity, vehicles: Infinity }
+          };
+          const planLimits = tenant ? (limits[tenant.plan] || limits.Professional) : limits.Professional;
+          
+          if (tenant && tenant.drivers >= planLimits.drivers) {
+            return reject({
+              status: 403,
+              data: { message: `Plan Limit Exceeded: Your ${tenant.plan} plan allows up to ${planLimits.drivers} drivers.` }
+            });
+          }
+
           const newD = { 
             id: Date.now(), 
             name: body.name, 
@@ -673,6 +1238,13 @@ if (isMockMode) {
             onTimeRate: '100%'
           };
           mockDb.drivers.unshift(newD);
+          
+          if (tenant) {
+            tenant.drivers = (tenant.drivers || 0) + 1;
+            tenant.driversList = tenant.driversList || [];
+            tenant.driversList.unshift({ id: newD.id, name: newD.name, email: newD.email, plate: newD.plate, rating: newD.rating, status: newD.status });
+          }
+          
           saveDb();
           return resolve({ status: 201, data: newD });
         }
@@ -688,6 +1260,19 @@ if (isMockMode) {
         }
         if (url.startsWith('drivers/') && method === 'DELETE') {
           const id = parseInt(url.split('/')[1]);
+          const session = localStorage.getItem('hero_session');
+          let companyName = 'Apex Logistics LLC';
+          if (session) {
+            try {
+              const parsed = JSON.parse(session);
+              if (parsed && parsed.company) companyName = parsed.company;
+            } catch (e) {}
+          }
+          const tenant = mockDb.tenants.find(t => t.name.toLowerCase() === companyName.toLowerCase());
+          if (tenant) {
+            tenant.drivers = Math.max(0, (tenant.drivers || 0) - 1);
+            tenant.driversList = (tenant.driversList || []).filter(d => d.id !== id);
+          }
           mockDb.drivers = mockDb.drivers.filter(d => d.id !== id);
           saveDb();
           return resolve({ status: 200, data: { success: true } });
@@ -750,6 +1335,27 @@ if (isMockMode) {
                 { message: `Load status changed from ${oldLoad.status} to ${body.status}`, user: 'System Adapter', time: 'Just now' },
                 ...(oldLoad.activities || [])
               ];
+              
+              // POD -> Invoice Automation (Priority 2)
+              if (body.status === 'Delivered') {
+                const invoiceExists = mockDb.ledgers.some(l => l.loadId === oldLoad.loadId);
+                if (!invoiceExists) {
+                  const newInvoice = {
+                    id: Date.now(),
+                    loadId: oldLoad.loadId,
+                    type: 'Invoice',
+                    payee: oldLoad.customerName,
+                    amount: oldLoad.cost,
+                    date: new Date().toISOString().split('T')[0],
+                    status: 'Draft',
+                    items: [
+                      { name: oldLoad.cargo, qty: 1, rate: parseFloat(oldLoad.cost.replace(/[$,]/g, '') || '0') }
+                    ],
+                    approvalNotes: 'Auto-generated via driver POD verification.'
+                  };
+                  mockDb.ledgers.unshift(newInvoice);
+                }
+              }
             } else if (body.statusNote) {
               updated.activities = [
                 { message: body.statusNote, user: 'Dispatch Ops', time: 'Just now' },
@@ -915,10 +1521,255 @@ if (isMockMode) {
         }
 
         if (url === 'tenants' && method === 'POST') {
-          const newT = { id: Date.now(), name: body.name, plan: body.plan, status: 'Active', drivers: 0, joined: new Date().toLocaleDateString() };
+          const newT = { 
+            id: Date.now(), 
+            name: body.name, 
+            plan: body.plan, 
+            status: 'Active', 
+            branches: 1,
+            users: 1,
+            drivers: 0, 
+            vehicles: 0,
+            activeLoads: 0,
+            revenue: body.plan === 'Starter' ? 199 : (body.plan === 'Professional' ? 499 : 1299),
+            lastLogin: 'Today, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            trialExpiry: body.plan === 'Starter' ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString() : 'N/A',
+            joined: body.joined || new Date().toLocaleDateString(),
+            manager: 'Alex W.',
+            country: 'USA'
+          };
           mockDb.tenants.unshift(newT);
           saveDb();
           return resolve({ status: 201, data: newT });
+        }
+
+        // SUBSCRIPTIONS lifecycle endpoints
+        if (url.startsWith('subscriptions/') && method === 'PUT') {
+          const parts = url.split('/');
+          const id = parseInt(parts[1]);
+          const action = parts[2]; // pause, resume, renew, cancel, assign-plan
+          
+          const tenantIndex = mockDb.tenants.findIndex(t => t.id === id);
+          if (tenantIndex !== -1) {
+            const tenant = mockDb.tenants[tenantIndex];
+            
+            if (action === 'pause') {
+              tenant.status = 'Hold';
+              tenant.audits = tenant.audits || [];
+              tenant.audits.unshift({ id: Date.now(), action: 'Pause', detail: 'Subscription paused by platform administrator.', time: new Date().toLocaleString() });
+            } else if (action === 'resume') {
+              tenant.status = 'Active';
+              tenant.audits = tenant.audits || [];
+              tenant.audits.unshift({ id: Date.now(), action: 'Resume', detail: 'Subscription reactivated successfully.', time: new Date().toLocaleString() });
+            } else if (action === 'renew') {
+              const currentRenewal = new Date(tenant.nextRenewalDate || Date.now());
+              currentRenewal.setMonth(currentRenewal.getMonth() + 1);
+              tenant.nextRenewalDate = currentRenewal.toLocaleDateString();
+              tenant.status = 'Active';
+              tenant.audits = tenant.audits || [];
+              tenant.audits.unshift({ id: Date.now(), action: 'Renew', detail: `Subscription manually extended to ${tenant.nextRenewalDate}.`, time: new Date().toLocaleString() });
+              
+              const invId = `INV-${Math.floor(10000 + Math.random() * 90000)}`;
+              const amount = tenant.plan === 'Starter' ? 199 : (tenant.plan === 'Professional' ? 499 : 1299);
+              tenant.invoices = tenant.invoices || [];
+              tenant.invoices.unshift({ id: invId, date: new Date().toLocaleDateString(), amount, status: 'Paid', period: `Renewal through ${tenant.nextRenewalDate}` });
+              tenant.payments = tenant.payments || [];
+              tenant.payments.unshift({ id: `PAY-${Date.now()}`, date: new Date().toLocaleDateString(), amount, method: 'Auto-Bill (Card)', status: 'Completed' });
+            } else if (action === 'cancel') {
+              tenant.autoRenewal = false;
+              tenant.audits = tenant.audits || [];
+              tenant.audits.unshift({ id: Date.now(), action: 'Cancel', detail: 'Subscription cancellation scheduled. Auto-renew disabled.', time: new Date().toLocaleString() });
+            } else if (action === 'assign-plan') {
+              const newPlan = body.plan;
+              tenant.plan = newPlan;
+              tenant.revenue = newPlan === 'Starter' ? 199 : (newPlan === 'Professional' ? 499 : 1299);
+              tenant.audits = tenant.audits || [];
+              tenant.audits.unshift({ id: Date.now(), action: 'Plan Changed', detail: `Subscription plan reallocated to ${newPlan}.`, time: new Date().toLocaleString() });
+            }
+            
+            saveDb();
+            return resolve({ status: 200, data: tenant });
+          }
+          return reject({ status: 404, data: { message: 'Tenant not found' } });
+        }
+
+        if (url.startsWith('subscriptions/') && method === 'POST') {
+          const parts = url.split('/');
+          const id = parseInt(parts[1]);
+          const action = parts[2]; // invoices, reminder
+          
+          const tenantIndex = mockDb.tenants.findIndex(t => t.id === id);
+          if (tenantIndex !== -1) {
+            const tenant = mockDb.tenants[tenantIndex];
+            
+            if (action === 'invoices') {
+              const invId = `INV-${Math.floor(10000 + Math.random() * 90000)}`;
+              const amount = body.amount || (tenant.plan === 'Starter' ? 199 : (tenant.plan === 'Professional' ? 499 : 1299));
+              const newInv = { id: invId, date: new Date().toLocaleDateString(), amount, status: 'Unpaid', period: body.period || 'Custom Administrative Invoice' };
+              tenant.invoices = tenant.invoices || [];
+              tenant.invoices.unshift(newInv);
+              tenant.audits = tenant.audits || [];
+              tenant.audits.unshift({ id: Date.now(), action: 'Invoice Generation', detail: `Generated invoice ${invId} for $${amount}.`, time: new Date().toLocaleString() });
+              saveDb();
+              return resolve({ status: 201, data: newInv });
+            } else if (action === 'reminder') {
+              tenant.audits = tenant.audits || [];
+              tenant.audits.unshift({ id: Date.now(), action: 'Notification Sent', detail: 'Sent renewal invoice reminder notification to account manager.', time: new Date().toLocaleString() });
+              saveDb();
+              return resolve({ status: 200, data: { success: true } });
+            }
+          }
+          return reject({ status: 404, data: { message: 'Tenant not found' } });
+        }
+
+        // CUSTOMER INSTRUCTIONS CRUD
+        if (url === 'instructions' && method === 'GET') {
+          return resolve({ status: 200, data: mockDb.customerInstructions || [] });
+        }
+        if (url === 'instructions' && method === 'POST') {
+          const newIns = { 
+            id: Date.now(), 
+            scope: body.scope, 
+            type: body.type, 
+            text: body.text,
+            isCritical: body.isCritical || false,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            createdBy: body.createdBy || 'Company Admin'
+          };
+          if (!mockDb.customerInstructions) mockDb.customerInstructions = [];
+          mockDb.customerInstructions.unshift(newIns);
+          saveDb();
+          return resolve({ status: 201, data: newIns });
+        }
+        if (url.startsWith('instructions/') && method === 'PUT') {
+          const id = parseInt(url.split('/')[1]);
+          const insIdx = mockDb.customerInstructions.findIndex(i => i.id === id);
+          if (insIdx !== -1) {
+            mockDb.customerInstructions[insIdx] = { 
+              ...mockDb.customerInstructions[insIdx], 
+              ...body,
+              updatedAt: new Date().toISOString()
+            };
+            saveDb();
+            return resolve({ status: 200, data: mockDb.customerInstructions[insIdx] });
+          }
+          return reject({ status: 404, data: { message: 'Instruction not found' } });
+        }
+        if (url.startsWith('instructions/') && method === 'DELETE') {
+          const id = parseInt(url.split('/')[1]);
+          mockDb.customerInstructions = (mockDb.customerInstructions || []).filter(i => i.id !== id);
+          saveDb();
+          return resolve({ status: 200, data: { success: true } });
+        }
+
+        // INTER-COMPANY TRANSFERS CRUD
+        if (url === 'transfers' && method === 'GET') {
+          return resolve({ status: 200, data: mockDb.transfers || [] });
+        }
+        if (url === 'transfers' && method === 'POST') {
+          const newTx = {
+            id: body.id || `tx-${Date.now()}`,
+            type: body.type,
+            target: body.target,
+            fromCompany: body.fromCompany,
+            toCompany: body.toCompany,
+            status: body.status || 'pending',
+            custodyChain: body.custodyChain || []
+          };
+          if (!mockDb.transfers) mockDb.transfers = [];
+          mockDb.transfers.unshift(newTx);
+          saveDb();
+          return resolve({ status: 201, data: newTx });
+        }
+        if (url.startsWith('transfers/') && method === 'PUT') {
+          const id = url.split('/')[1];
+          const txIdx = mockDb.transfers.findIndex(t => t.id === id);
+          if (txIdx !== -1) {
+            mockDb.transfers[txIdx] = { 
+              ...mockDb.transfers[txIdx], 
+              ...body
+            };
+            saveDb();
+            return resolve({ status: 200, data: mockDb.transfers[txIdx] });
+          }
+          return reject({ status: 404, data: { message: 'Transfer not found' } });
+        }
+
+        // AUDIT LOGS
+        if (url === 'audit/logs' && method === 'GET') {
+          return resolve({ status: 200, data: mockDb.auditLogs || [] });
+        }
+        if (url === 'audit/logs' && method === 'POST') {
+          const newLog = {
+            id: Date.now(),
+            companyId: body.companyId,
+            companyName: body.companyName,
+            action: body.action,
+            detail: body.detail,
+            time: new Date().toLocaleString()
+          };
+          mockDb.auditLogs = mockDb.auditLogs || [];
+          mockDb.auditLogs.unshift(newLog);
+          saveDb();
+          return resolve({ status: 201, data: newLog });
+        }
+
+        // USERS CREATION (PLAN ENFORCED)
+        if (url === 'users' && method === 'POST') {
+          const session = localStorage.getItem('hero_session');
+          let companyName = 'Apex Logistics LLC';
+          if (session) {
+            try {
+              const parsed = JSON.parse(session);
+              if (parsed && parsed.company) companyName = parsed.company;
+            } catch (e) {}
+          }
+          const tenant = mockDb.tenants.find(t => t.name.toLowerCase() === companyName.toLowerCase());
+          const limits = {
+            Starter: { users: 3, drivers: 5, vehicles: 5 },
+            Professional: { users: 15, drivers: 30, vehicles: 30 },
+            Enterprise: { users: Infinity, drivers: Infinity, vehicles: Infinity }
+          };
+          const planLimits = tenant ? (limits[tenant.plan] || limits.Professional) : limits.Professional;
+          
+          if (tenant && tenant.users >= planLimits.users) {
+            return reject({
+              status: 403,
+              data: { message: `Plan Limit Exceeded: Your ${tenant.plan} plan allows up to ${planLimits.users} users.` }
+            });
+          }
+
+          const newUser = {
+            id: Date.now(),
+            name: body.name || 'New Invitee',
+            email: body.email,
+            role: body.role || 'Dispatcher',
+            status: 'Active'
+          };
+          
+          if (tenant) {
+            tenant.users = (tenant.users || 0) + 1;
+            tenant.usersList = tenant.usersList || [];
+            tenant.usersList.push(newUser);
+          }
+          
+          saveDb();
+          return resolve({ status: 201, data: newUser });
+        }
+
+        // SUBSCRIPTION SETTINGS
+        if (url.startsWith('subscriptions/') && url.endsWith('/settings') && method === 'PUT') {
+          const id = parseInt(url.split('/')[1]);
+          const tenantIndex = mockDb.tenants.findIndex(t => t.id === id);
+          if (tenantIndex !== -1) {
+            const tenant = mockDb.tenants[tenantIndex];
+            tenant.nextRenewalDate = body.nextRenewalDate;
+            tenant.autoRenewal = body.autoRenewal;
+            saveDb();
+            return resolve({ status: 200, data: tenant });
+          }
+          return reject({ status: 404, data: { message: 'Tenant not found' } });
         }
 
         if (url === 'upload' && method === 'POST') {

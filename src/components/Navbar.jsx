@@ -47,18 +47,21 @@ export default function Navbar() {
   };
 
   return (
-    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
+    <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 bg-[#0B0B0B] ${
       scrolled 
-        ? 'bg-[#0B0B0B]/85 backdrop-blur-md border-b border-[#2E2E2E]/60 py-3 shadow-lg shadow-[#000000]/30' 
-        : 'bg-transparent py-5'
+        ? 'py-3' 
+        : 'py-5'
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-12">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center cursor-pointer" onClick={() => navigate('/')}>
-            <div className="px-2 py-1 bg-neutral-900 rounded-xl border border-[#2E2E2E] shadow-lg shadow-black/20 flex items-center justify-center hover:scale-105 transition-transform duration-300">
+            <div className="mr-2.5 px-2 py-1 bg-neutral-900 rounded-xl border border-[#2E2E2E] shadow-lg shadow-black/20 flex items-center justify-center hover:scale-105 transition-transform duration-300">
               <img src={heroLogo} alt="Hero Logistics Logo" className="h-9 w-auto object-contain" />
             </div>
+            <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-slate-100 to-brand-500 bg-clip-text text-transparent">
+              HERO<span className="text-brand-500 font-medium">LOGISTICS</span>
+            </span>
           </div>
 
           {/* Desktop Navigation */}
@@ -79,11 +82,10 @@ export default function Navbar() {
           <div className="hidden lg:flex items-center space-x-3">
             <button
               onClick={() => navigate('/login')}
-              className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${
-                location.pathname === '/login'
+              className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${location.pathname === '/login'
                   ? 'text-brand-500 bg-brand-500/10'
                   : 'text-slate-300 hover:text-white hover:bg-slate-800/40'
-              }`}
+                }`}
             >
               Login
             </button>
@@ -115,9 +117,8 @@ export default function Navbar() {
         </div>
       </div>
 
-      <div className={`lg:hidden transition-all duration-300 overflow-hidden ${
-        isOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
-      }`}>
+      <div className={`lg:hidden transition-all duration-300 overflow-hidden ${isOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
+        }`}>
         <div className="px-2 pt-2 pb-4 space-y-1 bg-[#141414]/95 border-b border-[#2E2E2E] backdrop-blur-lg shadow-inner">
           {navLinks.map((link) => (
             <a

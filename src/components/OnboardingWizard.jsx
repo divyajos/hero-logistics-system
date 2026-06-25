@@ -99,9 +99,12 @@ export default function OnboardingWizard() {
         {/* Header Branding */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#23324C]/60 pb-6 mb-8 gap-4">
           <div>
-            <div className="px-2 py-1 bg-neutral-900 border border-[#2E2E2E] rounded-lg inline-block">
-              <img src={heroLogo} alt="Hero Logistics Logo" className="h-8 w-auto object-contain" />
-            </div>
+            <span className="font-extrabold text-lg tracking-tight text-white flex items-center gap-2">
+              <div className="px-2 py-1 bg-neutral-900 border border-[#2E2E2E] rounded-lg">
+                <img src={heroLogo} alt="Hero Logistics Logo" className="h-8 w-auto object-contain" />
+              </div>
+              HERO<span className="text-brand-500 font-medium">LOGISTICS</span>
+            </span>
             <h2 className="text-xl font-bold text-slate-200 mt-1.5">SaaS Onboarding Setup Wizard</h2>
           </div>
           <span className="text-xs font-semibold px-3 py-1.5 bg-brand-500/10 border border-brand-500/30 text-brand-400 rounded-lg self-start sm:self-center">

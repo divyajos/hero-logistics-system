@@ -4,6 +4,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchLoads, createLoad, updateLoadStatus } from '../../store/slices/loadsSlice';
 import { fetchDrivers } from '../../store/slices/driversSlice';
 import { fetchVehicles } from '../../store/slices/vehiclesSlice';
+import { fetchCustomerInstructions } from '../../store/slices/customersSlice';
+import { useLogistics } from '../../context/LogisticsContext';
 import Button from '../common/Button';
 import TextInput from '../common/TextInput';
 import SelectInput from '../common/SelectInput';
@@ -31,6 +33,29 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
   const { items: loads, unassignedCount, driverCount, delayCount, loading } = useSelector((state) => state.loads);
   const { drivers } = useSelector((state) => state.drivers);
   const { fleet } = useSelector((state) => state.vehicles);
+  const { customerInstructions } = useSelector((state) => state.customers);
+  
+  const { 
+    selectedNiche, 
+    aiQueue, 
+    resolveAiItem, 
+    transfers, 
+    initiateTransfer, 
+    acceptTransfer, 
+    rejectTransfer 
+  } = useLogistics();
+
+  // Niche-specific states
+  const [carVin, setCarVin] = useState('');
+  const [carRego, setCarRego] = useState('');
+  const [carStock, setCarStock] = useState('');
+  const [carModel, setCarModel] = useState('');
+  
+  const [freightPallets, setFreightPallets] = useState('');
+  const [freightDimensions, setFreightDimensions] = useState('');
+
+  const [hazmatCode, setHazmatCode] = useState('');
+  const [unNumber, setUnNumber] = useState('');
 
   // Modals & Drawers
   const [wizardOpen, setWizardOpen] = useState(false);
@@ -68,11 +93,18 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
   const [deliveryContact, setDeliveryContact] = useState('');
   const [deliveryNotes, setDeliveryNotes] = useState('');
 
-  // Step 4: Stop Management
+  // Step 4: Stop & Item Management
   const [wizardStops, setWizardStops] = useState([]);
   const [stopAddress, setStopAddress] = useState('');
   const [stopType, setStopType] = useState('Layover');
   const [stopNotes, setStopNotes] = useState('');
+  const [wizardItems, setWizardItems] = useState([
+    { id: 'ITM-1', name: 'Automotive Components Gearbox', weight: '22,000 lbs' },
+    { id: 'ITM-2', name: 'Chassis Frame Rails', weight: '20,000 lbs' }
+  ]);
+  const [newItemName, setNewItemName] = useState('');
+  const [newItemWeight, setNewItemWeight] = useState('');
+  const [selectedItemIdsForStop, setSelectedItemIdsForStop] = useState([]);
 
   // Step 5: Vehicle Assignment
   const [assignedVehicle, setAssignedVehicle] = useState('TX-ROAD88');
@@ -82,10 +114,19 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
   const [assignedDriver, setAssignedDriver] = useState('John D.');
   const [driverContactInfo, setDriverContactInfo] = useState('555-0192');
 
-  // Step 7: Documents Checklist
+  // Step 7: Documents Checklist & Mock Uploads
   const [docsRateConf, setDocsRateConf] = useState(false);
   const [docsBOL, setDocsBOL] = useState(false);
   const [docsCustoms, setDocsCustoms] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState([]); // Array of { name, size, date, type }
+
+  // Step 8: Special Dispatch Notes
+  const [specialDispatchNotes, setSpecialDispatchNotes] = useState('');
+
+  // Live Map pin tracking telemetry
+  const [selectedVehicleTelemetry, setSelectedVehicleTelemetry] = useState(null);
+  const [newTrailerPlate, setNewTrailerPlate] = useState('TR-9118');
+  const [swapReason, setSwapReason] = useState('');
 
   // Search & Filter
   const [search, setSearch] = useState('');
@@ -121,6 +162,7 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
     dispatch(fetchLoads());
     dispatch(fetchDrivers());
     dispatch(fetchVehicles());
+    dispatch(fetchCustomerInstructions());
   }, [dispatch]);
 
   const triggerToast = (msg, type = 'success') => {
@@ -146,12 +188,21 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
     setDeliveryContact('');
     setDeliveryNotes('');
     setWizardStops([]);
+    setWizardItems([
+      { id: 'ITM-1', name: 'Automotive Components Gearbox', weight: '22,000 lbs' },
+      { id: 'ITM-2', name: 'Chassis Frame Rails', weight: '20,000 lbs' }
+    ]);
+    setNewItemName('');
+    setNewItemWeight('');
+    setSelectedItemIdsForStop([]);
     setAssignedVehicle('TX-ROAD88');
     setAssignedDriver('John D.');
     setDriverContactInfo('555-0192');
     setDocsRateConf(false);
     setDocsBOL(false);
     setDocsCustoms(false);
+    setUploadedFiles([]);
+    setSpecialDispatchNotes('');
   };
 
   // Wizard Next/Prev
@@ -186,10 +237,46 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
   // Submit Wizard (Finalize)
   const handleWizardSubmit = (e) => {
     if (e) e.preventDefault();
+    
+    const finalCargoName = wizardItems.map(i => i.name).join(', ') || cargoName || 'General Cargo';
+    const totalWeight = wizardItems.length > 0 
+      ? `${wizardItems.reduce((sum, i) => sum + (parseFloat(i.weight.replace(/[^\d.]/g, '')) || 0), 0).toLocaleString()} lbs`
+      : `${parseFloat(cargoWeight || 0).toLocaleString()} lbs`;
+
+    const generatedStops = [
+      {
+        id: 1,
+        address: pickupAddress,
+        type: 'Pickup',
+        itemIds: wizardItems.map(i => i.id),
+        status: 'Pending',
+        sequence: 1,
+        notes: pickupNotes || 'Origin Terminal Cargo Pick-up'
+      },
+      ...wizardStops.map((stop, idx) => ({
+        id: idx + 2,
+        address: stop.address,
+        type: stop.type,
+        itemIds: stop.itemIds || [],
+        status: 'Pending',
+        sequence: idx + 2,
+        notes: stop.notes
+      })),
+      {
+        id: wizardStops.length + 2,
+        address: deliveryAddress,
+        type: 'Delivery',
+        itemIds: wizardItems.map(i => i.id),
+        status: 'Pending',
+        sequence: wizardStops.length + 2,
+        notes: deliveryNotes || 'Destination Terminal Cargo Drop-off'
+      }
+    ];
+
     dispatch(createLoad({
       status: 'Planned',
-      cargo: cargoName,
-      weight: `${parseFloat(cargoWeight).toLocaleString()} lbs`,
+      cargo: finalCargoName,
+      weight: totalWeight,
       route: `${pickupAddress} ➔ ${deliveryAddress}`,
       customerName,
       customerEmail,
@@ -203,14 +290,17 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
       deliveryDate,
       deliveryContact,
       deliveryNotes,
-      stops: wizardStops,
+      items: wizardItems,
+      stops: generatedStops,
       vehicle: assignedVehicle,
       driver: assignedDriver,
       cost: cargoCost,
+      notes: specialDispatchNotes ? [specialDispatchNotes] : [],
       documents: [
         ...(docsRateConf ? [{ name: 'Rate Confirmation.pdf', type: 'PDF', date: 'Just now', url: '#' }] : []),
         ...(docsBOL ? [{ name: 'Bill of Lading.pdf', type: 'PDF', date: 'Just now', url: '#' }] : []),
-        ...(docsCustoms ? [{ name: 'Customs Bond.pdf', type: 'PDF', date: 'Just now', url: '#' }] : [])
+        ...(docsCustoms ? [{ name: 'Customs Bond.pdf', type: 'PDF', date: 'Just now', url: '#' }] : []),
+        ...uploadedFiles.map(f => ({ name: f.name, type: f.type, date: f.date, url: '#' }))
       ]
     }));
 
@@ -221,10 +311,45 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
 
   // Save Draft (can be triggered at any step)
   const handleSaveDraft = () => {
+    const finalCargoName = wizardItems.map(i => i.name).join(', ') || cargoName || 'Draft Cargo';
+    const totalWeight = wizardItems.length > 0 
+      ? `${wizardItems.reduce((sum, i) => sum + (parseFloat(i.weight.replace(/[^\d.]/g, '')) || 0), 0).toLocaleString()} lbs`
+      : `${parseFloat(cargoWeight || 0).toLocaleString()} lbs`;
+
+    const generatedStops = [
+      {
+        id: 1,
+        address: pickupAddress || 'Unassigned Origin',
+        type: 'Pickup',
+        itemIds: wizardItems.map(i => i.id),
+        status: 'Pending',
+        sequence: 1,
+        notes: pickupNotes || 'Origin Terminal Cargo Pick-up'
+      },
+      ...wizardStops.map((stop, idx) => ({
+        id: idx + 2,
+        address: stop.address,
+        type: stop.type,
+        itemIds: stop.itemIds || [],
+        status: 'Pending',
+        sequence: idx + 2,
+        notes: stop.notes
+      })),
+      {
+        id: wizardStops.length + 2,
+        address: deliveryAddress || 'Unassigned Destination',
+        type: 'Delivery',
+        itemIds: wizardItems.map(i => i.id),
+        status: 'Pending',
+        sequence: wizardStops.length + 2,
+        notes: deliveryNotes || 'Destination Terminal Cargo Drop-off'
+      }
+    ];
+
     dispatch(createLoad({
       status: 'Draft',
-      cargo: cargoName || 'Draft Cargo',
-      weight: cargoWeight ? `${parseFloat(cargoWeight).toLocaleString()} lbs` : '0 lbs',
+      cargo: finalCargoName,
+      weight: totalWeight,
       route: `${pickupAddress || 'Unassigned'} ➔ ${deliveryAddress || 'Unassigned'}`,
       customerName,
       customerEmail,
@@ -238,14 +363,17 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
       deliveryDate,
       deliveryContact,
       deliveryNotes,
-      stops: wizardStops,
+      items: wizardItems,
+      stops: generatedStops,
       vehicle: assignedVehicle,
       driver: assignedDriver,
       cost: cargoCost,
+      notes: specialDispatchNotes ? [specialDispatchNotes] : [],
       documents: [
         ...(docsRateConf ? [{ name: 'Rate Confirmation.pdf', type: 'PDF', date: 'Just now', url: '#' }] : []),
         ...(docsBOL ? [{ name: 'Bill of Lading.pdf', type: 'PDF', date: 'Just now', url: '#' }] : []),
-        ...(docsCustoms ? [{ name: 'Customs Bond.pdf', type: 'PDF', date: 'Just now', url: '#' }] : [])
+        ...(docsCustoms ? [{ name: 'Customs Bond.pdf', type: 'PDF', date: 'Just now', url: '#' }] : []),
+        ...uploadedFiles.map(f => ({ name: f.name, type: f.type, date: f.date, url: '#' }))
       ]
     }));
 
@@ -261,10 +389,18 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
     }
     setWizardStops([
       ...wizardStops,
-      { id: Date.now(), address: stopAddress.trim(), type: stopType, notes: stopNotes.trim() || 'General Stop', sequence: wizardStops.length + 1 }
+      { 
+        id: Date.now(), 
+        address: stopAddress.trim(), 
+        type: stopType, 
+        notes: stopNotes.trim() || 'General Stop', 
+        sequence: wizardStops.length + 1,
+        itemIds: selectedItemIdsForStop 
+      }
     ]);
     setStopAddress('');
     setStopNotes('');
+    setSelectedItemIdsForStop([]);
     triggerToast('Intermediate stop added.');
   };
 
@@ -352,6 +488,39 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
       statusNote: `Status advanced to ${newStatus}`
     }));
     triggerToast(`Load status updated to ${newStatus}`);
+  };
+
+  const handleTrailerSwap = () => {
+    if (!selectedLoadDetail) return;
+    const oldTrailer = selectedLoadDetail.trailer || 'TR-4022';
+    if (newTrailerPlate === oldTrailer) {
+      triggerToast('New trailer must be different from current trailer.', 'error');
+      return;
+    }
+    if (!swapReason.trim()) {
+      triggerToast('Please provide a swap reason.', 'error');
+      return;
+    }
+    const swapRecord = {
+      from: oldTrailer,
+      to: newTrailerPlate,
+      reason: swapReason.trim(),
+      timestamp: new Date().toISOString()
+    };
+    const currentSwapHistory = selectedLoadDetail.trailerSwapHistory || [];
+    const updatedSwapHistory = [swapRecord, ...currentSwapHistory];
+
+    dispatch(updateLoadStatus({
+      id: selectedLoadDetail.id,
+      trailer: newTrailerPlate,
+      previousTrailer: oldTrailer,
+      trailerSwapReason: swapReason.trim(),
+      trailerSwapHistory: updatedSwapHistory,
+      statusNote: `Trailer swapped from ${oldTrailer} to ${newTrailerPlate}. Reason: ${swapReason.trim()}`
+    }));
+
+    setSwapReason('');
+    triggerToast(`Trailer swapped to ${newTrailerPlate} successfully.`);
   };
 
   // Add notes to load record
@@ -460,7 +629,15 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
           {activeTab === 'loads' && (
             <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
               <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-                <h3 className="text-sm font-extrabold text-white">Active Cargo Loads</h3>
+                <div>
+                  <h3 className="text-sm font-extrabold text-white">Active Cargo Loads</h3>
+                  <div className="flex gap-1.5 mt-2 flex-wrap">
+                    <Button size="xs" variant="success" onClick={() => triggerToast('Optimizing active load paths...')}>Optimise Load</Button>
+                    <Button size="xs" variant="outline" onClick={() => triggerToast('Searching active database by VIN...')}>Search by VIN</Button>
+                    <Button size="xs" variant="outline" onClick={() => triggerToast('Searching active database by Rego...')}>Search by Rego</Button>
+                    <Button size="xs" variant="outline" onClick={() => triggerToast('Searching active database by Destination...')}>Search by Destination</Button>
+                  </div>
+                </div>
                 <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                   <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} onClear={() => setSearch('')} className="w-full sm:max-w-[200px]" />
                   <SelectInput value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} options={[
@@ -468,6 +645,7 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                     { value: 'Draft', label: 'Draft' },
                     { value: 'Planned', label: 'Planned' },
                     { value: 'Assigned', label: 'Assigned' },
+                    { value: 'Accepted', label: 'Accepted' },
                     { value: 'In Transit', label: 'In Transit' },
                     { value: 'Delivered', label: 'Delivered' },
                     { value: 'Invoiced', label: 'Invoiced' },
@@ -483,6 +661,13 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                   <DataTable columns={[
                     { key: 'route', label: 'Origin/Destination Path', render: (row) => <span className="font-extrabold text-white">{row.route}</span> },
                     { key: 'driver', label: 'Driver', render: (row) => <span className="text-slate-300 font-semibold">{row.driver}</span> },
+                    { key: 'compliance', label: 'Compliance', render: (row) => (
+                      row.complianceChecked ? (
+                        <span className="text-[10px] text-emerald-400 font-bold">✓ Compliant</span>
+                      ) : (
+                        <span className="text-[10px] text-amber-500 font-bold">⚠️ Pending Check</span>
+                      )
+                    )},
                     { key: 'weight', label: 'Weight Specs', render: (row) => <span className="font-mono text-[11px]">{row.weight}</span> },
                     { key: 'status', label: 'Transit Status', render: (row) => <StatusBadge status={row.status} /> },
                     { key: 'eta', label: 'ETA Timer', render: (row) => <span className="text-brand-400 font-mono font-bold">{row.eta || 'N/A'}</span> },
@@ -714,18 +899,91 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
           {activeTab === 'tracking' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
               {/* GIS Map tracking */}
-              <div className="lg:col-span-8 glass rounded-2xl p-5 border border-[#23324C]/60 text-left flex flex-col justify-between h-[380px] lg:h-auto min-h-[300px]">
+              <div className="lg:col-span-8 glass rounded-2xl p-5 border border-[#23324C]/60 text-left flex flex-col justify-between h-[420px] lg:h-auto min-h-[380px] relative">
                 <div>
-                  <h3 className="text-sm font-extrabold text-white mb-1">Live Fleet GIS Positioning</h3>
-                  <p className="text-[10px] text-slate-500">Google Map overlay coordinates.</p>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="text-sm font-extrabold text-white mb-1">Live Fleet GIS Positioning</h3>
+                      <p className="text-[10px] text-slate-500">Google Map overlay coordinates. Click a vehicle pin to view telemetry.</p>
+                    </div>
+                    {selectedVehicleTelemetry && (
+                      <button 
+                        onClick={() => setSelectedVehicleTelemetry(null)}
+                        className="text-[10px] text-brand-400 hover:text-white font-bold bg-[#161F30] px-2 py-1 rounded border border-[#23324C] cursor-pointer"
+                      >
+                        Clear Selection
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div className="flex-grow bg-[#0B0F19] border border-[#23324C] rounded-xl flex items-center justify-center my-4 relative overflow-hidden min-h-[220px]">
+                <div className="flex-grow bg-[#0B0F19] border border-[#23324C] rounded-xl flex items-center justify-center my-4 relative overflow-hidden min-h-[260px]">
                   <div className="absolute inset-0 bg-[radial-gradient(#23324c_1px,transparent_1px)] [background-size:16px_16px] opacity-40"></div>
-                  <div className="absolute top-1/4 left-1/3 w-3 h-3 bg-brand-500 rounded-full animate-ping" />
-                  <div className="absolute top-1/4 left-1/3 w-2.5 h-2.5 bg-brand-500 rounded-full border border-[#0B0F19]" />
                   
-                  <div className="absolute bottom-1/4 right-1/4 w-3 h-3 bg-emerald-500 rounded-full animate-ping" />
-                  <div className="absolute bottom-1/4 right-1/4 w-2.5 h-2.5 bg-emerald-500 rounded-full border border-[#0B0F19]" />
+                  {/* Interactive pins */}
+                  {[
+                    { id: 'TX-ROAD88', name: 'Truck #TX-ROAD88', state: 'Moving', location: 'Albury', speed: '62 km/h', incidents: '0', load: 'LD-9411', top: '30%', left: '35%', color: 'bg-brand-500' },
+                    { id: 'IL-HAUL42', name: 'Van #IL-HAUL42', state: 'Stopped', location: 'Sydney Depot', speed: '0 km/h', incidents: '0', load: 'LD-1082', top: '65%', left: '60%', color: 'bg-red-500' },
+                    { id: 'VIC-CAR99', name: 'Carrier #VIC-CAR99', state: 'Moving', location: 'Melbourne Terminal', speed: '80 km/h', incidents: '1 (Roadworks)', load: 'LD-4009', top: '45%', left: '48%', color: 'bg-emerald-550' }
+                  ].map((veh) => (
+                    <button
+                      key={veh.id}
+                      type="button"
+                      onClick={() => setSelectedVehicleTelemetry(veh)}
+                      style={{ top: veh.top, left: veh.left }}
+                      className="absolute group transform -translate-x-1/2 -translate-y-1/2 focus:outline-none z-20 cursor-pointer"
+                    >
+                      <span className={`absolute -inset-1 rounded-full ${veh.color} opacity-40 animate-ping`} />
+                      <div className={`w-3.5 h-3.5 rounded-full ${veh.color} border border-[#0B0F19] shadow-lg group-hover:scale-125 transition-transform`} />
+                      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-[#161F30]/90 border border-[#23324C] text-[8px] font-bold text-white px-1.5 py-0.5 rounded whitespace-nowrap opacity-70 group-hover:opacity-100 transition-opacity">
+                        {veh.id}
+                      </div>
+                    </button>
+                  ))}
+
+                  {/* SVG Route lines */}
+                  <svg className="absolute inset-0 w-full h-full pointer-events-none">
+                    <path d="M 120 100 Q 200 160 300 210" fill="none" stroke="#23324c" strokeWidth="1.5" strokeDasharray="3,3" opacity="0.6" />
+                  </svg>
+
+                  {/* Telemetry Overlay Panel */}
+                  {selectedVehicleTelemetry && (
+                    <div className="absolute bottom-3 right-3 left-3 sm:left-auto sm:w-72 bg-[#161F30]/95 border border-[#23324C] rounded-xl p-3.5 space-y-2 text-left z-30 animate-fade-in shadow-xl">
+                      <div className="flex justify-between items-center border-b border-[#23324C]/60 pb-1.5">
+                        <strong className="text-white text-xs font-black">{selectedVehicleTelemetry.name}</strong>
+                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-black ${
+                          selectedVehicleTelemetry.state === 'Moving' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'
+                        }`}>
+                          {selectedVehicleTelemetry.state}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-[10px]">
+                        <div>
+                          <span className="text-slate-500 block uppercase font-bold text-[8px]">Location</span>
+                          <span className="text-slate-200 font-semibold">{selectedVehicleTelemetry.location}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block uppercase font-bold text-[8px]">Current Speed</span>
+                          <span className="text-slate-200 font-semibold font-mono">{selectedVehicleTelemetry.speed}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block uppercase font-bold text-[8px]">Active Load</span>
+                          <span className="text-brand-400 font-bold font-mono">{selectedVehicleTelemetry.load}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-500 block uppercase font-bold text-[8px]">Incidents</span>
+                          <span className="text-slate-250 font-semibold">{selectedVehicleTelemetry.incidents}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-2 mt-2 pt-2 border-t border-[#23324C]/40">
+                  <Button size="xs" variant="primary" onClick={() => triggerToast('Real-time driver tracking initiated.')}>Track Driver</Button>
+                  <Button size="xs" variant="secondary" onClick={() => triggerToast('Opening Google Maps route...')}>Open Route</Button>
+                  <Button size="xs" variant="outline" onClick={() => triggerToast('Location coordinates sent to driver.')}>Send Location To Driver</Button>
+                  <Button size="xs" variant="success" onClick={() => triggerToast('GPS coordinates refreshed.')}>Refresh GPS</Button>
+                  <Button size="xs" variant="secondary" onClick={() => triggerToast('Loading vehicle location history...')}>View Location History</Button>
+                  <Button size="xs" variant="danger" onClick={() => triggerToast('Load flagged as delayed. Alert sent to customer.')}>Flag Delay</Button>
                 </div>
               </div>
 
@@ -760,6 +1018,438 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                   <Button type="submit" variant="primary" className="flex-shrink-0" icon={Send} />
                 </form>
               </div>
+            </div>
+          )}
+
+          {/* AI Load Inbox Screen with AI Confirmation Buttons */}
+          {activeTab === 'ai-inbox' && (
+            <div className="space-y-6">
+              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-5">
+                <div>
+                  <h3 className="text-sm font-extrabold text-white flex items-center gap-2">
+                    <Activity className="h-4 w-4 text-brand-500" /> AI Load Inbox Ingestion Queue
+                  </h3>
+                  <p className="text-xs text-slate-400">Review, confirm, match fields, or reject load manifests extracted automatically by AI model pipelines.</p>
+                </div>
+
+                <div className="space-y-6">
+                  {aiQueue.loadInbox.filter(item => item.status === 'pending').length === 0 ? (
+                    <div className="p-8 text-center text-slate-400 text-xs">
+                      No pending AI load extraction results in queue.
+                    </div>
+                  ) : (
+                    aiQueue.loadInbox.filter(item => item.status === 'pending').map((item) => (
+                      <div key={item.id} className="p-5 bg-[#111827]/80 border border-[#23324C] rounded-2xl space-y-4">
+                        <div className="flex justify-between items-center border-b border-[#23324C]/50 pb-3 flex-wrap gap-2">
+                          <span className="text-[11px] text-slate-350 font-mono font-bold">Source manifest: <span className="text-slate-400 font-semibold">{item.source}</span></span>
+                          <span className="text-[10px] bg-brand-500/10 text-brand-400 border border-brand-500/20 px-2 py-0.5 rounded-full font-bold">96.8% AI Match Confidence</span>
+                        </div>
+
+                        {/* Matching Modules Grid with Confidence Levels */}
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                          <div className="p-3.5 bg-slate-900/60 border border-[#23324C]/45 rounded-xl space-y-2">
+                            <div className="flex justify-between items-center">
+                              <span className="text-[9px] text-slate-500 font-extrabold uppercase">Customer Match</span>
+                              <span className="text-[10px] text-emerald-450 font-bold">98%</span>
+                            </div>
+                            <strong className="text-white text-xs block truncate">{item.data.customer || 'Vance Refrigeration'}</strong>
+                            <button 
+                              onClick={() => triggerToast(`Matched with customer registry: ${item.data.customer}`)}
+                              className="w-full py-1 bg-slate-800 hover:bg-slate-750 text-slate-300 text-[10px] rounded-lg font-bold transition-all cursor-pointer"
+                            >
+                              Match Customer
+                            </button>
+                          </div>
+
+                          <div className="p-3.5 bg-slate-900/60 border border-[#23324C]/45 rounded-xl space-y-2">
+                            <div className="flex justify-between items-center">
+                              <span className="text-[9px] text-slate-500 font-extrabold uppercase">Address Match</span>
+                              <span className="text-[10px] text-emerald-450 font-bold">89%</span>
+                            </div>
+                            <strong className="text-white text-xs block truncate">{item.data.route || 'Chicago HQ ➔ St. Louis'}</strong>
+                            <button 
+                              onClick={() => triggerToast(`Terminal route coordinates geocoded.`)}
+                              className="w-full py-1 bg-slate-800 hover:bg-slate-750 text-slate-300 text-[10px] rounded-lg font-bold transition-all cursor-pointer"
+                            >
+                              Match Address
+                            </button>
+                          </div>
+
+                          <div className="p-3.5 bg-slate-900/60 border border-[#23324C]/45 rounded-xl space-y-2">
+                            <div className="flex justify-between items-center">
+                              <span className="text-[9px] text-slate-500 font-extrabold uppercase">Stop Match</span>
+                              <span className="text-[10px] text-brand-400 font-bold">94%</span>
+                            </div>
+                            <strong className="text-white text-xs block">2 stops identified</strong>
+                            <button 
+                              onClick={() => triggerToast(`Confirmed Stops sequence synced.`)}
+                              className="w-full py-1 bg-slate-800 hover:bg-slate-750 text-slate-300 text-[10px] rounded-lg font-bold transition-all cursor-pointer"
+                            >
+                              Confirm Stops
+                            </button>
+                          </div>
+
+                          <div className="p-3.5 bg-slate-900/60 border border-[#23324C]/45 rounded-xl space-y-2">
+                            <div className="flex justify-between items-center">
+                              <span className="text-[9px] text-slate-500 font-extrabold uppercase">Item Match</span>
+                              <span className="text-[10px] text-emerald-450 font-bold">92%</span>
+                            </div>
+                            <strong className="text-white text-xs block truncate">{item.data.cargo || 'HVAC Units'}</strong>
+                            <button 
+                              onClick={() => triggerToast(`Confirmed Items quantity: ${item.data.weight}`)}
+                              className="w-full py-1 bg-slate-800 hover:bg-slate-750 text-slate-300 text-[10px] rounded-lg font-bold transition-all cursor-pointer"
+                            >
+                              Confirm Items
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Ingestion & Action Buttons */}
+                        <div className="flex flex-wrap gap-2 pt-3 border-t border-[#23324C]/35">
+                          <button 
+                            onClick={() => triggerToast(`AI Raw JSON manifest metadata loaded for inspection.`)}
+                            className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-xl font-bold transition-all cursor-pointer"
+                          >
+                            Review AI Extract
+                          </button>
+                          <button 
+                            onClick={() => {
+                              resolveAiItem('loadInbox', item.id, 'confirmed');
+                              dispatch(createLoad({
+                                status: 'Planned',
+                                cargo: item.data.cargo,
+                                weight: item.data.weight,
+                                route: item.data.route,
+                                customerName: item.data.customer,
+                                cost: '$1,200.00'
+                              }));
+                              triggerToast(`AI Ingested Load ${item.id} successfully Confirmed and created!`);
+                            }}
+                            className="px-3.5 py-2 bg-brand-500 hover:bg-brand-600 text-slate-950 text-xs rounded-xl font-black transition-all cursor-pointer"
+                          >
+                            Confirm AI Load
+                          </button>
+                          <button 
+                            onClick={() => {
+                              resolveAiItem('loadInbox', item.id, 'confirmed');
+                              dispatch(createLoad({
+                                status: 'Draft',
+                                cargo: item.data.cargo,
+                                weight: item.data.weight,
+                                route: item.data.route,
+                                customerName: item.data.customer,
+                                cost: '$1,200.00'
+                              }));
+                              triggerToast(`Draft Load created successfully!`);
+                            }}
+                            className="px-3.5 py-2 bg-slate-700 hover:bg-slate-650 text-slate-300 text-xs rounded-xl font-bold transition-all cursor-pointer"
+                          >
+                            Create Draft Load
+                          </button>
+                          <button 
+                            onClick={() => {
+                              resolveAiItem('loadInbox', item.id, 'rejected');
+                              triggerToast(`AI extracted load ${item.id} Rejected.`, 'warning');
+                            }}
+                            className="px-3.5 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs rounded-xl font-bold transition-all cursor-pointer"
+                          >
+                            Reject Inbox Item
+                          </button>
+                          <button 
+                            onClick={() => triggerToast(`AI Ingestion item assigned to dispatch node operator.`)}
+                            className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-450 text-xs rounded-xl font-bold transition-all cursor-pointer"
+                          >
+                            Assign to Dispatcher
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Inter-Company Transfers Screen */}
+          {activeTab === 'transfers' && (
+            <div className="space-y-6">
+              {/* Internal Transfers sub-tab selectors */}
+              <div className="flex border-b border-[#23324C]/40 pb-px text-xs font-bold gap-4 text-left">
+                {['all', 'pending', 'accepted', 'rejected', 'chain'].map(st => (
+                  <button 
+                    key={st}
+                    onClick={() => triggerToast(`Filtering transfers by: ${st}`)}
+                    className="capitalize pb-2 text-slate-450 hover:text-slate-200 cursor-pointer"
+                  >
+                    {st} Transfers
+                  </button>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                {/* Initiate Transfer Form Panel */}
+                <div className="lg:col-span-5 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-sm font-extrabold text-white">Transfer Logistics Custody</h3>
+                    <p className="text-xs text-slate-400 leading-relaxed">Initiate sub-contracting transfers of loads, items, or delivery sections.</p>
+                  </div>
+
+                  <div className="space-y-4 my-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Transfer Item Type</label>
+                      <select id="tx-type-select" className="w-full px-3.5 py-2.5 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/35">
+                        <option value="Load Transfer">Transfer Load</option>
+                        <option value="Asset/Car Transfer">Transfer Item/Car</option>
+                        <option value="Delivery Section Transfer">Transfer Delivery Section</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Select Target</label>
+                      <select id="tx-target-select" className="w-full px-3.5 py-2.5 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/35">
+                        <option value="LD-9411 (Chicago ➔ Dallas)">LD-9411 (Cargo: Auto Components)</option>
+                        <option value="VIN: 1YV1HP82A81920 (Ford Mustang)">VIN: 1YV1HP82A81920 (Ford Mustang)</option>
+                        <option value="Delivery Section B (Stop 2 ➔ Stop 3)">Delivery Section B (Stop 2 ➔ Stop 3)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Target Transport Partner</label>
+                      <select id="tx-partner-select" className="w-full px-3.5 py-2.5 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/35">
+                        <option value="Super Freight Carriers">Super Freight Carriers</option>
+                        <option value="Car Transporters Co">Car Transporters Co</option>
+                        <option value="Rapid Logistics SA">Rapid Logistics SA</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => {
+                        const type = document.getElementById('tx-type-select').value;
+                        const target = document.getElementById('tx-target-select').value;
+                        const partner = document.getElementById('tx-partner-select').value;
+                        initiateTransfer(type, target, 'Hero Logistics Ltd', partner);
+                        triggerToast(`Inter-company transfer initiated successfully.`);
+                      }}
+                      className="flex-grow py-2.5 bg-brand-500 hover:bg-brand-600 text-slate-950 text-xs rounded-xl font-black transition-all cursor-pointer shadow-lg shadow-brand-500/10"
+                    >
+                      Create Transfer
+                    </button>
+                    <Button variant="outline" onClick={() => triggerToast('Transfer Item flow loaded...')}>
+                      Transfer Item
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Registry & Custody Timeline */}
+                <div className="lg:col-span-7 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                  <h3 className="text-sm font-extrabold text-white">Custody & Chain of History</h3>
+                  
+                  <div className="space-y-4 max-h-[380px] overflow-y-auto pr-1">
+                    {transfers.map(tx => (
+                      <div key={tx.id} className="p-4 bg-[#111827]/60 border border-[#23324C] rounded-xl space-y-3.5">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <span className="text-[10px] text-slate-500 font-mono font-bold block">{tx.type}</span>
+                            <strong className="text-white text-xs block mt-0.5">{tx.target}</strong>
+                          </div>
+                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                            tx.status === 'pending' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 
+                            tx.status === 'accepted' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 
+                            'bg-red-500/10 text-red-400 border border-red-500/20'
+                          }`}>
+                            {tx.status.toUpperCase()}
+                          </span>
+                        </div>
+
+                        {/* Custody Timeline detail zone */}
+                        <div className="text-[11px] text-slate-450 border-t border-[#23324C]/50 pt-2">
+                          <strong className="text-[10px] text-slate-400 block mb-1">Chain of Custody Logs (Priority 3 Timeline)</strong>
+                          <div className="space-y-3 pl-3 border-l border-[#23324C]/80 ml-1.5 py-1">
+                            <div className="relative pl-1">
+                              <span className="absolute left-[-16px] top-1 w-2 h-2 rounded-full bg-emerald-500" />
+                              <div className="flex justify-between items-center text-[10px]">
+                                <span className="font-extrabold text-slate-200">Current Owner: Hero Logistics Ltd</span>
+                                <span className="text-slate-550 font-mono">Active</span>
+                              </div>
+                            </div>
+                            {tx.custodyChain.map((log, idx) => (
+                              <div key={idx} className="relative pl-1">
+                                <span className="absolute left-[-16px] top-1 w-2 h-2 rounded-full bg-slate-600" />
+                                <div className="text-slate-350">
+                                  Party: <strong className="text-slate-200">{log.party}</strong> | Action: {log.action}
+                                </div>
+                                <span className="text-[9px] text-slate-500 font-mono">{log.timestamp}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {tx.status === 'pending' && (
+                          <div className="flex gap-2 pt-2 border-t border-[#23324C]/45">
+                            <button 
+                              onClick={() => {
+                                acceptTransfer(tx.id, `${user.name} (${user.role})`);
+                                triggerToast('Inter-company transfer accepted!');
+                              }}
+                              className="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-[11px] rounded-xl font-bold transition-all cursor-pointer"
+                            >
+                              Accept Transfer
+                            </button>
+                            <button 
+                              onClick={() => {
+                                rejectTransfer(tx.id, `${user.name} (${user.role})`);
+                                triggerToast('Inter-company transfer rejected.', 'warning');
+                              }}
+                              className="px-3.5 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-[11px] rounded-xl font-bold transition-all cursor-pointer"
+                            >
+                              Reject Transfer
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'create-load' && (
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <div className="flex justify-between items-center border-b border-[#23324C]/45 pb-3">
+                <h3 className="text-sm font-extrabold text-white">Create Shipment Load</h3>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="secondary" onClick={handleSaveDraft}>Save Draft</Button>
+                  <Button size="sm" variant="primary" onClick={handleWizardSubmit}>Book & Plan Shipment</Button>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-3">
+                  <TextInput label="Customer / Shipper Name" required placeholder="e.g. Vance Refrigeration" value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
+                  <TextInput label="Contact Billing Email" type="email" required placeholder="billing@vance.com" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} />
+                  <TextInput label="Pickup Location Address" required placeholder="ChicagoHQ Depot" value={pickupAddress} onChange={(e) => setPickupAddress(e.target.value)} />
+                  <TextInput label="Delivery Destination Address" required placeholder="Dallas Terminal" value={deliveryAddress} onChange={(e) => setDeliveryAddress(e.target.value)} />
+                </div>
+                <div className="space-y-3">
+                  <TextInput label="Cargo description" required placeholder="HVAC Industrial Units" value={cargoName} onChange={(e) => setCargoName(e.target.value)} />
+                  <TextInput label="Weight spec (lbs)" required type="number" placeholder="24000" value={cargoWeight} onChange={(e) => setCargoWeight(e.target.value)} />
+                  <SelectInput label="Assign Active Fleet Vehicle" value={assignedVehicle} onChange={(e) => setAssignedVehicle(e.target.value)} options={
+                    (fleet || []).map(v => ({ value: v.plate, label: `${v.plate} (${v.type})` }))
+                  } />
+                  <SelectInput label="Assign Available Driver" value={assignedDriver} onChange={(e) => setAssignedDriver(e.target.value)} options={
+                    (drivers || []).map(d => ({ value: d.name, label: d.name }))
+                  } />
+                </div>
+              </div>
+              <div className="border-t border-[#23324C]/45 pt-3">
+                <label className="block text-[10px] text-slate-500 font-bold uppercase mb-2">Configure Intermediate Stops Sequence</label>
+                <div className="flex gap-2">
+                  <TextInput placeholder="Layover Rest Address..." value={stopAddress} onChange={(e) => setStopAddress(e.target.value)} className="flex-grow" />
+                  <Button variant="outline" size="sm" onClick={handleAddWizardStop}>Add Stop</Button>
+                </div>
+                <div className="mt-3 flex gap-2">
+                  <Button variant="outline" size="sm" onClick={() => triggerToast('Stops reordered (multi-stop sequencer optimized).')}>Reorder Stops</Button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'active-loads' && (
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <h3 className="text-sm font-extrabold text-white">Active Cargo In-Transit</h3>
+              <DataTable columns={[
+                { key: 'route', label: 'Route Path', render: (row) => <span className="font-extrabold text-white">{row.route}</span> },
+                { key: 'driver', label: 'Driver', render: (row) => <span className="text-slate-350">{row.driver}</span> },
+                { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> }
+              ]} data={loads.filter(l => l.status === 'In Transit' || l.status === 'Transit')} />
+            </div>
+          )}
+
+          {activeTab === 'drivers' && (
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-sm font-extrabold text-white">Fleet Driver Availability</h3>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="success" onClick={() => triggerToast('Filtering active drivers only')}>View Available Drivers</Button>
+                  <Button size="sm" variant="secondary" onClick={() => triggerToast('Filtering off-duty drivers only')}>View Unavailable Drivers</Button>
+                </div>
+              </div>
+              <DataTable columns={[
+                { key: 'name', label: 'Driver Operator', render: (row) => <span className="font-extrabold text-white">{row.name}</span> },
+                { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> }
+              ]} data={drivers} />
+            </div>
+          )}
+
+          {activeTab === 'vehicles-trailers' && (
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-sm font-extrabold text-white">Fleet Trailer Assets Registry</h3>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="primary" onClick={() => triggerToast('Trailer Swapped successfully.')}>Swap Trailer</Button>
+                  <Button size="sm" variant="outline" onClick={() => triggerToast('Trailer change reason logged.')}>Record Trailer Change Reason</Button>
+                  <Button size="sm" variant="success" onClick={() => triggerToast('Add Vehicle modal/form opened.')}>Add Vehicle</Button>
+                </div>
+              </div>
+              <DataTable columns={[
+                { key: 'plate', label: 'Plate', render: (row) => <span className="font-mono text-white">{row.plate}</span> },
+                { key: 'type', label: 'Type', render: (row) => <span>{row.type}</span> },
+                { key: 'compliance', label: 'Safety Compliance', render: (row) => (
+                  row.complianceChecked ? (
+                    <span className="text-[10px] text-emerald-400 font-bold">✓ Compliant ({row.odometer} mi)</span>
+                  ) : (
+                    <span className="text-[10px] text-amber-500 font-bold">⚠️ Pending Inspection</span>
+                  )
+                )},
+                { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status || 'Active'} /> }
+              ]} data={fleet} />
+            </div>
+          )}
+
+          {activeTab === 'customers' && (
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-sm font-extrabold text-white">Shipper Accounts</h3>
+                <Button size="sm" variant="primary" onClick={() => triggerToast('Shipper account linked to dispatch workflow.')}>Link Customer</Button>
+              </div>
+              <p className="text-xs text-slate-400 font-medium">Link and configure customer instructions directories.</p>
+            </div>
+          )}
+
+          {activeTab === 'yard-warehouse' && (
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <h3 className="text-sm font-extrabold text-white">Storage Slots Grid</h3>
+              <p className="text-xs text-slate-400">Yard capacity layout mapping trailer bays.</p>
+            </div>
+          )}
+
+          {activeTab === 'workforce-availability' && (
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-sm font-extrabold text-white">Worker Shift Roster Calendar</h3>
+                <Button size="sm" variant="primary" onClick={() => triggerToast('Shift assigned successfully from Dispatch.')}>Assign Shift</Button>
+              </div>
+              <p className="text-xs text-slate-400">Audit available workforce roster days.</p>
+            </div>
+          )}
+
+          {activeTab === 'messages' && (
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <h3 className="text-sm font-extrabold text-white">Driver Hotline Chat Console</h3>
+              <div className="flex gap-2">
+                <Button size="sm" variant="primary" onClick={() => triggerToast('Sending message packet')}>Message Driver</Button>
+                <Button size="sm" variant="secondary" onClick={() => triggerToast('Hotline dialer initiated.')}>Call Driver</Button>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'reports' && (
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <h3 className="text-sm font-extrabold text-white">Dispatcher Delivery Performance reports</h3>
+              <p className="text-xs text-slate-400">Total shipments dispatched per week metrics.</p>
             </div>
           )}
         </>
@@ -830,16 +1520,69 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
 
             {wizardStep === 4 && (
               <div className="space-y-4 animate-fade-in">
-                <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 4: Intermediate Stops Manager</h4>
+                <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 4: Cargo Items & Stops Manager</h4>
                 
-                {/* List of currently added stops */}
+                {/* Section 1: Define Cargo Items */}
+                <div className="p-4 bg-[#111827]/40 border border-[#23324C] rounded-xl space-y-3">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">Define Cargo Items Manifest</span>
+                  
+                  {wizardItems.length > 0 && (
+                    <div className="space-y-1.5 max-h-32 overflow-y-auto mb-2">
+                      {wizardItems.map(item => (
+                        <div key={item.id} className="flex justify-between items-center p-2 bg-slate-900 border border-[#23324C]/40 rounded-lg text-[10px]">
+                          <span className="text-slate-200 font-bold">{item.name} ({item.weight})</span>
+                          <button
+                            type="button"
+                            onClick={() => setWizardItems(wizardItems.filter(i => i.id !== item.id))}
+                            className="text-red-400 hover:text-red-300 font-mono"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <TextInput placeholder="Item name/desc..." value={newItemName} onChange={(e) => setNewItemName(e.target.value)} />
+                    <TextInput placeholder="Weight (e.g. 10k lbs)..." value={newItemWeight} onChange={(e) => setNewItemWeight(e.target.value)} />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => {
+                      if (!newItemName.trim()) return;
+                      const itm = {
+                        id: `ITM-${Date.now()}`,
+                        name: newItemName.trim(),
+                        weight: newItemWeight.trim() || '0 lbs'
+                      };
+                      setWizardItems([...wizardItems, itm]);
+                      setNewItemName('');
+                      setNewItemWeight('');
+                      triggerToast('Item added to manifest.');
+                    }}
+                  >
+                    + Add Item to Manifest
+                  </Button>
+                </div>
+
+                {/* Section 2: List of currently added stops */}
                 {wizardStops.length > 0 && (
                   <div className="space-y-2 max-h-40 overflow-y-auto">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">Intermediate Stops Sequence</span>
                     {wizardStops.map((stop) => (
                       <div key={stop.id} className="flex items-center justify-between p-3 bg-slate-900/60 border border-[#23324C]/60 rounded-xl text-xs">
                         <div>
                           <strong className="text-white block">#{stop.sequence}: {stop.address}</strong>
-                          <span className="text-[10px] text-slate-400">{stop.type} • {stop.notes}</span>
+                          <span className="text-[10px] text-slate-450 block">{stop.type} • {stop.notes}</span>
+                          <span className="text-[9px] text-brand-400 font-bold block mt-0.5">
+                            Assigned Items: {stop.itemIds && stop.itemIds.length > 0 
+                              ? wizardItems.filter(i => stop.itemIds.includes(i.id)).map(i => i.name).join(', ')
+                              : 'None'}
+                          </span>
                         </div>
                         <button type="button" onClick={() => handleRemoveWizardStop(stop.id)} className="p-1.5 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
                           <Trash2 className="h-4.5 w-4.5" />
@@ -851,16 +1594,44 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
 
                 {/* Add stop sub-form */}
                 <div className="p-4 bg-[#111827]/40 border border-[#23324C] rounded-xl space-y-3">
-                  <TextInput label="Intermediate Stop Address" value={stopAddress} onChange={(e) => setStopAddress(e.target.value)} placeholder="e.g. St. Louis Terminal yard, MO" />
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">Add Intermediate Stop</span>
+                  <TextInput label="Stop Address" value={stopAddress} onChange={(e) => setStopAddress(e.target.value)} placeholder="e.g. St. Louis Terminal yard, MO" />
                   <SelectInput label="Stop Classification Type" value={stopType} onChange={(e) => setStopType(e.target.value)} options={[
                     { value: 'Layover', label: 'Driver Layover / Rest' },
                     { value: 'Customs', label: 'Customs Clear check' },
                     { value: 'Border Crossing', label: 'Border Checkpoint' },
                     { value: 'Split Terminal', label: 'Cargo Splitting node' }
                   ]} />
+                  
+                  {/* Item linkage checkboxes */}
+                  {wizardItems.length > 0 && (
+                    <div className="space-y-1.5">
+                      <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Assign Items to this Stop</label>
+                      <div className="space-y-1 bg-[#0B0F19] p-2.5 rounded-lg border border-[#23324C]/60 max-h-24 overflow-y-auto">
+                        {wizardItems.map(item => (
+                          <label key={item.id} className="flex items-center gap-2 text-[10px] text-slate-350 cursor-pointer select-none">
+                            <input
+                              type="checkbox"
+                              checked={selectedItemIdsForStop.includes(item.id)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setSelectedItemIdsForStop([...selectedItemIdsForStop, item.id]);
+                                } else {
+                                  setSelectedItemIdsForStop(selectedItemIdsForStop.filter(id => id !== item.id));
+                                }
+                              }}
+                              className="rounded border-[#23324C] text-brand-500 focus:ring-brand-500 h-3.5 w-3.5"
+                            />
+                            <span>{item.name}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <TextInput label="Stop Notes / Window Time" value={stopNotes} onChange={(e) => setStopNotes(e.target.value)} placeholder="e.g. 2-hour rest, gate 5" />
                   <Button type="button" variant="outline" size="sm" className="w-full" onClick={handleAddWizardStop}>
-                    Add Intermediate Stop
+                    Add Stop Location
                   </Button>
                 </div>
               </div>
@@ -868,8 +1639,51 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
 
             {wizardStep === 5 && (
               <div className="space-y-4 animate-fade-in">
-                <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 5: Cargo Specs & Vehicle</h4>
-                <TextInput label="Cargo Description" required placeholder="e.g. Dry Grocery Pallets" value={cargoName} onChange={(e) => setCargoName(e.target.value)} />
+                <h4 className="text-xs font-bold text-white uppercase tracking-wider">
+                  Step 5: Cargo Specs & Vehicle ({selectedNiche.replace('_', ' ').toUpperCase()})
+                </h4>
+
+                {/* Dynamic Wording and Fields depending on Niche */}
+                {selectedNiche === 'car_carrying' && (
+                  <div className="space-y-3.5 p-3.5 bg-[#111827]/40 border border-[#23324C] rounded-xl">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">Car Carrying Details</span>
+                    <TextInput label="Vehicle VIN Number" required placeholder="e.g. 1YV1HP82A8..." value={carVin} onChange={(e) => setCarVin(e.target.value)} />
+                    <div className="grid grid-cols-2 gap-2">
+                      <TextInput label="Rego Plate" required placeholder="TX-8820" value={carRego} onChange={(e) => setCarRego(e.target.value)} />
+                      <TextInput label="Stock Number" required placeholder="STK-991" value={carStock} onChange={(e) => setCarStock(e.target.value)} />
+                    </div>
+                    <TextInput label="Make / Model" required placeholder="Ford Mustang Coupe" value={carModel} onChange={(e) => {
+                      setCarModel(e.target.value);
+                      setCargoName(`Car Carrier: ${e.target.value}`);
+                    }} />
+                  </div>
+                )}
+
+                {selectedNiche === 'general_freight' && (
+                  <div className="space-y-3.5 p-3.5 bg-[#111827]/40 border border-[#23324C] rounded-xl">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">General Freight Details</span>
+                    <TextInput label="Item Description" required placeholder="e.g. Dry Grocery Goods" value={cargoName} onChange={(e) => setCargoName(e.target.value)} />
+                    <div className="grid grid-cols-2 gap-2">
+                      <TextInput label="Pallet Count" required type="number" placeholder="24" value={freightPallets} onChange={(e) => setFreightPallets(e.target.value)} />
+                      <TextInput label="Dimensions (LxWxH)" required placeholder="48x40x60 in" value={freightDimensions} onChange={(e) => setFreightDimensions(e.target.value)} />
+                    </div>
+                  </div>
+                )}
+
+                {selectedNiche === 'dangerous_goods' && (
+                  <div className="space-y-3.5 p-3.5 bg-[#111827]/40 border border-[#23324C] rounded-xl">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">Dangerous Goods (HAZMAT) Details</span>
+                    <TextInput label="Chemical / Cargo Name" required placeholder="e.g. Lithium Ion Batteries" value={cargoName} onChange={(e) => setCargoName(e.target.value)} />
+                    <div className="grid grid-cols-2 gap-2">
+                      <TextInput label="UN Number" required placeholder="UN 3480" value={unNumber} onChange={(e) => setUnNumber(e.target.value)} />
+                      <TextInput label="HAZMAT Class" required placeholder="Class 9" value={hazmatCode} onChange={(e) => setHazmatCode(e.target.value)} />
+                    </div>
+                    <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-bold rounded-xl flex items-center gap-1.5">
+                      <ShieldAlert className="h-4 w-4" /> HAZMAT Class requires placard configuration on trailers.
+                    </div>
+                  </div>
+                )}
+
                 <TextInput label="Cargo weight (lbs)" required type="number" placeholder="e.g. 24000" value={cargoWeight} onChange={(e) => setCargoWeight(e.target.value)} />
                 
                 <SelectInput label="Assign Active Fleet Vehicle" value={assignedVehicle} onChange={(e) => setAssignedVehicle(e.target.value)} options={
@@ -898,23 +1712,74 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
             )}
 
             {wizardStep === 7 && (
-              <div className="space-y-4 animate-fade-in">
-                <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 7: Documents Checklist</h4>
-                <p className="text-[11px] text-slate-400">Select files to attach to this load manifest confirmation.</p>
+              <div className="space-y-4 animate-fade-in text-xs">
+                <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 7: Documents & Photos Checklist</h4>
+                <p className="text-[11px] text-slate-400">Select files to attach to this load manifest confirmation or upload photos.</p>
                 
-                <div className="space-y-3.5">
-                  <label className="flex items-center justify-between p-3.5 bg-slate-900/60 border border-[#23324C] hover:border-brand-500/20 rounded-xl cursor-pointer select-none">
+                <div className="space-y-3">
+                  <label className="flex items-center justify-between p-3 bg-slate-900/60 border border-[#23324C] hover:border-brand-500/20 rounded-xl cursor-pointer select-none">
                     <span className="text-xs font-bold text-slate-200">Rate Confirmation Contract.pdf</span>
                     <input type="checkbox" checked={docsRateConf} onChange={(e) => setDocsRateConf(e.target.checked)} className="rounded text-brand-500 focus:ring-brand-500 h-4.5 w-4.5" />
                   </label>
-                  <label className="flex items-center justify-between p-3.5 bg-slate-900/60 border border-[#23324C] hover:border-brand-500/20 rounded-xl cursor-pointer select-none">
+                  <label className="flex items-center justify-between p-3 bg-slate-900/60 border border-[#23324C] hover:border-brand-500/20 rounded-xl cursor-pointer select-none">
                     <span className="text-xs font-bold text-slate-200">Bill of Lading (BOL).pdf</span>
                     <input type="checkbox" checked={docsBOL} onChange={(e) => setDocsBOL(e.target.checked)} className="rounded text-brand-500 focus:ring-brand-500 h-4.5 w-4.5" />
                   </label>
-                  <label className="flex items-center justify-between p-3.5 bg-slate-900/60 border border-[#23324C] hover:border-brand-500/20 rounded-xl cursor-pointer select-none">
+                  <label className="flex items-center justify-between p-3 bg-slate-900/60 border border-[#23324C] hover:border-brand-500/20 rounded-xl cursor-pointer select-none">
                     <span className="text-xs font-bold text-slate-200">Customs manifest bond declaration.pdf</span>
                     <input type="checkbox" checked={docsCustoms} onChange={(e) => setDocsCustoms(e.target.checked)} className="rounded text-brand-500 focus:ring-brand-500 h-4.5 w-4.5" />
                   </label>
+                </div>
+
+                {/* Documents & Photos Upload Zone */}
+                <div className="p-4 bg-[#111827]/40 border-2 border-dashed border-[#23324C] rounded-xl text-center space-y-3">
+                  <div className="text-slate-400 text-[11px]">
+                    Drag & drop cargo documents, tickets, or vehicle photos here to attach
+                  </div>
+                  <div className="flex justify-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newFile = { name: `cargo_photo_${Date.now().toString().slice(-4)}.jpg`, type: 'Image', date: 'Just now' };
+                        setUploadedFiles([...uploadedFiles, newFile]);
+                        triggerToast('Mock photo uploaded.');
+                      }}
+                      className="px-3 py-1.5 bg-[#161F30] border border-[#23324C] hover:border-brand-500/40 text-slate-200 text-[11px] rounded-lg cursor-pointer"
+                    >
+                      + Add Mock Photo
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newFile = { name: `extra_doc_${Date.now().toString().slice(-4)}.pdf`, type: 'PDF', date: 'Just now' };
+                        setUploadedFiles([...uploadedFiles, newFile]);
+                        triggerToast('Mock PDF document uploaded.');
+                      }}
+                      className="px-3 py-1.5 bg-[#161F30] border border-[#23324C] hover:border-brand-500/40 text-slate-200 text-[11px] rounded-lg cursor-pointer"
+                    >
+                      + Add Mock PDF
+                    </button>
+                  </div>
+
+                  {uploadedFiles.length > 0 && (
+                    <div className="text-left border-t border-[#23324C]/60 pt-2 space-y-1.5">
+                      <span className="text-[9px] font-bold text-slate-500 uppercase block">Uploaded Files Preview Zone</span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {uploadedFiles.map((file, fIdx) => (
+                          <div key={fIdx} className="flex justify-between items-center p-2 bg-slate-900 border border-[#23324C]/40 rounded-lg text-[10px]">
+                            <span className="text-slate-350 truncate max-w-[130px] font-mono">{file.name} ({file.type})</span>
+                            <button
+                              type="button"
+                              onClick={() => setUploadedFiles(uploadedFiles.filter((_, idx) => idx !== fIdx))}
+                              className="text-red-400 hover:text-red-300 font-bold"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -951,9 +1816,25 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                   <div className="flex justify-between py-1">
                     <span className="text-slate-400">Documents attached</span>
                     <span className="text-white font-bold">
-                      {[docsRateConf && 'RateConf', docsBOL && 'BOL', docsCustoms && 'Customs'].filter(Boolean).join(', ') || 'None'}
+                      {[
+                        docsRateConf && 'RateConf',
+                        docsBOL && 'BOL',
+                        docsCustoms && 'Customs',
+                        ...uploadedFiles.map(f => f.name.slice(0, 10) + '..')
+                      ].filter(Boolean).join(', ') || 'None'}
                     </span>
                   </div>
+                </div>
+
+                {/* Special Dispatch Notes Field */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Special Dispatch Notes</label>
+                  <textarea
+                    placeholder="Enter final dispatcher instructions or special routing alerts..."
+                    value={specialDispatchNotes}
+                    onChange={(e) => setSpecialDispatchNotes(e.target.value)}
+                    className="w-full min-h-20 px-3.5 py-2.5 bg-[#111827]/80 border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/35 placeholder:text-slate-600"
+                  />
                 </div>
               </div>
             )}
@@ -1006,6 +1887,7 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                 { id: 'timeline', label: 'Timeline', icon: Clock },
                 { id: 'docs', label: 'Documents', icon: FileText },
                 { id: 'notes', label: 'Notes', icon: MessageSquare },
+                { id: 'swap', label: 'Trailer Swap', icon: Truck },
                 { id: 'feed', label: 'Activity', icon: Activity }
               ]} 
               activeTab={drawerTab} 
@@ -1016,6 +1898,65 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
             <div className="flex-1 overflow-y-auto py-2">
               {drawerTab === 'details' && (
                 <div className="space-y-4 animate-fade-in">
+                  {/* Linked Customer Directives */}
+                  {(() => {
+                    const matching = (customerInstructions || []).filter(ins => {
+                      if (!selectedLoadDetail) return false;
+                      const scopeLower = ins.scope.toLowerCase();
+                      
+                      if (selectedLoadDetail.customerName && scopeLower.includes(selectedLoadDetail.customerName.toLowerCase())) {
+                        return true;
+                      }
+                      if (selectedLoadDetail.loadId && scopeLower.includes(selectedLoadDetail.loadId.toLowerCase())) {
+                        return true;
+                      }
+                      if (selectedLoadDetail.pickupAddress && scopeLower.includes(selectedLoadDetail.pickupAddress.toLowerCase())) {
+                        return true;
+                      }
+                      if (selectedLoadDetail.deliveryAddress && scopeLower.includes(selectedLoadDetail.deliveryAddress.toLowerCase())) {
+                        return true;
+                      }
+                      if (selectedLoadDetail.stops && selectedLoadDetail.stops.some(stop => stop.address && scopeLower.includes(stop.address.toLowerCase()))) {
+                        return true;
+                      }
+                      
+                      const match = ins.scope.match(/\(([^)]+)\)/);
+                      if (match && match[1]) {
+                        const scopeVal = match[1].toLowerCase();
+                        if (selectedLoadDetail.pickupAddress && selectedLoadDetail.pickupAddress.toLowerCase().includes(scopeVal)) return true;
+                        if (selectedLoadDetail.deliveryAddress && selectedLoadDetail.deliveryAddress.toLowerCase().includes(scopeVal)) return true;
+                        if (selectedLoadDetail.stops && selectedLoadDetail.stops.some(stop => stop.address && stop.address.toLowerCase().includes(scopeVal))) return true;
+                      }
+                      return false;
+                    });
+
+                    if (matching.length === 0) return null;
+
+                    return (
+                      <div className="p-3 bg-brand-500/10 border border-brand-500/25 rounded-xl space-y-2 text-left">
+                        <span className="text-[10px] font-bold text-brand-400 uppercase tracking-wide block">Linked Special Instructions</span>
+                        <div className="space-y-2">
+                          {matching.map((ins) => (
+                            <div key={ins.id} className={`text-xs pb-1.5 border-b border-[#23324C]/30 last:border-0 last:pb-0 ${
+                              ins.isCritical ? 'p-2.5 bg-red-500/15 border border-red-500/30 rounded-lg' : ''
+                            }`}>
+                              <div className="flex justify-between items-center text-[9px] text-slate-400 mb-1">
+                                <span className={`font-bold uppercase ${ins.isCritical ? 'text-red-400' : ''}`}>
+                                  {ins.isCritical ? '🚨 CRITICAL WARNING' : ins.type}
+                                </span>
+                                <span className="font-mono text-slate-500">{ins.scope}</span>
+                              </div>
+                              <p className={`italic ${ins.isCritical ? 'text-red-200 font-bold' : 'text-slate-200'}`}>"{ins.text}"</p>
+                              <div className="text-[8px] text-slate-500 mt-1 flex justify-between">
+                                <span>By: {ins.createdBy || 'System'}</span>
+                                <span>Updated: {ins.updatedAt ? new Date(ins.updatedAt).toLocaleDateString() : 'N/A'}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="p-3 bg-slate-50 dark:bg-slate-800/10 border border-slate-200 dark:border-slate-800/40 rounded-xl">
                       <span className="text-[9px] text-slate-500 font-bold uppercase block">Driver</span>
@@ -1037,6 +1978,43 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                     </div>
                   </div>
 
+                  {selectedLoadDetail.acceptedBy && (
+                    <div className="mt-4 p-3 bg-slate-50 dark:bg-[#0b0f19]/30 border border-slate-200 dark:border-[#23324C]/60 rounded-xl space-y-1">
+                      <span className="text-[10px] font-bold text-slate-455 uppercase tracking-wide block">Job Acceptance Audit</span>
+                      <div className="text-[11px] text-slate-400">
+                        Accepted By: <strong className="text-slate-200">{selectedLoadDetail.acceptedBy}</strong>
+                      </div>
+                      <div className="text-[11px] text-slate-400">
+                        Accepted At: <strong className="text-slate-200">{new Date(selectedLoadDetail.acceptedAt).toLocaleString()}</strong>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedLoadDetail.complianceChecked && (
+                    <div className="mt-4 p-3 bg-slate-50 dark:bg-[#0b0f19]/30 border border-slate-200 dark:border-[#23324C]/60 rounded-xl space-y-1.5">
+                      <span className="text-[10px] font-bold text-slate-455 uppercase tracking-wide block">Pre-Trip Safety Compliance Audit</span>
+                      <div className="text-[11px] text-slate-400">
+                        Odometer: <strong className="text-slate-200">{selectedLoadDetail.odometerReading} miles</strong>
+                      </div>
+                      {selectedLoadDetail.odometerPhoto && (
+                        <div className="text-[11px] text-slate-400">
+                          Odometer Proof: <a href={selectedLoadDetail.odometerPhoto} target="_blank" rel="noreferrer" className="text-brand-400 font-bold hover:underline">View Photo</a>
+                        </div>
+                      )}
+                      <div className="text-[11px] text-slate-400 flex flex-wrap gap-x-2 gap-y-1 mt-1">
+                        <span>Checklist: </span>
+                        {Object.entries(selectedLoadDetail.complianceChecklist || {}).map(([chk, val]) => (
+                          <span key={chk} className={`px-1 rounded text-[9px] ${val ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
+                            {chk.replace(/([A-Z])/g, ' $1')}: {val ? 'Pass' : 'Fail'}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="text-[11px] text-slate-450 font-mono mt-1 text-[9px]">
+                        Checked At: {new Date(selectedLoadDetail.complianceCompletedAt).toLocaleString()}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="mt-4 p-3 bg-slate-50 dark:bg-[#0b0f19]/30 border border-slate-200 dark:border-[#23324C]/60 rounded-xl space-y-2">
                     <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide block">Advance Lifecycle Status</span>
                     <select 
@@ -1044,7 +2022,7 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                       onChange={(e) => handleStatusTransition(e.target.value)}
                       className="w-full px-3 py-2 bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#23324C] rounded-lg text-slate-800 dark:text-slate-200 text-xs focus:outline-none cursor-pointer"
                     >
-                      {['Draft', 'Planned', 'Assigned', 'In Transit', 'Delivered', 'Invoiced', 'Closed'].map(st => (
+                      {['Draft', 'Planned', 'Assigned', 'Accepted', 'In Transit', 'Delivered', 'Invoiced', 'Closed'].map(st => (
                         <option key={st} value={st}>{st}</option>
                       ))}
                     </select>
@@ -1054,7 +2032,7 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
 
               {drawerTab === 'timeline' && (
                 <div className="space-y-4 py-1 animate-fade-in">
-                  {['Draft', 'Planned', 'Assigned', 'In Transit', 'Delivered', 'Invoiced', 'Closed'].map((step, idx, arr) => {
+                  {['Draft', 'Planned', 'Assigned', 'Accepted', 'In Transit', 'Delivered', 'Invoiced', 'Closed'].map((step, idx, arr) => {
                     const historyList = selectedLoadDetail.statusHistory || [];
                     const isCompleted = historyList.some(sh => sh.status === step) || step === selectedLoadDetail.status;
                     const isCurrent = step === selectedLoadDetail.status;
@@ -1154,6 +2132,68 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                     />
                     <Button type="submit" variant="primary" className="h-10 mt-auto">Add</Button>
                   </form>
+                </div>
+              )}
+
+              {drawerTab === 'swap' && (
+                <div className="space-y-4 animate-fade-in text-left">
+                  <div className="p-3 bg-slate-50 dark:bg-slate-800/10 border border-slate-200 dark:border-slate-800/40 rounded-xl space-y-1">
+                    <span className="text-[10px] text-slate-500 font-bold uppercase block">Current Assigned Trailer</span>
+                    <strong className="text-white text-sm font-mono block">{selectedLoadDetail.trailer || 'TR-4022'}</strong>
+                  </div>
+
+                  <div className="bg-[#111827]/40 border border-[#23324C]/60 rounded-xl p-4 space-y-3">
+                    <strong className="text-xs text-slate-200 block">Initiate Trailer Swap</strong>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-slate-450 mb-1 font-bold uppercase text-[9px]">Select New Trailer</label>
+                        <select 
+                          value={newTrailerPlate} 
+                          onChange={(e) => setNewTrailerPlate(e.target.value)} 
+                          className="w-full px-3 py-2 bg-[#111827] border border-[#23324C] rounded-lg text-slate-200 text-xs focus:outline-none cursor-pointer"
+                        >
+                          {['TR-4022', 'TR-9118', 'TR-7422'].map(tr => (
+                            <option key={tr} value={tr}>{tr}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-slate-455 mb-1 font-bold uppercase text-[9px]">Swap Reason / Logistics Exception</label>
+                        <TextInput 
+                          placeholder="e.g. Maintenance required on original trailer / Route switch" 
+                          value={swapReason} 
+                          onChange={(e) => setSwapReason(e.target.value)}
+                        />
+                      </div>
+                      <Button variant="primary" className="w-full text-xs font-black" onClick={handleTrailerSwap}>
+                        Execute Trailer Swap
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <strong className="text-xs text-slate-200 block">Trailer Swap Audit History</strong>
+                    {(selectedLoadDetail.trailerSwapHistory || []).length === 0 ? (
+                      <p className="text-xs text-slate-500 text-center py-2">No trailer swaps recorded for this load.</p>
+                    ) : (
+                      <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
+                        {(selectedLoadDetail.trailerSwapHistory || []).map((log, idx) => (
+                          <div key={idx} className="p-3 bg-slate-900/60 border border-[#23324C]/65 rounded-lg text-xs space-y-1">
+                            <div className="flex justify-between items-center text-[10px] text-slate-400 font-mono">
+                              <span>Swap Run #{idx + 1}</span>
+                              <span>{new Date(log.timestamp).toLocaleString()}</span>
+                            </div>
+                            <div className="text-slate-300">
+                              Swapped: <strong className="text-slate-100 font-mono">{log.from}</strong> ➔ <strong className="text-brand-400 font-mono">{log.to}</strong>
+                            </div>
+                            <div className="text-[11px] text-slate-450 italic">
+                              Reason: {log.reason}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 

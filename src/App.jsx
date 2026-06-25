@@ -10,6 +10,26 @@ import DashboardLayout from './layouts/DashboardLayout';
 
 // Public Layout containing Navbar and Footer
 function PublicLayout() {
+  React.useEffect(() => {
+    const root = window.document.documentElement;
+    const wasLight = localStorage.getItem('theme') === 'light';
+    
+    // Force dark mode for the public landing website
+    const timer = setTimeout(() => {
+      root.classList.add('dark');
+      root.classList.remove('light');
+    }, 0);
+    
+    return () => {
+      clearTimeout(timer);
+      // Restore dashboard theme state when leaving public views
+      if (wasLight) {
+        root.classList.add('light');
+        root.classList.remove('dark');
+      }
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#0B0F19] text-slate-100 flex flex-col justify-between selection:bg-brand-500 selection:text-white">
       <Navbar />
@@ -21,10 +41,13 @@ function PublicLayout() {
   );
 }
 
+import { LogisticsProvider } from './context/LogisticsContext';
+
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <LogisticsProvider>
+        <BrowserRouter>
         <Routes>
           {/* Public Routes */}
           <Route element={<PublicLayout />}>
@@ -133,6 +156,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
+      </LogisticsProvider>
     </AuthProvider>
   );
 }

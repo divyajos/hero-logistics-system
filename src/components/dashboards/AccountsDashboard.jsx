@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAccountsData, addLedgerEntry } from '../../store/slices/accountsSlice';
+import { fetchAccountsData, addLedgerEntry, payPayrollRecord } from '../../store/slices/accountsSlice';
 import Button from '../common/Button';
 import TextInput from '../common/TextInput';
 import SelectInput from '../common/SelectInput';
@@ -20,14 +20,17 @@ import {
   Layers, MapPin, Database, Award, Check, DollarSign, 
   Trash2, Edit2, Download, TrendingUp, Users, Calendar, Plus
 } from 'lucide-react';
+import { useLogistics } from '../../context/LogisticsContext';
 
 export default function AccountsDashboard({ activeTab = 'overview' }) {
   const dispatch = useDispatch();
-  const { ledgers, factoringCount, payrollCount, balanceDue, loading } = useSelector((state) => state.accounts);
+  const { ledgers, factoringCount, payrollCount, balanceDue, driverPayroll, employeePayments, contractorPayments, loading } = useSelector((state) => state.accounts);
+  const { shiftState } = useLogistics();
 
   // Modals & Drawers
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [detailsDrawerOpen, setDetailsDrawerOpen] = useState(false);
+  const [payRateModalOpen, setPayRateModalOpen] = useState(false);
 
   // Selection
   const [selectedInvoice, setSelectedInvoice] = useState(null);
@@ -38,6 +41,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
   const [ledgerType, setLedgerType] = useState('Invoice');
 
   // Search & Filter
+  const [invoicesSubTab, setInvoicesSubTab] = useState('all'); // all, review
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -45,23 +49,69 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
 
   // Local lists states
   const [localLedgers, setLocalLedgers] = useState([]);
-
-  const [driverPayroll, setDriverPayroll] = useState([
-    { id: 1, driver: 'John D.', trips: 14, amount: '$1,420.00', status: 'Pending' },
-    { id: 2, driver: 'Sarah R.', trips: 18, amount: '$1,890.00', status: 'Pending' },
-    { id: 3, driver: 'Donald S.', trips: 22, amount: '$2,200.00', status: 'Paid' }
-  ]);
-
-  const [contractorPayments, setContractorPayments] = useState([
-    { id: 101, contractor: 'Apex Fuel Network', desc: 'Fleet card diesel purchase', amount: '$4,290.00', status: 'Paid' },
-    { id: 102, contractor: 'Brokerage Freight Inc', desc: 'Subcontracted hotshot runs', amount: '$1,850.00', status: 'Pending' }
-  ]);
+  const [payrollTab, setPayrollTab] = useState('Driver Payroll');
 
   const [vehicleProfitability, setVehicleProfitability] = useState([
     { plate: 'TX-ROAD88', revenue: '$14,200', expenses: '$9,200', profit: '$5,000', margin: '35%' },
     { plate: 'IL-HAUL42', revenue: '$12,850', expenses: '$8,400', profit: '$4,450', margin: '34%' },
     { plate: 'CA-CARRI7', revenue: '$18,900', expenses: '$14,200', profit: '$4,700', margin: '24%' }
   ]);
+
+  // AI receipts queue states
+  const [aiReceipts, setAiReceipts] = useState([
+    { id: 'REC-901', source: 'Shell Fuel Station', date: '06/22/2026', parsedData: { item: 'Diesel Fuel', fuelQty: '140 Gal', fuelCost: '$546.00', gst: '$54.60', total: '$600.60' }, status: 'pending' },
+    { id: 'REC-902', source: 'Penske Fleet Services', date: '06/21/2026', parsedData: { item: 'Engine Oil Change', fuelQty: 'N/A', fuelCost: '$0.00', gst: '$32.00', total: '$352.00' }, status: 'pending' }
+  ]);
+  
+  const [ledgerSpreadsheet, setLedgerSpreadsheet] = useState([
+    { id: 'L-1', date: '06/20/2026', desc: 'Caltex Diesel Ingest', category: 'Fuel', amount: '$450.00', gst: '$45.00', total: '$495.00', method: 'AI Extracted' },
+    { id: 'L-2', date: '06/19/2026', desc: 'Volvo Workshop Repair', category: 'Maintenance', amount: '$1,200.00', gst: '$120.00', total: '$1,320.00', method: 'Manual' },
+    { id: 'L-3', date: '06/18/2026', desc: 'Wages John D Week 24', category: 'Wages', amount: '$1,420.00', gst: '$0.00', total: '$1,420.00', method: 'Direct Payout' }
+  ]);
+
+  const [selectedReceipt, setSelectedReceipt] = useState(null);
+
+  // Rate Settings states (Priority 4)
+  const [ratesSubTab, setRatesSubTab] = useState('customer');
+  const [customerRates, setCustomerRates] = useState([
+    { id: 1, name: 'Global Retail Corp', flatRate: '$450.00', kmRate: '$1.85', palletRate: '$15.00', vehicleClass: 'Car Carrier' },
+    { id: 2, name: 'Vance Refrigeration', flatRate: '$320.00', kmRate: '$2.10', palletRate: '$18.50', vehicleClass: 'Reefer Trailer' }
+  ]);
+  const [carrierRates, setCarrierRates] = useState([
+    { id: 1, name: 'Apex Carrier', costPerKm: '$1.45', flatRate: '$250.00' },
+    { id: 2, name: 'Swift Cargo Express', costPerKm: '$1.60', flatRate: '$300.00' }
+  ]);
+  const [fuelSurcharges, setFuelSurcharges] = useState([
+    { id: 1, threshold: '$1.80/L', surcharge: '12%', status: 'Active' },
+    { id: 2, threshold: '$2.00/L', surcharge: '15%', status: 'Active' }
+  ]);
+  const [accessorials, setAccessorials] = useState([
+    { id: 1, type: 'Tailgate Loader', fee: '$50.00', status: 'Active' },
+    { id: 2, type: 'Hand Load/Unload', fee: '$80.00', status: 'Active' }
+  ]);
+
+  const [rateModalOpen, setRateModalOpen] = useState(false);
+  const [newRateName, setNewRateName] = useState('');
+  const [newRateFlat, setNewRateFlat] = useState('');
+  const [newRateKm, setNewRateKm] = useState('');
+  const [newRatePallet, setNewRatePallet] = useState('');
+
+  // AI Receipts confirm handler
+  const handleConfirmReceipt = (receipt) => {
+    const newEntry = {
+      id: `L-${Date.now().toString().slice(-4)}`,
+      date: receipt.date,
+      desc: `${receipt.source} Ingest`,
+      category: receipt.parsedData.fuelCost !== '$0.00' ? 'Fuel' : 'Maintenance',
+      amount: receipt.parsedData.fuelCost !== '$0.00' ? receipt.parsedData.fuelCost : `$${(parseFloat(receipt.parsedData.total.replace('$', '')) - parseFloat(receipt.parsedData.gst.replace('$', ''))).toFixed(2)}`,
+      gst: receipt.parsedData.gst,
+      total: receipt.parsedData.total,
+      method: 'AI Extracted'
+    };
+    setLedgerSpreadsheet([newEntry, ...ledgerSpreadsheet]);
+    setAiReceipts(aiReceipts.filter(r => r.id !== receipt.id));
+    triggerToast(`AI parsed receipt ${receipt.id} confirmed and logged into spreadsheet ledger.`);
+  };
 
   // Toasts
   const [toastMessage, setToastMessage] = useState('');
@@ -120,21 +170,79 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
 
   // Run Driver Payroll
   const handlePayDriver = (id) => {
-    setDriverPayroll(driverPayroll.map(d => d.id === id ? { ...d, status: 'Paid' } : d));
+    dispatch(payPayrollRecord({ id, processedBy: 'Company Admin' }));
     triggerToast(`Payroll run complete for driver. Direct deposit issued.`);
   };
 
   // Pay Contractor
   const handlePayContractor = (id) => {
-    setContractorPayments(contractorPayments.map(c => c.id === id ? { ...c, status: 'Paid' } : c));
+    dispatch(payPayrollRecord({ id, processedBy: 'Company Admin' }));
     triggerToast('Contractor payment disbursed.');
+  };
+
+  // Pay Employee
+  const handlePayEmployee = (id) => {
+    dispatch(payPayrollRecord({ id, processedBy: 'Company Admin' }));
+    triggerToast('Employee payroll payment disbursed.');
+  };
+
+  const handleAddRate = (e) => {
+    e.preventDefault();
+    if (!newRateName) return;
+
+    if (ratesSubTab === 'customer') {
+      const newRate = {
+        id: Date.now(),
+        name: newRateName,
+        flatRate: `$${parseFloat(newRateFlat || 0).toFixed(2)}`,
+        kmRate: `$${parseFloat(newRateKm || 0).toFixed(2)}`,
+        palletRate: `$${parseFloat(newRatePallet || 0).toFixed(2)}`,
+        vehicleClass: 'General Freight'
+      };
+      setCustomerRates([newRate, ...customerRates]);
+      triggerToast(`Added customer rate settings for ${newRateName}`);
+    } else if (ratesSubTab === 'carrier') {
+      const newRate = {
+        id: Date.now(),
+        name: newRateName,
+        flatRate: `$${parseFloat(newRateFlat || 0).toFixed(2)}`,
+        costPerKm: `$${parseFloat(newRateKm || 0).toFixed(2)}`
+      };
+      setCarrierRates([newRate, ...carrierRates]);
+      triggerToast(`Added carrier rate settings for ${newRateName}`);
+    } else if (ratesSubTab === 'fuel') {
+      const newRate = {
+        id: Date.now(),
+        threshold: newRateName,
+        surcharge: `${newRateFlat}%`,
+        status: 'Active'
+      };
+      setFuelSurcharges([newRate, ...fuelSurcharges]);
+      triggerToast(`Added fuel surcharge threshold ${newRateName}`);
+    } else if (ratesSubTab === 'accessorial') {
+      const newRate = {
+        id: Date.now(),
+        type: newRateName,
+        fee: `$${parseFloat(newRateFlat || 0).toFixed(2)}`,
+        status: 'Active'
+      };
+      setAccessorials([newRate, ...accessorials]);
+      triggerToast(`Added accessorial charge type ${newRateName}`);
+    }
+
+    setNewRateName('');
+    setNewRateFlat('');
+    setNewRateKm('');
+    setNewRatePallet('');
+    setRateModalOpen(false);
   };
 
   // Search & Pagination filtering
   const filteredLedgers = localLedgers.filter(l => {
     const matchesSearch = l.payee.toLowerCase().includes(search.toLowerCase());
     const matchesType = filterType === '' || l.type === filterType;
-    return matchesSearch && matchesType;
+    const matchesSubTab = invoicesSubTab === 'all' || (l.type === 'Invoice' && l.status === 'Draft');
+    return matchesSearch && matchesType && matchesSubTab;
   });
 
   const totalPages = Math.ceil(filteredLedgers.length / itemsPerPage);
@@ -142,6 +250,40 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  // Helper to parse amount
+  const getAmt = (val) => {
+    if (typeof val === 'number') return val;
+    if (!val) return 0;
+    return parseFloat(val.toString().replace(/[$,]/g, '')) || 0;
+  };
+
+  // Dynamic P&L Calculations:
+  // Revenue Sources: Paid Invoices and Customer Payments (which are Paid Invoices)
+  const paidInvoices = localLedgers.filter(l => l.type === 'Invoice' && l.status === 'Paid');
+  const dynamicRevenue = paidInvoices.reduce((sum, l) => sum + getAmt(l.amount), 0);
+
+  // Expenses:
+  // - Payroll (Driver Pay, Wages)
+  const dynamicPayroll = localLedgers.filter(l => l.type === 'Driver Pay' || l.type === 'Wages').reduce((sum, l) => sum + getAmt(l.amount), 0);
+  // - Contractor payments
+  const dynamicContractor = localLedgers.filter(l => l.type === 'Contractor Pay' || l.category === 'Contractor').reduce((sum, l) => sum + getAmt(l.amount), 0);
+  // - Vehicle costs / Insurance / Registration
+  const dynamicVehicleCosts = localLedgers.filter(l => l.type === 'Expense' && (l.category === 'Insurance' || l.category === 'Registration' || l.category === 'Vehicle')).reduce((sum, l) => sum + getAmt(l.amount), 0);
+  // - Fuel expenses
+  const dynamicFuel = localLedgers.filter(l => l.category === 'Fuel' || l.payee.toLowerCase().includes('fuel')).reduce((sum, l) => sum + getAmt(l.amount), 0);
+  // - Maintenance expenses
+  const dynamicMaintenance = localLedgers.filter(l => l.category === 'Maintenance' || l.payee.toLowerCase().includes('penske') || l.payee.toLowerCase().includes('workshop') || l.payee.toLowerCase().includes('service')).reduce((sum, l) => sum + getAmt(l.amount), 0);
+
+  const dynamicExpenses = dynamicPayroll + dynamicContractor + dynamicVehicleCosts + dynamicFuel + dynamicMaintenance;
+  
+  // Margin / Profits
+  const dynamicGrossProfit = dynamicRevenue - (dynamicPayroll + dynamicContractor);
+  const dynamicNetProfit = dynamicRevenue - dynamicExpenses;
+  const dynamicMargin = dynamicRevenue > 0 ? ((dynamicNetProfit / dynamicRevenue) * 100).toFixed(1) : '0';
+
+  const outstandingInvoices = localLedgers.filter(l => l.type === 'Invoice' && l.status === 'Pending').reduce((sum, l) => sum + getAmt(l.amount), 0);
+  const factoringFunding = localLedgers.filter(l => l.type === 'Factoring').reduce((sum, l) => sum + getAmt(l.amount), 0);
 
   return (
     <div className="space-y-6">
@@ -170,6 +312,11 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
             Record Expense
           </Button>
         )}
+        {activeTab === 'rates' && (
+          <Button variant="primary" icon={Plus} onClick={() => setRateModalOpen(true)}>
+            Add New Rate Setting
+          </Button>
+        )}
       </div>
 
       {loading && localLedgers.length === 0 ? (
@@ -179,15 +326,214 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
           {activeTab === 'overview' && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard title="Factored Funding" value={`$${factoringCount.toLocaleString()}`} description="Active invoice reserves" trend="Factored" trendDirection="neutral" />
-                <StatCard title="Driver Payroll" value={`${driverPayroll.filter(d => d.status === 'Pending').length} Pending`} description="Awaiting payment runs" trend={`$3,310 due`} trendDirection="neutral" />
-                <StatCard title="Outstanding Shipper Invoices" value={`$${balanceDue.toLocaleString()}`} description="Open balances ledger" trend="+3 invoices" trendDirection="up" />
-                <StatCard title="Total Net Cash Flow" value="$25,190" description="In/Out flow timeline" trend="+18.2%" trendDirection="up" />
+                <StatCard title="Factored Funding" value={`$${factoringFunding.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description="Active invoice reserves" trend="Factored" trendDirection="neutral" />
+                <StatCard title="Driver Payroll" value={`${localLedgers.filter(l => (l.type === 'Driver Pay' || l.type === 'Wages') && l.status === 'Pending').length} Pending`} description="Awaiting payment runs" trend={`$${dynamicPayroll.toLocaleString()} paid`} trendDirection="neutral" />
+                <StatCard title="Outstanding Shipper Invoices" value={`$${outstandingInvoices.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description="Open balances ledger" trend="Awaiting Customer" trendDirection="up" />
+                <StatCard title="Net Profit Margin" value={`$${dynamicNetProfit.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description={`Margin: ${dynamicMargin}%`} trend={`Revenue: $${dynamicRevenue.toLocaleString()}`} trendDirection="up" />
+              </div>
+
+              {/* Cost Categories P&L breakdowns */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-slate-400 uppercase">Fuel Cost Category</span>
+                    <span className="text-[10px] text-red-400 font-bold font-mono">
+                      {dynamicExpenses > 0 ? Math.round((dynamicFuel / dynamicExpenses) * 100) : 0}% of expenses
+                    </span>
+                  </div>
+                  <strong className="text-white text-xl font-black block">${dynamicFuel.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</strong>
+                  <MiniChart type="bar" data={[2100, 2400, 2300, 2500, dynamicFuel > 0 ? dynamicFuel : 2790]} labels={['Jan', 'Feb', 'Mar', 'Apr', 'Current']} />
+                </div>
+                
+                <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-slate-400 uppercase">Driver Wages & Payroll</span>
+                    <span className="text-[10px] text-brand-400 font-bold font-mono">
+                      {dynamicExpenses > 0 ? Math.round((dynamicPayroll / dynamicExpenses) * 100) : 0}% of expenses
+                    </span>
+                  </div>
+                  <strong className="text-white text-xl font-black block">${dynamicPayroll.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</strong>
+                  <MiniChart type="line" data={[3200, 3400, 3600, 3800, dynamicPayroll > 0 ? dynamicPayroll : 4100]} labels={['Jan', 'Feb', 'Mar', 'Apr', 'Current']} />
+                </div>
+                
+                <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs font-bold text-slate-400 uppercase">Vehicle Maintenance</span>
+                    <span className="text-[10px] text-yellow-500 font-bold font-mono">
+                      {dynamicExpenses > 0 ? Math.round((dynamicMaintenance / dynamicExpenses) * 100) : 0}% of expenses
+                    </span>
+                  </div>
+                  <strong className="text-white text-xl font-black block">${dynamicMaintenance.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</strong>
+                  <MiniChart type="bar" data={[1200, 1500, 1100, 1400, dynamicMaintenance > 0 ? dynamicMaintenance : 1600]} labels={['Jan', 'Feb', 'Mar', 'Apr', 'Current']} />
+                </div>
               </div>
 
               <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left">
                 <h3 className="text-sm font-extrabold text-white mb-3">Weekly Net Cash Inflow (USD)</h3>
-                <MiniChart type="line" data={[12000, 16000, 14000, 18500, 22000, 25190]} labels={['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4', 'Wk 5', 'Wk 6']} />
+                <MiniChart type="line" data={[12000, 16000, 14000, 18500, 22000, dynamicRevenue]} labels={['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4', 'Wk 5', 'Current']} />
+              </div>
+            </div>
+          )}
+
+          {/* Invoice Review Screen */}
+          {activeTab === 'invoice-review' && (
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-sm font-extrabold text-white">Invoice Review (Drafts)</h3>
+                  <p className="text-xs text-slate-450 mt-1">Inspect draft invoices generated automatically from completed stops and POD uploads.</p>
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="secondary" onClick={() => triggerToast("Opening full audit manifest for invoice.")}>
+                    Review Invoice
+                  </Button>
+                  <Button size="sm" variant="secondary" onClick={() => triggerToast("Opening inline invoice editor panel.")}>
+                    Edit Invoice
+                  </Button>
+                  <Button size="sm" variant="primary" onClick={() => triggerToast("Invoice approved and moved to Sent queue.")}>
+                    Approve Invoice
+                  </Button>
+                </div>
+              </div>
+
+              <DataTable columns={[
+                { key: 'id', label: 'Draft ID', render: (row) => <span className="font-mono font-extrabold text-white">{row.id}</span> },
+                { key: 'customer', label: 'Shipper Customer', render: (row) => <span className="text-slate-300 font-semibold">{row.customer}</span> },
+                { key: 'loadId', label: 'Load ID', render: (row) => <span className="font-mono">{row.loadId}</span> },
+                { key: 'amount', label: 'Total Amount', render: (row) => <span className="font-mono font-bold text-slate-200">{row.amount}</span> },
+                { key: 'gst', label: 'GST (10%)', render: (row) => <span className="font-mono text-slate-400">{row.gst}</span> },
+                { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> }
+              ]} data={[
+                { id: 'INV-4011', customer: 'Global Retail Corp', loadId: 'LD-9411', amount: '$1,200.00', gst: '$120.00', status: 'Draft' },
+                { id: 'INV-4012', customer: 'Vance Refrigeration', loadId: 'LD-9412', amount: '$850.00', gst: '$85.00', status: 'Draft' }
+              ]} />
+            </div>
+          )}
+
+          {/* Sent Invoices Screen */}
+          {activeTab === 'sent-invoices' && (
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-sm font-extrabold text-white">Sent Invoices Ledger</h3>
+                  <p className="text-xs text-slate-450 mt-1">Audit dispatched invoices, track aging, export tax documents, and issue statements.</p>
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="primary" onClick={() => triggerToast("Re-sent invoice mailer to shipper.")}>
+                    Send Invoice
+                  </Button>
+                  <Button size="sm" variant="secondary" onClick={() => triggerToast("Downloading PDF Invoice document.")}>
+                    Export PDF
+                  </Button>
+                  <Button size="sm" variant="secondary" onClick={() => triggerToast("Monthly statement report dispatched.")}>
+                    Send Statement
+                  </Button>
+                </div>
+              </div>
+
+              <DataTable columns={[
+                { key: 'id', label: 'Invoice ID', render: (row) => <span className="font-mono font-extrabold text-white">{row.id}</span> },
+                { key: 'customer', label: 'Shipper Customer', render: (row) => <span className="text-slate-300 font-semibold">{row.customer}</span> },
+                { key: 'amount', label: 'Total Amount', render: (row) => <span className="font-mono font-bold text-slate-200">{row.amount}</span> },
+                { key: 'dueDate', label: 'Due Date', render: (row) => <span className="font-mono text-slate-400">{row.dueDate}</span> },
+                { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> }
+              ]} data={[
+                { id: 'INV-3981', customer: 'Global Retail Corp', amount: '$1,200.00', dueDate: '07/18/2026', status: 'Sent' },
+                { id: 'INV-3982', customer: 'Vance Refrigeration', amount: '$850.00', dueDate: '07/15/2026', status: 'Sent' }
+              ]} />
+            </div>
+          )}
+
+          {/* Payments Screen */}
+          {activeTab === 'payments' && (
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-sm font-extrabold text-white">Payments Reconciliation</h3>
+                  <p className="text-xs text-slate-450 mt-1">Record incoming client check deposits, match bank transactions, and cancel bad debts.</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button size="sm" variant="primary" onClick={() => triggerToast("Invoice settled.")}>
+                    Mark Paid
+                  </Button>
+                  <Button size="sm" variant="secondary" onClick={() => triggerToast("Manual payment record logged.")}>
+                    Record Payment
+                  </Button>
+                  <Button size="sm" variant="primary" onClick={() => triggerToast("Reconciled against bank deposit.")}>
+                    Match Payment to Invoice
+                  </Button>
+                  <Button size="sm" variant="danger" onClick={() => triggerToast("Invoice voided and marked Cancelled.")}>
+                    Cancel Invoice
+                  </Button>
+                </div>
+              </div>
+
+              <DataTable columns={[
+                { key: 'id', label: 'Payment ID', render: (row) => <span className="font-mono font-extrabold text-white">{row.id}</span> },
+                { key: 'customer', label: 'Customer', render: (row) => <span className="text-slate-300 font-semibold">{row.customer}</span> },
+                { key: 'amount', label: 'Settled Amount', render: (row) => <span className="font-mono font-bold text-emerald-400">{row.amount}</span> },
+                { key: 'method', label: 'Method', render: (row) => <span>{row.method}</span> },
+                { key: 'status', label: 'Status', render: () => <span className="text-emerald-450 font-bold">Cleared</span> }
+              ]} data={[
+                { id: 'PAY-1002', customer: 'Global Retail Corp', amount: '$1,200.00', method: 'Direct Deposit EFT' },
+                { id: 'PAY-1003', customer: 'Vance Refrigeration', amount: '$850.00', method: 'Credit Card checkout' }
+              ]} />
+            </div>
+          )}
+
+          {/* Profit & Loss Screen */}
+          {activeTab === 'p-l' && (
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-sm font-extrabold text-white">Profit & Loss (P&L) Ledger Statement</h3>
+                  <p className="text-xs text-slate-450 mt-1">Review revenue streams, employee payroll, contractor pay, fuel cards, and vehicle costing.</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button size="sm" variant="primary" onClick={() => triggerToast("Full P&L spreadsheet ledger generated.")}>
+                    View P&L
+                  </Button>
+                  <Button size="sm" variant="secondary" onClick={() => triggerToast("GST BAS tax sheet compiled.")}>
+                    Review GST
+                  </Button>
+                  <Button size="sm" variant="secondary" onClick={() => triggerToast("PAYG payroll withholding sheets audited.")}>
+                    Review PAYG
+                  </Button>
+                  <Button size="sm" variant="secondary" onClick={() => triggerToast("Auditing pending operational expense receipts.")}>
+                    Review Expense
+                  </Button>
+                  <Button size="sm" variant="primary" onClick={() => triggerToast("Expense approved and posted to general ledger.")}>
+                    Approve Expense
+                  </Button>
+                  <Button size="sm" variant="success" onClick={() => triggerToast("AI OCR receipt scan confirmed.")}>
+                    Approve AI Receipt
+                  </Button>
+                  <Button size="sm" variant="danger" onClick={() => triggerToast("AI OCR receipt scan rejected.")}>
+                    Reject AI Receipt
+                  </Button>
+                  <Button size="sm" variant="primary" onClick={() => triggerToast("Brokerage contractor pay run executed.")}>
+                    Process Contractor Pay
+                  </Button>
+                  <Button size="sm" variant="primary" onClick={() => triggerToast("Depot employee salary deposits cleared.")}>
+                    Process Employee Pay
+                  </Button>
+                  <Button size="sm" variant="secondary" onClick={() => triggerToast("Payroll bank files exported.")}>
+                    Export Payroll
+                  </Button>
+                  <Button size="sm" variant="secondary" onClick={() => triggerToast("Analyzing load-wise profitability ratios.")}>
+                    View Load Profit
+                  </Button>
+                  <Button size="sm" variant="secondary" onClick={() => triggerToast("Analyzing vehicle-wise cost centers.")}>
+                    View Vehicle Costs
+                  </Button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <StatCard title="Dynamic Revenue" value={`$${dynamicRevenue.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description="Paid shipper invoices" progress={100} />
+                <StatCard title="Total Expenses" value={`$${dynamicExpenses.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description="Payroll, Fuel, Maintenance" progress={75} />
+                <StatCard title="Gross Margin" value={`$${dynamicGrossProfit.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description="Trips profitability" progress={85} />
+                <StatCard title="Net Profit Margin" value={`$${dynamicNetProfit.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description={`Margin: ${dynamicMargin}%`} progress={95} />
               </div>
             </div>
           )}
@@ -195,8 +541,29 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
           {/* Invoices List */}
           {activeTab === 'invoices' && (
             <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              
+              {/* Sub tabs list */}
+              <div className="flex border-b border-[#23324C]/45 pb-px text-xs font-bold gap-4 text-left mb-2">
+                <button
+                  type="button"
+                  onClick={() => setInvoicesSubTab('all')}
+                  className={`pb-2 transition-colors cursor-pointer ${invoicesSubTab === 'all' ? 'text-brand-400 border-b-2 border-brand-500 font-extrabold' : 'text-slate-400 hover:text-slate-200'}`}
+                >
+                  All Invoices & Ledgers
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setInvoicesSubTab('review')}
+                  className={`pb-2 transition-colors cursor-pointer ${invoicesSubTab === 'review' ? 'text-brand-400 border-b-2 border-brand-500 font-extrabold' : 'text-slate-400 hover:text-slate-200'}`}
+                >
+                  Invoice Review (Drafts)
+                </button>
+              </div>
+
               <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-                <h3 className="text-sm font-extrabold text-white">Shippers invoice ledger</h3>
+                <h3 className="text-sm font-extrabold text-white">
+                  {invoicesSubTab === 'review' ? 'Draft Invoices Awaiting Review' : 'Shippers invoice ledger'}
+                </h3>
                 <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                   <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} onClear={() => setSearch('')} className="w-full sm:max-w-[200px]" />
                   <SelectInput value={filterType} onChange={(e) => setFilterType(e.target.value)} options={[
@@ -209,7 +576,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
               </div>
 
               {filteredLedgers.length === 0 ? (
-                <EmptyState title="No invoices resolved" description="No matched invoice records. Log a financial bill entry." icon={Database} actionLabel="Add Entry" onAction={() => setAddModalOpen(true)} />
+                <EmptyState title="No invoices found" description="No matched invoice records match filters." icon={Database} actionLabel="Add Entry" onAction={() => setAddModalOpen(true)} />
               ) : (
                 <>
                   <DataTable columns={[
@@ -220,6 +587,12 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                     { key: 'status', label: 'State', render: (row) => <StatusBadge status={row.status} /> },
                     { key: 'actions', label: 'Ledger Actions', render: (row) => (
                       <div className="flex gap-2">
+                        {row.status === 'Draft' && (
+                          <Button size="sm" variant="primary" onClick={() => {
+                            dispatch(updateLedgerStatus({ id: row.id, status: 'Paid' }));
+                            triggerToast('Draft Invoice approved and marked Paid.');
+                          }}>Approve & Pay</Button>
+                        )}
                         {row.status === 'Pending' && (
                           <Button size="sm" variant="secondary" onClick={() => handlePayInvoice(row.id)}>Pay</Button>
                         )}
@@ -233,45 +606,156 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
               )}
             </div>
           )}
-
-          {/* Payroll & Contractor screen */}
+          {/* Payroll & Contractor screen (Priority 6) */}
           {activeTab === 'payroll' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-              {/* Driver Payroll */}
-              <div className="lg:col-span-6 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-                <h3 className="text-sm font-extrabold text-white">Driver payroll payout runs</h3>
-                
-                <DataTable columns={[
-                  { key: 'driver', label: 'Driver', render: (row) => <span className="font-extrabold text-white">{row.driver}</span> },
-                  { key: 'trips', label: 'Trips Completed', render: (row) => <span className="font-mono text-xs">{row.trips} runs</span> },
-                  { key: 'amount', label: 'Salary Due', render: (row) => <span className="font-mono font-bold text-slate-300">{row.amount}</span> },
-                  { key: 'status', label: 'State', render: (row) => <StatusBadge status={row.status} /> },
-                  { key: 'actions', label: 'Payroll Actions', render: (row) => (
-                    row.status === 'Pending' ? (
-                      <Button size="sm" variant="secondary" onClick={() => handlePayDriver(row.id)}>Pay Direct</Button>
-                    ) : (
-                      <span className="text-[11px] font-semibold text-slate-500">Paid Direct</span>
-                    )
-                  )}
-                ]} data={driverPayroll} />
+            <div className="space-y-6">
+              {/* Payroll Actions header */}
+              <div className="flex flex-wrap gap-2 justify-between items-center bg-[#111827]/40 p-4 border border-[#23324C]/45 rounded-xl">
+                <div>
+                  <strong className="text-white text-xs block">Global Payroll Operations Run</strong>
+                  <span className="text-[10px] text-slate-500">Calculate hours, contractor hotshot runs, and base employee salaries.</span>
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={() => setPayRateModalOpen(true)}>
+                    Configure Worker Pay Rate
+                  </Button>
+                  <button 
+                    onClick={() => triggerToast('Global payroll items approved and locked.')}
+                    className="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-[11px] rounded-xl font-bold transition-all cursor-pointer"
+                  >
+                    Approve Payroll
+                  </button>
+                  <button 
+                    onClick={() => triggerToast('Bank disbursements transaction batch queued.')}
+                    className="px-3.5 py-1.5 bg-brand-500 hover:bg-brand-600 text-slate-950 text-[11px] rounded-xl font-black transition-all cursor-pointer"
+                  >
+                    Process Payroll
+                  </button>
+                  <button 
+                    onClick={() => triggerToast('Payroll ABA format manifest exported successfully.')}
+                    className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-750 text-slate-200 text-[11px] rounded-xl font-bold transition-all cursor-pointer"
+                  >
+                    Export Payroll
+                  </button>
+                </div>
               </div>
 
-              {/* Contractor Payouts */}
-              <div className="lg:col-span-6 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-                <h3 className="text-sm font-extrabold text-white">Contractor & Broker Settlements</h3>
+              {/* Sub tabs list */}
+              <div className="flex border-b border-[#23324C]/45 pb-px text-xs font-bold gap-4 text-left">
+                {['Driver Payroll', 'Employee Base Salaries', 'Contractor Settlements', 'Payroll History'].map(st => (
+                  <button 
+                    key={st}
+                    onClick={() => setPayrollTab(st)}
+                    className={`capitalize pb-2 transition-colors cursor-pointer ${payrollTab === st ? 'text-brand-400 border-b-2 border-brand-500 font-extrabold' : 'text-slate-400 hover:text-slate-200'}`}
+                  >
+                    {st}
+                  </button>
+                ))}
+              </div>
 
-                <DataTable columns={[
-                  { key: 'contractor', label: 'Contractor Service', render: (row) => <span className="font-extrabold text-white">{row.contractor}</span> },
-                  { key: 'amount', label: 'Settlement Amount', render: (row) => <span className="font-mono font-bold text-slate-300">{row.amount}</span> },
-                  { key: 'status', label: 'State', render: (row) => <StatusBadge status={row.status} /> },
-                  { key: 'actions', label: 'Disburse', render: (row) => (
-                    row.status === 'Pending' ? (
-                      <Button size="sm" variant="secondary" onClick={() => handlePayContractor(row.id)}>Pay Broker</Button>
-                    ) : (
-                      <span className="text-[11px] font-semibold text-slate-500">Settled</span>
-                    )
-                  )}
-                ]} data={contractorPayments} />
+              {payrollTab === 'Driver Payroll' && (
+                <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                  <h3 className="text-sm font-extrabold text-white">Driver Pay & Trip Commissions</h3>
+                  
+                  <DataTable columns={[
+                    { key: 'driver', label: 'Driver Node', render: (row) => <span className="font-extrabold text-white">{row.workerName}</span> },
+                    { key: 'trips', label: 'Trips Done', render: (row) => <span className="font-mono text-xs">{row.trips} runs</span> },
+                    { key: 'amount', label: 'Pay Due', render: (row) => <span className="font-mono font-bold text-brand-400">{row.amount}</span> },
+                    { key: 'status', label: 'State', render: (row) => <StatusBadge status={row.status} /> },
+                    { key: 'actions', label: 'Disburse', render: (row) => (
+                      row.status === 'Pending' ? (
+                        <Button size="sm" variant="secondary" onClick={() => handlePayDriver(row.id)}>Pay Direct</Button>
+                      ) : (
+                        <span className="text-[11px] font-semibold text-slate-550">Direct Deposited</span>
+                      )
+                    )}
+                  ]} data={driverPayroll || []} />
+                </div>
+              )}
+
+              {payrollTab === 'Employee Base Salaries' && (
+                <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                  <h3 className="text-sm font-extrabold text-white">Office staff & Yard Salaries</h3>
+                  
+                  <DataTable columns={[
+                    { key: 'name', label: 'Employee', render: (row) => <span className="font-extrabold text-white">{row.workerName}</span> },
+                    { key: 'role', label: 'Position', render: (row) => <span className="text-slate-350">{row.position}</span> },
+                    { key: 'rate', label: 'Hourly/Salaried', render: (row) => <span className="font-mono text-xs">{row.rateType}</span> },
+                    { key: 'salary', label: 'Salary Net', render: (row) => <span className="font-mono font-bold text-slate-300">{row.amount}</span> },
+                    { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> },
+                    { key: 'actions', label: 'Disburse', render: (row) => (
+                      row.status === 'Pending' ? (
+                        <Button size="sm" variant="secondary" onClick={() => handlePayEmployee(row.id)}>Pay Staff</Button>
+                      ) : (
+                        <span className="text-[11px] font-semibold text-slate-550">Direct Deposited</span>
+                      )
+                    )}
+                  ]} data={employeePayments || []} />
+                </div>
+              )}
+
+              {payrollTab === 'Contractor Settlements' && (
+                <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                  <h3 className="text-sm font-extrabold text-white">Subcontractor Brokerage settlements</h3>
+                  <DataTable columns={[
+                    { key: 'contractor', label: 'External Contractor Service', render: (row) => <span className="font-extrabold text-white">{row.workerName}</span> },
+                    { key: 'amount', label: 'Settlement Amount', render: (row) => <span className="font-mono font-bold text-brand-400">{row.amount}</span> },
+                    { key: 'status', label: 'State', render: (row) => <StatusBadge status={row.status} /> },
+                    { key: 'actions', label: 'Disburse', render: (row) => (
+                      row.status === 'Pending' ? (
+                        <Button size="sm" variant="secondary" onClick={() => handlePayContractor(row.id)}>Pay Broker</Button>
+                      ) : (
+                        <span className="text-[11px] font-semibold text-slate-550">Disbursed</span>
+                      )
+                    )}
+                  ]} data={contractorPayments || []} />
+                </div>
+              )}
+
+              {payrollTab === 'Payroll History' && (
+                <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                  <h3 className="text-sm font-extrabold text-white">Processed Payroll & Payments History</h3>
+                  <DataTable columns={[
+                    { key: 'id', label: 'Payment ID', render: (row) => <span className="font-mono font-extrabold text-white">{row.id}</span> },
+                    { key: 'workerName', label: 'Worker / Payee', render: (row) => <span className="font-semibold text-slate-200">{row.workerName}</span> },
+                    { key: 'workerType', label: 'Worker Type', render: (row) => <span className="text-slate-350">{row.workerType}</span> },
+                    { key: 'amount', label: 'Paid Amount', render: (row) => <span className="font-mono font-bold text-emerald-400">{row.amount}</span> },
+                    { key: 'paymentDate', label: 'Payment Date', render: (row) => <span className="font-mono text-slate-400 text-xs">{row.paymentDate}</span> },
+                    { key: 'paymentMethod', label: 'Method', render: (row) => <span className="text-xs">{row.paymentMethod}</span> },
+                    { key: 'processedBy', label: 'Processed By', render: (row) => <span className="text-slate-455 text-xs">{row.processedBy}</span> },
+                    { key: 'status', label: 'State', render: (row) => <StatusBadge status={row.status} /> }
+                  ]} data={[
+                    ...(driverPayroll || []),
+                    ...(employeePayments || []),
+                    ...(contractorPayments || [])
+                  ].filter(p => p.status === 'Paid')} />
+                </div>
+              )}
+
+              {/* Live Shift logs logged from Start/Finish Work */}
+              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3.5">
+                <div>
+                  <h4 className="text-xs font-bold text-white uppercase tracking-wider">Live Time Clock / Shift logs</h4>
+                  <p className="text-[10px] text-slate-500">Recorded shifts from Start/Finish Work widgets.</p>
+                </div>
+                {shiftState.history.length === 0 ? (
+                  <p className="text-[11px] text-slate-500 italic py-2 text-center">No shift log entries recorded yet.</p>
+                ) : (
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {shiftState.history.map((log, idx) => (
+                      <div key={idx} className="p-2.5 bg-[#111827]/40 border border-[#23324C]/45 rounded-xl flex justify-between text-xs">
+                        <div>
+                          <strong className="text-slate-200 block font-bold">{log.role} Shift</strong>
+                          <span className="text-[10px] text-slate-500 font-mono">{log.date} • {log.startTime} - {log.endTime}</span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-brand-400 font-bold font-mono">{log.durationMin} min</span>
+                          <span className="text-[10px] text-slate-500 block">Costed: ${(log.durationMin * 0.45).toFixed(2)}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -289,18 +773,390 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
             </div>
           )}
 
-          {/* Vehicle Profitability Screen */}
+          {/* Vehicle Costing & Profitability Screen (Priority 7) */}
           {activeTab === 'profitability' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-              <h3 className="text-sm font-extrabold text-white">Vehicle Margins Profitability</h3>
-              
-              <DataTable columns={[
-                { key: 'plate', label: 'Vehicle Plate', render: (row) => <span className="font-mono font-extrabold text-white">{row.plate}</span> },
-                { key: 'revenue', label: 'Revenue Generated', render: (row) => <span className="text-emerald-400 font-bold font-mono">{row.revenue}</span> },
-                { key: 'expenses', label: 'Expenses Incurred', render: (row) => <span className="text-red-400 font-bold font-mono">{row.expenses}</span> },
-                { key: 'profit', label: 'Net Profit Margin', render: (row) => <span className="text-brand-400 font-bold font-mono">{row.profit}</span> },
-                { key: 'margin', label: 'Margin % Ratio', render: (row) => <span className="font-extrabold text-white font-mono">{row.margin}</span> }
-              ]} data={vehicleProfitability} />
+            <div className="space-y-6">
+              {/* Cost breakdown cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <StatCard title="Total Fuel Cost" value="$14,890.00" description="Odometer fuel card bills" progress={65} />
+                <StatCard title="Maintenance Costs" value="$8,420.00" description="Penske and depot service costs" progress={45} />
+                <StatCard title="Registration Cost" value="$2,400.00" description="Semi-truck permit costs" progress={12} />
+                <StatCard title="Insurance Premium" value="$5,100.00" description="Commercial fleet cover policy" progress={30} />
+              </div>
+
+              {/* Profitability Analysis & Chart */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+                <div className="lg:col-span-8 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                  <h3 className="text-sm font-extrabold text-white">Vehicle Profitability Matrix</h3>
+                  
+                  <DataTable columns={[
+                    { key: 'plate', label: 'Vehicle Plate', render: (row) => <span className="font-mono font-extrabold text-white">{row.plate}</span> },
+                    { key: 'revenue', label: 'Revenue Generated', render: (row) => <span className="text-emerald-450 font-bold font-mono">{row.revenue}</span> },
+                    { key: 'expenses', label: 'Expenses (Breakdown)', render: (row) => <span className="text-red-400 font-bold font-mono">{row.expenses}</span> },
+                    { key: 'profit', label: 'Net Profit Margin', render: (row) => <span className="text-brand-400 font-bold font-mono">{row.profit}</span> },
+                    { key: 'margin', label: 'Margin Ratio %', render: (row) => <span className="font-extrabold text-white font-mono">{row.margin}</span> }
+                  ]} data={vehicleProfitability} />
+                </div>
+
+                {/* Simulated Cost breakdown visual list */}
+                <div className="lg:col-span-4 glass rounded-2xl p-5 border border-[#23324C]/60 text-left flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-sm font-extrabold text-white">Cost Distribution Analysis</h3>
+                    <p className="text-[10px] text-slate-500 font-semibold mb-4">Breakdown of operational spend across vehicles.</p>
+                  </div>
+                  
+                  <div className="space-y-4 my-2 text-xs">
+                    <div className="space-y-1">
+                      <div className="flex justify-between font-semibold text-slate-350">
+                        <span>Fuel Ingestion (Diesel)</span>
+                        <span>47%</span>
+                      </div>
+                      <div className="w-full bg-[#111827] h-2 rounded-full overflow-hidden">
+                        <div className="bg-brand-500 h-full w-[47%]" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between font-semibold text-slate-350">
+                        <span>Scheduled Maintenance</span>
+                        <span>28%</span>
+                      </div>
+                      <div className="w-full bg-[#111827] h-2 rounded-full overflow-hidden">
+                        <div className="bg-emerald-500 h-full w-[28%]" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between font-semibold text-slate-350">
+                        <span>Fleet Insurance Policies</span>
+                        <span>16%</span>
+                      </div>
+                      <div className="w-full bg-[#111827] h-2 rounded-full overflow-hidden">
+                        <div className="bg-brand-400 h-full w-[16%]" />
+                      </div>
+                    </div>
+                  </div>
+
+                  <button 
+                    onClick={() => triggerToast('Costing reports generated and sent.')}
+                    className="w-full py-2 bg-slate-800 hover:bg-slate-750 text-slate-200 text-xs rounded-xl font-bold transition-all cursor-pointer"
+                  >
+                    Generate Cost Reports
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* GST / PAYG Module (Priority 8) */}
+          {activeTab === 'tax' && (
+            <div className="space-y-6">
+              {/* Period filters */}
+              <div className="flex flex-wrap gap-3 justify-between items-center bg-[#111827]/40 p-4 border border-[#23324C]/45 rounded-xl text-xs font-bold">
+                <div className="flex gap-2">
+                  {['Q1 (Jan-Mar)', 'Q2 (Apr-Jun)', 'Q3 (Jul-Sep)', 'Q4 (Oct-Dec)'].map(q => (
+                    <button 
+                      key={q}
+                      onClick={() => triggerToast(`Tax period filtered: ${q}`)}
+                      className="px-3.5 py-1.5 bg-[#0B0F19] hover:bg-slate-800 border border-[#23324C] text-slate-300 rounded-lg cursor-pointer"
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
+                <button 
+                  onClick={() => triggerToast('Tax Report compiled and exported as PDF.')}
+                  className="px-3.5 py-1.5 bg-brand-500 hover:bg-brand-600 text-slate-950 rounded-lg font-black cursor-pointer"
+                >
+                  Export Tax Report
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* GST Summary */}
+                <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                  <h3 className="text-sm font-extrabold text-white">GST Summary (Goods & Services Tax)</h3>
+                  <div className="space-y-3.5 text-xs text-slate-350">
+                    <div className="flex justify-between border-b border-[#23324C]/40 pb-2">
+                      <span>Total Revenue Sales (GST Inc)</span>
+                      <strong className="text-white font-mono font-bold">$48,250.00</strong>
+                    </div>
+                    <div className="flex justify-between border-b border-[#23324C]/40 pb-2 text-emerald-450">
+                      <span>GST Collected on Invoices (10%)</span>
+                      <strong className="font-mono font-bold">$4,825.00</strong>
+                    </div>
+                    <div className="flex justify-between border-b border-[#23324C]/40 pb-2 text-red-400">
+                      <span>GST Paid on Fleet Purchases (10%)</span>
+                      <strong className="font-mono font-bold">$2,140.00</strong>
+                    </div>
+                    <div className="flex justify-between items-center pt-1.5 text-sm font-black text-brand-400">
+                      <span>Net GST Refundable/Payable</span>
+                      <strong className="font-mono font-bold">$2,685.00 due</strong>
+                    </div>
+                  </div>
+                </div>
+
+                {/* PAYG Summary */}
+                <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                  <h3 className="text-sm font-extrabold text-white">PAYG Summary (Pay As You Go Tax)</h3>
+                  <div className="space-y-3.5 text-xs text-slate-350">
+                    <div className="flex justify-between border-b border-[#23324C]/40 pb-2">
+                      <span>Gross Employee Wages paid</span>
+                      <strong className="text-white font-mono font-bold">$12,400.00</strong>
+                    </div>
+                    <div className="flex justify-between border-b border-[#23324C]/40 pb-2 text-brand-450">
+                      <span>PAYG Tax Withheld from Salaries</span>
+                      <strong className="text-brand-400 font-mono font-bold">$2,840.00</strong>
+                    </div>
+                    <div className="flex justify-between border-b border-[#23324C]/40 pb-2">
+                      <span>Superannuation Employer contributions (11.5%)</span>
+                      <strong className="text-white font-mono font-bold">$1,426.00</strong>
+                    </div>
+                    <div className="flex justify-between items-center pt-1.5 text-sm font-black text-brand-400">
+                      <span>Total PAYG Remittance Liabilities</span>
+                      <strong className="font-mono font-bold">$4,266.00 due</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* AI Tax Ledger & Receipts Ingestion Tab */}
+          {activeTab === 'ai-ledger' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+              {/* Left Column: AI Receipts Queue */}
+              <div className="lg:col-span-5 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                <div>
+                  <h3 className="text-sm font-extrabold text-white">AI Receipts Ingestion Queue</h3>
+                  <p className="text-[10px] text-slate-500 font-medium">Verify extracted odometer readings, fuel cards, and supplier GST taxes.</p>
+                </div>
+
+                <div className="space-y-4 max-h-[350px] overflow-y-auto pr-1">
+                  {aiReceipts.length === 0 ? (
+                    <div className="p-8 text-center text-slate-500 text-xs italic">
+                      No pending receipts to verify. All logged to ledger.
+                    </div>
+                  ) : (
+                    aiReceipts.map((receipt) => (
+                      <div key={receipt.id} className="p-4 bg-[#111827]/60 border border-[#23324C] rounded-xl space-y-3">
+                        <div className="flex justify-between items-center text-xs">
+                          <strong className="text-white block font-bold">{receipt.source}</strong>
+                          <span className="text-[9px] bg-brand-500/10 text-brand-400 border border-brand-500/20 px-2 py-0.5 rounded-full font-bold">
+                            96% Conf
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-350">
+                          <div>
+                            <span className="text-slate-500 block uppercase font-bold text-[8px]">Item parsed</span>
+                            <span className="text-white font-semibold">{receipt.parsedData.item}</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-500 block uppercase font-bold text-[8px]">Fuel Qty</span>
+                            <span className="text-white font-semibold font-mono">{receipt.parsedData.fuelQty}</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-500 block uppercase font-bold text-[8px]">GST Tax</span>
+                            <span className="text-slate-200 font-semibold font-mono">{receipt.parsedData.gst}</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-500 block uppercase font-bold text-[8px]">Total Bill</span>
+                            <span className="text-emerald-400 font-bold font-mono">{receipt.parsedData.total}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex gap-2 pt-2 border-t border-[#23324C]/40">
+                          <button
+                            type="button"
+                            onClick={() => handleConfirmReceipt(receipt)}
+                            className="flex-grow py-2 bg-brand-500 hover:bg-brand-600 text-slate-950 text-[11px] rounded-lg font-black transition-colors cursor-pointer"
+                          >
+                            Confirm & Log Tax
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedReceipt(receipt);
+                              triggerToast('Receipt details loaded for editing.');
+                            }}
+                            className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] rounded-lg font-bold transition-colors cursor-pointer"
+                          >
+                            Edit
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Right Column: Yearly/Monthly Tax Spreadsheet Ledger Preview */}
+              <div className="lg:col-span-7 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="text-sm font-extrabold text-white">Yearly & Monthly Tax Spreadsheet</h3>
+                    <p className="text-[10px] text-slate-500 font-medium">Auto-generated ledger including GST, fuel tax, and payroll records.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      triggerToast('Tax spreadsheet exported as XLSX.');
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-[#161F30] border border-[#23324C] hover:border-brand-500/40 text-slate-200 text-xs rounded-xl font-bold cursor-pointer transition-colors"
+                  >
+                    <Download className="h-3.5 w-3.5" /> Export XLSX
+                  </button>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="border-b border-[#23324C]/60 text-slate-500 text-[10px] uppercase font-bold">
+                        <th className="py-2.5 px-3">Date</th>
+                        <th className="py-2.5 px-3">Description</th>
+                        <th className="py-2.5 px-3">Category</th>
+                        <th className="py-2.5 px-3">Net Cost</th>
+                        <th className="py-2.5 px-3">GST Tax</th>
+                        <th className="py-2.5 px-3">Total Amount</th>
+                        <th className="py-2.5 px-3">Method</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#23324C]/35">
+                      {ledgerSpreadsheet.map((row) => (
+                        <tr key={row.id} className="hover:bg-slate-900/20 text-slate-350">
+                          <td className="py-3 px-3 font-mono text-[11px]">{row.date}</td>
+                          <td className="py-3 px-3 font-semibold text-white">{row.desc}</td>
+                          <td className="py-3 px-3">
+                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                              row.category === 'Fuel' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 
+                              row.category === 'Wages' ? 'bg-brand-500/10 text-brand-400 border border-brand-500/20' : 
+                              'bg-yellow-500/10 text-yellow-405 border border-yellow-500/20'
+                            }`}>
+                              {row.category}
+                            </span>
+                          </td>
+                          <td className="py-3 px-3 font-mono">{row.amount}</td>
+                          <td className="py-3 px-3 font-mono text-slate-500">{row.gst}</td>
+                          <td className="py-3 px-3 font-mono text-white font-bold">{row.total}</td>
+                          <td className="py-3 px-3 text-[10px] text-slate-500 italic">{row.method}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'rates' && (
+            <div className="space-y-6 text-left">
+              {/* Rate categories navigation */}
+              <div className="flex border-b border-[#23324C]/45 pb-px text-xs font-bold gap-4">
+                {[
+                  { id: 'customer', label: 'Customer Rate Settings' },
+                  { id: 'carrier', label: 'Carrier Rate Settings' },
+                  { id: 'fuel', label: 'Fuel Surcharges' },
+                  { id: 'accessorial', label: 'Accessorial Charges' }
+                ].map(subTab => (
+                  <button
+                    key={subTab.id}
+                    onClick={() => setRatesSubTab(subTab.id)}
+                    className={`pb-2.5 cursor-pointer transition-colors ${
+                      ratesSubTab === subTab.id ? 'text-brand-500 border-b-2 border-brand-500 font-extrabold' : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    {subTab.label}
+                  </button>
+                ))}
+              </div>
+
+              {ratesSubTab === 'customer' && (
+                <div className="glass rounded-2xl p-5 border border-[#23324C]/60 space-y-4">
+                  <h3 className="text-sm font-extrabold text-white">Shipper Customer Rates Matrix</h3>
+                  <DataTable columns={[
+                    { key: 'name', label: 'Customer Name', render: (row) => <span className="font-extrabold text-white">{row.name}</span> },
+                    { key: 'vehicleClass', label: 'Freight Class', render: (row) => <span className="text-xs text-slate-300">{row.vehicleClass}</span> },
+                    { key: 'flatRate', label: 'Flat Booking Fee', render: (row) => <span className="font-mono">{row.flatRate}</span> },
+                    { key: 'kmRate', label: 'Per Km Rate', render: (row) => <span className="font-mono text-brand-400">{row.kmRate}</span> },
+                    { key: 'palletRate', label: 'Per Pallet Unit', render: (row) => <span className="font-mono">{row.palletRate}</span> },
+                    { key: 'actions', label: 'Actions', render: (row) => (
+                      <button 
+                        onClick={() => {
+                          setCustomerRates(customerRates.filter(c => c.id !== row.id));
+                          triggerToast(`Deleted rate settings for ${row.name}`, 'warning');
+                        }}
+                        className="p-1 hover:bg-red-500/10 text-red-400 rounded-lg transition-colors cursor-pointer"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  ]} data={customerRates} />
+                </div>
+              )}
+
+              {ratesSubTab === 'carrier' && (
+                <div className="glass rounded-2xl p-5 border border-[#23324C]/60 space-y-4">
+                  <h3 className="text-sm font-extrabold text-white">Contractor Carrier Rates</h3>
+                  <DataTable columns={[
+                    { key: 'name', label: 'Carrier Contractor', render: (row) => <span className="font-extrabold text-white">{row.name}</span> },
+                    { key: 'flatRate', label: 'Flat Fee', render: (row) => <span className="font-mono">{row.flatRate}</span> },
+                    { key: 'costPerKm', label: 'Cost Per Km', render: (row) => <span className="font-mono text-brand-400">{row.costPerKm}</span> },
+                    { key: 'actions', label: 'Actions', render: (row) => (
+                      <button 
+                        onClick={() => {
+                          setCarrierRates(carrierRates.filter(c => c.id !== row.id));
+                          triggerToast(`Deleted rate for ${row.name}`, 'warning');
+                        }}
+                        className="p-1 hover:bg-red-500/10 text-red-400 rounded-lg transition-colors cursor-pointer"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  ]} data={carrierRates} />
+                </div>
+              )}
+
+              {ratesSubTab === 'fuel' && (
+                <div className="glass rounded-2xl p-5 border border-[#23324C]/60 space-y-4">
+                  <h3 className="text-sm font-extrabold text-white">Fuel Surcharge Matrices</h3>
+                  <DataTable columns={[
+                    { key: 'threshold', label: 'Diesel Index Threshold', render: (row) => <span className="font-extrabold text-white">{row.threshold}</span> },
+                    { key: 'surcharge', label: 'Surcharge Percentage', render: (row) => <span className="font-mono text-brand-400 font-bold">{row.surcharge}</span> },
+                    { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> },
+                    { key: 'actions', label: 'Actions', render: (row) => (
+                      <button 
+                        onClick={() => {
+                          setFuelSurcharges(fuelSurcharges.filter(f => f.id !== row.id));
+                          triggerToast(`Deleted fuel threshold ${row.threshold}`, 'warning');
+                        }}
+                        className="p-1 hover:bg-red-500/10 text-red-400 rounded-lg transition-colors cursor-pointer"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  ]} data={fuelSurcharges} />
+                </div>
+              )}
+
+              {ratesSubTab === 'accessorial' && (
+                <div className="glass rounded-2xl p-5 border border-[#23324C]/60 space-y-4">
+                  <h3 className="text-sm font-extrabold text-white">Accessorial Charges & Fees</h3>
+                  <DataTable columns={[
+                    { key: 'type', label: 'Accessorial Service Type', render: (row) => <span className="font-extrabold text-white">{row.type}</span> },
+                    { key: 'fee', label: 'Standard Charge Rate', render: (row) => <span className="font-mono text-brand-400 font-bold">{row.fee}</span> },
+                    { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> },
+                    { key: 'actions', label: 'Actions', render: (row) => (
+                      <button 
+                        onClick={() => {
+                          setAccessorials(accessorials.filter(a => a.id !== row.id));
+                          triggerToast(`Deleted accessorial fee for ${row.type}`, 'warning');
+                        }}
+                        className="p-1 hover:bg-red-500/10 text-red-400 rounded-lg transition-colors cursor-pointer"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  ]} data={accessorials} />
+                </div>
+              )}
             </div>
           )}
         </>
@@ -359,6 +1215,92 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
           </div>
         )}
       </Drawer>
+
+      {/* Record Rate Settings Modal (Priority 4) */}
+      <Modal isOpen={rateModalOpen} onClose={() => setRateModalOpen(false)} title={`Add ${ratesSubTab === 'customer' ? 'Customer Rate' : ratesSubTab === 'carrier' ? 'Carrier Rate' : ratesSubTab === 'fuel' ? 'Fuel Surcharge' : 'Accessorial Fee'}`}>
+        <form onSubmit={handleAddRate} className="space-y-4">
+          <TextInput 
+            label={ratesSubTab === 'customer' ? 'Customer / Shipper Name' : ratesSubTab === 'carrier' ? 'Carrier Partner Name' : ratesSubTab === 'fuel' ? 'Fuel Threshold (Index per L)' : 'Accessorial Type Name'} 
+            required 
+            placeholder={ratesSubTab === 'customer' ? 'e.g. Memphis Shippers Inc' : ratesSubTab === 'carrier' ? 'e.g. Apex Fuel Network' : ratesSubTab === 'fuel' ? 'e.g. $1.90/L' : 'e.g. Waiting Time'} 
+            value={newRateName} 
+            onChange={(e) => setNewRateName(e.target.value)} 
+          />
+          
+          <TextInput 
+            label={ratesSubTab === 'fuel' ? 'Surcharge Percentage (%)' : 'Flat Booking Fee ($)'} 
+            required 
+            type="number" 
+            step="0.01" 
+            placeholder={ratesSubTab === 'fuel' ? 'e.g. 15' : 'e.g. 250.00'} 
+            value={newRateFlat} 
+            onChange={(e) => setNewRateFlat(e.target.value)} 
+          />
+
+          {(ratesSubTab === 'customer' || ratesSubTab === 'carrier') && (
+            <TextInput 
+              label="Per Km Surcharge Rate ($)" 
+              required 
+              type="number" 
+              step="0.01" 
+              placeholder="e.g. 1.85" 
+              value={newRateKm} 
+              onChange={(e) => setNewRateKm(e.target.value)} 
+            />
+          )}
+
+          {ratesSubTab === 'customer' && (
+            <TextInput 
+              label="Per Pallet Unit Charge Rate ($)" 
+              required 
+              type="number" 
+              step="0.01" 
+              placeholder="e.g. 15.00" 
+              value={newRatePallet} 
+              onChange={(e) => setNewRatePallet(e.target.value)} 
+            />
+          )}
+
+          <Button type="submit" variant="primary" className="w-full">
+            Save Rate Mappings
+          </Button>
+        </form>
+      </Modal>
+
+      {/* Configure Worker Pay Rate Modal */}
+      <Modal isOpen={payRateModalOpen} onClose={() => setPayRateModalOpen(false)} title="Configure Worker Pay Rate">
+        <form 
+          onSubmit={(e) => {
+            e.preventDefault();
+            triggerToast('Worker pay rate configured successfully.');
+            setPayRateModalOpen(false);
+          }}
+          className="space-y-4"
+        >
+          <SelectInput 
+            label="Select Worker / Employee" 
+            options={[
+              { value: 'John D.', label: 'John D. (Driver)' },
+              { value: 'Sarah R.', label: 'Sarah R. (Driver)' },
+              { value: 'Adam K.', label: 'Adam K. (Yard Manager)' },
+              { value: 'Julie B.', label: 'Julie B. (Accountant)' }
+            ]} 
+          />
+          <SelectInput 
+            label="Rate Classification Type" 
+            options={[
+              { value: 'Hourly', label: 'Hourly Rate ($/hr)' },
+              { value: 'Per Mile', label: 'Per Mile Commission ($/mile)' },
+              { value: 'Flat Run', label: 'Flat Rate per Trip Run ($/load)' }
+            ]} 
+          />
+          <TextInput label="Rate Value Amount ($)" required placeholder="e.g. 45.00" type="number" step="0.01" />
+          
+          <Button type="submit" variant="primary" className="w-full">
+            Save Pay Rate
+          </Button>
+        </form>
+      </Modal>
 
     </div>
   );

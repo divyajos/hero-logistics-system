@@ -16,6 +16,9 @@ import YardAttendantDashboard from '../components/dashboards/YardAttendantDashbo
 import AccountsDashboard from '../components/dashboards/AccountsDashboard';
 import CustomerDashboard from '../components/dashboards/CustomerDashboard';
 import ReportsDashboard from '../components/dashboards/ReportsDashboard';
+import AiCenterDashboard from '../components/dashboards/AiCenterDashboard';
+import SettingsPanels from '../components/dashboards/SettingsPanels';
+import SearchResultsDashboard from '../components/dashboards/SearchResultsDashboard';
 
 export default function DashboardLayout({ role: roleProp }) {
   const { user } = useAuth();
@@ -32,9 +35,15 @@ export default function DashboardLayout({ role: roleProp }) {
   // Render role dashboard component
   const renderDashboard = (role, tab) => {
     if (tab === 'reports') return <ReportsDashboard activeTab={tab} />;
+    if (tab === 'ai-center') return <AiCenterDashboard activeTab={tab} />;
+    if (tab === 'settings') return <SettingsPanels activeTab={tab} />;
+    if (tab === 'tax') return <AccountsDashboard activeTab={tab} />;
+    if (tab === 'rates') return <AccountsDashboard activeTab={tab} />;
+    if (tab === 'instructions') return <CompanyAdminDashboard activeTab={tab} />;
+    if (tab === 'search-results') return <SearchResultsDashboard activeTab={tab} />;
 
     switch (role) {
-      case 'Super Admin': return <SuperAdminDashboard activeTab={tab} />;
+      case 'Super Admin': return <SuperAdminDashboard activeTab={tab} setActiveTab={setActiveTab} />;
       case 'Sales': return <SalesDashboard activeTab={tab} />;
       case 'Company Admin': return <CompanyAdminDashboard activeTab={tab} />;
       case 'Dispatcher': return <DispatchDashboard activeTab={tab} />;
@@ -73,6 +82,8 @@ export default function DashboardLayout({ role: roleProp }) {
           onNotificationClick={() => setNotificationsOpen(!notificationsOpen)} 
           notificationCount={unreadCount}
           onMenuClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
         />
 
         {/* Global Notifications Tray */}

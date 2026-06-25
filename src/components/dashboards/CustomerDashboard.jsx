@@ -1,7 +1,10 @@
 import { useParams } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchCustomerLoads, createBooking } from '../../store/slices/customersSlice';
+import { 
+  fetchCustomerLoads, createBooking, 
+  fetchCustomerInvoices, fetchCustomerTransactions, payCustomerInvoice 
+} from '../../store/slices/customersSlice';
 import Button from '../common/Button';
 import TextInput from '../common/TextInput';
 import SelectInput from '../common/SelectInput';
@@ -20,7 +23,12 @@ import { Layers, MapPin, Database, Award, Plus, Check, CreditCard, FileText, Sen
 
 export default function CustomerDashboard({ activeTab = 'overview' }) {
   const dispatch = useDispatch();
-  const { customerLoads: shipments, loading } = useSelector((state) => state.customers);
+  const { 
+    customerLoads: shipments, 
+    customerInvoices: invoices, 
+    customerTransactions: transactions, 
+    loading 
+  } = useSelector((state) => state.customers);
 
   // Modals & Drawers
   const [bookModalOpen, setBookModalOpen] = useState(false);
@@ -46,11 +54,7 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
   const [ticketMsg, setTicketMsg] = useState('');
 
   // Local lists states
-  const [invoices, setInvoices] = useState([
-    { id: 'INV-4011', amount: '$1,200.00', date: '06/18/2026', status: 'Pending' },
-    { id: 'INV-3981', amount: '$850.00', date: '06/15/2026', status: 'Paid' }
-  ]);
-
+  const [reminderStates, setReminderStates] = useState({});
   const [tickets, setTickets] = useState([
     { id: 201, subject: 'Shipment #LD-9411 Status Delay', status: 'Open', date: '06/19/2026' }
   ]);
@@ -72,6 +76,8 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
 
   useEffect(() => {
     dispatch(fetchCustomerLoads());
+    dispatch(fetchCustomerInvoices());
+    dispatch(fetchCustomerTransactions());
   }, [dispatch]);
 
   const triggerToast = (msg, type = 'success') => {
@@ -103,7 +109,7 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
   const handlePaymentCheckoutSubmit = (e) => {
     e.preventDefault();
     if (!cardNumber || !cardExpiry) return;
-    setInvoices(invoices.map(i => i.id === selectedInvoice.id ? { ...i, status: 'Paid' } : i));
+    dispatch(payCustomerInvoice({ id: selectedInvoice.id, paymentMethod: 'Visa Card Credit' }));
     setPaymentModalOpen(false);
     setCardNumber('');
     setCardExpiry('');
@@ -162,11 +168,16 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
           <p className="text-xs text-slate-400">Request load deliveries, audit invoices, download BOL papers, and track active route paths.</p>
         </div>
 
-        {activeTab === 'my-loads' && (
-          <Button variant="primary" icon={Plus} onClick={() => setBookModalOpen(true)}>
-            Book Shipment
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => triggerToast('Opening support ticket window...')}>
+            Contact Support
           </Button>
-        )}
+          {activeTab === 'my-loads' && (
+            <Button variant="primary" icon={Plus} onClick={() => setBookModalOpen(true)}>
+              Book Shipment
+            </Button>
+          )}
+        </div>
       </div>
 
       {loading && shipments.length === 0 ? (
@@ -200,11 +211,20 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
           {activeTab === 'my-loads' && (
             <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
               <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-                <h3 className="text-sm font-extrabold text-white">Shipped Cargo Manifests</h3>
+                <div>
+                  <h3 className="text-sm font-extrabold text-white">Shipped Cargo Manifests</h3>
+                  <button 
+                    onClick={() => triggerToast('CSV Shipment history exported. Saved shipment_history.csv to downloads.')}
+                    className="mt-1 text-[10px] text-brand-400 font-black hover:underline cursor-pointer"
+                  >
+                    Export Shipment History (CSV)
+                  </button>
+                </div>
                 <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                   <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} onClear={() => setSearch('')} className="w-full sm:max-w-[200px]" />
                   <SelectInput value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} options={[
                     { value: '', label: 'All Shipments' },
+                    { value: 'Accepted', label: 'Accepted' },
                     { value: 'Transit', label: 'In Transit' },
                     { value: 'Scheduled', label: 'Scheduled Match' },
                     { value: 'Delivered', label: 'Delivered' },
@@ -257,8 +277,8 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
                   { key: 'name', label: 'Document File Name', render: (row) => <span className="font-extrabold text-white">{row.name}</span> },
                   { key: 'category', label: 'Paper Category', render: (row) => <span className="text-slate-300 font-semibold">{row.category}</span> },
                   { key: 'size', label: 'Size', render: (row) => <span className="font-mono text-[10px] text-slate-500">{row.size}</span> },
-                  { key: 'actions', label: 'Actions', render: () => (
-                    <Button size="sm" variant="secondary" icon={FileText}>Download</Button>
+                  { key: 'actions', label: 'Actions', render: (row) => (
+                    <Button size="sm" variant="secondary" icon={FileText} onClick={() => triggerToast(`Initiating download for ${row.name}... Completed.`)}>Download</Button>
                   )}
                 ]} data={documents} />
               </div>
@@ -284,15 +304,130 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
                 { key: 'date', label: 'Due Date', render: (row) => <span className="text-slate-400 font-mono text-[11px]">{row.date}</span> },
                 { key: 'status', label: 'State', render: (row) => <StatusBadge status={row.status} /> },
                 { key: 'actions', label: 'Actions', render: (row) => (
-                  row.status === 'Pending' ? (
-                    <Button size="sm" variant="primary" icon={CreditCard} onClick={() => { setSelectedInvoice(row); setPaymentModalOpen(true); }}>
-                      Pay Invoice
-                    </Button>
-                  ) : (
-                    <span className="text-[11px] font-semibold text-slate-500">Paid and Cleared</span>
-                  )
+                  <div className="flex gap-2 items-center">
+                    {row.status === 'Pending' ? (
+                      <Button size="sm" variant="primary" icon={CreditCard} onClick={() => { setSelectedInvoice(row); setPaymentModalOpen(true); }}>
+                        Pay Invoice
+                      </Button>
+                    ) : (
+                      <span className="text-[11px] font-semibold text-slate-500">Paid and Cleared</span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => triggerToast(`Downloading PDF Tax Invoice receipt for ${row.id}... Saved.`)}
+                      className="px-2.5 py-1 text-[10px] font-bold rounded-lg border border-[#23324C] hover:border-brand-500/40 text-slate-350 hover:text-white cursor-pointer transition-colors"
+                    >
+                      Download PDF
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const isCurrentlyActive = !!reminderStates[row.id];
+                        setReminderStates({ ...reminderStates, [row.id]: !isCurrentlyActive });
+                        triggerToast(!isCurrentlyActive ? 'Invoice email reminders activated.' : 'Invoice reminders deactivated.');
+                      }}
+                      className={`px-2 py-1 text-[10px] font-bold rounded-lg border cursor-pointer transition-colors ${
+                        reminderStates[row.id] ? 'bg-brand-500 border-brand-500 text-slate-950 font-black' : 'border-[#23324C] text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {reminderStates[row.id] ? 'Reminders ON' : 'Reminders OFF'}
+                    </button>
+                  </div>
                 )}
-              ]} data={invoices} />
+              ]} data={invoices || []} />
+            </div>
+          )}
+
+          {/* Payments Screen */}
+          {activeTab === 'payments' && (
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-sm font-extrabold text-white">Payments Center</h3>
+                  <p className="text-xs text-slate-450 mt-1">Settle outstanding invoices, review transaction history, and configure automated billing reminders.</p>
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="secondary" onClick={() => triggerToast("Re-dispatched customer billing notifications.")}>
+                    Invoice reminders
+                  </Button>
+                  <Button size="sm" variant="secondary" onClick={() => triggerToast("Exporting payments ledger history...")}>
+                    View Payment History
+                  </Button>
+                  <Button size="sm" variant="primary" onClick={() => { 
+                    const pendingInvoice = (invoices || []).find(i => i.status === 'Pending');
+                    if (pendingInvoice) {
+                      setSelectedInvoice(pendingInvoice);
+                      setPaymentModalOpen(true);
+                    } else {
+                      triggerToast('No pending invoices to pay.', 'info');
+                    }
+                  }}>
+                    Pay Invoice
+                  </Button>
+                </div>
+              </div>
+
+              <DataTable columns={[
+                { key: 'txnId', label: 'Transaction ID', render: (row) => <span className="font-mono font-extrabold text-white">{row.txnId}</span> },
+                { key: 'invId', label: 'Invoice ID', render: (row) => <span className="font-mono">INV-{row.invId}</span> },
+                { key: 'amount', label: 'Amount Settled', render: (row) => <span className="font-mono font-bold text-emerald-400">{row.amount}</span> },
+                { key: 'date', label: 'Payment Date', render: (row) => <span className="font-mono text-slate-400">{row.date}</span> },
+                { key: 'method', label: 'Billing Method', render: (row) => <span>{row.method}</span> }
+              ]} data={transactions || []} />
+            </div>
+          )}
+
+          {/* Load Requests Screen */}
+          {activeTab === 'load-requests' && (
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-sm font-extrabold text-white">Load Requests & Bookings</h3>
+                  <p className="text-xs text-slate-450 mt-1">Request trailer dispatches, add location instructions, and review booking history.</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <Button size="sm" variant="primary" onClick={() => setBookModalOpen(true)}>
+                    Submit Load Request
+                  </Button>
+                  <Button size="sm" variant="secondary" onClick={() => triggerToast("New destination address registered in addresses catalog.")}>
+                    Add Delivery Address
+                  </Button>
+                  <Button size="sm" variant="secondary" onClick={() => triggerToast("Address instructions updated in dispatcher logs.")}>
+                    Edit Delivery Instructions
+                  </Button>
+                  <Button size="sm" variant="secondary" onClick={() => triggerToast("Booking history ledger exported.")}>
+                    View History
+                  </Button>
+                </div>
+              </div>
+
+              <DataTable columns={[
+                { key: 'reqId', label: 'Request ID', render: (row) => <span className="font-mono font-extrabold text-white">{row.reqId}</span> },
+                { key: 'cargo', label: 'Cargo specs', render: (row) => <span className="text-slate-300 font-semibold">{row.cargo}</span> },
+                { key: 'route', label: 'Route Path', render: (row) => <span className="text-slate-400">{row.route}</span> },
+                { key: 'status', label: 'Request State', render: (row) => <StatusBadge status={row.status} /> }
+              ]} data={[
+                { reqId: 'REQ-9912', cargo: 'Automotive components (42,000 lbs)', route: 'Chicago IL ➔ Dallas TX', status: 'Approved' },
+                { reqId: 'REQ-9913', cargo: 'Dry Grocery Pallets (15,000 lbs)', route: 'New York NY ➔ Boston MA', status: 'Pending' }
+              ]} />
+            </div>
+          )}
+
+          {/* Settings Screen */}
+          {activeTab === 'settings' && (
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6">
+              <div>
+                <h3 className="text-sm font-extrabold text-white">Customer Profile Settings</h3>
+                <p className="text-xs text-slate-450 mt-1">Update legal contact credentials, adjust invoice notifications, and manage address presets.</p>
+              </div>
+
+              <div className="space-y-4 max-w-md">
+                <TextInput label="Billing Email Address" defaultValue="accounts@globalretail.com" />
+                <TextInput label="Corporate Office HQ Address" defaultValue="742 Evergreen Terrace, Springfield" />
+                <Button variant="primary" onClick={() => triggerToast("Shipper profile values saved.")}>
+                  Save Profile Settings
+                </Button>
+              </div>
             </div>
           )}
 
@@ -393,6 +528,15 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
             </div>
 
             <div className="flex gap-2 border-t border-[#23324C]/60 pt-4">
+              {selectedShipment.status === 'Delivered' && (
+                <Button 
+                  variant="primary" 
+                  size="sm" 
+                  onClick={() => triggerToast(`Downloading signed Proof of Delivery (POD) for ${selectedShipment.loadId || selectedShipment.id}... Saved.`)}
+                >
+                  Download POD
+                </Button>
+              )}
               <Button variant="secondary" size="sm" onClick={() => setDetailsDrawerOpen(false)}>
                 Close
               </Button>

@@ -11,11 +11,13 @@ import Toast from '../common/Toast';
 import FileUploader from '../common/FileUploader';
 import DataTable from '../common/DataTable';
 import StatusBadge from '../common/StatusBadge';
-import { Layers, MapPin, Database, Award, Check, Truck, QrCode, AlertTriangle } from 'lucide-react';
+import { Layers, MapPin, Database, Award, Check, Truck, QrCode, AlertTriangle, Clock } from 'lucide-react';
+import { useLogistics } from '../../context/LogisticsContext';
 
 export default function YardAttendantDashboard({ activeTab = 'overview' }) {
   const dispatch = useDispatch();
   const gateLogs = useSelector((state) => state.warehouse.gateLogs);
+  const { shiftState, startWork, finishWork } = useLogistics();
 
   // Form Fields
   const [trailerPlate, setTrailerPlate] = useState('');
@@ -127,6 +129,12 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
           <h2 className="text-xl sm:text-2xl font-black text-white capitalize">Yard Attendant • {activeTab.replace('-', ' ')}</h2>
           <p className="text-xs text-slate-400">Perform gate checks, inspect trailers, and log spotted containers.</p>
         </div>
+
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => triggerToast('Loading attendant task list...')}>
+            View My Tasks
+          </Button>
+        </div>
       </div>
 
       {activeTab === 'overview' && (
@@ -149,13 +157,29 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
                     <p className="text-slate-400 text-xs">{task.desc}</p>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-3">
                     <StatusBadge status={task.status} />
                     {task.status === 'Pending' && (
-                      <Button size="sm" variant="secondary" icon={Check} onClick={() => handleCompleteTask(task.id)}>
-                        Complete Task
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="secondary" icon={Check} onClick={() => {
+                          setTasks(tasks.map(t => t.id === task.id ? { ...t, status: 'Completed' } : t));
+                          triggerToast('Confirmed as LOADED on trailer.');
+                        }}>
+                          Confirm Loaded
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => {
+                          setTasks(tasks.map(t => t.id === task.id ? { ...t, status: 'Completed' } : t));
+                          triggerToast('Confirmed as UNLOADED from trailer.');
+                        }}>
+                          Confirm Unloaded
+                        </Button>
+                      </div>
                     )}
+                    <Button size="sm" variant="outline" onClick={() => {
+                      triggerToast('Connecting supervisor: Dispatch channel opened.');
+                    }}>
+                      Contact Supervisor
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -254,6 +278,11 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
               ]} />
               <FileUploader label="Upload Inspections photo evidence" />
               
+              <div className="flex gap-2">
+                <Button type="button" variant="danger" className="flex-1" onClick={() => triggerToast('Damage issue flagged.')}>Report Damage</Button>
+                <Button type="button" variant="warning" className="flex-1" onClick={() => triggerToast('Missing item issue flagged.')}>Report Missing Item</Button>
+              </div>
+
               <Button type="submit" variant="primary" className="w-full">
                 Log Safety Report
               </Button>
@@ -289,6 +318,210 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
                   </span>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+
+      {/* Start / Finish Work Screen */}
+      {activeTab === 'start-finish' && (
+        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6 max-w-md mx-auto">
+          <div className="text-center space-y-2">
+            <Clock className="h-12 w-12 text-brand-400 mx-auto animate-pulse" />
+            <h3 className="text-lg font-extrabold text-white">Attendant Time Clock</h3>
+            <p className="text-xs text-slate-400">Clock in/out to log operational hours, feed payroll data, and calculate costing.</p>
+          </div>
+
+          <div className="p-4 bg-[#111827]/60 border border-[#23324C] rounded-xl text-center space-y-3">
+            {shiftState.isWorking ? (
+              <>
+                <span className="text-[10px] text-brand-400 font-bold uppercase tracking-wider block">Active Shift In Progress</span>
+                <strong className="text-2xl font-black text-white font-mono block">
+                  {Math.floor(shiftState.totalSeconds / 3600).toString().padStart(2, '0')}:
+                  {Math.floor((shiftState.totalSeconds % 3600) / 60).toString().padStart(2, '0')}:
+                  {(shiftState.totalSeconds % 60).toString().padStart(2, '0')}
+                </strong>
+                <span className="text-[10px] text-slate-500 block">Started at: {shiftState.startTime}</span>
+                <Button variant="danger" className="w-full mt-2 font-black" onClick={() => { finishWork('Yard Attendant'); triggerToast('Shift ended. Time sheet logged.'); }}>
+                  Finish Work
+                </Button>
+              </>
+            ) : (
+              <>
+                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Not Clocked In</span>
+                <strong className="text-xl font-bold text-slate-400 block py-1">Shift Off-Duty</strong>
+                <Button variant="primary" className="w-full mt-2 font-black" onClick={() => { startWork('Yard Attendant'); triggerToast('Shift started. Time clock active.'); }}>
+                  Start Work
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Scan Button / Action Screen */}
+      {activeTab === 'scan-btn' && (
+        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6">
+          <div>
+            <h3 className="text-sm font-extrabold text-white">Barcode & Asset Scanner</h3>
+            <p className="text-xs text-slate-450 mt-1">Select code type and scan physical items in the yard.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-5 bg-[#111827]/40 border border-[#23324C] rounded-2xl flex flex-col justify-between items-center text-center space-y-4">
+              <strong className="text-xs text-slate-200 block">General Item Scan</strong>
+              <p className="text-[11px] text-slate-450">Scan general freight pallets, boxes, or auxiliary assets.</p>
+              <Button variant="primary" icon={QrCode} className="w-full" onClick={() => triggerToast("General Item scan processed successfully.")}>
+                Scan Item
+              </Button>
+            </div>
+
+            <div className="p-5 bg-[#111827]/40 border border-[#23324C] rounded-2xl flex flex-col justify-between items-center text-center space-y-4">
+              <strong className="text-xs text-slate-200 block">Vehicle VIN Scan</strong>
+              <p className="text-[11px] text-slate-450">Scan vehicle windshield barcode tags to resolve VIN stock numbers.</p>
+              <Button variant="primary" icon={QrCode} className="w-full" onClick={() => triggerToast("VIN barcode decoded: Toyota Hilux detected.")}>
+                Scan VIN
+              </Button>
+            </div>
+
+            <div className="p-5 bg-[#111827]/40 border border-[#23324C] rounded-2xl flex flex-col justify-between items-center text-center space-y-4">
+              <strong className="text-xs text-slate-200 block">Standard Barcode Scan</strong>
+              <p className="text-[11px] text-slate-450">Scan standard cargo labels, supplier shipping tags, or BOLs.</p>
+              <Button variant="primary" icon={QrCode} className="w-full" onClick={() => triggerToast("Standard barcode label matched.")}>
+                Scan Barcode
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Scan In Screen */}
+      {activeTab === 'scan-in' && (
+        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6">
+          <div>
+            <h3 className="text-sm font-extrabold text-white">Scan Inward Custody</h3>
+            <p className="text-xs text-slate-450 mt-1">Confirm inward receipt of containers, cars, or pallets into yard locations.</p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-5 p-5 bg-[#111827]/60 border border-[#23324C] rounded-2xl space-y-4">
+              <TextInput label="Scan Container / Asset ID" placeholder="Scan or enter plate ID..." />
+              <TextInput label="Assign Location Spot" placeholder="e.g. Lane 2" />
+              
+              <div className="flex gap-2">
+                <Button variant="primary" className="flex-1" onClick={() => triggerToast("Asset checked inward and logged to database.")}>
+                  Scan In
+                </Button>
+                <Button variant="secondary" onClick={() => triggerToast("Location assignment verified.")}>
+                  Confirm Location
+                </Button>
+              </div>
+            </div>
+
+            <div className="lg:col-span-7 p-4 bg-[#111827]/20 border border-[#23324C] rounded-2xl text-xs space-y-2">
+              <strong className="text-white block">Active Yard Inward Manifest</strong>
+              <p className="text-slate-400">Review items waiting for spot check-in validation.</p>
+              <DataTable columns={[
+                { key: 'item', label: 'Item ID', render: (row) => <span className="font-mono font-bold text-white">{row.item}</span> },
+                { key: 'desc', label: 'Description', render: (row) => <span>{row.desc}</span> },
+                { key: 'status', label: 'Manifest Status', render: () => <span className="text-yellow-450">Pending Spot</span> }
+              ]} data={[
+                { item: 'VIN-7YV1HP82A81920', desc: 'Toyota Hilux double-cab' },
+                { item: 'PLT-AUTO-19', desc: 'Dry Pallets' }
+              ]} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Scan Out Screen */}
+      {activeTab === 'scan-out' && (
+        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6">
+          <div>
+            <h3 className="text-sm font-extrabold text-white">Scan Outward Gate</h3>
+            <p className="text-xs text-slate-450 mt-1">Scan containers, cars, or pallets outbound to driver transport trailers.</p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-5 p-5 bg-[#111827]/60 border border-[#23324C] rounded-2xl space-y-4">
+              <TextInput label="Scan Container / Asset ID" placeholder="Scan or enter plate ID..." />
+              <TextInput label="Release Gate / Dock ID" placeholder="e.g. Gate 4" />
+              
+              <div className="flex gap-2">
+                <Button variant="primary" className="flex-1" onClick={() => triggerToast("Asset checked outward and dispatched.")}>
+                  Scan Out
+                </Button>
+                <Button variant="secondary" onClick={() => triggerToast("Release gate assignment verified.")}>
+                  Confirm Location
+                </Button>
+              </div>
+            </div>
+
+            <div className="lg:col-span-7 p-4 bg-[#111827]/20 border border-[#23324C] rounded-2xl text-xs space-y-2">
+              <strong className="text-white block">Outbound Loading Queue</strong>
+              <p className="text-slate-400">Review items waiting for gate release verification.</p>
+              <DataTable columns={[
+                { key: 'item', label: 'Item ID', render: (row) => <span className="font-mono font-bold text-white">{row.item}</span> },
+                { key: 'desc', label: 'Description', render: (row) => <span>{row.desc}</span> },
+                { key: 'status', label: 'Manifest Status', render: () => <span className="text-brand-400">Awaiting Release</span> }
+              ]} data={[
+                { item: 'VIN-3YV1HP52X81254', desc: 'Mitsubishi Triton GLX' }
+              ]} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Load Lane Assignment Screen */}
+      {activeTab === 'lane-assignment' && (
+        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-sm font-extrabold text-white">Load Lane & Spotting Assignment</h3>
+              <p className="text-xs text-slate-450 mt-1">Spot container trailers to load lanes, upload photo proof, and confirm loading operations.</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" variant="secondary" onClick={() => triggerToast("Trailer spotted to location.")}>
+                Move to Location
+              </Button>
+              <Button size="sm" variant="primary" onClick={() => triggerToast("Trailer relocated to load lane.")}>
+                Move to Load Lane
+              </Button>
+              <Button size="sm" variant="secondary" onClick={() => triggerToast("Time card note added.")}>
+                Add Note
+              </Button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-5 p-5 bg-[#111827]/60 border border-[#23324C] rounded-2xl space-y-4">
+              <strong className="text-xs text-slate-200 block">Verify Load Status</strong>
+              <TextInput label="Trailer Container ID" placeholder="e.g. TR-9410" />
+              <FileUploader label="Upload Spot Photo Proof" onUploadSuccess={() => triggerToast("Spot photo uploaded successfully.")} />
+              <Button variant="secondary" className="w-full" onClick={() => triggerToast("Proof photo uploaded successfully.")}>
+                Upload Proof Photo
+              </Button>
+              
+              <div className="flex gap-2">
+                <Button variant="primary" className="flex-1" onClick={() => triggerToast("Confirmed as LOADED on trailer.")}>
+                  Confirm Loaded
+                </Button>
+                <Button variant="outline" className="flex-1" onClick={() => triggerToast("Confirmed as UNLOADED from trailer.")}>
+                  Confirm Unloaded
+                </Button>
+              </div>
+            </div>
+
+            <div className="lg:col-span-7 p-4 bg-[#111827]/20 border border-[#23324C] rounded-2xl text-xs space-y-2">
+              <strong className="text-white block font-bold">Yard Attendant Tasks List</strong>
+              <DataTable columns={[
+                { key: 'task', label: 'Task Description', render: (row) => <span className="font-semibold text-white">{row.task}</span> },
+                { key: 'status', label: 'Status', render: () => <span className="text-yellow-450">Pending Action</span> }
+              ]} data={[
+                { task: 'Spot Trailer TR-9410 to Gate 4' },
+                { task: 'Audit Seal locks for TR-1102' }
+              ]} />
             </div>
           </div>
         </div>

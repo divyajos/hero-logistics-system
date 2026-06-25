@@ -1,0 +1,663 @@
+Hero Logistics System – Front-End Development Specification 
+Core Rule 
+Hero must follow this workflow across all panels: 
+Load → Stops → Items/Assets → Customer → Driver → Delivery → Invoice → Pay/P&L 
+Every panel should support this flow without breaking the operational chain. 
+Required Shared Features Across Panels 
+Niche Configuration 
+Hero must support: 
+• Car carrying 
+• General freight 
+• Dangerous goods 
+The front end should allow fields and wording to change depending on the selected 
+niche. 
+Permissions 
+Every button must be permission-based. 
+Examples: 
+• Driver can create draft load only if enabled. 
+• Dispatch can assign loads but cannot complete delivery actions. 
+• Accounts can approve invoices but may not edit operational load details. 
+• Customer can view only their own records. 
+AI Confirmation 
+All AI actions must require user confirmation. 
+AI examples: 
+• AI Load Inbox 
+• AI receipt reading 
+• AI odometer reading 
+• Auto-filled asset details 
+Required buttons: 
+• Review AI Result 
+• Confirm 
+• Edit 
+• Reject 
+Start / Finish Work 
+These roles may need start/finish work: 
+• Driver 
+• Yard staff 
+• Warehouse staff 
+• Dispatch 
+• Admin 
+This should feed into: 
+• Payroll 
+• Time tracking 
+• Reporting 
+• Operational costing 
+• P&L 
+Inter-Company Transfers 
+Required screens: 
+• Transfer load 
+• Transfer item/car 
+• Transfer delivery section 
+• Accept transfer 
+• Reject transfer 
+• View chain of custody 
+Global Front-End Layout 
+Standard Desktop Layout 
+Left Sidebar 
+Used for main navigation. 
+Common items: 
+• Dashboard 
+• Loads 
+• Customers 
+• Staff 
+• Drivers 
+• Vehicles 
+• Trailers 
+• Warehouse / Yard 
+• Accounts 
+• Reports 
+• Settings 
+Top Bar 
+Used for fast actions. 
+Buttons: 
+• Global Search 
+• Create New 
+• Notifications 
+• Messages 
+• Branch Selector 
+• Profile 
+• Help / Support 
+Global Search Must Search 
+• VIN 
+• Rego 
+• Stock number 
+• Customer reference 
+• Load ID 
+• Driver 
+• Customer 
+• Destination 
+• Current location 
+• Status 
+• Required delivery time 
+• Suburb/postcode 
+1. Super Admin Panel 
+Purpose 
+The Super Admin manages the Hero SaaS platform, companies, subscriptions, feature 
+access, billing, support and white-label settings. 
+Sidebar 
+• Platform Dashboard 
+• Companies 
+• Subscriptions 
+• Membership Plans 
+• Feature Access 
+• White Label 
+• Support Tickets 
+• Billing 
+• System Analytics 
+• Inter-Company Transfers 
+• AI Controls 
+• Settings 
+Dashboard Layout 
+Top cards: 
+• Active companies 
+• Trial companies 
+• Paid companies 
+• Monthly revenue 
+• Failed payments 
+• Support tickets 
+• Active users 
+• Platform usage 
+Main sections: 
+• Company table 
+• Subscription health 
+• Support queue 
+• Feature usage 
+• System alerts 
+Buttons 
+• Add Company 
+• Suspend Company 
+• Reactivate Company 
+• Login as Company 
+• Create Plan 
+• Edit Plan 
+• Change Subscription 
+• Enable Feature 
+• Disable Feature 
+• Manage White Label 
+• View Billing 
+• View Support Ticket 
+• View Transfer Chain 
+• Export Report 
+Explanation 
+This panel is only for the Hero platform owner. It should not be confused with a 
+transport company admin panel. 
+2. Sales Panel 
+Purpose 
+The Sales panel manages leads, demos, trials, proposals and conversion into paying 
+transport companies. 
+Sidebar 
+• Sales Dashboard 
+• Leads 
+• Pipeline Board 
+• Demo Bookings 
+• Trial Companies 
+• Proposals 
+• Follow-Ups 
+• Onboarding Handover 
+• Sales Reports 
+• Settings 
+Dashboard Layout 
+Top cards: 
+• New leads 
+• Demos booked 
+• Trials active 
+• Proposals sent 
+• Deals won 
+• Deals lost 
+• Pipeline value 
+Main layout: 
+• Left: Kanban pipeline 
+• Right: selected lead details 
+• Bottom: follow-up tasks 
+Pipeline Columns 
+• New Lead 
+• Contacted 
+• Demo Booked 
+• Demo Completed 
+• Trial Started 
+• Proposal Sent 
+• Negotiation 
+• Won 
+• Lost 
+Lead Detail Fields 
+• Company name 
+• Contact name 
+• Email 
+• Phone 
+• Fleet size 
+• Transport niche 
+• Current software 
+• Pain points 
+• Estimated value 
+• Notes 
+• Next follow-up date 
+Buttons 
+• Add Lead 
+• Assign Sales Rep 
+• Book Demo 
+• Start Trial 
+• Recommend Plan 
+• Send Proposal 
+• Convert to Company 
+• Mark Won 
+• Mark Lost 
+• Add Note 
+• Schedule Follow-Up 
+• Send Email 
+• Call Lead 
+• Create Onboarding Task 
+• Send Onboarding Handover 
+Explanation 
+When a lead is won, Sales should be able to convert the lead into a transport company 
+account and hand it over to onboarding. 
+3. Transport Company Admin Panel 
+Purpose 
+This is the main admin panel for each transport business using Hero. 
+Sidebar 
+• Company Dashboard 
+• Branches 
+• Loads 
+• Dispatch 
+• Customers 
+• Drivers / Staff 
+• Vehicles 
+• Trailers 
+• Warehouse / Yard 
+• Workforce / Rostering 
+• Availability / Leave 
+• Accounts 
+• Payroll 
+• Expenses 
+• Expense reminders and alerts automatically 
+• Asset Register 
+• Customer Instructions 
+• Inter-Company Transfers 
+• Reports 
+• Permissions 
+• Settings – Profile (with logos), Subscriptions 
+Dashboard Layout 
+Top cards: 
+• Active loads 
+• Completed loads 
+• Revenue 
+• Expenses 
+• Gross margin 
+• Available drivers 
+• Vehicles active 
+• Overdue invoices 
+Branch selector: 
+• All branches 
+• Individual branch selection 
+Buttons 
+• Add Branch 
+• Edit Branch 
+• Add User 
+• Assign User to Branch 
+• Create Role 
+• Set Permissions 
+• Add Vehicle 
+• Add Trailer 
+• Add Customer 
+• Add Asset 
+• Add Availability 
+• Add Leave 
+• Assign Shift 
+• Configure Niche Fields 
+• Add Customer Instructions 
+• Add Address Instructions 
+• Transfer Load 
+• Accept Transfer 
+• Reject Transfer 
+• View Branch P&L 
+• Export Report 
+Explanation 
+This panel manages the company setup, branch structure, users, assets, settings, 
+payroll, reports and permissions. 
+4. Dispatch Panel 
+Purpose 
+Dispatch controls daily operations, load creation, planning, assignment, GPS tracking, 
+driver communication and urgent job handling. 
+Sidebar 
+• Dispatch Dashboard 
+• Create Load 
+• Load Inbox 
+• Active Loads 
+• Planning Board 
+• Live GPS Map 
+• Drivers 
+• Vehicles / Trailers 
+• Customers 
+• Yard / Warehouse 
+• Workforce Availability 
+• Messages 
+• Reports 
+Dashboard Layout 
+Recommended layout: 
+• Left: load list 
+• Centre: planning board 
+• Right: live GPS map 
+• Bottom: driver status bar 
+Filters 
+• Branch 
+• Status 
+• Driver 
+• Customer 
+• Destination 
+• Required date 
+• Niche type 
+• Vehicle/trailer 
+• Available workers 
+Create Load Flow 
+1. Create load header 
+2. Add stops 
+3. Add items/cars 
+4. Link items to pickup/drop stops 
+5. Link items to customer 
+6. Assign driver 
+7. Assign truck 
+8. Assign trailer 
+9. Add documents/photos 
+10. Review 
+11. Activate / Dispatch 
+Buttons 
+• Create Load 
+• Save Draft 
+• Add Stop 
+• Reorder Stops 
+• Add Item 
+• Add Vehicle 
+• Link Customer 
+• Assign Driver 
+• Assign Truck 
+• Assign Trailer 
+• View Available Drivers 
+• View Unavailable Drivers 
+• Assign Shift 
+• Upload Document 
+• Add Internal Note 
+• Review Load 
+• Activate Load 
+• Dispatch Load 
+• Optimise Load 
+• Search by VIN 
+• Search by Rego 
+• Search by Destination 
+• Swap Trailer 
+• Record Trailer Change Reason 
+• Transfer Load 
+• Transfer Item 
+• View Chain of Custody 
+• View Customer Instructions 
+• View GPS History 
+• Message Driver 
+• Call Driver 
+GPS Buttons 
+• View Live Map 
+• Track Driver 
+• Open Route 
+• Send Location to Driver 
+• Refresh GPS 
+• View Location History 
+• Flag Delay 
+AI Load Inbox Buttons 
+• Review AI Extract 
+• Confirm AI Load 
+• Create Draft Load 
+• Match Customer 
+• Match Address 
+• Confirm Stops 
+• Confirm Items 
+• Reject Inbox Item 
+• Assign to Dispatcher 
+Explanation 
+Dispatch should control planning and assignment only. Dispatch should not perform 
+driver physical actions such as arrive, pickup, deliver or signature capture. 
+5. Driver Panel 
+Purpose 
+The Driver panel is a mobile-first workflow for completing assigned jobs step by step. 
+Mobile Home Layout 
+Top card: 
+• Current job 
+• Next job 
+• Job status 
+• Pickup/drop location 
+• Next action 
+Main buttons: 
+• Start Work 
+• Finish Work 
+• Jobs 
+• Create Draft Load 
+• Add Expense 
+• My Pay 
+• Contact Dispatch 
+Floating communication button: 
+• Call Dispatch 
+• Message Dispatch 
+• Voice Note 
+• Voice-to-Text 
+Driver Workflow 
+1. Start Work 
+2. Confirm truck/trailer 
+3. Upload odometer photo 
+4. Complete compliance 
+5. Accept job 
+6. Navigate 
+7. Arrive at stop 
+8. Pickup 
+9. Scan/select items 
+10. Upload photos 
+11. Capture damage 
+12. Capture signature 
+13. Leave stop 
+14. Deliver 
+15. Final photos/signature 
+16. Complete stop/load 
+17. Finish Work 
+Buttons 
+• Start Work 
+• Confirm Truck 
+• Change Truck 
+• Confirm Trailer 
+• Change Trailer 
+• Upload Odometer Photo 
+• Confirm AI Odometer Reading 
+• Complete Compliance 
+• Submit Compliance 
+• Accept Job 
+• Navigate 
+• Arrived 
+• Start Pickup 
+• Scan Item 
+• Add Photo 
+• Mark Damage 
+• Capture Signature 
+• Complete Stop 
+• Start Delivery 
+• Complete Load 
+• Add Expense 
+• Upload Receipt 
+• Take Tap Payment 
+• Send Receipt 
+• Open Job Chat 
+• Message Driver 
+• Contact Dispatch 
+• Create Draft Load 
+• Submit Draft for Review 
+• Finish Work 
+Explanation 
+Driver actions must happen per stop, not just per load. At each stop, the driver should 
+only see the items assigned to that stop. 
+6. Warehouse / Yard Management Panel 
+Purpose 
+This panel manages stock, cars, freight, yard locations, warehouse zones, holding 
+areas, load lanes, scanning and movement history. 
+Sidebar 
+• Dashboard 
+• Inbound 
+• Outbound 
+• Current Stock 
+• Yard / Warehouse Map 
+• Holding Areas 
+• Load Lanes 
+• Scanning 
+• Labels 
+• Movements 
+• Reports 
+Layout 
+Use a split layout: 
+• Left: stock/item table 
+• Centre: yard or warehouse map 
+• Right: selected item details 
+Buttons 
+• Add Location 
+• Add Holding Area 
+• Add Load Lane 
+• Scan In 
+• Scan Out 
+• Scan by Barcode 
+• Scan by QR 
+• Manual Entry 
+• Move Item 
+• Move to Holding Area 
+• Move to Load Lane 
+• Assign to Load Lane 
+• Print Label 
+• Reprint Label 
+• View Asset History 
+• View Movement History 
+• Report Missing Item 
+• Export Stock List 
+Car Carrying Yard Fields 
+• VIN 
+• Rego 
+• Stock number 
+• Make/model 
+• Current yard location 
+• Load lane 
+• Destination 
+• Customer 
+• Status 
+General Freight Warehouse Fields 
+• Item number 
+• Pallet count 
+• Weight 
+• Dimensions 
+• Barcode/QR 
+• Zone 
+• Aisle/bin 
+• Customer 
+• Destination 
+• Status 
+Explanation 
+Cars/items must exist as assets independent of loads. Yard and warehouse movements 
+must be tracked even before the item is assigned to a load. 
+7. Yard Attendant / Warehouse Attendant Panel 
+Purpose 
+Mobile-first panel for staff physically scanning, moving, loading and confirming items. 
+Mobile Layout 
+Top: 
+• Start Work 
+• Finish Work 
+• Assigned tasks 
+• Scan button 
+Main cards: 
+• Move item 
+• Scan into location 
+• Scan out of location 
+• Load lane assignment 
+• Report issue 
+Buttons 
+• Start Work 
+• Finish Work 
+• View My Tasks 
+• Scan Item 
+• Scan VIN 
+• Scan Barcode 
+• Scan In 
+• Scan Out 
+• Move to Location 
+• Move to Load Lane 
+• Confirm Location 
+• Confirm Loaded 
+• Confirm Unloaded 
+• Upload Proof Photo 
+• Report Damage 
+• Report Missing Item 
+• Add Note 
+• Contact Supervisor 
+Explanation 
+This panel should be simple, fast and mobile/PDA friendly. The attendant should not 
+need full admin access. 
+8. Accounts Panel 
+Purpose 
+Accounts manages invoice review, invoice sending, payments, payroll, contractor pay, 
+expenses, GST/PAYG and P&L. 
+Sidebar 
+• Accounts Dashboard 
+• Invoice Review 
+• Sent Invoices 
+• Payments 
+• Payroll 
+• Contractor Pay 
+• Employee Pay 
+• Expenses 
+• GST / PAYG 
+• P&L 
+• Vehicle Costs 
+• Reports 
+Dashboard Layout 
+Top cards: 
+• Draft invoices 
+• In review 
+• Sent invoices 
+• Paid invoices 
+• Overdue invoices 
+• Payroll due 
+• Expenses pending 
+• Gross margin 
+Invoice Table Columns 
+• Invoice number 
+• Customer 
+• Load ID 
+• Items 
+• Amount 
+• GST 
+• Status 
+• Due date 
+Buttons 
+• Review Invoice 
+• Edit Invoice 
+• Approve Invoice 
+• Send Invoice 
+• Mark Paid 
+• Record Payment 
+• Match Payment to Invoice 
+• Cancel Invoice 
+• Export PDF 
+• Send Statement 
+• Configure Billing Rate 
+• Configure Worker Pay Rate 
+• Review GST 
+• Review PAYG 
+• Review Expense 
+• Approve Expense 
+• Approve AI Receipt 
+• Reject AI Receipt 
+• Process Contractor Pay 
+• Process Employee Pay 
+• Export Payroll 
+• View Load Profit 
+• View Vehicle Costs 
+• View P&L 
+Explanation 
+Invoices must be created per customer and reviewed before sending. Worker pay must 
+be separate from customer billing. 
+9. Customer Panel 
+Purpose 
+Customers can view their own jobs, track deliveries, access documents, view invoices 
+and submit load requests. 
+Sidebar 
+• Dashboard 
+• My Loads 
+• Track Delivery 
+• Documents 
+• Invoices 
+• Payments 
+• Load Requests 
+• Support 
+• Settings 
+Dashboard Layout 
+Top cards: 
+• Active jobs 
+• Delivered jobs 
+• Pending invoices 
+• Paid invoices 
+• Open requests 
+Buttons 
+• View Load 
+• Track Delivery 
+• Download POD 
+• Download Invoice 
+• Pay Invoice 
+• Invoice reminders 
+• View Payment History 
+• Submit Load Request 
+• Upload Document 
+• Add Delivery Address 
+• Edit Delivery Instructions 
+• Contact Support 
+• View History 
+Explanation 
+Customers should only see their own loads, invoices and documents. They should not 
+see other customers or internal company financials. 
+Final Developer Note 
+The platform must feel like a live logistics operating system, not just an admin 
+dashboard. 
+Every screen should clearly answer: 
+• What needs to move? 
+• Where is it now? 
+• Who is responsible? 
+• What is the next action? 
+• Has it been delivered? 
+• Has it been invoiced? 
+• Has the worker been paid? 
