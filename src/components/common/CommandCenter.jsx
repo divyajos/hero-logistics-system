@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, FileText, Truck, Users, Compass, HelpCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { crmRepository } from '../../services/crmRepository';
 
 export default function CommandCenter({ setActiveTab }) {
   const { user } = useAuth();
@@ -56,6 +57,55 @@ export default function CommandCenter({ setActiveTab }) {
     { id: 'payroll', title: 'Accounts Driver payout runs', category: 'Pages', role: 'Accounts' }
   ].filter(p => !p.role || p.role === user.role);
 
+  const [crmRecords, setCrmRecords] = useState([]);
+
+  // Dynamically load CRM records when CommandCenter is toggled
+  useEffect(() => {
+    if (!isOpen) return;
+    try {
+      const crmData = crmRepository.getCrmDatabase();
+      const records = [];
+      if (crmData.leads) {
+        crmData.leads.forEach(l => {
+          records.push({
+            id: `lead-${l.id}`,
+            title: `${l.company} (Lead Contact: ${l.name})`,
+            category: 'Leads',
+            icon: Users,
+            leadId: l.id
+          });
+        });
+      }
+      if (crmData.proposals) {
+        crmData.proposals.forEach(p => {
+          records.push({
+            id: `prop-${p.id}`,
+            title: `${p.title} (Value: $${p.total.toLocaleString()})`,
+            category: 'Proposals',
+            icon: FileText,
+            leadId: p.leadId,
+            proposalId: p.id
+          });
+        });
+      }
+      if (crmData.demos) {
+        crmData.demos.forEach(d => {
+          records.push({
+            id: `demo-${d.id}`,
+            title: `Demo Scheduled with ${d.company}`,
+            category: 'Demos',
+            icon: FileText,
+            leadId: d.leadId,
+            demoId: d.id
+          });
+        });
+      }
+      setCrmRecords(records);
+    } catch (e) {
+      console.error('Error loading CRM records for CommandCenter', e);
+    }
+  }, [isOpen]);
+
   const dataRecords = [
     { id: 'sarah', title: 'Sarah R. (Driver - Active Route CA-90)', category: 'Drivers', icon: Users },
     { id: 'john', title: 'John D. (Driver - ELD Hours: 2.5h)', category: 'Drivers', icon: Users },
@@ -73,7 +123,7 @@ export default function CommandCenter({ setActiveTab }) {
     { id: 'tx-custody', title: 'Transfer Custody #TX-702 (Hero ➔ Super Freight)', category: 'Transfers', icon: Compass }
   ];
 
-  const searchItems = [...pages, ...dataRecords];
+  const searchItems = [...pages, ...dataRecords, ...crmRecords];
 
   const [activeFilter, setActiveFilter] = useState('All');
   const [recentSearches, setRecentSearches] = useState(() => {
@@ -97,6 +147,19 @@ export default function CommandCenter({ setActiveTab }) {
   const handleSelect = (item) => {
     if (item.category === 'Pages') {
       setActiveTab(item.id);
+    } else if (item.category === 'Leads' || item.category === 'Proposals' || item.category === 'Demos') {
+      const leadId = item.leadId;
+      const subTab = item.category === 'Proposals' ? 'Proposals' : (item.category === 'Demos' ? 'Demos' : 'Overview');
+      
+      if (leadId) {
+        localStorage.setItem('hero_sales_selected_lead_id', String(leadId));
+        localStorage.setItem('hero_sales_selected_lead_subtab', subTab);
+        setActiveTab('leads');
+        
+        window.dispatchEvent(new CustomEvent('hero-open-lead-drawer', {
+          detail: { leadId, subTab }
+        }));
+      }
     } else {
       localStorage.setItem('hero_global_search_query', item.title);
       setActiveTab('search-results');
@@ -153,7 +216,7 @@ export default function CommandCenter({ setActiveTab }) {
               setSelectedIndex(0);
             }}
             onKeyDown={handleKeyDown}
-            placeholder="Search loads, drivers, vehicles, warehouses, invoices, transfers..."
+            placeholder="Search leads, proposals, zooms, loads, drivers, vehicles..."
             className="w-full bg-transparent text-slate-800 dark:text-slate-200 text-xs focus:outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
           />
           <span className="text-[10px] font-bold font-mono text-slate-400 border border-slate-200 dark:border-slate-800 px-1.5 py-0.5 rounded-lg select-none flex-shrink-0">
@@ -163,7 +226,7 @@ export default function CommandCenter({ setActiveTab }) {
 
         {/* Category Filters Bar */}
         <div className="flex gap-1.5 px-4 py-2 border-b border-slate-100 dark:border-[#23324C]/40 bg-slate-50/50 dark:bg-[#0f1624]/20 overflow-x-auto scrollbar-none text-[9px] font-extrabold uppercase tracking-wider text-slate-400">
-          {['All', 'Pages', 'Loads', 'Drivers', 'Vehicles', 'Customers', 'Warehouses', 'Invoices', 'Transfers'].map(f => (
+          {['All', 'Pages', 'Leads', 'Proposals', 'Demos', 'Loads', 'Drivers', 'Vehicles', 'Customers', 'Warehouses', 'Invoices', 'Transfers'].map(f => (
             <button
               key={f}
               onClick={() => { setActiveFilter(f); setSelectedIndex(0); }}

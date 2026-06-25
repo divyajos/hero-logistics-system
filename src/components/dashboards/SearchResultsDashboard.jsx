@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { 
   Search, FileText, Users, Truck, Briefcase, MapPin, 
   DollarSign, ArrowLeftRight, Clock, ArrowRight, X, ChevronRight 
 } from 'lucide-react';
 import Toast from '../common/Toast';
+import { crmRepository } from '../../services/crmRepository';
 
-export default function SearchResultsDashboard() {
+export default function SearchResultsDashboard({ setActiveTab }) {
   const [searchQuery, setSearchQuery] = useState(() => {
     return localStorage.getItem('hero_global_search_query') || '';
   });
@@ -29,37 +30,85 @@ export default function SearchResultsDashboard() {
     setToastType(type);
   };
 
-  // Extensive dataset matching requirements
-  const mockSearchData = [
-    // Loads
-    { id: 'LD-9411', category: 'Loads', title: 'Load #LD-9411', desc: 'Chicago HQ ➔ Dallas Depot', status: 'In Transit', detail: 'Cargo: Industrial Machinery • Weight: 18,500 lbs • Driver: John D.', keys: 'machinery john d dallas chicago' },
-    { id: 'LD-4022', category: 'Loads', title: 'Load #LD-4022', desc: 'Los Angeles Terminal ➔ Seattle Hub', status: 'Pending', detail: 'Cargo: Electronics Parts • Weight: 12,000 lbs • Driver: Sarah R.', keys: 'electronics sarah r seattle la' },
-    { id: 'LD-7519', category: 'Loads', title: 'Load #LD-7519', desc: 'Atlanta Terminal ➔ Miami Port', status: 'Delivered', detail: 'Cargo: Fresh Produce • Temp: 3.5°C • Driver: Donald S.', keys: 'produce donald s miami atlanta' },
-    
-    // Drivers
-    { id: 'DRV-01', category: 'Drivers', title: 'John D. (Driver)', desc: 'Active duty • CA-90 Route', status: 'On Duty', detail: 'ELD Hours: 6.5h worked • Truck: TX-ROAD88 • License: Class A Double/Triple', keys: 'john d active road88' },
-    { id: 'DRV-02', category: 'Drivers', title: 'Sarah R. (Driver)', desc: 'Rest period • Los Angeles CA', status: 'Off Duty', detail: 'ELD Hours: 0h • Next shift starts: 8h • Medical Cert: Active', keys: 'sarah r off duty la' },
-    { id: 'DRV-03', category: 'Drivers', title: 'Donald S. (Driver)', desc: 'Rest period • Atlanta GA', status: 'Off Duty', detail: 'ELD Hours: 2.0h • Vehicle: FL-HAUL99 • Medical Cert: Active', keys: 'donald s off duty atlanta' },
-    
-    // Vehicles
-    { id: 'TX-ROAD88', category: 'Vehicles', title: 'Semi Truck TX-ROAD88', desc: 'Rego: 88A-92B • VIN: 1YV1HP82A81920', status: 'Active', detail: 'Status: Good • Maintenance: Next in 4,200 km • Odometer: 142,890 km', keys: '88a-92b 1yv1hp82a81920 road88' },
-    { id: 'TR-4022', category: 'Vehicles', title: 'Reefer Trailer TR-4022', desc: 'Rego: 22X-91Y • Stock: STK-8820', status: 'Active', detail: 'Type: 53ft Refrigerated • Temp Sensor: Active • Temp: -18°C', keys: '22x-91y stk-8820 tr-4022' },
-    
-    // Customers
-    { id: 'CUST-01', category: 'Customers', title: 'Global Retail Corp', desc: 'Account Type: Enterprise Shipper', status: 'Active', detail: 'Active Contracts: 3 • Billing Terms: Net-30 • Billing Suburb: 60601', keys: 'global retail 60601 chicago po-10294' },
-    { id: 'CUST-02', category: 'Customers', title: 'Vance Refrigeration', desc: 'Account Type: Regional Shipper', status: 'Active', detail: 'Active Contracts: 1 • Billing Terms: Net-15 • Billing Suburb: 18505', keys: 'vance refrigeration' },
-    
-    // Warehouses
-    { id: 'WH-CHI', category: 'Warehouses', title: 'Chicago HQ Terminal', desc: 'Address: 400 W Logistics Way, Chicago IL', status: 'Operating', detail: 'Capacity: 84% • Holding Bays: 12 • Active Staff: 18', keys: 'chicago hq terminal logistics' },
-    { id: 'WH-DAL', category: 'Warehouses', title: 'Dallas Depot Terminal', desc: 'Address: 88 Logistics Blvd, Dallas TX', status: 'Operating', detail: 'Capacity: 62% • Holding Bays: 8 • Active Staff: 9', keys: 'dallas depot logistics' },
-    
-    // Invoices
-    { id: 'INV-8812', category: 'Invoices', title: 'Invoice #INV-8812', desc: 'Shipper: Global Retail Corp', status: 'Paid', detail: 'Amount: $4,290.00 • Issue Date: 2026-06-10 • Paid: 2026-06-15', keys: 'inv-8812 global retail paid' },
-    { id: 'INV-8813', category: 'Invoices', title: 'Invoice #INV-8813', desc: 'Shipper: Vance Refrigeration', status: 'Overdue', detail: 'Amount: $1,850.00 • Issue Date: 2026-05-20 • Balance Due: $1,850.00', keys: 'inv-8813 vance overdue' },
-    
-    // Transfers
-    { id: 'TX-702', category: 'Transfers', title: 'Transfer Custody #TX-702', desc: 'Hero Logistics ➔ Super Freight Services', status: 'Completed', detail: 'Assets: Trailer TR-4022 • Gate: North Gate • Time: 2026-06-23 14:30', keys: 'tx-702 trailer custody super freight' }
-  ];
+  // Extensive dataset matching requirements compiled dynamically
+  const mockSearchData = useMemo(() => {
+    const base = [
+      // Loads
+      { id: 'LD-9411', category: 'Loads', title: 'Load #LD-9411', desc: 'Chicago HQ ➔ Dallas Depot', status: 'In Transit', detail: 'Cargo: Industrial Machinery • Weight: 18,500 lbs • Driver: John D.', keys: 'machinery john d dallas chicago' },
+      { id: 'LD-4022', category: 'Loads', title: 'Load #LD-4022', desc: 'Los Angeles Terminal ➔ Seattle Hub', status: 'Pending', detail: 'Cargo: Electronics Parts • Weight: 12,000 lbs • Driver: Sarah R.', keys: 'electronics sarah r seattle la' },
+      { id: 'LD-7519', category: 'Loads', title: 'Load #LD-7519', desc: 'Atlanta Terminal ➔ Miami Port', status: 'Delivered', detail: 'Cargo: Fresh Produce • Temp: 3.5°C • Driver: Donald S.', keys: 'produce donald s miami atlanta' },
+      
+      // Drivers
+      { id: 'DRV-01', category: 'Drivers', title: 'John D. (Driver)', desc: 'Active duty • CA-90 Route', status: 'On Duty', detail: 'ELD Hours: 6.5h worked • Truck: TX-ROAD88 • License: Class A Double/Triple', keys: 'john d active road88' },
+      { id: 'DRV-02', category: 'Drivers', title: 'Sarah R. (Driver)', desc: 'Rest period • Los Angeles CA', status: 'Off Duty', detail: 'ELD Hours: 0h • Next shift starts: 8h • Medical Cert: Active', keys: 'sarah r off duty la' },
+      { id: 'DRV-03', category: 'Drivers', title: 'Donald S. (Driver)', desc: 'Rest period • Atlanta GA', status: 'Off Duty', detail: 'ELD Hours: 2.0h • Vehicle: FL-HAUL99 • Medical Cert: Active', keys: 'donald s off duty atlanta' },
+      
+      // Vehicles
+      { id: 'TX-ROAD88', category: 'Vehicles', title: 'Semi Truck TX-ROAD88', desc: 'Rego: 88A-92B • VIN: 1YV1HP82A81920', status: 'Active', detail: 'Status: Good • Maintenance: Next in 4,200 km • Odometer: 142,890 km', keys: '88a-92b 1yv1hp82a81920 road88' },
+      { id: 'TR-4022', category: 'Vehicles', title: 'Reefer Trailer TR-4022', desc: 'Rego: 22X-91Y • Stock: STK-8820', status: 'Active', detail: 'Type: 53ft Refrigerated • Temp Sensor: Active • Temp: -18°C', keys: '22x-91y stk-8820 tr-4022' },
+      
+      // Customers
+      { id: 'CUST-01', category: 'Customers', title: 'Global Retail Corp', desc: 'Account Type: Enterprise Shipper', status: 'Active', detail: 'Active Contracts: 3 • Billing Terms: Net-30 • Billing Suburb: 60601', keys: 'global retail 60601 chicago po-10294' },
+      { id: 'CUST-02', category: 'Customers', title: 'Vance Refrigeration', desc: 'Account Type: Regional Shipper', status: 'Active', detail: 'Active Contracts: 1 • Billing Terms: Net-15 • Billing Suburb: 18505', keys: 'vance refrigeration' },
+      
+      // Warehouses
+      { id: 'WH-CHI', category: 'Warehouses', title: 'Chicago HQ Terminal', desc: 'Address: 400 W Logistics Way, Chicago IL', status: 'Operating', detail: 'Capacity: 84% • Holding Bays: 12 • Active Staff: 18', keys: 'chicago hq terminal logistics' },
+      { id: 'WH-DAL', category: 'Warehouses', title: 'Dallas Depot Terminal', desc: 'Address: 88 Logistics Blvd, Dallas TX', status: 'Operating', detail: 'Capacity: 62% • Holding Bays: 8 • Active Staff: 9', keys: 'dallas depot logistics' },
+      
+      // Invoices
+      { id: 'INV-8812', category: 'Invoices', title: 'Invoice #INV-8812', desc: 'Shipper: Global Retail Corp', status: 'Paid', detail: 'Amount: $4,290.00 • Issue Date: 2026-06-10 • Paid: 2026-06-15', keys: 'inv-8812 global retail paid' },
+      { id: 'INV-8813', category: 'Invoices', title: 'Invoice #INV-8813', desc: 'Shipper: Vance Refrigeration', status: 'Overdue', detail: 'Amount: $1,850.00 • Issue Date: 2026-05-20 • Balance Due: $1,850.00', keys: 'inv-8813 vance overdue' },
+      
+      // Transfers
+      { id: 'TX-702', category: 'Transfers', title: 'Transfer Custody #TX-702', desc: 'Hero Logistics ➔ Super Freight Services', status: 'Completed', detail: 'Assets: Trailer TR-4022 • Gate: North Gate • Time: 2026-06-23 14:30', keys: 'tx-702 trailer custody super freight' }
+    ];
+
+    try {
+      const crmData = crmRepository.getCrmDatabase();
+      if (crmData.leads) {
+        crmData.leads.forEach(l => {
+          base.push({
+            id: `LEAD-${l.id}`,
+            category: 'Customers',
+            title: `${l.company} (Lead)`,
+            desc: `Contact: ${l.name} • Rep: ${l.rep} • Niche: ${l.niche}`,
+            status: l.status,
+            detail: `Email: ${l.email} • Phone: ${l.phone} • Fleet: ${l.fleetSize} Trucks • Stage: ${l.stage}`,
+            keys: `${l.name} ${l.company} ${l.email} ${l.phone} lead`
+          });
+        });
+      }
+      if (crmData.proposals) {
+        crmData.proposals.forEach(p => {
+          base.push({
+            id: `PROP-${p.id}`,
+            category: 'Invoices',
+            title: `${p.title} (Proposal)`,
+            desc: `Proposed MRR: $${p.total.toLocaleString()} • Discount: ${p.discount}%`,
+            status: p.status === 'Accepted' ? 'Paid' : 'Pending',
+            detail: `Validity: ${p.validity} • Value: $${p.value.toLocaleString()} • Tax: ${p.tax}%`,
+            keys: `${p.title} ${p.company} prop-${p.id} proposal`
+          });
+        });
+      }
+      if (crmData.demos) {
+        crmData.demos.forEach(d => {
+          base.push({
+            id: `DEMO-${d.id}`,
+            category: 'Loads',
+            title: `Demo Scheduled with ${d.company}`,
+            desc: `Presenter: ${d.presenter} • Date: ${d.date} at ${d.time}`,
+            status: d.status,
+            detail: `Meeting Link: ${d.meetingLink} • Timezone: ${d.timezone} • Notes: ${d.notes}`,
+            keys: `${d.company} ${d.presenter} demo zoom`
+          });
+        });
+      }
+    } catch (e) {
+      console.error('Error merging CRM data in search results', e);
+    }
+    return base;
+  }, []);
 
   // Save query to localStorage to persist search text
   useEffect(() => {
@@ -113,6 +162,45 @@ export default function SearchResultsDashboard() {
 
   const handleAction = (item) => {
     addRecentSearch(item.title);
+    
+    const isLead = item.id.startsWith('LEAD-');
+    const isProposal = item.id.startsWith('PROP-');
+    const isDemo = item.id.startsWith('DEMO-');
+    
+    if ((isLead || isProposal || isDemo) && setActiveTab) {
+      let leadId = null;
+      let subTab = 'Overview';
+      
+      const db = crmRepository.getCrmDatabase();
+      
+      if (isLead) {
+        leadId = item.id.replace('LEAD-', '');
+        subTab = 'Overview';
+      } else if (isProposal) {
+        const propId = item.id.replace('PROP-', '');
+        const prop = db.proposals.find(p => String(p.id) === String(propId));
+        leadId = prop ? prop.leadId : null;
+        subTab = 'Proposals';
+      } else if (isDemo) {
+        const demoId = item.id.replace('DEMO-', '');
+        const demo = db.demos.find(d => String(d.id) === String(demoId));
+        leadId = demo ? demo.leadId : null;
+        subTab = 'Demos';
+      }
+      
+      if (leadId) {
+        localStorage.setItem('hero_sales_selected_lead_id', String(leadId));
+        localStorage.setItem('hero_sales_selected_lead_subtab', subTab);
+        setActiveTab('leads');
+        
+        // Dispatch custom event for immediate response if already on the Leads dashboard
+        window.dispatchEvent(new CustomEvent('hero-open-lead-drawer', {
+          detail: { leadId, subTab }
+        }));
+        return;
+      }
+    }
+    
     triggerToast(`Viewing details for ${item.title} (${item.id})`);
   };
 

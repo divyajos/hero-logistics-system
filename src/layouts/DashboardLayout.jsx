@@ -40,7 +40,7 @@ export default function DashboardLayout({ role: roleProp }) {
     if (tab === 'tax') return <AccountsDashboard activeTab={tab} />;
     if (tab === 'rates') return <AccountsDashboard activeTab={tab} />;
     if (tab === 'instructions') return <CompanyAdminDashboard activeTab={tab} />;
-    if (tab === 'search-results') return <SearchResultsDashboard activeTab={tab} />;
+    if (tab === 'search-results') return <SearchResultsDashboard activeTab={tab} setActiveTab={setActiveTab} />;
 
     switch (role) {
       case 'Super Admin': return <SuperAdminDashboard activeTab={tab} setActiveTab={setActiveTab} />;
