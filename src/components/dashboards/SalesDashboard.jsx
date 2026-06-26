@@ -1106,7 +1106,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
             {/* Today's Activities */}
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 flex flex-col justify-between">
+            <div className="glass card-3d hover-lift rounded-2xl p-5 border border-[#23324C]/60 flex flex-col justify-between">
               <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block border-b border-[#23324C]/40 pb-2">Today's Agenda Touchpoints</span>
               <div className="space-y-3.5 my-3.5 max-h-56 overflow-y-auto scrollbar-none">
                 {crmDb.followups.filter(f => f.status === 'Pending').slice(0, 3).map(f => (
@@ -1131,7 +1131,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
             </div>
 
             {/* Recently Closed Deals */}
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 flex flex-col justify-between">
+            <div className="glass card-3d hover-lift rounded-2xl p-5 border border-[#23324C]/60 flex flex-col justify-between">
               <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block border-b border-[#23324C]/40 pb-2">Recently Closed Deals</span>
               <div className="space-y-3.5 my-3.5 max-h-56 overflow-y-auto scrollbar-none">
                 {crmDb.leads.filter(l => ['Won', 'Lost'].includes(l.stage)).slice(0, 3).map(l => (
@@ -1149,7 +1149,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
             </div>
 
             {/* Sales Representative Leaderboard */}
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 flex flex-col justify-between">
+            <div className="glass card-3d hover-lift rounded-2xl p-5 border border-[#23324C]/60 flex flex-col justify-between">
               <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block border-b border-[#23324C]/40 pb-2">Agent Performance Leaders</span>
               <div className="space-y-3.5 my-3.5 max-h-56 overflow-y-auto scrollbar-none">
                 {repPerformanceData.sort((a,b) => b.revenue - a.revenue).map((rep, idx) => (
@@ -1176,7 +1176,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
           TAB 2: LEADS AND SAVED FILTERS TABS
           ============================================================================ */}
       {activeTab === 'leads' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 relative">
+        <div className="glass card-3d hover-lift rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 relative">
           
           {/* Saved filters tabs bar */}
           <div className="flex gap-2 border-b border-[#23324C]/45 pb-3 overflow-x-auto scrollbar-none">
@@ -1425,7 +1425,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                         draggable
                         onDragStart={(e) => handleDragStart(e, lead)}
                         onClick={() => { setSelectedLead(lead); setDrawerActiveTab('Overview'); setInspectDrawerOpen(true); }}
-                        className="glass rounded-xl p-3.5 border border-[#23324C]/60 text-left space-y-3 shadow-md hover:border-brand-500/35 transition-all cursor-grab active:cursor-grabbing hover:scale-[1.01]"
+                        className="glass card-3d hover-lift rounded-xl p-3.5 border border-[#23324C]/60 text-left space-y-3 shadow-md hover:border-brand-500/35 transition-all cursor-grab active:cursor-grabbing hover:scale-[1.01]"
                       >
                         <div className="flex justify-between items-start gap-1">
                           <strong className="text-white text-xs block font-bold truncate max-w-[150px]">{lead.company}</strong>
@@ -1550,7 +1550,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
           TAB 5: TRIAL COMPANIES
           ============================================================================ */}
       {activeTab === 'trials' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+        <div className="glass card-3d hover-lift rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
           <h3 className="text-sm font-extrabold text-white">SaaS Trial Workspace Quotas</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1730,7 +1730,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
           TAB 7: FOLLOW-UPS
           ============================================================================ */}
       {activeTab === 'calendar' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+        <div className="glass card-3d hover-lift rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
           <div className="flex justify-between items-center border-b border-[#23324C]/45 pb-3">
             <div>
               <h3 className="text-sm font-extrabold text-white">Sales Follow-Up Tasks Agenda</h3>
@@ -1997,7 +1997,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
           TAB 10: SETTINGS PANELS CONFIGURATION
           ============================================================================ */}
       {activeTab === 'settings' && (
-        <div className="glass rounded-2xl p-6 border border-[#23324C]/60 text-left space-y-6">
+        <div className="glass card-3d hover-lift rounded-2xl p-6 border border-[#23324C]/60 text-left space-y-6">
           <div className="border-b border-[#23324C]/45 pb-4">
             <h3 className="text-sm font-extrabold text-white">Sales Pipeline Configuration</h3>
             <p className="text-[10px] text-slate-500">Customize template email triggers and client role restrictions.</p>

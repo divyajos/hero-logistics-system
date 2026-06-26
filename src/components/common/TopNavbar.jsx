@@ -170,49 +170,7 @@ export default function TopNavbar({ onNotificationClick, notificationCount = 3, 
 
       {/* Header Actions */}
       <div className="flex items-center space-x-4">
-        {/* Niche Selector */}
-        {user.role !== 'Super Admin' && (
-          <div className="flex items-center space-x-1.5 bg-[#0B0F19]/40 border border-[#23324C] rounded-xl px-2.5 py-1.5">
-            <Briefcase className="h-3.5 w-3.5 text-brand-400" />
-            <select 
-              value={selectedNiche} 
-              onChange={(e) => setSelectedNiche(e.target.value)}
-              className="bg-transparent text-slate-300 text-[11px] font-bold focus:outline-none cursor-pointer"
-            >
-              <option value="car_carrying" className="bg-[#161F30]">🚗 Car Carrying</option>
-              <option value="general_freight" className="bg-[#161F30]">📦 General Freight</option>
-              <option value="dangerous_goods" className="bg-[#161F30]">☣️ Dangerous Goods</option>
-            </select>
-          </div>
-        )}
 
-        {/* Start / Finish Work Widget */}
-        {user.role !== 'Super Admin' && (
-          <div className="flex items-center space-x-2">
-            {shiftState.isWorking ? (
-              <div className="flex items-center space-x-2 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1.5 rounded-xl">
-                <Clock className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
-                <span className="text-[11px] text-emerald-400 font-mono font-bold">
-                  {formatTimer(shiftState.totalSeconds)}
-                </span>
-                <button 
-                  onClick={() => finishWork(user.role)}
-                  className="bg-red-500 hover:bg-red-600 text-white text-[10px] px-2 py-0.5 rounded-lg font-extrabold transition-colors cursor-pointer"
-                >
-                  Finish Work
-                </button>
-              </div>
-            ) : (
-              <button 
-                onClick={() => startWork(user.role)}
-                className="bg-brand-500 hover:bg-brand-600 text-slate-950 text-[11px] px-3 py-1.5 rounded-xl font-black transition-all cursor-pointer flex items-center gap-1.5 shadow-lg shadow-brand-500/10"
-              >
-                <Clock className="h-3.5 w-3.5" />
-                Start Work
-              </button>
-            )}
-          </div>
-        )}
 
         {/* Theme Switcher */}
         <button

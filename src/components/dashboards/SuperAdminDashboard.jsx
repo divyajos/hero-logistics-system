@@ -981,13 +981,13 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                 {/* Left Area (MRR and Tenant Overview Table) */}
                 <div className="lg:col-span-8 space-y-6">
                   {/* MRR Revenue Chart */}
-                  <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left">
+                  <div className="glass card-3d hover-lift rounded-2xl p-5 border border-[#23324C]/60 text-left">
                     <h3 className="text-sm font-extrabold text-white mb-3">MRR Revenue Timeline (USD)</h3>
                     <MiniChart type="line" data={monthlyRevenueTrend} labels={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']} />
                   </div>
 
                   {/* Tenant Overview Table */}
-                  <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                  <div className="glass card-3d hover-lift rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
                     <div>
                       <h3 className="text-sm font-extrabold text-white">Tenant Overview</h3>
                       <p className="text-[10px] text-slate-500">Live summary of platform subscriber performance.</p>
@@ -1020,7 +1020,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                 <div className="lg:col-span-4 space-y-6">
                   
                   {/* Dedicated Platform Actions Quick Panel */}
-                  <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left">
+                  <div className="glass card-3d hover-lift rounded-2xl p-5 border border-[#23324C]/60 text-left">
                     <h3 className="text-sm font-extrabold text-white mb-1">Platform Actions</h3>
                     <p className="text-[10px] text-slate-500 mb-3.5">Quick administrative platform workflows.</p>
                     <div className="grid grid-cols-2 gap-2 text-xs">
@@ -1061,7 +1061,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                   </div>
 
                   {/* Platform Health Center */}
-                  <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                  <div className="glass card-3d hover-lift rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
                     <div>
                       <h3 className="text-sm font-extrabold text-white mb-1">Platform Health Center</h3>
                       <p className="text-[10px] text-slate-500 font-medium">Live platform status & system metrics.</p>
@@ -1117,7 +1117,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                   </div>
 
                   {/* Support Queue Widget */}
-                  <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                  <div className="glass card-3d hover-lift rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
                     <div>
                       <h3 className="text-sm font-extrabold text-white mb-1">Support Queue Status</h3>
                       <p className="text-[10px] text-slate-500">Inbound support tickets metric status.</p>
@@ -1148,7 +1148,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                   </div>
 
                   {/* Subscription Monitoring Widget */}
-                  <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                  <div className="glass card-3d hover-lift rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
                     <div>
                       <h3 className="text-sm font-extrabold text-white mb-1">Subscription Monitoring</h3>
                       <p className="text-[10px] text-slate-500 font-medium">Monitor plans lifecycle metrics.</p>
@@ -1179,7 +1179,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                   </div>
 
                   {/* Recent Activity Feed */}
-                  <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                  <div className="glass card-3d hover-lift rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
                     <div>
                       <h3 className="text-sm font-extrabold text-white mb-1">Recent Platform Activity</h3>
                       <p className="text-[10px] text-slate-500 font-medium">Real-time SaaS system administrative actions audit feed.</p>
@@ -1223,7 +1223,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
               </div>
 
               {/* Companies Data Workspace */}
-              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <div className="glass card-3d hover-lift rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
                 
                 {/* Search, Filter Toggles, and Exports */}
                 <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
@@ -1556,7 +1556,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
               </div>
 
               {/* Subscriptions Data Table Workspace */}
-              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <div className="glass card-3d hover-lift rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
                 
                 {/* Search & Filter Toggles */}
                 <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
@@ -1813,7 +1813,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
           )}
 
           {activeTab === 'billing' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+            <div className="glass card-3d hover-lift rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
               <h3 className="text-sm font-extrabold text-white">Billing History & Invoices</h3>
               <DataTable tableName="sa_billing_list" columns={[
                 { key: 'id', label: 'Invoice ID', render: (row) => <span>#INV-{row.id}</span> },
@@ -1840,7 +1840,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                 <StatCard title="API Ingestion Response" value="45 ms" description="Latency statistics" progress={12} />
                 <StatCard title="Monthly SLA Target" value="99.98%" description="Target threshold uptime" progress={99} />
               </div>
-              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left">
+              <div className="glass card-3d hover-lift rounded-2xl p-5 border border-[#23324C]/60 text-left">
                 <h3 className="text-sm font-extrabold text-white mb-3">Live Platform SLA Uptime timeline (%)</h3>
                 <MiniChart type="line" data={[99.9, 99.95, 99.98, 99.92, 99.99, 99.98]} labels={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']} />
               </div>
@@ -1848,7 +1848,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
           )}
 
           {activeTab === 'transfers' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+            <div className="glass card-3d hover-lift rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
               <h3 className="text-sm font-extrabold text-white">Inter-Company Transfers Audit Logs</h3>
               <DataTable tableName="sa_transfers_list" columns={[
                 { key: 'id', label: 'Transfer ID', render: (row) => <span>#{row.id}</span> },
@@ -1873,7 +1873,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
           )}
 
           {activeTab === 'ai-controls' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+            <div className="glass card-3d hover-lift rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
               <h3 className="text-sm font-extrabold text-white">Global Platform AI Configurations</h3>
               <div className="space-y-4 max-w-md">
                 <TextInput label="Load Parse Confidence threshold (%)" defaultValue="85" />
@@ -1887,7 +1887,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
           )}
 
           {activeTab === 'settings' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+            <div className="glass card-3d hover-lift rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
               <h3 className="text-sm font-extrabold text-white">Super Admin Settings Profile</h3>
               <div className="space-y-4 max-w-md">
                 <TextInput label="Support Email" defaultValue="platform-support@hero.com" />
@@ -1900,7 +1900,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
           )}
 
           {activeTab === 'support' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+            <div className="glass card-3d hover-lift rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
               <h3 className="text-sm font-extrabold text-white">Inbound Customer Support Queries</h3>
               
               <div className="divide-y divide-[#23324C]/40">
