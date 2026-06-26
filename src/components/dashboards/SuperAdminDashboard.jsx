@@ -24,6 +24,9 @@ import {
   createAuditLog
 } from '../../store/slices/companySlice';
 import companyService from '../../services/companyService';
+import MembershipPlans from './MembershipPlans';
+import FeatureAccess from './FeatureAccess';
+import WhiteLabelManagement from './WhiteLabelManagement';
 import Button from '../common/Button';
 import TextInput from '../common/TextInput';
 import SelectInput from '../common/SelectInput';
@@ -1786,154 +1789,27 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
           )}
 
           {activeTab === 'plans' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-              <div className="flex justify-between items-center">
-                <h3 className="text-sm font-extrabold text-white">Subscription Licensing Plans</h3>
-                <Button size="sm" variant="primary" onClick={() => triggerToast('Create Plan form loaded.')}>
-                  Create Plan
-                </Button>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="p-4 bg-[#111827] border border-[#23324C] rounded-xl flex flex-col justify-between h-48">
-                  <div>
-                    <strong className="text-white text-xs block font-extrabold uppercase tracking-wide">Starter Tier</strong>
-                    <span className="text-[10px] text-slate-500 block mt-1">Up to 5 drivers register</span>
-                  </div>
-                  <div>
-                    <h5 className="text-lg font-black text-brand-400">$199<span className="text-xs text-slate-400 font-medium">/mo</span></h5>
-                    <Button size="sm" variant="secondary" className="w-full mt-3" onClick={() => triggerToast('Edit Plan Starter Tier modal triggered')}>Edit Plan</Button>
-                  </div>
-                </div>
-                <div className="p-4 bg-brand-500/5 border border-brand-500/20 rounded-xl flex flex-col justify-between h-48">
-                  <div>
-                    <strong className="text-white text-xs block font-extrabold uppercase tracking-wide">Professional Tier</strong>
-                    <span className="text-[10px] text-slate-500 block mt-1">Up to 30 drivers register</span>
-                  </div>
-                  <div>
-                    <h5 className="text-lg font-black text-brand-400">$499<span className="text-xs text-slate-400 font-medium">/mo</span></h5>
-                    <Button size="sm" variant="primary" className="w-full mt-3" onClick={() => triggerToast('Edit Plan Pro Tier modal triggered')}>Edit Plan</Button>
-                  </div>
-                </div>
-                <div className="p-4 bg-[#111827] border border-[#23324C] rounded-xl flex flex-col justify-between h-48">
-                  <div>
-                    <strong className="text-white text-xs block font-extrabold uppercase tracking-wide">Enterprise Tier</strong>
-                    <span className="text-[10px] text-slate-500 block mt-1">Unlimited driver seats</span>
-                  </div>
-                  <div>
-                    <h5 className="text-lg font-black text-brand-400">$1,299<span className="text-xs text-slate-400 font-medium">/mo</span></h5>
-                    <Button size="sm" variant="secondary" className="w-full mt-3" onClick={() => triggerToast('Edit Plan Enterprise Tier modal triggered')}>Edit Plan</Button>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <MembershipPlans 
+              tenants={tenants} 
+              logAuditAction={logAuditAction} 
+              triggerToast={triggerToast} 
+            />
           )}
 
           {activeTab === 'feature-access' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-              <h3 className="text-sm font-extrabold text-white">Visual Feature Permission Matrix</h3>
-              <p className="text-[11px] text-slate-400 leading-relaxed">Map feature access permissions globally across platform plan licenses.</p>
-              
-              <div className="overflow-x-auto">
-                <table className="w-full text-[11px] text-slate-300 border-collapse">
-                  <thead>
-                    <tr className="border-b border-[#23324C]/60 text-slate-400 font-extrabold">
-                      <th className="py-2 text-left">Feature Key</th>
-                      <th className="py-2 text-center">Start</th>
-                      <th className="py-2 text-center">Pro</th>
-                      <th className="py-2 text-center">Ent</th>
-                      <th className="py-2 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#23324C]/30 font-semibold">
-                    {Object.entries(permissions).map(([key, feat]) => (
-                      <tr key={key} className="hover:bg-slate-900/40">
-                        <td className="py-2.5 text-left text-white">{feat.label}</td>
-                        <td className="py-2.5 text-center">
-                          <input 
-                            type="checkbox" 
-                            checked={feat.start} 
-                            onChange={() => handleTogglePermission(key, 'start')} 
-                            className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-4 w-4 cursor-pointer focus:ring-brand-500" 
-                          />
-                        </td>
-                        <td className="py-2.5 text-center">
-                          <input 
-                            type="checkbox" 
-                            checked={feat.pro} 
-                            onChange={() => handleTogglePermission(key, 'pro')} 
-                            className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-4 w-4 cursor-pointer focus:ring-brand-500" 
-                          />
-                        </td>
-                        <td className="py-2.5 text-center">
-                          <input 
-                            type="checkbox" 
-                            checked={feat.ent} 
-                            onChange={() => handleTogglePermission(key, 'ent')} 
-                            className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-4 w-4 cursor-pointer focus:ring-brand-500" 
-                          />
-                        </td>
-                        <td className="py-2.5 text-right space-x-1">
-                          <Button size="sm" variant="success" onClick={() => handleSetFeatureStatus(key, true)}>Enable Feature</Button>
-                          <Button size="sm" variant="danger" onClick={() => handleSetFeatureStatus(key, false)}>Disable Feature</Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+            <FeatureAccess 
+              tenants={tenants} 
+              logAuditAction={logAuditAction} 
+              triggerToast={triggerToast} 
+            />
           )}
 
           {activeTab === 'white-label' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-              <div className="lg:col-span-6 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-5">
-                <h3 className="text-sm font-extrabold text-white">Enterprise White-Label Customization</h3>
-                <p className="text-xs text-slate-400 leading-relaxed">Configure brand details, logo files, and custom templates for your tenant portal.</p>
-
-                <div className="space-y-4">
-                  <TextInput label="Platform Portal Brand Name" value={brandName} onChange={(e) => setBrandName(e.target.value)} placeholder="e.g. HERO LOGISTICS" />
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Upload Branding Logo</label>
-                    <div 
-                      onClick={() => triggerToast('Logo file selected successfully.')}
-                      className="border border-dashed border-[#23324C] hover:border-brand-500/40 p-4 rounded-xl text-center cursor-pointer bg-slate-900/40 hover:bg-slate-900/60 transition-all text-xs text-slate-450"
-                    >
-                      Drag & Drop brand logo here, or <span className="text-brand-400 font-bold">Browse</span>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Accent Theme Color</label>
-                      <div className="flex gap-2">
-                        <input type="color" value={brandColor} onChange={(e) => setBrandColor(e.target.value)} className="h-10 w-12 rounded-xl bg-transparent cursor-pointer border border-[#23324C] focus:outline-none" />
-                        <input type="text" value={brandColor} onChange={(e) => setBrandColor(e.target.value)} className="flex-1 px-3 py-2 bg-[#111827]/80 text-slate-200 text-xs rounded-xl border border-[#23324C] focus:outline-none" />
-                      </div>
-                    </div>
-                    <TextInput label="Login Welcome Greeting" defaultValue="Welcome to Logistics OS" id="brand-greeting-input" />
-                  </div>
-                  <Button variant="primary" className="w-full" onClick={() => { setIsWhiteLabelSaved(true); triggerToast('White label modifications saved.'); }}>
-                    Manage White Label
-                  </Button>
-                </div>
-              </div>
-              <div className="lg:col-span-6 glass rounded-2xl p-5 border border-[#23324C]/60 text-left flex flex-col justify-between space-y-4">
-                <div>
-                  <h3 className="text-sm font-extrabold text-white mb-1">Branded Live Portal Preview</h3>
-                  <p className="text-[10px] text-slate-500">Live preview matching configured settings parameters.</p>
-                </div>
-                <div className="flex-grow flex items-center justify-center my-2">
-                  <div className="w-full max-w-sm bg-[#0B0F19] rounded-2xl border border-[#23324C] p-4 space-y-4">
-                    <div className="flex justify-between items-center border-b border-[#23324C]/50 pb-2">
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-6 h-6 rounded-md flex items-center justify-center text-white text-[10px] font-black" style={{ backgroundColor: brandColor }}>HL</div>
-                        <span className="text-[10px] font-black text-white tracking-tight">{brandName}</span>
-                      </div>
-                    </div>
-                    <button className="w-full py-2 text-[10px] font-extrabold text-white rounded-lg" style={{ backgroundColor: brandColor }}>Live Button Preview</button>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <WhiteLabelManagement 
+              tenants={tenants} 
+              logAuditAction={logAuditAction} 
+              triggerToast={triggerToast} 
+            />
           )}
 
           {activeTab === 'billing' && (

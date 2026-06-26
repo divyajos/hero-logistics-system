@@ -760,6 +760,782 @@ if (isMockMode) {
     ],
     transactions: [
       { txnId: 'TXN-88192', invId: '1', amount: '$850.00', date: '06/15/2026', method: 'Visa Card Credit' }
+    ],
+    plans: [
+      {
+        id: 'plan-starter',
+        name: 'Starter',
+        version: '1.0.0',
+        status: 'Published',
+        monthlyPrice: 199,
+        annualPrice: 1990,
+        trialDays: 14,
+        createdBy: 'System Root',
+        lastUpdated: '06/20/2026, 09:00:00 AM',
+        limits: { users: 3, drivers: 5, vehicles: 5, branches: 1, storage: 10, apiCalls: 10000 },
+        features: { dispatch: true, fleet: true, gps: true, driverApp: true, accounting: false, ai: false, reporting: false, api: false, customerPortal: false, integrations: false },
+        versionHistory: [
+          { version: '1.0.0', updatedBy: 'System Root', date: '06/20/2026, 09:00:00 AM', changeLog: 'Initial release of Starter plan tier.', limits: { users: 3, drivers: 5, vehicles: 5, branches: 1, storage: 10, apiCalls: 10000 } }
+        ]
+      },
+      {
+        id: 'plan-professional',
+        name: 'Professional',
+        version: '1.1.0',
+        status: 'Published',
+        monthlyPrice: 499,
+        annualPrice: 4990,
+        trialDays: 14,
+        createdBy: 'System Root',
+        lastUpdated: '06/20/2026, 09:05:00 AM',
+        limits: { users: 15, drivers: 30, vehicles: 30, branches: 5, storage: 100, apiCalls: 100000 },
+        features: { dispatch: true, fleet: true, gps: true, driverApp: true, accounting: true, ai: false, reporting: true, api: false, customerPortal: true, integrations: true },
+        versionHistory: [
+          { version: '1.0.0', updatedBy: 'System Root', date: '06/20/2026, 09:00:00 AM', changeLog: 'Initial release of Pro plan tier.', limits: { users: 10, drivers: 20, vehicles: 20, branches: 3, storage: 50, apiCalls: 50000 } },
+          { version: '1.1.0', updatedBy: 'System Root', date: '06/20/2026, 09:05:00 AM', changeLog: 'Upgraded limits and added Integrations & Customer Portal.', limits: { users: 15, drivers: 30, vehicles: 30, branches: 5, storage: 100, apiCalls: 100000 } }
+        ]
+      },
+      {
+        id: 'plan-enterprise',
+        name: 'Enterprise',
+        version: '2.0.0',
+        status: 'Published',
+        monthlyPrice: 1299,
+        annualPrice: 12990,
+        trialDays: 30,
+        createdBy: 'System Root',
+        lastUpdated: '06/20/2026, 09:10:00 AM',
+        limits: { users: 999, drivers: 999, vehicles: 999, branches: 999, storage: 1000, apiCalls: 1000000 },
+        features: { dispatch: true, fleet: true, gps: true, driverApp: true, accounting: true, ai: true, reporting: true, api: true, customerPortal: true, integrations: true },
+        versionHistory: [
+          { version: '2.0.0', updatedBy: 'System Root', date: '06/20/2026, 09:10:00 AM', changeLog: 'Full Enterprise release with unlimited drivers & AI dispatch features.', limits: { users: 999, drivers: 999, vehicles: 999, branches: 999, storage: 1000, apiCalls: 1000000 } }
+        ]
+      },
+      {
+        id: 'plan-custom-enterprise',
+        name: 'Custom Enterprise',
+        version: '1.0.0',
+        status: 'Published',
+        monthlyPrice: 2999,
+        annualPrice: 29990,
+        trialDays: 30,
+        createdBy: 'System Root',
+        lastUpdated: '06/20/2026, 09:15:00 AM',
+        limits: { users: 9999, drivers: 9999, vehicles: 9999, branches: 9999, storage: 10000, apiCalls: 10000000 },
+        features: { dispatch: true, fleet: true, gps: true, driverApp: true, accounting: true, ai: true, reporting: true, api: true, customerPortal: true, integrations: true },
+        versionHistory: [
+          { version: '1.0.0', updatedBy: 'System Root', date: '06/20/2026, 09:15:00 AM', changeLog: 'Dedicated custom isolated cluster instance support.', limits: { users: 9999, drivers: 9999, vehicles: 9999, branches: 9999, storage: 10000, apiCalls: 10000000 } }
+        ]
+      }
+    ],
+    coupons: [
+      { id: 'cp-1', code: 'WELCOME10', type: 'Percentage Discount', discount: 10, campaign: 'Q2 Welcome Offer', expiryDate: '2026-12-31', redemptionLimit: 100, usageCount: 42, status: 'Active' },
+      { id: 'cp-2', code: 'PROMO50', type: 'Fixed Discount', discount: 50, campaign: 'Summer Carrier Drive', expiryDate: '2026-08-31', redemptionLimit: 50, usageCount: 12, status: 'Active' },
+      { id: 'cp-3', code: 'EXTEND30', type: 'Trial Extension', discount: 30, campaign: 'Partner Trial Extensions', expiryDate: '2026-09-30', redemptionLimit: 200, usageCount: 78, status: 'Active' }
+    ],
+    paymentSettings: {
+      stripe: { enabled: true, publishableKey: 'pk_test_51...29', secretKey: 'sk_test_51...99' },
+      paypal: { enabled: false, clientId: 'client_id_...', secretKey: 'secret_...' },
+      razorpay: { enabled: false, keyId: 'rzp_test_...', secretKey: 'secret_...' },
+      ach: { enabled: true, routingNumber: '123456789', accountNumber: '*********1234' },
+      wire: { enabled: true, bankName: 'Chase Bank', swiftCode: 'CHASUS33XXX', accountNumber: '*********5678' },
+      manual: { enabled: true, billingInstructions: 'Net 30 manual invoice billing terms apply.' }
+    },
+    planAudits: [
+      { id: 1, action: 'Plan Created', detail: 'Starter plan initialized.', time: '06/20/2026, 09:00:00 AM', user: 'System Root', ip: '192.168.1.1' },
+      { id: 2, action: 'Plan Created', detail: 'Professional plan initialized.', time: '06/20/2026, 09:05:00 AM', user: 'System Root', ip: '192.168.1.1' },
+      { id: 3, action: 'Plan Created', detail: 'Enterprise plan initialized.', time: '06/20/2026, 09:10:00 AM', user: 'System Root', ip: '192.168.1.1' },
+      { id: 4, action: 'Plan Created', detail: 'Custom Enterprise plan initialized.', time: '06/20/2026, 09:15:00 AM', user: 'System Root', ip: '192.168.1.1' }
+    ],
+    features: [
+      {
+        id: 'feat-base-shell',
+        name: 'Admin Panel Base Shell',
+        description: 'Global navigation, theme styling engines, and sidebar layouts.',
+        category: 'Platform',
+        dependencies: [],
+        requiredModules: ['Platform Base'],
+        apiUsage: 120000,
+        storageUsage: 0.5,
+        performanceImpact: 'Low',
+        licensingType: 'Core',
+        releaseVersion: '1.0.0',
+        createdDate: '01/10/2026',
+        modifiedDate: '06/20/2026',
+        status: 'Enabled',
+        usageCount: 1420,
+        companiesUsing: 5,
+        visibility: 'Public',
+        start: true, pro: true, ent: true, customEnt: true,
+        overrides: [],
+        versionHistory: [
+          { version: '1.0.0', date: '01/10/2026', changeLog: 'Initial base template release.', updatedBy: 'System Root' }
+        ],
+        analytics: { adoptionRate: 100, monthlyGrowth: 0, licenseUtilization: 100 }
+      },
+      {
+        id: 'feat-ops-map',
+        name: 'Interactive Operations Map',
+        description: 'Real-time coordinate plotting for routes, deliveries, and stop points.',
+        category: 'Operations',
+        dependencies: ['feat-gps-pings'],
+        requiredModules: ['Operations'],
+        apiUsage: 85000,
+        storageUsage: 4.5,
+        performanceImpact: 'Medium',
+        licensingType: 'Core',
+        releaseVersion: '1.2.0',
+        createdDate: '02/15/2026',
+        modifiedDate: '06/22/2026',
+        status: 'Enabled',
+        usageCount: 940,
+        companiesUsing: 4,
+        visibility: 'Public',
+        start: true, pro: true, ent: true, customEnt: true,
+        overrides: [],
+        versionHistory: [
+          { version: '1.0.0', date: '02/15/2026', changeLog: 'Initial Operations map release.', updatedBy: 'System Root' },
+          { version: '1.2.0', date: '04/20/2026', changeLog: 'Upgraded map rendering speed by 40%.', updatedBy: 'Alex W.' }
+        ],
+        analytics: { adoptionRate: 85, monthlyGrowth: 3.2, licenseUtilization: 80 }
+      },
+      {
+        id: 'feat-fleet-logs',
+        name: 'Fleet Asset Maintenance Logs',
+        description: 'Vehicles, trailers, registrations, inspections and compliance logs.',
+        category: 'Fleet',
+        dependencies: [],
+        requiredModules: ['Fleet Management'],
+        apiUsage: 40000,
+        storageUsage: 12.0,
+        performanceImpact: 'Low',
+        licensingType: 'Core',
+        releaseVersion: '1.0.0',
+        createdDate: '01/15/2026',
+        modifiedDate: '06/20/2026',
+        status: 'Enabled',
+        usageCount: 880,
+        companiesUsing: 5,
+        visibility: 'Public',
+        start: true, pro: true, ent: true, customEnt: true,
+        overrides: [],
+        versionHistory: [
+          { version: '1.0.0', date: '01/15/2026', changeLog: 'Initial release of vehicle registry database.', updatedBy: 'System Root' }
+        ],
+        analytics: { adoptionRate: 95, monthlyGrowth: 1.5, licenseUtilization: 90 }
+      },
+      {
+        id: 'feat-drivers-eld',
+        name: 'ELD Driver Log Profiles',
+        description: 'Compliance, training, licenses, drug screening, and ELD trainer logs.',
+        category: 'Drivers',
+        dependencies: ['feat-fleet-logs'],
+        requiredModules: ['Driver Management'],
+        apiUsage: 75000,
+        storageUsage: 18.5,
+        performanceImpact: 'Low',
+        licensingType: 'Core',
+        releaseVersion: '1.1.0',
+        createdDate: '01/20/2026',
+        modifiedDate: '06/22/2026',
+        status: 'Enabled',
+        usageCount: 1100,
+        companiesUsing: 5,
+        visibility: 'Public',
+        start: true, pro: true, ent: true, customEnt: true,
+        overrides: [],
+        versionHistory: [
+          { version: '1.0.0', date: '01/20/2026', changeLog: 'Initial release of driver compliance registers.', updatedBy: 'System Root' },
+          { version: '1.1.0', date: '03/10/2026', changeLog: 'Added medical card validity timers.', updatedBy: 'Alex W.' }
+        ],
+        analytics: { adoptionRate: 98, monthlyGrowth: 2.1, licenseUtilization: 92 }
+      },
+      {
+        id: 'feat-dispatch-board',
+        name: 'Dispatch Scheduling Board',
+        description: 'Drag & drop load assignments, driver scheduling, and ETA maps.',
+        category: 'Dispatch',
+        dependencies: ['feat-drivers-eld'],
+        requiredModules: ['Dispatch'],
+        apiUsage: 95000,
+        storageUsage: 8.0,
+        performanceImpact: 'Medium',
+        licensingType: 'Core',
+        releaseVersion: '1.3.0',
+        createdDate: '02/10/2026',
+        modifiedDate: '06/23/2026',
+        status: 'Enabled',
+        usageCount: 780,
+        companiesUsing: 5,
+        visibility: 'Public',
+        start: true, pro: true, ent: true, customEnt: true,
+        overrides: [],
+        versionHistory: [
+          { version: '1.0.0', date: '02/10/2026', changeLog: 'Initial dispatch planner board release.', updatedBy: 'System Root' },
+          { version: '1.3.0', date: '05/18/2026', changeLog: 'Added drag-and-drop lane scheduling controls.', updatedBy: 'Alex W.' }
+        ],
+        analytics: { adoptionRate: 90, monthlyGrowth: 4.8, licenseUtilization: 88 }
+      },
+      {
+        id: 'feat-load-registry',
+        name: 'Load Booking Registry',
+        description: 'Loads registry, route confirmation logs, BOL, and POD documents.',
+        category: 'Loads',
+        dependencies: [],
+        requiredModules: ['Load Booking'],
+        apiUsage: 65000,
+        storageUsage: 25.0,
+        performanceImpact: 'Low',
+        licensingType: 'Core',
+        releaseVersion: '1.0.0',
+        createdDate: '01/10/2026',
+        modifiedDate: '06/20/2026',
+        status: 'Enabled',
+        usageCount: 1200,
+        companiesUsing: 5,
+        visibility: 'Public',
+        start: true, pro: true, ent: true, customEnt: true,
+        overrides: [],
+        versionHistory: [
+          { version: '1.0.0', date: '01/10/2026', changeLog: 'Initial release of load booking database.', updatedBy: 'System Root' }
+        ],
+        analytics: { adoptionRate: 99, monthlyGrowth: 1.0, licenseUtilization: 96 }
+      },
+      {
+        id: 'feat-warehouse-layout',
+        name: 'Warehouse Stock Slots Layout',
+        description: 'Warehouse occupancy ratios, bay configurations, movements, and lane scanning.',
+        category: 'Warehouse',
+        dependencies: [],
+        requiredModules: ['Warehouse'],
+        apiUsage: 35000,
+        storageUsage: 14.2,
+        performanceImpact: 'Low',
+        licensingType: 'Core',
+        releaseVersion: '1.0.0',
+        createdDate: '03/05/2026',
+        modifiedDate: '06/20/2026',
+        status: 'Enabled',
+        usageCount: 410,
+        companiesUsing: 3,
+        visibility: 'Public',
+        start: true, pro: true, ent: true, customEnt: true,
+        overrides: [],
+        versionHistory: [
+          { version: '1.0.0', date: '03/05/2026', changeLog: 'Initial release of warehouse grid layouts.', updatedBy: 'System Root' }
+        ],
+        analytics: { adoptionRate: 60, monthlyGrowth: 5.6, licenseUtilization: 50 }
+      },
+      {
+        id: 'feat-payroll',
+        name: 'Driver Payroll & Expense Factorings',
+        description: 'Driver payroll grids, worker payouts, and factor invoices automated bundles.',
+        category: 'Accounting',
+        dependencies: ['feat-billing-ledger'],
+        requiredModules: ['Accounting'],
+        apiUsage: 50000,
+        storageUsage: 30.0,
+        performanceImpact: 'Low',
+        licensingType: 'Premium',
+        releaseVersion: '1.1.0',
+        createdDate: '02/20/2026',
+        modifiedDate: '06/22/2026',
+        status: 'Enabled',
+        usageCount: 520,
+        companiesUsing: 3,
+        visibility: 'Public',
+        start: false, pro: true, ent: true, customEnt: true,
+        overrides: [
+          { companyId: 2, companyName: 'Swift Cargo Express', status: 'Enabled', type: 'Manual Override', reason: 'Premium addon trial' }
+        ],
+        versionHistory: [
+          { version: '1.0.0', date: '02/20/2026', changeLog: 'Initial release of accounts ledger bundles.', updatedBy: 'System Root' },
+          { version: '1.1.0', date: '05/01/2026', changeLog: 'Added auto-factoring payroll connectors.', updatedBy: 'Sarah K.' }
+        ],
+        analytics: { adoptionRate: 75, monthlyGrowth: 6.8, licenseUtilization: 72 }
+      },
+      {
+        id: 'feat-fin-analytics',
+        name: 'Financial Performance Analytics',
+        description: 'Real-time profit tracking, contractor payouts metrics, and margin grids.',
+        category: 'Finance',
+        dependencies: ['feat-reports-gen'],
+        requiredModules: ['Finance Dashboard'],
+        apiUsage: 45000,
+        storageUsage: 8.5,
+        performanceImpact: 'Medium',
+        licensingType: 'Premium',
+        releaseVersion: '1.0.0',
+        createdDate: '03/12/2026',
+        modifiedDate: '06/20/2026',
+        status: 'Enabled',
+        usageCount: 460,
+        companiesUsing: 3,
+        visibility: 'Public',
+        start: false, pro: true, ent: true, customEnt: true,
+        overrides: [],
+        versionHistory: [
+          { version: '1.0.0', date: '03/12/2026', changeLog: 'Initial release of financial ratios widgets.', updatedBy: 'System Root' }
+        ],
+        analytics: { adoptionRate: 70, monthlyGrowth: 4.1, licenseUtilization: 65 }
+      },
+      {
+        id: 'feat-invoicing',
+        name: 'Customer Invoice Generation',
+        description: 'Automatic invoices billing ledger generation on POD submission.',
+        category: 'Billing',
+        dependencies: ['feat-billing-ledger'],
+        requiredModules: ['Invoices'],
+        apiUsage: 30000,
+        storageUsage: 10.0,
+        performanceImpact: 'Low',
+        licensingType: 'Core',
+        releaseVersion: '1.0.0',
+        createdDate: '01/15/2026',
+        modifiedDate: '06/20/2026',
+        status: 'Enabled',
+        usageCount: 1350,
+        companiesUsing: 5,
+        visibility: 'Public',
+        start: true, pro: true, ent: true, customEnt: true,
+        overrides: [],
+        versionHistory: [
+          { version: '1.0.0', date: '01/15/2026', changeLog: 'Initial release of automated billing invoice generation.', updatedBy: 'System Root' }
+        ],
+        analytics: { adoptionRate: 100, monthlyGrowth: 1.2, licenseUtilization: 98 }
+      },
+      {
+        id: 'feat-crm-leads',
+        name: 'CRM Leads Sales Tracker',
+        description: 'Prospect trackers, conversions trackers, and demo schedulers.',
+        category: 'CRM',
+        dependencies: [],
+        requiredModules: ['CRM'],
+        apiUsage: 25000,
+        storageUsage: 6.0,
+        performanceImpact: 'Low',
+        licensingType: 'Core',
+        releaseVersion: '1.0.0',
+        createdDate: '01/12/2026',
+        modifiedDate: '06/20/2026',
+        status: 'Enabled',
+        usageCount: 380,
+        companiesUsing: 5,
+        visibility: 'Public',
+        start: true, pro: true, ent: true, customEnt: true,
+        overrides: [],
+        versionHistory: [
+          { version: '1.0.0', date: '01/12/2026', changeLog: 'Initial CRM module release.', updatedBy: 'System Root' }
+        ],
+        analytics: { adoptionRate: 92, monthlyGrowth: 2.5, licenseUtilization: 90 }
+      },
+      {
+        id: 'feat-cust-portal',
+        name: 'Shipper Customer Gateway',
+        description: 'Customer load booking screens, shipment tracking maps, and direct portals.',
+        category: 'Customer Portal',
+        dependencies: [],
+        requiredModules: ['Customer Portal'],
+        apiUsage: 60000,
+        storageUsage: 15.0,
+        performanceImpact: 'Low',
+        licensingType: 'Premium',
+        releaseVersion: '1.1.0',
+        createdDate: '02/25/2026',
+        modifiedDate: '06/22/2026',
+        status: 'Enabled',
+        usageCount: 490,
+        companiesUsing: 3,
+        visibility: 'Public',
+        start: false, pro: true, ent: true, customEnt: true,
+        overrides: [],
+        versionHistory: [
+          { version: '1.0.0', date: '02/25/2026', changeLog: 'Initial portal setup with read-only map.', updatedBy: 'System Root' },
+          { version: '1.1.0', date: '04/14/2026', changeLog: 'Enabled interactive load booking widgets.', updatedBy: 'Sarah K.' }
+        ],
+        analytics: { adoptionRate: 72, monthlyGrowth: 5.4, licenseUtilization: 70 }
+      },
+      {
+        id: 'feat-geofence',
+        name: 'Geofencing Pings Alerting Engine',
+        description: 'Geofence breach alerting, load delays, and automatically updated logs.',
+        category: 'Tracking',
+        dependencies: ['feat-gps-pings'],
+        requiredModules: ['Tracking Engine'],
+        apiUsage: 140000,
+        storageUsage: 22.0,
+        performanceImpact: 'High',
+        licensingType: 'Core',
+        releaseVersion: '1.1.0',
+        createdDate: '02/10/2026',
+        modifiedDate: '06/22/2026',
+        status: 'Enabled',
+        usageCount: 1040,
+        companiesUsing: 5,
+        visibility: 'Public',
+        start: true, pro: true, ent: true, customEnt: true,
+        overrides: [],
+        versionHistory: [
+          { version: '1.0.0', date: '02/10/2026', changeLog: 'Initial release of boundary checks.', updatedBy: 'System Root' },
+          { version: '1.1.0', date: '05/02/2026', changeLog: 'Added auto-trigger dispatch notifications.', updatedBy: 'Alex W.' }
+        ],
+        analytics: { adoptionRate: 88, monthlyGrowth: 3.8, licenseUtilization: 85 }
+      },
+      {
+        id: 'feat-gps-pings',
+        name: 'Live GPS Pings Receptor',
+        description: 'Active GPS receptor, ping streams loggers, and speed telemetry logs.',
+        category: 'GPS',
+        dependencies: [],
+        requiredModules: ['GPS Pings Receptor'],
+        apiUsage: 250000,
+        storageUsage: 45.0,
+        performanceImpact: 'High',
+        licensingType: 'Core',
+        releaseVersion: '1.0.0',
+        createdDate: '01/10/2026',
+        modifiedDate: '06/20/2026',
+        status: 'Enabled',
+        usageCount: 1600,
+        companiesUsing: 5,
+        visibility: 'Public',
+        start: true, pro: true, ent: true, customEnt: true,
+        overrides: [],
+        versionHistory: [
+          { version: '1.0.0', date: '01/10/2026', changeLog: 'Initial release of coordinates ingestion.', updatedBy: 'System Root' }
+        ],
+        analytics: { adoptionRate: 100, monthlyGrowth: 0.5, licenseUtilization: 100 }
+      },
+      {
+        id: 'feat-leaflet-maps',
+        name: 'Leaflet Interactive Maps Renderers',
+        description: 'Interactive map canvas, routing lines overlays, and live truck markers.',
+        category: 'Maps',
+        dependencies: [],
+        requiredModules: ['Maps APIs'],
+        apiUsage: 110000,
+        storageUsage: 2.0,
+        performanceImpact: 'Medium',
+        licensingType: 'Core',
+        releaseVersion: '1.0.0',
+        createdDate: '01/10/2026',
+        modifiedDate: '06/20/2026',
+        status: 'Enabled',
+        usageCount: 1300,
+        companiesUsing: 5,
+        visibility: 'Public',
+        start: true, pro: true, ent: true, customEnt: true,
+        overrides: [],
+        versionHistory: [
+          { version: '1.0.0', date: '01/10/2026', changeLog: 'Initial mapping client release.', updatedBy: 'System Root' }
+        ],
+        analytics: { adoptionRate: 98, monthlyGrowth: 1.1, licenseUtilization: 95 }
+      },
+      {
+        id: 'feat-notifications-broadcast',
+        name: 'SMS/Email Broadcast Engine',
+        description: 'Critical notification banners, priority tags, and read status caches.',
+        category: 'Notifications',
+        dependencies: [],
+        requiredModules: ['Notifications System'],
+        apiUsage: 35000,
+        storageUsage: 5.0,
+        performanceImpact: 'Low',
+        licensingType: 'Core',
+        releaseVersion: '1.0.0',
+        createdDate: '01/15/2026',
+        modifiedDate: '06/20/2026',
+        status: 'Enabled',
+        usageCount: 1450,
+        companiesUsing: 5,
+        visibility: 'Public',
+        start: true, pro: true, ent: true, customEnt: true,
+        overrides: [],
+        versionHistory: [
+          { version: '1.0.0', date: '01/15/2026', changeLog: 'Initial release of alert dispatcher.', updatedBy: 'System Root' }
+        ],
+        analytics: { adoptionRate: 100, monthlyGrowth: 0, licenseUtilization: 100 }
+      },
+      {
+        id: 'feat-ai-dispatcher',
+        name: 'AI Autopilot Dispatcher Optimizers',
+        description: 'Auto-allocates loads based on ETA optimization, fuel metrics, and ELD compliance.',
+        category: 'AI Features',
+        dependencies: ['feat-dispatch-board'],
+        requiredModules: ['AI Core'],
+        apiUsage: 90000,
+        storageUsage: 15.0,
+        performanceImpact: 'High',
+        licensingType: 'Enterprise Only',
+        releaseVersion: '2.0.0',
+        createdDate: '06/20/2026',
+        modifiedDate: '06/20/2026',
+        status: 'Enabled',
+        usageCount: 120,
+        companiesUsing: 1,
+        visibility: 'Public',
+        start: false, pro: false, ent: true, customEnt: true,
+        overrides: [],
+        versionHistory: [
+          { version: '2.0.0', date: '06/20/2026', changeLog: 'AI Dispatch Core v2 optimization deployment.', updatedBy: 'System Root' }
+        ],
+        analytics: { adoptionRate: 20, monthlyGrowth: 15.4, licenseUtilization: 18 }
+      },
+      {
+        id: 'feat-reports-gen',
+        name: 'Global Analytics Reports Generator',
+        description: 'PDF report compiles, excel spreadsheets exports, and template configuration parameters.',
+        category: 'Reports',
+        dependencies: [],
+        requiredModules: ['Reporting Core'],
+        apiUsage: 20000,
+        storageUsage: 35.0,
+        performanceImpact: 'Medium',
+        licensingType: 'Core',
+        releaseVersion: '1.0.0',
+        createdDate: '01/10/2026',
+        modifiedDate: '06/20/2026',
+        status: 'Enabled',
+        usageCount: 1100,
+        companiesUsing: 5,
+        visibility: 'Public',
+        start: true, pro: true, ent: true, customEnt: true,
+        overrides: [],
+        versionHistory: [
+          { version: '1.0.0', date: '01/10/2026', changeLog: 'Initial reporting module release.', updatedBy: 'System Root' }
+        ],
+        analytics: { adoptionRate: 96, monthlyGrowth: 2.2, licenseUtilization: 94 }
+      },
+      {
+        id: 'feat-licensing-analytics',
+        name: 'Licensing Usage Analytics Dashboard',
+        description: 'Adoption logs graphs, utilization indicators, and estimated revenue reports.',
+        category: 'Analytics',
+        dependencies: ['feat-reports-gen'],
+        requiredModules: ['Analytics Tools'],
+        apiUsage: 45000,
+        storageUsage: 12.0,
+        performanceImpact: 'Low',
+        licensingType: 'Premium',
+        releaseVersion: '1.1.0',
+        createdDate: '03/20/2026',
+        modifiedDate: '06/22/2026',
+        status: 'Enabled',
+        usageCount: 450,
+        companiesUsing: 3,
+        visibility: 'Public',
+        start: false, pro: true, ent: true, customEnt: true,
+        overrides: [],
+        versionHistory: [
+          { version: '1.0.0', date: '03/20/2026', changeLog: 'Initial analytics board release.', updatedBy: 'System Root' },
+          { version: '1.1.0', date: '05/10/2026', changeLog: 'Added comparative plans analytics.', updatedBy: 'Sarah K.' }
+        ],
+        analytics: { adoptionRate: 70, monthlyGrowth: 4.8, licenseUtilization: 68 }
+      },
+      {
+        id: 'feat-edi-connectors',
+        name: 'EDI/TMS Integrations Connectors',
+        description: 'EDI 204 load tenders, EDI 214 shipment updates, and API connectors.',
+        category: 'Integrations',
+        dependencies: [],
+        requiredModules: ['Integration Connectors'],
+        apiUsage: 180000,
+        storageUsage: 8.0,
+        performanceImpact: 'Low',
+        licensingType: 'Premium',
+        releaseVersion: '1.2.0',
+        createdDate: '03/15/2026',
+        modifiedDate: '06/22/2026',
+        status: 'Enabled',
+        usageCount: 390,
+        companiesUsing: 3,
+        visibility: 'Public',
+        start: false, pro: true, ent: true, customEnt: true,
+        overrides: [],
+        versionHistory: [
+          { version: '1.0.0', date: '03/15/2026', changeLog: 'Initial release of EDI translation hooks.', updatedBy: 'System Root' },
+          { version: '1.2.0', date: '05/20/2026', changeLog: 'Upgraded response times to sub-200ms.', updatedBy: 'Sarah K.' }
+        ],
+        analytics: { adoptionRate: 65, monthlyGrowth: 6.2, licenseUtilization: 60 }
+      },
+      {
+        id: 'feat-rbac',
+        name: 'Role-Based Access Controllers',
+        description: 'Custom operator/dispatcher permissions, admin password resets, and audit ledgers.',
+        category: 'Security',
+        dependencies: [],
+        requiredModules: ['Security Core'],
+        apiUsage: 95000,
+        storageUsage: 2.5,
+        performanceImpact: 'Low',
+        licensingType: 'Core',
+        releaseVersion: '1.0.0',
+        createdDate: '01/10/2026',
+        modifiedDate: '06/20/2026',
+        status: 'Enabled',
+        usageCount: 1500,
+        companiesUsing: 5,
+        visibility: 'Public',
+        start: true, pro: true, ent: true, customEnt: true,
+        overrides: [],
+        versionHistory: [
+          { version: '1.0.0', date: '01/10/2026', changeLog: 'Initial release of user permissions check.', updatedBy: 'System Root' }
+        ],
+        analytics: { adoptionRate: 100, monthlyGrowth: 0, licenseUtilization: 100 }
+      },
+      {
+        id: 'feat-white-labeling',
+        name: 'White-Label Brand Theme Configurations',
+        description: 'Admin styling settings parameters (branded portal labels, custom colors).',
+        category: 'Administration',
+        dependencies: [],
+        requiredModules: ['Branding Options'],
+        apiUsage: 15000,
+        storageUsage: 3.2,
+        performanceImpact: 'Low',
+        licensingType: 'Premium',
+        releaseVersion: '1.0.0',
+        createdDate: '04/10/2026',
+        modifiedDate: '06/20/2026',
+        status: 'Enabled',
+        usageCount: 220,
+        companiesUsing: 1,
+        visibility: 'Public',
+        start: false, pro: false, ent: true, customEnt: true,
+        overrides: [
+          { companyId: 1, companyName: 'Falcon Logistics LLC', status: 'Enabled', type: 'Manual Override', reason: 'Special promotion' }
+        ],
+        versionHistory: [
+          { version: '1.0.0', date: '04/10/2026', changeLog: 'Initial white-labeling templates release.', updatedBy: 'System Root' }
+        ],
+        analytics: { adoptionRate: 20, monthlyGrowth: 8.5, licenseUtilization: 15 }
+      },
+      {
+        id: 'feat-api-gateway',
+        name: 'Developers Sandboxed API Token Gateway',
+        description: 'Generate developer credentials sandbox API keys, documentation routes.',
+        category: 'API',
+        dependencies: [],
+        requiredModules: ['Developer Hub'],
+        apiUsage: 220000,
+        storageUsage: 6.8,
+        performanceImpact: 'Low',
+        licensingType: 'Enterprise Only',
+        releaseVersion: '1.5.0',
+        createdDate: '02/18/2026',
+        modifiedDate: '06/20/2026',
+        status: 'Enabled',
+        usageCount: 150,
+        companiesUsing: 1,
+        visibility: 'Public',
+        start: false, pro: false, ent: true, customEnt: true,
+        overrides: [],
+        versionHistory: [
+          { version: '1.0.0', date: '02/18/2026', changeLog: 'Initial release of Sandbox API keys.', updatedBy: 'System Root' },
+          { version: '1.5.0', date: '05/12/2026', changeLog: 'Added auto-throttling and webhooks.', updatedBy: 'Sarah K.' }
+        ],
+        analytics: { adoptionRate: 25, monthlyGrowth: 9.8, licenseUtilization: 20 }
+      },
+      {
+        id: 'feat-dev-debug',
+        name: 'Live Application Event Debug Logs Logger',
+        description: 'Developer debug console logging REST API calls status rates, response charts.',
+        category: 'Developer Tools',
+        dependencies: ['feat-api-gateway'],
+        requiredModules: ['Developer Hub'],
+        apiUsage: 40000,
+        storageUsage: 80.0,
+        performanceImpact: 'Medium',
+        licensingType: 'Enterprise Only',
+        releaseVersion: '1.0.0',
+        createdDate: '03/01/2026',
+        modifiedDate: '06/20/2026',
+        status: 'Enabled',
+        usageCount: 130,
+        companiesUsing: 1,
+        visibility: 'Public',
+        start: false, pro: false, ent: true, customEnt: true,
+        overrides: [],
+        versionHistory: [
+          { version: '1.0.0', date: '03/01/2026', changeLog: 'Initial debug logger backend console.', updatedBy: 'System Root' }
+        ],
+        analytics: { adoptionRate: 20, monthlyGrowth: 11.2, licenseUtilization: 15 }
+      }
+    ],
+    featureAudits: [
+      { id: 1, action: 'Feature Enabled', detail: 'Admin Panel Base Shell enabled for all plans.', time: '06/20/2026, 09:00:00 AM', user: 'System Root', ip: '192.168.1.1', reason: 'Core module deployment' },
+      { id: 2, action: 'Feature Updated', detail: 'Operations Map upgraded to v1.2.0.', time: '06/22/2026, 11:30:00 AM', user: 'Alex W.', ip: '192.168.1.1', reason: 'Performance upgrade' },
+      { id: 3, action: 'Company Override Created', detail: 'Manual override enabled for Swift Cargo Express on Payroll module.', time: '06/24/2026, 02:45:00 PM', user: 'Super Admin', ip: '192.168.1.5', reason: 'Partner promotion extension' }
+    ],
+    whiteLabelConfig: {
+      companyName: 'Hero Logistics System',
+      platformName: 'Logistics OS',
+      portalName: 'Enterprise Tenant Portal',
+      shortName: 'HeroLog',
+      logoLight: 'https://hero-mock-storage.s3.amazonaws.com/uploads/logo-light.png',
+      logoDark: 'https://hero-mock-storage.s3.amazonaws.com/uploads/logo-dark.png',
+      favicon: 'https://hero-mock-storage.s3.amazonaws.com/uploads/favicon.ico',
+      mobileIcon: 'https://hero-mock-storage.s3.amazonaws.com/uploads/mobile-icon.png',
+      emailLogo: 'https://hero-mock-storage.s3.amazonaws.com/uploads/email-logo.png',
+      pdfLogo: 'https://hero-mock-storage.s3.amazonaws.com/uploads/pdf-logo.png',
+      invoiceLogo: 'https://hero-mock-storage.s3.amazonaws.com/uploads/invoice-logo.png',
+      loginBg: 'https://hero-mock-storage.s3.amazonaws.com/uploads/login-bg.jpg',
+      dashboardBg: 'https://hero-mock-storage.s3.amazonaws.com/uploads/dashboard-bg.jpg',
+      loadingScreen: 'https://hero-mock-storage.s3.amazonaws.com/uploads/loading.gif',
+      watermark: 'https://hero-mock-storage.s3.amazonaws.com/uploads/watermark.png',
+      splashScreen: 'https://hero-mock-storage.s3.amazonaws.com/uploads/splash.png',
+      brandFont: 'Inter',
+      typography: 'Modern Sans',
+      accentColor: '#0ea5e9',
+      bgColor: '#0B0F19',
+      cardRadius: '16px',
+      buttonStyle: 'rounded-xl',
+      gradientStart: '#0ea5e9',
+      gradientEnd: '#6366f1',
+      // custom domains
+      customDomain: 'tms.herologistics.com',
+      subDomain: 'portal.herologistics.com',
+      sslStatus: 'Active',
+      sslExpiry: '12/31/2026',
+      dnsVerified: true,
+      // email branding
+      smtpSenderName: 'Logistics OS Mailer',
+      smtpSenderEmail: 'mailer@herologistics.com',
+      smtpHost: 'smtp.sendgrid.net',
+      smtpPort: '587',
+      smtpUser: 'apikey',
+      // SMS
+      smsSender: 'HEROLOG',
+      smsTemplates: {
+        otp: 'Your OTP code is {code}. Valid for 5 minutes.',
+        dispatch: 'Load {loadId} is dispatched. Driver: {driverName}. ETA: {eta}.',
+        billing: 'Invoice {invoiceId} of ${amount} has been generated for your account.'
+      },
+      // PDF customization
+      pdfHeader: 'HERO LOGISTICS ENTERPRISE SOLUTION',
+      pdfFooter: 'Confidential Document • Page {page} of {total}',
+      pdfWatermarkEnabled: true,
+      pdfQrEnabled: true,
+      // mobile app
+      androidPackageName: 'com.herologistics.driver',
+      iosBundleId: 'com.herologistics.driver.ios',
+      appStoreName: 'Hero Driver ELD',
+      // feature branding overrides
+      brandDriverPortal: true,
+      brandDispatcherPortal: true,
+      brandCustomerPortal: true,
+      // status
+      approvalStatus: 'Published', // Draft, Review, Approved, Published
+      version: '1.4.0',
+      lastDeployed: '06/25/2026, 09:40:00 AM'
+    },
+    whiteLabelDeployments: [
+      { id: 'dep-1', version: '1.4.0', environment: 'Production', build: 'Build #334', status: 'Published', publishedBy: 'System Root', time: '06/25/2026, 09:40:00 AM', changeLog: 'Updated light logo and unified gradient builder.' },
+      { id: 'dep-2', version: '1.3.0', environment: 'Production', build: 'Build #312', status: 'Archived', publishedBy: 'System Root', time: '06/10/2026, 12:15:00 PM', changeLog: 'Configured CNAME redirects for custom tenant portals.' }
+    ],
+    whiteLabelAudits: [
+      { id: 1, action: 'Brand Color Updated', detail: 'Accent color changed from #2563eb to #0ea5e9.', user: 'Super Admin', time: '06/25/2026, 09:30:00 AM', ip: '192.168.1.5', browser: 'Chrome 126.0' },
+      { id: 2, action: 'SMTP Server Configured', detail: 'SMTP host redirected to SendGrid secure server.', user: 'Super Admin', time: '06/25/2026, 09:35:00 AM', ip: '192.168.1.5', browser: 'Chrome 126.0' }
     ]
   };
 
@@ -843,7 +1619,6 @@ if (isMockMode) {
     }
   };
 
-  // Custom Axios Adapter representing the Mock Laravel API Server
   apiClient.defaults.adapter = function (config) {
     return new Promise((resolve, reject) => {
       const url = config.url.replace(config.baseURL, '').replace(/^\/+/, '');
@@ -852,6 +1627,22 @@ if (isMockMode) {
       try {
         body = JSON.parse(config.data || '{}');
       } catch (e) {}
+
+      const getPlanLimits = (planName) => {
+        const plan = mockDb.plans?.find(p => p.name === planName);
+        if (plan) {
+          return {
+            users: plan.limits.users === 'Unlimited' ? Infinity : Number(plan.limits.users),
+            drivers: plan.limits.drivers === 'Unlimited' ? Infinity : Number(plan.limits.drivers),
+            vehicles: plan.limits.vehicles === 'Unlimited' ? Infinity : Number(plan.limits.vehicles),
+            branches: plan.limits.branches === 'Unlimited' ? Infinity : Number(plan.limits.branches),
+            storage: plan.limits.storage === 'Unlimited' ? Infinity : Number(plan.limits.storage)
+          };
+        }
+        if (planName === 'Starter') return { users: 3, drivers: 5, vehicles: 5, branches: 1, storage: 10 };
+        if (planName === 'Professional') return { users: 15, drivers: 30, vehicles: 30, branches: 5, storage: 100 };
+        return { users: Infinity, drivers: Infinity, vehicles: Infinity, branches: Infinity, storage: Infinity };
+      };
 
       // Latency simulation
       setTimeout(() => {
@@ -1122,17 +1913,12 @@ if (isMockMode) {
             } catch (e) {}
           }
           const tenant = mockDb.tenants.find(t => t.name.toLowerCase() === companyName.toLowerCase());
-          const limits = {
-            Starter: { users: 3, drivers: 5, vehicles: 5 },
-            Professional: { users: 15, drivers: 30, vehicles: 30 },
-            Enterprise: { users: Infinity, drivers: Infinity, vehicles: Infinity }
-          };
-          const planLimits = tenant ? (limits[tenant.plan] || limits.Professional) : limits.Professional;
+          const planLimits = tenant ? getPlanLimits(tenant.plan) : { users: 15, drivers: 30, vehicles: 30 };
           
           if (tenant && tenant.vehicles >= planLimits.vehicles) {
             return reject({
               status: 403,
-              data: { message: `Plan Limit Exceeded: Your ${tenant.plan} plan allows up to ${planLimits.vehicles} vehicles.` }
+              data: { message: `Plan Limit Exceeded: Your ${tenant.plan} plan allows up to ${planLimits.vehicles === Infinity ? 'Unlimited' : planLimits.vehicles} vehicles.` }
             });
           }
 
@@ -1206,17 +1992,12 @@ if (isMockMode) {
             } catch (e) {}
           }
           const tenant = mockDb.tenants.find(t => t.name.toLowerCase() === companyName.toLowerCase());
-          const limits = {
-            Starter: { users: 3, drivers: 5, vehicles: 5 },
-            Professional: { users: 15, drivers: 30, vehicles: 30 },
-            Enterprise: { users: Infinity, drivers: Infinity, vehicles: Infinity }
-          };
-          const planLimits = tenant ? (limits[tenant.plan] || limits.Professional) : limits.Professional;
+          const planLimits = tenant ? getPlanLimits(tenant.plan) : { users: 15, drivers: 30, vehicles: 30 };
           
           if (tenant && tenant.drivers >= planLimits.drivers) {
             return reject({
               status: 403,
-              data: { message: `Plan Limit Exceeded: Your ${tenant.plan} plan allows up to ${planLimits.drivers} drivers.` }
+              data: { message: `Plan Limit Exceeded: Your ${tenant.plan} plan allows up to ${planLimits.drivers === Infinity ? 'Unlimited' : planLimits.drivers} drivers.` }
             });
           }
 
@@ -1696,6 +2477,375 @@ if (isMockMode) {
           return reject({ status: 404, data: { message: 'Transfer not found' } });
         }
 
+        // --- PLANS CONTROLLERS ---
+        if (url === 'plans' && method === 'GET') {
+          return resolve({ status: 200, data: mockDb.plans || [] });
+        }
+        if (url === 'plans' && method === 'POST') {
+          const newPlan = {
+            id: body.id || `plan-${body.name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`,
+            name: body.name,
+            version: body.version || '1.0.0',
+            status: body.status || 'Draft',
+            monthlyPrice: Number(body.monthlyPrice || 0),
+            annualPrice: Number(body.annualPrice || 0),
+            trialDays: Number(body.trialDays || 14),
+            createdBy: body.createdBy || 'Super Admin',
+            lastUpdated: new Date().toLocaleString(),
+            limits: body.limits || { users: 5, drivers: 10, vehicles: 10, branches: 1, storage: 20, apiCalls: 20000 },
+            features: body.features || { dispatch: true, fleet: true, gps: true, driverApp: true, accounting: false, ai: false, reporting: false, api: false, customerPortal: false, integrations: false },
+            versionHistory: body.versionHistory || [
+              { version: body.version || '1.0.0', updatedBy: body.createdBy || 'Super Admin', date: new Date().toLocaleString(), changeLog: 'Initial plan configuration created.', limits: body.limits || { users: 5, drivers: 10, vehicles: 10, branches: 1, storage: 20, apiCalls: 20000 } }
+            ]
+          };
+          if (!mockDb.plans) mockDb.plans = [];
+          mockDb.plans.unshift(newPlan);
+          saveDb();
+          return resolve({ status: 201, data: newPlan });
+        }
+        if (url.startsWith('plans/') && method === 'PUT') {
+          const id = url.split('/')[1];
+          const idx = mockDb.plans.findIndex(p => p.id === id);
+          if (idx !== -1) {
+            mockDb.plans[idx] = { 
+              ...mockDb.plans[idx], 
+              ...body,
+              lastUpdated: new Date().toLocaleString()
+            };
+            saveDb();
+            return resolve({ status: 200, data: mockDb.plans[idx] });
+          }
+          return reject({ status: 404, data: { message: 'Plan not found' } });
+        }
+        if (url.startsWith('plans/') && method === 'DELETE') {
+          const id = url.split('/')[1];
+          mockDb.plans = mockDb.plans.filter(p => p.id !== id);
+          saveDb();
+          return resolve({ status: 200, data: { success: true } });
+        }
+        if (url.startsWith('plans/') && url.endsWith('/clone') && method === 'POST') {
+          const id = url.split('/')[1];
+          const plan = mockDb.plans.find(p => p.id === id);
+          if (plan) {
+            const cloned = {
+              ...plan,
+              id: `plan-${plan.name.toLowerCase().replace(/\s+/g, '-')}-cloned-${Date.now()}`,
+              name: `${plan.name} (Copy)`,
+              status: 'Draft',
+              version: '1.0.0',
+              versionHistory: [
+                { version: '1.0.0', updatedBy: 'Super Admin', date: new Date().toLocaleString(), changeLog: `Cloned from ${plan.name} (v${plan.version}).`, limits: { ...plan.limits } }
+              ],
+              lastUpdated: new Date().toLocaleString()
+            };
+            mockDb.plans.unshift(cloned);
+            saveDb();
+            return resolve({ status: 201, data: cloned });
+          }
+          return reject({ status: 404, data: { message: 'Plan to clone not found' } });
+        }
+        if (url.startsWith('plans/') && url.endsWith('/version') && method === 'POST') {
+          const id = url.split('/')[1];
+          const idx = mockDb.plans.findIndex(p => p.id === id);
+          if (idx !== -1) {
+            const plan = mockDb.plans[idx];
+            plan.versionHistory = plan.versionHistory || [];
+            plan.versionHistory.push({
+              version: body.version,
+              updatedBy: body.updatedBy || 'Super Admin',
+              date: new Date().toLocaleString(),
+              changeLog: body.changeLog || 'Version configuration updated.',
+              limits: { ...plan.limits }
+            });
+            plan.version = body.version;
+            plan.limits = body.limits || plan.limits;
+            plan.lastUpdated = new Date().toLocaleString();
+            saveDb();
+            return resolve({ status: 200, data: plan });
+          }
+          return reject({ status: 404, data: { message: 'Plan not found' } });
+        }
+        if (url.startsWith('plans/') && url.endsWith('/rollback') && method === 'POST') {
+          const id = url.split('/')[1];
+          const idx = mockDb.plans.findIndex(p => p.id === id);
+          if (idx !== -1) {
+            const plan = mockDb.plans[idx];
+            const targetVersion = body.version;
+            const history = plan.versionHistory?.find(h => h.version === targetVersion);
+            if (history) {
+              plan.version = targetVersion;
+              plan.limits = { ...history.limits };
+              plan.lastUpdated = new Date().toLocaleString();
+              plan.versionHistory.push({
+                version: targetVersion,
+                updatedBy: body.updatedBy || 'Super Admin',
+                date: new Date().toLocaleString(),
+                changeLog: `Rolled back to v${targetVersion}.`,
+                limits: { ...history.limits }
+              });
+              saveDb();
+              return resolve({ status: 200, data: plan });
+            }
+            return reject({ status: 400, data: { message: 'Target version not found in history' } });
+          }
+          return reject({ status: 404, data: { message: 'Plan not found' } });
+        }
+        if (url.startsWith('plans/') && url.endsWith('/transition') && method === 'POST') {
+          const id = url.split('/')[1];
+          const idx = mockDb.plans.findIndex(p => p.id === id);
+          if (idx !== -1) {
+            const plan = mockDb.plans[idx];
+            const prevStatus = plan.status;
+            plan.status = body.status;
+            plan.lastUpdated = new Date().toLocaleString();
+            saveDb();
+            return resolve({ status: 200, data: { plan, prevStatus } });
+          }
+          return reject({ status: 404, data: { message: 'Plan not found' } });
+        }
+        if (url === 'plans/migrate' && method === 'POST') {
+          const { sourcePlan, targetPlan, tenantIds } = body;
+          const updatedTenants = [];
+          mockDb.tenants.forEach(t => {
+            if (tenantIds.includes(t.id) && t.plan === sourcePlan) {
+              t.plan = targetPlan;
+              t.revenue = targetPlan === 'Starter' ? 199 : (targetPlan === 'Professional' ? 499 : (targetPlan === 'Enterprise' ? 1299 : 2999));
+              t.audits = t.audits || [];
+              t.audits.unshift({
+                id: Date.now(),
+                action: 'Bulk Migration',
+                detail: `Migrated from ${sourcePlan} to ${targetPlan} plan.`,
+                time: new Date().toLocaleString()
+              });
+              updatedTenants.push(t);
+            }
+          });
+          saveDb();
+          return resolve({ status: 200, data: { success: true, tenants: updatedTenants } });
+        }
+
+        // --- FEATURES CONTROLLERS ---
+        if (url === 'features' && method === 'GET') {
+          return resolve({ status: 200, data: mockDb.features || [] });
+        }
+        if (url === 'features' && method === 'POST') {
+          const newF = {
+            id: body.id || `feat-${body.name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`,
+            name: body.name,
+            description: body.description || '',
+            category: body.category || 'Platform',
+            dependencies: body.dependencies || [],
+            requiredModules: body.requiredModules || [],
+            apiUsage: Number(body.apiUsage || 10000),
+            storageUsage: Number(body.storageUsage || 1.0),
+            performanceImpact: body.performanceImpact || 'Low',
+            licensingType: body.licensingType || 'Core',
+            releaseVersion: body.releaseVersion || '1.0.0',
+            createdDate: new Date().toLocaleDateString(),
+            modifiedDate: new Date().toLocaleDateString(),
+            status: body.status || 'Enabled',
+            usageCount: 0,
+            companiesUsing: 0,
+            visibility: body.visibility || 'Public',
+            start: body.start !== false,
+            pro: body.pro !== false,
+            ent: body.ent !== false,
+            customEnt: body.customEnt !== false,
+            overrides: body.overrides || [],
+            versionHistory: body.versionHistory || [
+              { version: body.releaseVersion || '1.0.0', date: new Date().toLocaleDateString(), changeLog: 'Initial feature registry created.', updatedBy: 'Super Admin' }
+            ],
+            analytics: body.analytics || { adoptionRate: 0, monthlyGrowth: 0, licenseUtilization: 0 }
+          };
+          if (!mockDb.features) mockDb.features = [];
+          mockDb.features.push(newF);
+          saveDb();
+          return resolve({ status: 201, data: newF });
+        }
+        if (url.startsWith('features/') && method === 'PUT') {
+          const id = url.split('/')[1];
+          const idx = mockDb.features.findIndex(f => f.id === id);
+          if (idx !== -1) {
+            mockDb.features[idx] = {
+              ...mockDb.features[idx],
+              ...body,
+              modifiedDate: new Date().toLocaleDateString()
+            };
+            saveDb();
+            return resolve({ status: 200, data: mockDb.features[idx] });
+          }
+          return reject({ status: 404, data: { message: 'Feature not found' } });
+        }
+        if (url.startsWith('features/') && method === 'DELETE') {
+          const id = url.split('/')[1];
+          mockDb.features = mockDb.features.filter(f => f.id !== id);
+          saveDb();
+          return resolve({ status: 200, data: { success: true } });
+        }
+        if (url.startsWith('features/') && url.endsWith('/clone') && method === 'POST') {
+          const id = url.split('/')[1];
+          const feat = mockDb.features.find(f => f.id === id);
+          if (feat) {
+            const cloned = {
+              ...feat,
+              id: `feat-${feat.name.toLowerCase().replace(/\s+/g, '-')}-copy-${Date.now()}`,
+              name: `${feat.name} (Copy)`,
+              releaseVersion: '1.0.0',
+              createdDate: new Date().toLocaleDateString(),
+              modifiedDate: new Date().toLocaleDateString(),
+              status: 'Draft',
+              usageCount: 0,
+              companiesUsing: 0,
+              overrides: [],
+              versionHistory: [
+                { version: '1.0.0', date: new Date().toLocaleDateString(), changeLog: `Cloned from ${feat.name} (${feat.id}).`, updatedBy: 'Super Admin' }
+              ],
+              analytics: { adoptionRate: 0, monthlyGrowth: 0, licenseUtilization: 0 }
+            };
+            mockDb.features.push(cloned);
+            saveDb();
+            return resolve({ status: 201, data: cloned });
+          }
+          return reject({ status: 404, data: { message: 'Feature to clone not found' } });
+        }
+        if (url.startsWith('features/') && url.endsWith('/version') && method === 'POST') {
+          const id = url.split('/')[1];
+          const idx = mockDb.features.findIndex(f => f.id === id);
+          if (idx !== -1) {
+            const feat = mockDb.features[idx];
+            feat.versionHistory = feat.versionHistory || [];
+            feat.versionHistory.push({
+              version: body.version,
+              date: new Date().toLocaleDateString(),
+              changeLog: body.changeLog || 'Version bump.',
+              updatedBy: body.updatedBy || 'Super Admin'
+            });
+            feat.releaseVersion = body.version;
+            feat.modifiedDate = new Date().toLocaleDateString();
+            saveDb();
+            return resolve({ status: 200, data: feat });
+          }
+          return reject({ status: 404, data: { message: 'Feature not found' } });
+        }
+        if (url.startsWith('features/') && url.endsWith('/rollback') && method === 'POST') {
+          const id = url.split('/')[1];
+          const idx = mockDb.features.findIndex(f => f.id === id);
+          if (idx !== -1) {
+            const feat = mockDb.features[idx];
+            const history = feat.versionHistory?.find(h => h.version === body.version);
+            if (history) {
+              feat.releaseVersion = body.version;
+              feat.modifiedDate = new Date().toLocaleDateString();
+              feat.versionHistory.push({
+                version: body.version,
+                date: new Date().toLocaleDateString(),
+                changeLog: `Rolled back to v${body.version}.`,
+                updatedBy: body.updatedBy || 'Super Admin'
+              });
+              saveDb();
+              return resolve({ status: 200, data: feat });
+            }
+            return reject({ status: 400, data: { message: 'Version history target not found' } });
+          }
+          return reject({ status: 404, data: { message: 'Feature not found' } });
+        }
+        if (url === 'features/bulk-update' && method === 'POST') {
+          const { ids, updateData } = body;
+          mockDb.features.forEach(f => {
+            if (ids.includes(f.id)) {
+              Object.assign(f, updateData);
+              f.modifiedDate = new Date().toLocaleDateString();
+            }
+          });
+          saveDb();
+          return resolve({ status: 200, data: { success: true } });
+        }
+        if (url === 'feature-audits' && method === 'GET') {
+          return resolve({ status: 200, data: mockDb.featureAudits || [] });
+        }
+        if (url === 'feature-audits' && method === 'POST') {
+          const newAudit = {
+            id: Date.now(),
+            action: body.action,
+            detail: body.detail,
+            time: new Date().toLocaleString(),
+            user: body.user || 'Super Admin',
+            ip: body.ip || '192.168.1.5',
+            reason: body.reason || 'Manual modification'
+          };
+          if (!mockDb.featureAudits) mockDb.featureAudits = [];
+          mockDb.featureAudits.unshift(newAudit);
+          saveDb();
+          return resolve({ status: 201, data: newAudit });
+        }
+
+        // --- COUPONS CONTROLLERS ---
+        if (url === 'coupons' && method === 'GET') {
+          return resolve({ status: 200, data: mockDb.coupons || [] });
+        }
+        if (url === 'coupons' && method === 'POST') {
+          const newCoupon = {
+            id: `cp-${Date.now()}`,
+            code: body.code.toUpperCase(),
+            type: body.type,
+            discount: Number(body.discount || 0),
+            campaign: body.campaign || 'Custom Promotion',
+            expiryDate: body.expiryDate || new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0],
+            redemptionLimit: Number(body.redemptionLimit || 100),
+            usageCount: 0,
+            status: body.status || 'Active'
+          };
+          if (!mockDb.coupons) mockDb.coupons = [];
+          mockDb.coupons.unshift(newCoupon);
+          saveDb();
+          return resolve({ status: 201, data: newCoupon });
+        }
+        if (url.startsWith('coupons/') && method === 'PUT') {
+          const code = url.split('/')[1];
+          const idx = mockDb.coupons.findIndex(c => c.code === code);
+          if (idx !== -1) {
+            mockDb.coupons[idx] = { ...mockDb.coupons[idx], ...body };
+            saveDb();
+            return resolve({ status: 200, data: mockDb.coupons[idx] });
+          }
+          return reject({ status: 404, data: { message: 'Coupon not found' } });
+        }
+        if (url.startsWith('coupons/') && method === 'DELETE') {
+          const code = url.split('/')[1];
+          mockDb.coupons = mockDb.coupons.filter(c => c.code !== code);
+          saveDb();
+          return resolve({ status: 200, data: { success: true } });
+        }
+
+        // --- PAYMENT GATEWAYS CONTROLLERS ---
+        if (url === 'gateways' && method === 'GET') {
+          return resolve({ status: 200, data: mockDb.paymentSettings || {} });
+        }
+        if (url === 'gateways' && method === 'PUT') {
+          mockDb.paymentSettings = { ...mockDb.paymentSettings, ...body };
+          saveDb();
+          return resolve({ status: 200, data: mockDb.paymentSettings });
+        }
+
+        // --- PLAN AUDIT CONTROLLERS ---
+        if (url === 'plan-audits' && method === 'GET') {
+          return resolve({ status: 200, data: mockDb.planAudits || [] });
+        }
+        if (url === 'plan-audits' && method === 'POST') {
+          const newLog = {
+            id: Date.now(),
+            action: body.action,
+            detail: body.detail,
+            time: new Date().toLocaleString(),
+            user: body.user || 'Super Admin',
+            ip: body.ip || '192.168.1.1'
+          };
+          if (!mockDb.planAudits) mockDb.planAudits = [];
+          mockDb.planAudits.unshift(newLog);
+          saveDb();
+          return resolve({ status: 201, data: newLog });
+        }
+
         // AUDIT LOGS
         if (url === 'audit/logs' && method === 'GET') {
           return resolve({ status: 200, data: mockDb.auditLogs || [] });
@@ -1715,6 +2865,87 @@ if (isMockMode) {
           return resolve({ status: 201, data: newLog });
         }
 
+        // --- WHITE LABEL CONTROLLERS ---
+        if (url === 'white-label' && method === 'GET') {
+          return resolve({ status: 200, data: mockDb.whiteLabelConfig || {} });
+        }
+        if (url === 'white-label' && method === 'PUT') {
+          mockDb.whiteLabelConfig = {
+            ...mockDb.whiteLabelConfig,
+            ...body
+          };
+          saveDb();
+          return resolve({ status: 200, data: mockDb.whiteLabelConfig });
+        }
+        if (url === 'white-label/deployments' && method === 'GET') {
+          return resolve({ status: 200, data: mockDb.whiteLabelDeployments || [] });
+        }
+        if (url === 'white-label/deployments' && method === 'POST') {
+          const newDeployment = {
+            id: `dep-${Date.now()}`,
+            version: body.version || `1.4.${(mockDb.whiteLabelDeployments?.length || 0) + 1}`,
+            environment: body.environment || 'Production',
+            build: body.build || `Build #3${Math.floor(Math.random() * 90 + 10)}`,
+            status: body.status || 'Published',
+            publishedBy: body.publishedBy || 'Super Admin',
+            time: new Date().toLocaleString(),
+            changeLog: body.changeLog || 'Branding build deploy execution.'
+          };
+          mockDb.whiteLabelDeployments = mockDb.whiteLabelDeployments || [];
+          mockDb.whiteLabelDeployments.unshift(newDeployment);
+          
+          mockDb.whiteLabelConfig.version = newDeployment.version;
+          mockDb.whiteLabelConfig.lastDeployed = newDeployment.time;
+          mockDb.whiteLabelConfig.approvalStatus = 'Published';
+          
+          saveDb();
+          return resolve({ status: 201, data: newDeployment });
+        }
+        if (url.startsWith('white-label/deployments/') && url.endsWith('/rollback') && method === 'POST') {
+          const id = url.split('/')[2];
+          const deployment = mockDb.whiteLabelDeployments?.find(d => d.id === id);
+          if (deployment) {
+            mockDb.whiteLabelConfig.version = deployment.version;
+            mockDb.whiteLabelConfig.lastDeployed = new Date().toLocaleString();
+            mockDb.whiteLabelConfig.approvalStatus = 'Published';
+            
+            const newAudit = {
+              id: Date.now(),
+              action: 'Rollback Branding Version',
+              detail: `Rolled back styling options to version ${deployment.version} (Build: ${deployment.build}).`,
+              user: body.user || 'Super Admin',
+              time: new Date().toLocaleString(),
+              ip: body.ip || '192.168.1.5',
+              browser: 'Chrome 126'
+            };
+            mockDb.whiteLabelAudits = mockDb.whiteLabelAudits || [];
+            mockDb.whiteLabelAudits.unshift(newAudit);
+            
+            saveDb();
+            return resolve({ status: 200, data: { success: true, version: deployment.version } });
+          }
+          return reject({ status: 404, data: { message: 'Deployment not found' } });
+        }
+        if (url === 'white-label/audits' && method === 'GET') {
+          return resolve({ status: 200, data: mockDb.whiteLabelAudits || [] });
+        }
+        if (url === 'white-label/audits' && method === 'POST') {
+          const newAudit = {
+            id: Date.now(),
+            action: body.action,
+            detail: body.detail,
+            user: body.user || 'Super Admin',
+            time: new Date().toLocaleString(),
+            ip: body.ip || '192.168.1.5',
+            browser: body.browser || 'Chrome 126'
+          };
+          mockDb.whiteLabelAudits = mockDb.whiteLabelAudits || [];
+          mockDb.whiteLabelAudits.unshift(newAudit);
+          saveDb();
+          return resolve({ status: 201, data: newAudit });
+        }
+
+
         // USERS CREATION (PLAN ENFORCED)
         if (url === 'users' && method === 'POST') {
           const session = localStorage.getItem('hero_session');
@@ -1726,17 +2957,12 @@ if (isMockMode) {
             } catch (e) {}
           }
           const tenant = mockDb.tenants.find(t => t.name.toLowerCase() === companyName.toLowerCase());
-          const limits = {
-            Starter: { users: 3, drivers: 5, vehicles: 5 },
-            Professional: { users: 15, drivers: 30, vehicles: 30 },
-            Enterprise: { users: Infinity, drivers: Infinity, vehicles: Infinity }
-          };
-          const planLimits = tenant ? (limits[tenant.plan] || limits.Professional) : limits.Professional;
+          const planLimits = tenant ? getPlanLimits(tenant.plan) : { users: 15, drivers: 30, vehicles: 30 };
           
           if (tenant && tenant.users >= planLimits.users) {
             return reject({
               status: 403,
-              data: { message: `Plan Limit Exceeded: Your ${tenant.plan} plan allows up to ${planLimits.users} users.` }
+              data: { message: `Plan Limit Exceeded: Your ${tenant.plan} plan allows up to ${planLimits.users === Infinity ? 'Unlimited' : planLimits.users} users.` }
             });
           }
 

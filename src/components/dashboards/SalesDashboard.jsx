@@ -1440,7 +1440,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                         </div>
 
                         <div className="flex justify-between items-center border-t border-[#23324C]/35 pt-2 text-[9px] text-slate-500">
-                          <span>👤 {lead.rep.split(' ')[0]}</span>
+                          <span>👤 {lead.rep?.split(' ')[0] || 'Unassigned'}</span>
                           <span className="font-mono">🚛 {lead.fleetSize} Trk</span>
                         </div>
                       </div>
