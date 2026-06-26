@@ -11,7 +11,7 @@ import Toast from '../common/Toast';
 import FileUploader from '../common/FileUploader';
 import DataTable from '../common/DataTable';
 import StatusBadge from '../common/StatusBadge';
-import { Layers, MapPin, Database, Award, Check, Truck, QrCode, AlertTriangle, Clock } from 'lucide-react';
+import { Layers, MapPin, Database, Award, Check, Truck, QrCode, AlertTriangle, Clock, ArrowRight, Shield, Calendar, RefreshCw, Navigation } from 'lucide-react';
 import { useLogistics } from '../../context/LogisticsContext';
 
 export default function YardAttendantDashboard({ activeTab = 'overview' }) {
@@ -126,12 +126,18 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
       {/* Header controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#23324C]/60 pb-5">
         <div>
-          <h2 className="text-xl sm:text-2xl font-black text-white capitalize">Yard Attendant • {activeTab.replace('-', ' ')}</h2>
+          <h2 className="text-xl sm:text-2xl font-black text-white capitalize">Yard Attendant • {activeTab.replace(/-/g, ' ')}</h2>
           <p className="text-xs text-slate-400">Perform gate checks, inspect trailers, and log spotted containers.</p>
         </div>
 
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => triggerToast('Loading attendant task list...')}>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={() => triggerToast('Loading shift schedule for this week...')}>
+            View Shift Schedule
+          </Button>
+          <Button variant="secondary" onClick={() => triggerToast('Asset status updated successfully.')}>
+            Update Status
+          </Button>
+          <Button variant="primary" onClick={() => triggerToast('Loading attendant task list...')}>
             View My Tasks
           </Button>
         </div>
@@ -139,11 +145,110 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
 
       {activeTab === 'overview' && (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard title="Trailers Spotted" value="14 Container Units" description="Active parking grid layout" progress={56} />
-            <StatCard title="Gate events today" value={gateLogs.length} description="Gate Inward/Outward logs" trend="+2 checks" trendDirection="up" />
-            <StatCard title="Yard capacity" value="56%" description="Parking slots occupied" progress={56} />
-            <StatCard title="Pending Tasks" value={tasks.filter(t => t.status === 'Pending').length} description="Queue checklists active" trend="Action item" trendDirection="neutral" />
+          {/* 5 KPI Stat Cards */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            <StatCard title="Trailers Spotted" value="14" description="Active parking spots" progress={56} />
+            <StatCard title="Gate Events" value={gateLogs.length} description="Inward/Outward today" trend="+2 checks" trendDirection="up" />
+            <StatCard title="Yard Capacity" value="56%" description="Slots occupied" progress={56} />
+            <StatCard title="Pending Tasks" value={tasks.filter(t => t.status === 'Pending').length} description="Awaiting action" trend="Action needed" trendDirection="neutral" />
+            <StatCard title="Current Shift" value={shiftState.isWorking ? 'Active' : 'Off Duty'} description={shiftState.isWorking ? `Started: ${shiftState.startTime}` : 'Not clocked in'} trend={shiftState.isWorking ? 'Working' : 'Clock in'} trendDirection={shiftState.isWorking ? 'up' : 'neutral'} />
+          </div>
+
+          {/* PDA-style Main Action Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-center flex flex-col items-center gap-3 hover:border-brand-500/40 transition-colors cursor-pointer group"
+              onClick={() => triggerToast('Opening Move Asset panel...')}>
+              <div className="w-12 h-12 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
+                <Navigation className="h-6 w-6 text-blue-400" />
+              </div>
+              <div>
+                <strong className="text-white text-xs block font-extrabold">Move Asset</strong>
+                <p className="text-[10px] text-slate-500 mt-0.5">Relocate trailers &amp; containers</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-slate-500 group-hover:text-brand-400 transition-colors" />
+            </div>
+
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-center flex flex-col items-center gap-3 hover:border-emerald-500/40 transition-colors cursor-pointer group"
+              onClick={() => triggerToast('Opening Scan In panel...')}>
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center group-hover:bg-emerald-500/20 transition-colors">
+                <QrCode className="h-6 w-6 text-emerald-400" />
+              </div>
+              <div>
+                <strong className="text-white text-xs block font-extrabold">Scan In</strong>
+                <p className="text-[10px] text-slate-500 mt-0.5">Check inbound assets into yard</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-slate-500 group-hover:text-emerald-400 transition-colors" />
+            </div>
+
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-center flex flex-col items-center gap-3 hover:border-purple-500/40 transition-colors cursor-pointer group"
+              onClick={() => triggerToast('Opening Scan Out panel...')}>
+              <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
+                <Truck className="h-6 w-6 text-purple-400" />
+              </div>
+              <div>
+                <strong className="text-white text-xs block font-extrabold">Scan Out</strong>
+                <p className="text-[10px] text-slate-500 mt-0.5">Release assets to gate</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-slate-500 group-hover:text-purple-400 transition-colors" />
+            </div>
+
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-center flex flex-col items-center gap-3 hover:border-yellow-500/40 transition-colors cursor-pointer group"
+              onClick={() => triggerToast('Opening Lane Assignment panel...')}>
+              <div className="w-12 h-12 rounded-xl bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center group-hover:bg-yellow-500/20 transition-colors">
+                <MapPin className="h-6 w-6 text-yellow-400" />
+              </div>
+              <div>
+                <strong className="text-white text-xs block font-extrabold">Lane Assignment</strong>
+                <p className="text-[10px] text-slate-500 mt-0.5">Spot trailers to load lanes</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-slate-500 group-hover:text-yellow-400 transition-colors" />
+            </div>
+
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-center flex flex-col items-center gap-3 hover:border-red-500/40 transition-colors cursor-pointer group"
+              onClick={() => triggerToast('Opening Safety Inspections panel...')}>
+              <div className="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center group-hover:bg-red-500/20 transition-colors">
+                <AlertTriangle className="h-6 w-6 text-red-400" />
+              </div>
+              <div>
+                <strong className="text-white text-xs block font-extrabold">Report Issue</strong>
+                <p className="text-[10px] text-slate-500 mt-0.5">Log damage or missing items</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-slate-500 group-hover:text-red-400 transition-colors" />
+            </div>
+          </div>
+
+          {/* Shift Controls Row */}
+          <div className="glass rounded-2xl p-4 border border-[#23324C]/60">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className={`w-3 h-3 rounded-full ${shiftState.isWorking ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`} />
+                <div>
+                  <strong className="text-white text-xs block">{shiftState.isWorking ? 'Shift In Progress' : 'Shift Off Duty'}</strong>
+                  {shiftState.isWorking && (
+                    <span className="text-[10px] text-slate-400 font-mono">
+                      {Math.floor(shiftState.totalSeconds / 3600).toString().padStart(2,'0')}:{Math.floor((shiftState.totalSeconds % 3600) / 60).toString().padStart(2,'0')}:{(shiftState.totalSeconds % 60).toString().padStart(2,'0')} elapsed
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" icon={Calendar} onClick={() => triggerToast('Loading weekly shift schedule...')}>
+                  Shift Schedule
+                </Button>
+                <Button size="sm" variant="secondary" icon={RefreshCw} onClick={() => triggerToast('Yard status synced successfully.')}>
+                  Sync Yard Status
+                </Button>
+                {!shiftState.isWorking ? (
+                  <Button size="sm" variant="primary" icon={Clock} onClick={() => { startWork('Yard Attendant'); triggerToast('Shift clock started.'); }}>
+                    Start Work
+                  </Button>
+                ) : (
+                  <Button size="sm" variant="danger" icon={Shield} onClick={() => { finishWork('Yard Attendant'); triggerToast('Shift ended. Timesheet logged.'); }}>
+                    Finish Work
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Task Queue list */}

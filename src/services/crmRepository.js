@@ -166,7 +166,8 @@ export const crmRepository = {
           revenue: parseInt(leadData.revenue) || 1500,
           priority: leadData.priority,
           rep: leadData.rep,
-          tags: leadData.tags || ''
+          tags: leadData.tags || '',
+          nextFollowup: leadData.nextFollowup || db.leads[index].nextFollowup
         };
       }
     });
@@ -612,6 +613,27 @@ export const crmRepository = {
     });
   },
 
+  createFollowup: (leadId, followup) => {
+    crmStore.updateDb((db) => {
+      if (!db.crmFollowups) db.crmFollowups = [];
+      const lead = db.leads.find(l => l.id === leadId);
+      if (lead) {
+        db.crmFollowups.unshift({
+          id: generateId('followup'),
+          leadId,
+          company: lead.company,
+          contact: lead.name,
+          type: followup.type || 'Call',
+          priority: followup.priority || 'Medium',
+          dueDate: followup.dueDate || new Date().toISOString().split('T')[0],
+          dueTime: followup.dueTime || '10:00 AM',
+          status: 'Pending',
+          notes: followup.notes || ''
+        });
+      }
+    });
+  },
+
   // --- ONBOARDING ---
   completeOnboardingTask: (onboardId, checklistIdx) => {
     crmStore.updateDb((db) => {
@@ -620,6 +642,66 @@ export const crmRepository = {
         onboardItem.checklist[checklistIdx].completed = !onboardItem.checklist[checklistIdx].completed;
         const allCompleted = onboardItem.checklist.every(c => c.completed);
         onboardItem.status = allCompleted ? 'Completed' : 'In Progress';
+      }
+    });
+  },
+
+  addOnboardingTask: (onboardId, taskName) => {
+    crmStore.updateDb((db) => {
+      const onboard = db.crmOnboarding.find(o => o.id === onboardId);
+      if (onboard) {
+        onboard.checklist.push({
+          name: taskName,
+          completed: false
+        });
+        onboard.status = 'In Progress';
+      }
+    });
+  },
+
+  assignRep: (leadId, repName) => {
+    crmStore.updateDb((db) => {
+      const lead = db.leads.find(l => l.id === leadId);
+      if (lead) {
+        lead.rep = repName;
+      }
+    });
+  },
+
+  reviseProposal: (proposalId, propData) => {
+    crmStore.updateDb((db) => {
+      const prop = db.crmProposals.find(p => p.id === proposalId);
+      if (prop) {
+        const nextVerNum = parseInt(prop.version.replace('V', '')) + 1;
+        const nextVer = `V${nextVerNum}`;
+        prop.title = propData.title || prop.title;
+        prop.value = propData.value;
+        prop.discount = propData.discount;
+        prop.tax = propData.tax || 10;
+        prop.total = propData.total;
+        prop.validity = propData.validity || prop.validity;
+        prop.version = nextVer;
+        
+        if (!prop.versionsList) prop.versionsList = [];
+        prop.versionsList.push({
+          version: nextVer,
+          value: propData.value,
+          discount: propData.discount,
+          total: propData.total,
+          date: new Date().toISOString().split('T')[0],
+          status: 'Sent'
+        });
+        prop.status = 'Sent';
+      }
+    });
+  },
+
+  logDemoFeedback: (demoId, feedback, rating) => {
+    crmStore.updateDb((db) => {
+      const demo = db.crmDemos.find(d => d.id === demoId);
+      if (demo) {
+        demo.feedback = feedback;
+        demo.rating = rating;
       }
     });
   },

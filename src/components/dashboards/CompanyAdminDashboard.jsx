@@ -24,9 +24,9 @@ import MiniChart from '../common/MiniChart';
 import { KpiGridSkeleton, TableSkeleton } from '../common/Skeletons';
 import { 
   Truck, MapPin, Users, Briefcase, Plus, Check, Edit2, 
-  Trash2, Shield, Calendar, Key, UserCheck, AlertTriangle
+  Trash2, Shield, Calendar, Key, UserCheck, AlertTriangle, Activity, DollarSign, Package, BarChart3
 } from 'lucide-react';
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, AreaChart, Area, Legend } from 'recharts';
 
 export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
   const dispatch = useDispatch();
@@ -70,9 +70,13 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
   const [formType, setFormType] = useState('');
   const [formValue, setFormValue] = useState('');
 
+  // Branch Selector
+  const [selectedBranch, setSelectedBranch] = useState('all');
+
   // Search & Filter
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [branchSubTab, setBranchSubTab] = useState('directory');
   const itemsPerPage = 5;
 
   // Toast
@@ -120,6 +124,16 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
     dispatchEditRoutes: true,
     accountsPayouts: false,
     warehouseOverrides: false
+  });
+
+  const [selectedAssetForAssign, setSelectedAssetForAssign] = useState(null);
+  const [assignBranchModalOpen, setAssignBranchModalOpen] = useState(false);
+  const [selectedAssetForQr, setSelectedAssetForQr] = useState(null);
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [selectedReport, setSelectedReport] = useState(null);
+  const [branchStatus, setBranchStatus] = useState({
+    1: 'Active',
+    2: 'Active'
   });
 
   useEffect(() => {
@@ -435,16 +449,26 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
           <p className="text-xs text-slate-400">Configure entities, invite operators, and audit registered company assets.</p>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button variant="outline" onClick={handleAddUser}>
             Add User
           </Button>
           <Button variant="outline" onClick={() => triggerToast('Opening assign user to branch modal...')}>
             Assign User To Branch
           </Button>
-          {activeTab !== 'overview' && activeTab !== 'workforce' && (
+          {activeTab === 'branches' && (
+            <>
+              <Button variant="outline" onClick={() => triggerToast('Branch P&L report loading...')}>
+                View Branch P&L
+              </Button>
+              <Button variant="primary" icon={Plus} onClick={() => setAddModalOpen(true)}>
+                Add Branch
+              </Button>
+            </>
+          )}
+          {activeTab !== 'overview' && activeTab !== 'workforce' && activeTab !== 'branches' && activeTab !== 'availability' && (
             <Button variant="primary" icon={Plus} onClick={() => setAddModalOpen(true)}>
-              Add {activeTab.charAt(0).toUpperCase() + activeTab.slice(1).replace('s', '')}
+              Add {activeTab === 'fleet' ? 'Vehicle' : activeTab === 'drivers' ? 'Driver' : activeTab === 'customers' ? 'Customer' : activeTab === 'trailers' ? 'Trailer' : activeTab === 'assets' ? 'Asset' : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
             </Button>
           )}
         </div>
@@ -453,26 +477,138 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
       {/* Main dashboard screens */}
       {activeTab === 'overview' && (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard title="Registered Fleet Size" value={fleet.length} description="Vehicles active in registry" trend="+3 trucks" trendDirection="up" />
-            <StatCard title="Active Branches Setup" value={`${branches.length} Depots`} description="Terminals fully configured" trend="Stable" trendDirection="neutral" />
-            <StatCard title="Workforce headcount" value={`${drivers.length + 4} Staff`} description="Drivers, Attendants & Admins" trend="+2 hired" trendDirection="up" />
-            <StatCard title="Registered Shippers" value={`${customers.length} Accounts`} description="Configured billing customers" trend="+1 new" trendDirection="up" />
+
+          {/* Branch Selector */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 bg-[#111827]/60 border border-[#23324C]/60 rounded-2xl">
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-brand-400 flex-shrink-0" />
+              <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">Branch View</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setSelectedBranch('all')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  selectedBranch === 'all'
+                    ? 'bg-brand-500 text-slate-950 shadow-lg shadow-brand-500/20'
+                    : 'bg-slate-800/60 text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                }`}
+              >
+                All Branches
+              </button>
+              {branches.map(b => (
+                <button
+                  key={b.id}
+                  onClick={() => setSelectedBranch(b.id)}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    selectedBranch === b.id
+                      ? 'bg-brand-500 text-slate-950 shadow-lg shadow-brand-500/20'
+                      : 'bg-slate-800/60 text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                  }`}
+                >
+                  {b.name}
+                </button>
+              ))}
+              <button
+                onClick={() => { setAddModalOpen(true); }}
+                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-800/40 text-slate-500 hover:text-brand-400 hover:bg-brand-500/10 border border-dashed border-[#23324C] transition-all cursor-pointer flex items-center gap-1"
+              >
+                <Plus className="h-3 w-3" /> Add Branch
+              </button>
+            </div>
+            {selectedBranch !== 'all' && (
+              <span className="ml-auto text-[10px] text-brand-400 font-bold uppercase tracking-wider bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded-full">
+                Filtered: {branches.find(b => b.id === selectedBranch)?.name}
+              </span>
+            )}
           </div>
 
-          {/* Expense Reminders & Overdue Alerts automatically */}
+          {/* 8 KPI Cards — Client Required */}
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Row 1 */}
+            <div className="p-4 glass border border-[#23324C]/60 rounded-2xl text-left space-y-1 hover:border-brand-500/30 transition-all">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Active Loads</p>
+              <p className="text-2xl font-black text-white">14</p>
+              <p className="text-[10px] text-emerald-400 font-semibold">↑ 3 new today</p>
+            </div>
+            <div className="p-4 glass border border-[#23324C]/60 rounded-2xl text-left space-y-1 hover:border-brand-500/30 transition-all">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Completed Loads</p>
+              <p className="text-2xl font-black text-white">187</p>
+              <p className="text-[10px] text-emerald-400 font-semibold">↑ +12 this week</p>
+            </div>
+            <div className="p-4 glass border border-[#23324C]/60 rounded-2xl text-left space-y-1 hover:border-brand-500/30 transition-all">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Revenue</p>
+              <p className="text-2xl font-black text-emerald-400">$84,200</p>
+              <p className="text-[10px] text-emerald-400 font-semibold">↑ +8.4% vs last month</p>
+            </div>
+            <div className="p-4 glass border border-[#23324C]/60 rounded-2xl text-left space-y-1 hover:border-brand-500/30 transition-all">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Expenses</p>
+              <p className="text-2xl font-black text-red-400">$31,540</p>
+              <p className="text-[10px] text-red-400 font-semibold">↑ Fuel +$2,100</p>
+            </div>
+            {/* Row 2 */}
+            <div className="p-4 glass border border-[#23324C]/60 rounded-2xl text-left space-y-1 hover:border-brand-500/30 transition-all">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Gross Margin</p>
+              <p className="text-2xl font-black text-brand-400">62.5%</p>
+              <p className="text-[10px] text-brand-400 font-semibold">↑ +2.1% improvement</p>
+            </div>
+            <div className="p-4 glass border border-[#23324C]/60 rounded-2xl text-left space-y-1 hover:border-brand-500/30 transition-all">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Available Drivers</p>
+              <p className="text-2xl font-black text-white">{drivers.filter(d => d.status !== 'On Trip').length || drivers.length}</p>
+              <p className="text-[10px] text-slate-400 font-semibold">of {drivers.length} total drivers</p>
+            </div>
+            <div className="p-4 glass border border-[#23324C]/60 rounded-2xl text-left space-y-1 hover:border-brand-500/30 transition-all">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Vehicles Active</p>
+              <p className="text-2xl font-black text-white">{fleet.filter(v => v.status === 'Active' || v.status === 'In Transit').length || fleet.length}</p>
+              <p className="text-[10px] text-slate-400 font-semibold">of {fleet.length} registered</p>
+            </div>
+            <div className="p-4 glass border border-red-500/20 bg-red-500/5 rounded-2xl text-left space-y-1 hover:border-red-500/40 transition-all">
+              <p className="text-[10px] font-bold text-red-400 uppercase tracking-wider">Overdue Invoices</p>
+              <p className="text-2xl font-black text-red-400">4</p>
+              <p className="text-[10px] text-red-400 font-semibold">⚠ $12,400 outstanding</p>
+            </div>
+          </div>
+
+          {/* Net Profit + Quick Actions Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="p-4 glass border border-brand-500/20 bg-brand-500/5 rounded-2xl text-left space-y-1">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Net Profit (MTD)</p>
+              <p className="text-2xl font-black text-brand-400">$52,660</p>
+              <p className="text-[10px] text-brand-400 font-semibold">↑ +14.2% vs last month</p>
+            </div>
+            <div className="sm:col-span-2 glass rounded-2xl p-4 border border-[#23324C]/60 text-left">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Quick Actions</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {[
+                  {label:'Create Load',icon:'📦',fn:'Create Load panel opened.'},
+                  {label:'Add Driver',icon:'👤',fn:'Add Driver modal opened.'},
+                  {label:'Assign Vehicle',icon:'🚚',fn:'Vehicle assignment modal opened.'},
+                  {label:'View Reports',icon:'📊',fn:'Reports dashboard loaded.'},
+                  {label:'Process Payroll',icon:'💳',fn:'Payroll processing initiated.'},
+                  {label:'Approve Leave',icon:'✅',fn:'Leave approval queue opened.'},
+                  {label:'AI Suggestions',icon:'🤖',fn:'AI Dispatch Suggestions activated.'},
+                  {label:'Export Report',icon:'📄',fn:'Dashboard report PDF exported.'},
+                ].map((a,i)=>(
+                  <button key={i} onClick={()=>triggerToast(a.fn)} className="flex items-center gap-2 p-2 bg-[#111827]/60 border border-[#23324C]/40 hover:border-brand-500/30 hover:bg-brand-500/5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white transition-all cursor-pointer">
+                    <span>{a.icon}</span><span className="truncate">{a.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Alerts Banner */}
           <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-left">
             <div className="space-y-1">
               <div className="flex items-center gap-2 text-red-400">
                 <AlertTriangle className="h-4.5 w-4.5" />
-                <span className="text-xs font-bold uppercase tracking-wider">Expense Reminders & Overdue Alerts</span>
+                <span className="text-xs font-bold uppercase tracking-wider">Expense Reminders & Overdue Alerts — Auto System</span>
               </div>
               <p className="text-slate-300 text-xs">
-                Alert: <strong>3 Vehicle DOT Inspections</strong> are overdue this week. <strong>2 outstanding Net-30 invoices</strong> have breached payment agreements.
+                Alert: <strong>3 Vehicle DOT Inspections</strong> overdue this week. <strong>4 outstanding invoices</strong> ($12,400) breached Net-30 payment terms. <strong>2 driver CDL</strong> documents expiring within 15 days.
               </p>
             </div>
             <div className="flex gap-2">
-              <Button size="sm" variant="secondary" onClick={() => triggerToast('Auto-alert reminders sent to billing contacts.')}>
+              <Button size="sm" variant="secondary" onClick={() => triggerToast('Auto-alert reminders sent to billing contacts & drivers.')}>
                 Trigger Reminders
               </Button>
               <Button size="sm" variant="outline" onClick={() => triggerToast('Maintenance routing alerts dispatched to dispatch board.')}>
@@ -481,37 +617,368 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
             </div>
           </div>
 
-          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left">
-            <h3 className="text-sm font-extrabold text-white mb-3">Operational Fleet Capacity Utilization %</h3>
-            <MiniChart type="line" data={[78, 85, 82, 88, 94, 91]} labels={['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4', 'Wk 5', 'Wk 6']} />
+          {/* Revenue vs Expenses + Profit Trend Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left">
+              <h3 className="text-sm font-extrabold text-white mb-3">Revenue vs Expenses — 6 Week Trend</h3>
+              <MiniChart type="line" data={[62000, 71000, 68000, 76000, 82000, 84200]} labels={['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4', 'Wk 5', 'Wk 6']} />
+            </div>
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left">
+              <h3 className="text-sm font-extrabold text-white mb-3">Net Profit Trend</h3>
+              <MiniChart type="line" data={[38000, 44000, 40000, 48000, 51000, 52660]} labels={['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4', 'Wk 5', 'Wk 6']} />
+            </div>
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left">
+              <h3 className="text-sm font-extrabold text-white mb-3">Fleet Capacity Utilization %</h3>
+              <MiniChart type="line" data={[78, 85, 82, 88, 94, 91]} labels={['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4', 'Wk 5', 'Wk 6']} />
+            </div>
+          </div>
+
+          {/* Loads by Status + Driver Availability + Fleet Health */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Loads by Status */}
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
+              <h3 className="text-sm font-extrabold text-white">Today's Jobs — Loads by Status</h3>
+              <div className="space-y-2">
+                {[{s:'In Transit',n:6,c:'bg-brand-500'},{s:'Picked Up',n:3,c:'bg-blue-500'},{s:'Delivered',n:4,c:'bg-emerald-500'},{s:'Pending Dispatch',n:2,c:'bg-amber-500'},{s:'Cancelled',n:1,c:'bg-red-500'}].map((item,i)=>(
+                  <div key={i} className="flex items-center gap-2 text-xs">
+                    <div className={`w-2 h-2 rounded-full ${item.c} flex-shrink-0`}/>
+                    <span className="text-slate-300 flex-1">{item.s}</span>
+                    <span className="font-bold text-white">{item.n}</span>
+                    <div className="w-16 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                      <div className={`h-full ${item.c}`} style={{width:`${(item.n/16)*100}%`}}/>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Driver Availability Ring */}
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
+              <h3 className="text-sm font-extrabold text-white">Driver Availability</h3>
+              <div className="flex items-center gap-4">
+                <div className="relative w-20 h-20 flex-shrink-0">
+                  <svg viewBox="0 0 36 36" className="w-20 h-20 -rotate-90">
+                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="#1F2937" strokeWidth="3"/>
+                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="#0ea0ea" strokeWidth="3"
+                      strokeDasharray={`${(drivers.filter(d=>d.status!=='On Trip').length||5)*10} 100`}
+                      strokeLinecap="round"/>
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className="text-sm font-black text-brand-400">{drivers.filter(d=>d.status!=='On Trip').length||5}</span>
+                  </div>
+                </div>
+                <div className="space-y-1.5 text-xs">
+                  <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-brand-500"/><span className="text-slate-300">Available: {drivers.filter(d=>d.status!=='On Trip').length||5}</span></div>
+                  <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-amber-500"/><span className="text-slate-300">On Trip: {drivers.length>0?Math.floor(drivers.length*0.4):3}</span></div>
+                  <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-red-500"/><span className="text-slate-300">On Leave: 2</span></div>
+                  <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-slate-600"/><span className="text-slate-300">Off Duty: 1</span></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Fleet Health */}
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
+              <h3 className="text-sm font-extrabold text-white">Fleet Health Status</h3>
+              <div className="space-y-2">
+                {[{s:'Operational',n:fleet.length>0?fleet.length-1:6,c:'text-emerald-400',bg:'bg-emerald-500'},{s:'In Maintenance',n:1,c:'text-amber-400',bg:'bg-amber-500'},{s:'Overdue Service',n:2,c:'text-red-400',bg:'bg-red-500'}].map((item,i)=>(
+                  <div key={i} className="flex items-center justify-between p-2.5 bg-[#111827]/40 border border-[#23324C]/30 rounded-xl text-xs">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${item.bg}`}/>
+                      <span className="text-slate-300">{item.s}</span>
+                    </div>
+                    <span className={`font-bold ${item.c}`}>{item.n} vehicles</span>
+                  </div>
+                ))}
+              </div>
+              <Button size="sm" variant="outline" className="w-full" onClick={()=>triggerToast('Fleet maintenance schedule opened.')}>Schedule Service</Button>
+            </div>
+          </div>
+
+          {/* Recent Activities + Pending Approvals */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* Recent Activity Timeline */}
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
+              <h3 className="text-sm font-extrabold text-white">Recent Activities Timeline</h3>
+              <div className="space-y-3">
+                {[
+                  {time:'11:42',icon:'🚚',text:'John D. picked up LD-9411 at Chicago Terminal',type:'load'},
+                  {time:'11:15',icon:'💰',text:'Invoice #INV-0411 sent to Global Retail Corp ($12,400)',type:'invoice'},
+                  {time:'10:30',icon:'⚠️',text:'CDL expiry alert: Dave K. license expires Jul 10',type:'alert'},
+                  {time:'09:55',icon:'✅',text:'Vehicle TX-9811 DOT inspection completed — Pass',type:'compliance'},
+                  {time:'09:20',icon:'📦',text:'Load LD-9418 dispatched to Sarah R. (Dallas route)',type:'dispatch'},
+                  {time:'08:45',icon:'💳',text:'Expense approved: John D. fuel receipt $340',type:'expense'},
+                ].map((act,i)=>(
+                  <div key={i} className="flex gap-3 items-start">
+                    <div className="flex flex-col items-center">
+                      <div className="w-7 h-7 rounded-lg bg-[#111827] border border-[#23324C] flex items-center justify-center text-sm flex-shrink-0">{act.icon}</div>
+                      {i<5&&<div className="w-px h-3 bg-[#23324C] mt-1"/>}
+                    </div>
+                    <div className="flex-1 min-w-0 pb-1">
+                      <p className="text-xs text-slate-200 font-semibold leading-snug">{act.text}</p>
+                      <span className="text-[10px] text-slate-500 font-mono">{act.time} today</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Pending Approvals Widget */}
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
+              <div className="flex justify-between items-center">
+                <h3 className="text-sm font-extrabold text-white">Pending Approvals</h3>
+                <span className="w-6 h-6 rounded-lg bg-amber-500/20 border border-amber-500/30 text-amber-400 text-[10px] font-black flex items-center justify-center">7</span>
+              </div>
+              <div className="space-y-2">
+                {[
+                  {type:'Leave Request',who:'John D.',detail:'Sick Leave — Jun 30 to Jul 2',icon:'📅'},
+                  {type:'Expense',who:'Sarah R.',detail:'Fuel receipt — $340 (BP Station)',icon:'💳'},
+                  {type:'Timesheet',who:'Dave K.',detail:'42 hours week ending Jun 27',icon:'⏱️'},
+                  {type:'Leave Request',who:'Mike T.',detail:'Vacation — Jul 10 to Jul 14',icon:'📅'},
+                  {type:'Expense',who:'Anna B.',detail:'Toll pass reimbursement — $82',icon:'💳'},
+                ].map((ap,i)=>(
+                  <div key={i} className="flex items-center gap-3 p-2.5 bg-[#111827]/40 border border-[#23324C]/30 rounded-xl">
+                    <span className="text-lg">{ap.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-bold text-white truncate">{ap.type} — {ap.who}</p>
+                      <p className="text-[10px] text-slate-500 truncate">{ap.detail}</p>
+                    </div>
+                    <div className="flex gap-1">
+                      <button onClick={()=>triggerToast(`${ap.type} for ${ap.who} approved.`)} className="px-2 py-1 bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 rounded-lg text-[10px] font-bold cursor-pointer hover:bg-emerald-500/25">✓</button>
+                      <button onClick={()=>triggerToast(`${ap.type} for ${ap.who} declined.`,'warning')} className="px-2 py-1 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg text-[10px] font-bold cursor-pointer hover:bg-red-500/20">✕</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Branch Performance + Upcoming Renewals + Weather/Fuel */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Branch Performance Comparison */}
+            <div className="lg:col-span-2 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
+              <div className="flex justify-between items-center">
+                <h3 className="text-sm font-extrabold text-white">Branch Performance Comparison</h3>
+                <Button size="sm" variant="outline" onClick={()=>triggerToast('Branch report PDF exported.')}>Export PDF</Button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead><tr className="border-b border-[#23324C]/60">{['Branch','Revenue','Loads','Drivers','Score'].map(h=>(<th key={h} className="text-left py-2 px-2 text-[10px] font-bold text-slate-500 uppercase">{h}</th>))}</tr></thead>
+                  <tbody className="divide-y divide-[#23324C]/20">
+                    {[
+                      {b:'Chicago HQ',rev:'$42,100',loads:87,drivers:5,score:94},
+                      {b:'Los Angeles',rev:'$28,400',loads:62,drivers:3,score:88},
+                      {b:'Dallas',rev:'$13,700',loads:38,drivers:2,score:91},
+                    ].map((r,i)=>(
+                      <tr key={i} className="hover:bg-slate-900/20">
+                        <td className="py-2 px-2 font-bold text-white">{r.b}</td>
+                        <td className="py-2 px-2 font-mono text-emerald-400">{r.rev}</td>
+                        <td className="py-2 px-2 text-slate-300">{r.loads}</td>
+                        <td className="py-2 px-2 text-slate-300">{r.drivers}</td>
+                        <td className="py-2 px-2">
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                              <div className={`h-full ${r.score>=90?'bg-emerald-500':r.score>=80?'bg-brand-500':'bg-amber-500'}`} style={{width:`${r.score}%`}}/>
+                            </div>
+                            <span className={`text-[10px] font-bold ${r.score>=90?'text-emerald-400':'text-brand-400'}`}>{r.score}</span>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Upcoming Renewals + Weather/Fuel */}
+            <div className="space-y-4">
+              <div className="glass rounded-2xl p-4 border border-[#23324C]/60 text-left space-y-3">
+                <h3 className="text-xs font-extrabold text-white">Upcoming Renewals</h3>
+                <div className="space-y-2">
+                  {[
+                    {item:'TX-9811 Insurance',days:2,type:'🛡️'},
+                    {item:'Dave K. CDL',days:14,type:'🪪'},
+                    {item:'TX-4022 Rego',days:18,type:'📋'},
+                    {item:'WHS Audit Fee',days:24,type:'🏛️'},
+                  ].map((r,i)=>(
+                    <div key={i} className="flex items-center gap-2 text-xs">
+                      <span>{r.type}</span>
+                      <span className="flex-1 text-slate-300 truncate">{r.item}</span>
+                      <span className={`font-bold font-mono ${r.days<=7?'text-red-400':r.days<=14?'text-amber-400':'text-slate-400'}`}>{r.days}d</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="glass rounded-2xl p-4 border border-[#23324C]/60 text-left space-y-3">
+                <h3 className="text-xs font-extrabold text-white">Weather & Fuel Prices</h3>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">☁️ Chicago, IL</span>
+                    <span className="font-bold text-white">72°F Cloudy</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-400">☀️ Dallas, TX</span>
+                    <span className="font-bold text-white">88°F Clear</span>
+                  </div>
+                  <div className="border-t border-[#23324C]/40 pt-2">
+                    <div className="flex justify-between"><span className="text-slate-400">⛽ Diesel (avg)</span><span className="font-bold text-amber-400">$3.84/gal</span></div>
+                    <div className="flex justify-between mt-1"><span className="text-slate-400">↕ vs yesterday</span><span className="font-bold text-emerald-400">-$0.04</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
 
       {/* Branches Setup Screen */}
       {activeTab === 'branches' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-            <h3 className="text-sm font-extrabold text-white">Branch Depots</h3>
-            <SearchInput value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onClear={() => setSearchQuery('')} className="max-w-[200px]" />
+        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-5">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-[#23324C]/30 pb-3">
+            <div>
+              <h3 className="text-sm font-extrabold text-white">Branch Depots</h3>
+              <p className="text-[10px] text-slate-400 mt-0.5">Manage terminal layouts, operations managers, and monitor financial performance metrics per branch.</p>
+            </div>
+            
+            <div className="flex border border-[#23324C]/60 bg-[#111827]/40 rounded-xl p-0.5 text-xs font-bold">
+              {[
+                { id: 'directory', label: 'Directory' },
+                { id: 'analytics', label: 'Performance Analytics' }
+              ].map(sub => (
+                <button 
+                  key={sub.id}
+                  onClick={() => setBranchSubTab(sub.id)}
+                  className={`px-3 py-1.5 rounded-lg cursor-pointer transition-all ${
+                    branchSubTab === sub.id ? 'bg-brand-500 text-slate-950 font-black' : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {sub.label}
+                </button>
+              ))}
+            </div>
           </div>
-          
-          <DataTable columns={[
-            { key: 'name', label: 'Depot Name', render: (row) => <span className="font-extrabold text-white">{row.name}</span> },
-            { key: 'address', label: 'Address', render: (row) => <span className="text-slate-300 font-semibold">{row.address}</span> },
-            { key: 'manager', label: 'Manager Email', render: (row) => <span className="text-slate-400 font-mono text-[11px]">{row.manager}</span> },
-            { key: 'staff', label: 'Staff Count', render: (row) => <span className="font-mono">{row.staff} Users</span> },
-            { key: 'actions', label: 'Actions', render: (row) => (
-              <div className="flex gap-2">
-                <Button size="sm" variant="secondary" onClick={() => handleOpenInspect(row, 'branch')}>Inspect</Button>
-                <Button size="sm" variant="outline" onClick={() => triggerToast(`Editing branch ${row.name}...`)}>Edit Branch</Button>
+
+          {branchSubTab === 'directory' ? (
+            <div className="space-y-4 animate-fade-in">
+              {/* Branch Stats Row */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="p-3 bg-[#111827]/60 border border-[#23324C]/50 rounded-xl text-left">
+                  <p className="text-[9px] text-slate-500 font-bold uppercase">Total Branches</p>
+                  <p className="text-xl font-black text-white mt-0.5">{branches.length}</p>
+                </div>
+                <div className="p-3 bg-[#111827]/60 border border-[#23324C]/50 rounded-xl text-left">
+                  <p className="text-[9px] text-slate-500 font-bold uppercase">Total Staff</p>
+                  <p className="text-xl font-black text-white mt-0.5">{branches.reduce((s, b) => s + b.staff, 0) + drivers.length}</p>
+                </div>
+                <div className="p-3 bg-[#111827]/60 border border-[#23324C]/50 rounded-xl text-left">
+                  <p className="text-[9px] text-slate-500 font-bold uppercase">Fleet Assigned</p>
+                  <p className="text-xl font-black text-brand-400 mt-0.5">{fleet.length}</p>
+                </div>
+                <div className="p-3 bg-[#111827]/60 border border-[#23324C]/50 rounded-xl text-left">
+                  <p className="text-[9px] text-slate-500 font-bold uppercase">Active States</p>
+                  <p className="text-xl font-black text-emerald-400 mt-0.5">{[...new Set(branches.map(b => b.state))].join(', ') || 'IL, CA'}</p>
+                </div>
               </div>
-            ) }
-          ]} data={paginatedList} />
-          
-          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+              
+              <DataTable
+                tableName="branches_table"
+                columns={[
+                  { key: 'name', label: 'Depot Name', render: (row) => <span className="font-extrabold text-white">{row.name}</span> },
+                  { key: 'address', label: 'Address', render: (row) => <span className="text-slate-300 font-semibold">{row.address}, {row.city}</span> },
+                  { key: 'state', label: 'State', render: (row) => <span className="text-slate-400 font-mono text-xs font-bold">{row.state}</span> },
+                  { key: 'manager', label: 'Manager Email', render: (row) => <span className="text-slate-400 font-mono text-[11px]">{row.manager}</span> },
+                  { key: 'staff', label: 'Staff Count', render: (row) => <span className="font-mono">{row.staff} Users</span> },
+                  { key: 'actions', label: 'Actions', render: (row) => (
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="secondary" onClick={() => handleOpenInspect(row, 'branch')}>Inspect</Button>
+                      <Button size="sm" variant="outline" onClick={() => triggerToast(`Editing branch ${row.name}...`)}>Edit Branch</Button>
+                      <Button size="sm" variant="outline" onClick={() => triggerToast(`Branch P&L loading for ${row.name}...`)}>P&L</Button>
+                    </div>
+                  ) }
+                ]} data={paginatedList} />
+              
+              <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+            </div>
+          ) : (
+            <div className="space-y-6 animate-fade-in">
+              {/* Performance Analytics Charts */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <div className="lg:col-span-2 glass rounded-2xl p-5 border border-[#23324C]/60 text-left">
+                  <h3 className="text-xs font-extrabold text-white mb-4">Branch Financial Comparison (MTD)</h3>
+                  <div className="h-64 w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={[
+                        { name: 'Chicago HQ', Revenue: 42100, Expenses: 16200 },
+                        { name: 'Los Angeles', Revenue: 28400, Expenses: 11800 },
+                        { name: 'Dallas Depot', Revenue: 13700, Expenses: 3540 }
+                      ]}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#23324C" />
+                        <XAxis dataKey="name" stroke="#94a3b8" fontSize={10} />
+                        <YAxis stroke="#94a3b8" fontSize={10} />
+                        <Tooltip contentStyle={{ backgroundColor: '#0B0F19', borderColor: '#23324C' }} />
+                        <Legend wrapperStyle={{ fontSize: '10px' }} />
+                        <Bar dataKey="Revenue" fill="#10b981" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="Expenses" fill="#f43f5e" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                  <h3 className="text-xs font-extrabold text-white">Efficiency Leadership</h3>
+                  <div className="space-y-3">
+                    {[
+                      { branch: 'Chicago HQ Terminal', score: '94%', rank: '🏆 #1 Rank', color: 'text-emerald-400' },
+                      { branch: 'Dallas Terminal', score: '91%', rank: '⚡ #2 Rank', color: 'text-brand-400' },
+                      { branch: 'Los Angeles Depot', score: '88%', rank: '📈 #3 Rank', color: 'text-blue-400' }
+                    ].map((lead, i) => (
+                      <div key={i} className="p-3 bg-[#111827]/40 border border-[#23324C]/45 rounded-xl flex justify-between items-center text-xs">
+                        <div>
+                          <strong className="text-white block">{lead.branch}</strong>
+                          <span className="text-[10px] text-slate-500 font-bold">{lead.rank}</span>
+                        </div>
+                        <span className={`text-sm font-black ${lead.color}`}>{lead.score}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Detailed metrics comparison table */}
+              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
+                <h3 className="text-xs font-extrabold text-white">Branch Key Performance Indicators</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-[#23324C]/60">
+                        {['Branch Terminal', 'Revenue', 'Operating Expense', 'Loads Completed', 'Avg Transit Time', 'Safety Index'].map(h => (
+                          <th key={h} className="text-left py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#23324C]/20">
+                      {[
+                        { b: 'Chicago HQ', rev: '$42,100', exp: '$16,200', loads: 87, time: '21.4 hrs', safety: '94%' },
+                        { b: 'Los Angeles Depot', rev: '$28,400', exp: '$11,800', loads: 62, time: '23.8 hrs', safety: '88%' },
+                        { b: 'Dallas Terminal', rev: '$13,700', exp: '$3,540', loads: 38, time: '19.2 hrs', safety: '91%' }
+                      ].map((row, idx) => (
+                        <tr key={idx} className="hover:bg-slate-900/20">
+                          <td className="py-2.5 px-3 font-bold text-white">{row.b}</td>
+                          <td className="py-2.5 px-3 font-mono text-emerald-400 font-bold">{row.rev}</td>
+                          <td className="py-2.5 px-3 font-mono text-red-400">{row.exp}</td>
+                          <td className="py-2.5 px-3 font-bold text-slate-200">{row.loads} completed</td>
+                          <td className="py-2.5 px-3 text-slate-400 font-mono">{row.time}</td>
+                          <td className="py-2.5 px-3 font-bold text-brand-400">{row.safety}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
+
 
       {/* Customer / Shipper Settings Screen */}
       {activeTab === 'customers' && (
@@ -968,33 +1435,303 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
 
       {/* Accounts Screen */}
       {activeTab === 'accounts' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-sm font-extrabold text-white">Company Admin Financial Overview</h3>
-            <div className="flex gap-2">
-              <Button size="sm" variant="primary" onClick={() => triggerToast('Loading branch P&L metrics')}>
-                View Branch P&L
-              </Button>
-              <Button size="sm" variant="secondary" onClick={() => triggerToast('Financial statement PDF generated successfully.')}>
-                Export Report
-              </Button>
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {[{label:'Total Revenue',value:'$84,200',color:'text-emerald-400',sub:'↑ +8.4% vs last month'},{label:'Total Expenses',value:'$31,540',color:'text-red-400',sub:'↑ Fuel +$2,100'},{label:'Net Profit',value:'$52,660',color:'text-brand-400',sub:'62.5% margin'},{label:'Overdue Invoices',value:'$12,400',color:'text-amber-400',sub:'4 invoices pending'}].map((k,i)=>(
+              <div key={i} className="p-4 glass border border-[#23324C]/60 rounded-2xl text-left space-y-1">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{k.label}</p>
+                <p className={`text-2xl font-black ${k.color}`}>{k.value}</p>
+                <p className="text-[10px] text-slate-400 font-semibold">{k.sub}</p>
+              </div>
+            ))}
+          </div>
+          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-sm font-extrabold text-white">Branch P&L Summary</h3>
+              <div className="flex gap-2">
+                <Button size="sm" variant="primary" onClick={() => triggerToast('Full P&L report generating...')}>View Full P&L</Button>
+                <Button size="sm" variant="secondary" onClick={() => triggerToast('Financial statement PDF exported!')}>Export PDF</Button>
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead><tr className="border-b border-[#23324C]/60">{['Branch','Revenue','Expenses','Profit','Margin'].map(h=>(<th key={h} className="text-left py-2 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">{h}</th>))}</tr></thead>
+                <tbody className="divide-y divide-[#23324C]/20">
+                  {[{branch:'Chicago HQ',rev:'$42,100',exp:'$16,200',profit:'$25,900',margin:'61.5%'},{branch:'Los Angeles Depot',rev:'$28,400',exp:'$11,800',profit:'$16,600',margin:'58.4%'},{branch:'Dallas Terminal',rev:'$13,700',exp:'$3,540',profit:'$10,160',margin:'74.2%'}].map((row,i)=>(
+                    <tr key={i} className="hover:bg-slate-900/20">
+                      <td className="py-2.5 px-3 font-bold text-white">{row.branch}</td>
+                      <td className="py-2.5 px-3 text-emerald-400 font-mono font-bold">{row.rev}</td>
+                      <td className="py-2.5 px-3 text-red-400 font-mono font-bold">{row.exp}</td>
+                      <td className="py-2.5 px-3 text-brand-400 font-mono font-bold">{row.profit}</td>
+                      <td className="py-2.5 px-3"><span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-[10px] font-bold">{row.margin}</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
-          <p className="text-xs text-slate-400">Audit company invoices, contractor cashflows, and payroll ledgers.</p>
+          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
+            <h3 className="text-sm font-extrabold text-white">Recent Transactions</h3>
+            <div className="space-y-2">
+              {[{desc:'Fuel — Truck TX-9811',amount:'-$840',date:'Jun 25',type:'expense'},{desc:'Invoice #INV-0411 — Global Retail',amount:'+$12,400',date:'Jun 24',type:'income'},{desc:'Driver Pay — John D.',amount:'-$2,200',date:'Jun 23',type:'expense'},{desc:'Invoice #INV-0408 — Memphis Shippers',amount:'+$8,800',date:'Jun 22',type:'income'},{desc:'Tyre Replacement — TR-4022',amount:'-$1,200',date:'Jun 21',type:'expense'}].map((tx,i)=>(
+                <div key={i} className="flex justify-between items-center p-2.5 bg-[#111827]/40 border border-[#23324C]/30 rounded-xl text-xs">
+                  <div>
+                    <span className="font-semibold text-white block">{tx.desc}</span>
+                    <span className="text-slate-500 font-mono">{tx.date}</span>
+                  </div>
+                  <span className={`font-bold font-mono ${tx.type==='income'?'text-emerald-400':'text-red-400'}`}>{tx.amount}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
+      {/* ===== PAYROLL MODULE ===== */}
       {activeTab === 'payroll' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-          <h3 className="text-sm font-extrabold text-white">Company Payroll Settlement</h3>
-          <p className="text-xs text-slate-400">Process driver payroll, contractor checks, and payroll summaries.</p>
+        <div className="space-y-6">
+          {/* Payroll KPIs */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {[{label:'This Week Payroll',value:'$18,450',color:'text-emerald-400',sub:'12 employees'},{label:'Pending Approval',value:'$4,200',color:'text-amber-400',sub:'3 timesheets'},{label:'Driver Pay',value:'$11,800',color:'text-brand-400',sub:'8 drivers'},{label:'Last Payroll',value:'Jun 20',color:'text-slate-300',sub:'On time'}].map((k,i)=>(
+              <div key={i} className="p-4 glass border border-[#23324C]/60 rounded-2xl text-left space-y-1">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{k.label}</p>
+                <p className={`text-xl font-black ${k.color}`}>{k.value}</p>
+                <p className="text-[10px] text-slate-400 font-semibold">{k.sub}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Timesheet Approval */}
+          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-sm font-extrabold text-white">Timesheet Approval</h3>
+              <Button size="sm" variant="primary" onClick={() => triggerToast('All timesheets approved for this pay period.')}>Approve All</Button>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead><tr className="border-b border-[#23324C]/60">{['Employee','Role','Hours','Rate','Amount','Status','Action'].map(h=>(<th key={h} className="text-left py-2 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">{h}</th>))}</tr></thead>
+                <tbody className="divide-y divide-[#23324C]/20">
+                  {[
+                    {name:'John D.',role:'Driver',hours:42,rate:'$28/hr',amount:'$1,176',status:'Pending'},
+                    {name:'Sarah R.',role:'Driver',hours:38,rate:'$28/hr',amount:'$1,064',status:'Pending'},
+                    {name:'Mike T.',role:'Yard Attendant',hours:40,rate:'$22/hr',amount:'$880',status:'Approved'},
+                    {name:'Lisa P.',role:'Dispatcher',hours:44,rate:'$32/hr',amount:'$1,408',status:'Approved'},
+                    {name:'Dave K.',role:'Driver',hours:36,rate:'$28/hr',amount:'$1,008',status:'Pending'},
+                  ].map((emp,i)=>(
+                    <tr key={i} className="hover:bg-slate-900/20">
+                      <td className="py-2.5 px-3 font-bold text-white">{emp.name}</td>
+                      <td className="py-2.5 px-3 text-slate-400">{emp.role}</td>
+                      <td className="py-2.5 px-3 font-mono text-slate-300">{emp.hours}h</td>
+                      <td className="py-2.5 px-3 text-slate-400">{emp.rate}</td>
+                      <td className="py-2.5 px-3 font-bold font-mono text-emerald-400">{emp.amount}</td>
+                      <td className="py-2.5 px-3">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${emp.status==='Approved'?'bg-emerald-500/10 text-emerald-400 border-emerald-500/20':'bg-amber-500/10 text-amber-400 border-amber-500/20'}`}>{emp.status}</span>
+                      </td>
+                      <td className="py-2.5 px-3">
+                        {emp.status==='Pending'&&(
+                          <div className="flex gap-1.5">
+                            <button onClick={()=>triggerToast(`${emp.name} timesheet approved.`)} className="px-2 py-1 bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 rounded-lg text-[10px] font-bold cursor-pointer hover:bg-emerald-500/25 transition-all">Approve</button>
+                            <button onClick={()=>triggerToast(`${emp.name} timesheet returned for revision.`,'warning')} className="px-2 py-1 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg text-[10px] font-bold cursor-pointer hover:bg-red-500/20 transition-all">Return</button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Driver Pay Calculator + Weekly Payroll */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Driver Pay Calculator */}
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <h3 className="text-sm font-extrabold text-white">Driver Pay Calculator</h3>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Select Driver</label>
+                  <select id="payroll-driver" className="w-full px-3 py-2 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500">
+                    <option>John D. (Driver)</option>
+                    <option>Sarah R. (Driver)</option>
+                    <option>Dave K. (Driver)</option>
+                  </select>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Hours Worked</label>
+                    <input type="number" id="payroll-hours" defaultValue="42" className="w-full px-3 py-2 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Hourly Rate ($)</label>
+                    <input type="number" id="payroll-rate" defaultValue="28" className="w-full px-3 py-2 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1">Bonuses / Allowances ($)</label>
+                  <input type="number" id="payroll-bonus" defaultValue="150" className="w-full px-3 py-2 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                </div>
+                <button onClick={()=>{
+                  const hrs=parseFloat(document.getElementById('payroll-hours')?.value||42);
+                  const rate=parseFloat(document.getElementById('payroll-rate')?.value||28);
+                  const bonus=parseFloat(document.getElementById('payroll-bonus')?.value||0);
+                  const reg=Math.min(hrs,38)*rate;
+                  const ot=Math.max(0,hrs-38)*rate*1.5;
+                  const total=reg+ot+bonus;
+                  triggerToast(`Pay calculated: Regular $${reg.toFixed(0)} + OT $${ot.toFixed(0)} + Bonus $${bonus.toFixed(0)} = $${total.toFixed(2)} total.`);
+                }} className="w-full py-2.5 bg-brand-500 hover:bg-brand-600 text-slate-950 text-xs rounded-xl font-black transition-all cursor-pointer shadow-lg shadow-brand-500/10">Calculate Pay</button>
+              </div>
+            </div>
+
+            {/* Payslip History */}
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-sm font-extrabold text-white">Payslip History</h3>
+                <Button size="sm" variant="secondary" onClick={()=>triggerToast('Payroll export (CSV) downloaded.')}>Export CSV</Button>
+              </div>
+              <div className="space-y-2">
+                {[{period:'Jun 20, 2026',employees:12,total:'$18,450',status:'Processed'},{period:'Jun 6, 2026',employees:12,total:'$17,920',status:'Processed'},{period:'May 23, 2026',employees:11,total:'$16,800',status:'Processed'},{period:'May 9, 2026',employees:11,total:'$16,200',status:'Processed'}].map((slip,i)=>(
+                  <div key={i} className="flex justify-between items-center p-3 bg-[#111827]/40 border border-[#23324C]/30 rounded-xl text-xs">
+                    <div>
+                      <span className="font-bold text-white block">Pay Period: {slip.period}</span>
+                      <span className="text-slate-400">{slip.employees} employees</span>
+                    </div>
+                    <div className="text-right">
+                      <span className="font-bold font-mono text-emerald-400 block">{slip.total}</span>
+                      <button onClick={()=>triggerToast(`Payslip for ${slip.period} downloaded.`)} className="text-[10px] text-brand-400 hover:underline cursor-pointer">Download Payslips</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
+      {/* ===== EXPENSE MANAGEMENT MODULE ===== */}
       {activeTab === 'expenses' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-          <h3 className="text-sm font-extrabold text-white">Asset Expenses & Reminders</h3>
-          <p className="text-xs text-slate-400">Configure recurring alerts, road toll reviews, and maintenance invoices.</p>
+        <div className="space-y-6">
+          {/* Expense KPIs */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {[{label:'This Month',value:'$31,540',color:'text-red-400',sub:'↑ +12% vs last month'},{label:'Vehicle Expenses',value:'$14,200',color:'text-amber-400',sub:'45% of total'},{label:'Driver Expenses',value:'$8,840',color:'text-slate-300',sub:'28% of total'},{label:'Pending Approval',value:'$2,400',color:'text-brand-400',sub:'6 receipts'}].map((k,i)=>(
+              <div key={i} className="p-4 glass border border-[#23324C]/60 rounded-2xl text-left space-y-1">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{k.label}</p>
+                <p className={`text-xl font-black ${k.color}`}>{k.value}</p>
+                <p className="text-[10px] text-slate-400 font-semibold">{k.sub}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* AI Receipt Upload */}
+            <div className="glass rounded-2xl p-5 border border-brand-500/20 bg-brand-500/3 text-left space-y-4">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-lg bg-brand-500/15 border border-brand-500/25 flex items-center justify-center">
+                  <span className="text-[10px]">🤖</span>
+                </div>
+                <h3 className="text-sm font-extrabold text-white">AI Receipt Reader</h3>
+                <span className="px-2 py-0.5 bg-brand-500/15 text-brand-400 border border-brand-500/25 rounded-full text-[9px] font-bold uppercase">AI Powered</span>
+              </div>
+              <div className="border-2 border-dashed border-[#23324C] rounded-xl p-8 text-center space-y-2 hover:border-brand-500/30 transition-all cursor-pointer" onClick={()=>triggerToast('AI Receipt Reader: Upload receipt image to auto-extract vendor, amount, date, and category.')}>
+                <div className="text-2xl">📷</div>
+                <p className="text-xs font-bold text-slate-300">Drop receipt image or click to upload</p>
+                <p className="text-[10px] text-slate-500">AI will auto-extract: Vendor, Amount, Date, Category</p>
+                <button onClick={(e)=>{e.stopPropagation();triggerToast('AI processed receipt: Vendor=BP Fuel Station, Amount=$340.50, Date=Jun 26, Category=Fuel');}} className="px-4 py-2 bg-brand-500/15 hover:bg-brand-500/25 text-brand-400 border border-brand-500/20 rounded-lg text-xs font-bold cursor-pointer transition-all">Simulate AI Scan</button>
+              </div>
+              <div className="p-3 bg-[#111827]/40 border border-[#23324C]/30 rounded-xl space-y-2 text-xs">
+                <p className="text-[10px] font-bold text-slate-400 uppercase">Last AI Scanned Receipt</p>
+                <div className="flex justify-between"><span className="text-slate-400">Vendor</span><span className="text-white font-bold">BP Fuel Station — Chicago</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">Amount</span><span className="text-red-400 font-bold font-mono">$340.50</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">Category</span><span className="text-brand-400 font-bold">Fuel Expense</span></div>
+                <div className="flex justify-between"><span className="text-slate-400">Confidence</span><span className="text-emerald-400 font-bold">98.4% accurate</span></div>
+              </div>
+            </div>
+
+            {/* Expense Categories */}
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <h3 className="text-sm font-extrabold text-white">Expense Categories</h3>
+              <div className="space-y-2">
+                {[{cat:'Fuel',amount:'$14,200',pct:45,color:'bg-amber-500'},{cat:'Driver Pay & OT',amount:'$8,840',pct:28,color:'bg-brand-500'},{cat:'Maintenance & Repairs',amount:'$4,200',pct:13,color:'bg-blue-500'},{cat:'Tolls & Permits',amount:'$2,800',pct:9,color:'bg-purple-500'},{cat:'Admin & Other',amount:'$1,500',pct:5,color:'bg-slate-500'}].map((c,i)=>(
+                  <div key={i} className="space-y-1">
+                    <div className="flex justify-between text-xs">
+                      <span className="font-semibold text-slate-300">{c.cat}</span>
+                      <span className="font-bold font-mono text-white">{c.amount} <span className="text-slate-500">({c.pct}%)</span></span>
+                    </div>
+                    <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                      <div className={`h-full ${c.color} rounded-full transition-all`} style={{width:`${c.pct}%`}} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <Button variant="outline" size="sm" className="w-full" onClick={()=>triggerToast('Expense category management panel opened.')}>Manage Categories</Button>
+            </div>
+          </div>
+
+          {/* Approval Workflow */}
+          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-sm font-extrabold text-white">Expense Approval Workflow</h3>
+              <div className="flex gap-2">
+                <Button size="sm" variant="secondary" onClick={()=>triggerToast('All pending expenses approved.')}>Approve All</Button>
+                <Button size="sm" variant="outline" onClick={()=>triggerToast('Expense export CSV downloaded.')}>Export</Button>
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead><tr className="border-b border-[#23324C]/60">{['Submitted By','Category','Description','Amount','Date','Status','Action'].map(h=>(<th key={h} className="text-left py-2 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">{h}</th>))}</tr></thead>
+                <tbody className="divide-y divide-[#23324C]/20">
+                  {[
+                    {by:'John D.',cat:'Fuel',desc:'BP Station — Chicago',amount:'$340',date:'Jun 26',status:'Pending'},
+                    {by:'Sarah R.',cat:'Tolls',desc:'I-90 Toll Pass',amount:'$42',date:'Jun 25',status:'Pending'},
+                    {by:'Mike T.',cat:'Maintenance',desc:'Tyre inflation check',amount:'$85',date:'Jun 24',status:'Approved'},
+                    {by:'Dave K.',cat:'Fuel',desc:'Shell Station — Dallas',amount:'$290',date:'Jun 24',status:'Approved'},
+                    {by:'Lisa P.',cat:'Admin',desc:'Office supplies',amount:'$120',date:'Jun 23',status:'Rejected'},
+                  ].map((exp,i)=>(
+                    <tr key={i} className="hover:bg-slate-900/20">
+                      <td className="py-2.5 px-3 font-bold text-white">{exp.by}</td>
+                      <td className="py-2.5 px-3 text-slate-400">{exp.cat}</td>
+                      <td className="py-2.5 px-3 text-slate-300">{exp.desc}</td>
+                      <td className="py-2.5 px-3 font-bold font-mono text-red-400">{exp.amount}</td>
+                      <td className="py-2.5 px-3 font-mono text-slate-400 text-[10px]">{exp.date}</td>
+                      <td className="py-2.5 px-3">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                          exp.status==='Approved'?'bg-emerald-500/10 text-emerald-400 border-emerald-500/20':
+                          exp.status==='Rejected'?'bg-red-500/10 text-red-400 border-red-500/20':
+                          'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                        }`}>{exp.status}</span>
+                      </td>
+                      <td className="py-2.5 px-3">
+                        {exp.status==='Pending'&&(
+                          <div className="flex gap-1">
+                            <button onClick={()=>triggerToast(`Expense by ${exp.by} approved.`)} className="px-2 py-1 bg-emerald-500/15 text-emerald-400 border border-emerald-500/20 rounded-lg text-[10px] font-bold cursor-pointer hover:bg-emerald-500/25">✓</button>
+                            <button onClick={()=>triggerToast(`Expense by ${exp.by} rejected.`,'warning')} className="px-2 py-1 bg-red-500/10 text-red-400 border border-red-500/20 rounded-lg text-[10px] font-bold cursor-pointer hover:bg-red-500/20">✕</button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Expense Reminders */}
+          <div className="p-4 bg-amber-500/5 border border-amber-500/20 rounded-2xl space-y-2">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-amber-400" />
+              <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">Upcoming Expense Reminders</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">
+              {[{text:'Vehicle insurance renewal — TX-9811',due:'Jul 5',type:'Insurance'},{text:'Rego renewal due — 3 vehicles',due:'Jul 12',type:'Registration'},{text:'WHS compliance audit fee',due:'Jul 20',type:'Compliance'}].map((r,i)=>(
+                <div key={i} className="p-3 bg-[#111827]/40 border border-amber-500/15 rounded-xl text-xs">
+                  <p className="text-amber-300 font-semibold">{r.text}</p>
+                  <div className="flex justify-between mt-1.5">
+                    <span className="text-slate-500">{r.type}</span>
+                    <span className="text-amber-400 font-bold font-mono">Due: {r.due}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 
@@ -1135,20 +1872,553 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
         </div>
       )}
 
-      {activeTab === 'permissions' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-          <div className="flex justify-between items-center">
-            <h3 className="text-sm font-extrabold text-white">Operator Permissions Configuration Matrix</h3>
-            <div className="flex gap-2">
-              <Button size="sm" variant="primary" onClick={() => triggerToast('New custom security role created.')}>
-                Create Role
-              </Button>
-              <Button size="sm" variant="success" onClick={() => triggerToast('Role permissions saved.')}>
-                Set Permissions
-              </Button>
+      {activeTab === 'availability' && (
+        <div className="space-y-6">
+          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-5">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+              <div>
+                <h3 className="text-sm font-extrabold text-white">Availability & Leave Management</h3>
+                <p className="text-xs text-slate-400 mt-0.5">Track driver availability windows and manage approved leave requests.</p>
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" variant="primary" icon={Plus} onClick={() => triggerToast('Add Availability form opened.')}>
+                  Add Availability
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => triggerToast('Add Leave request form opened.')}>
+                  Add Leave
+                </Button>
+              </div>
+            </div>
+
+            {/* Availability Grid */}
+            <div>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">This Week — Driver Availability Calendar</p>
+              <div className="grid grid-cols-7 gap-1.5 text-center text-[10px] font-bold text-slate-400">
+                {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (
+                  <div key={day} className="p-1.5 bg-slate-900/60 border border-[#23324C]/40 rounded-lg text-slate-400 uppercase tracking-wider">{day}</div>
+                ))}
+                {['John D.', 'Sarah R.', 'Mike T.', 'Lisa P.', 'Dave K.', 'Anna B.', 'Tom R.'].map((name, idx) => {
+                  const isLeave = idx === 2 || idx === 5;
+                  return (
+                    <div
+                      key={idx}
+                      onClick={() => triggerToast(`${name}: ${isLeave ? 'On Leave' : 'Available'} — Click to modify availability.`)}
+                      className={`p-2.5 border rounded-xl cursor-pointer transition-all text-left ${
+                        isLeave
+                          ? 'bg-red-500/5 border-red-500/20 text-red-400'
+                          : 'bg-emerald-500/5 border-emerald-500/15 text-emerald-400 hover:border-emerald-500/30'
+                      }`}
+                    >
+                      <span className="block text-[8px] font-semibold text-slate-500 mb-0.5 truncate">{name}</span>
+                      <strong className="block text-[10px]">{isLeave ? 'Leave' : 'Avail'}</strong>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
-          <p className="text-xs text-slate-400">Bind action buttons dynamically to customized role permissions.</p>
+
+          {/* Leave Requests Table */}
+          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+            <h3 className="text-sm font-extrabold text-white">Pending Leave Approval Requests</h3>
+            <DataTable columns={[
+              { key: 'employee', label: 'Employee', render: (row) => <span className="font-extrabold text-white">{row.employee}</span> },
+              { key: 'type', label: 'Leave Type', render: (row) => <span className="text-slate-300 font-semibold">{row.type}</span> },
+              { key: 'start', label: 'Start Date', render: (row) => <span className="text-slate-400 font-mono text-xs">{row.start}</span> },
+              { key: 'end', label: 'End Date', render: (row) => <span className="text-slate-400 font-mono text-xs">{row.end}</span> },
+              { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> },
+              { key: 'actions', label: 'Actions', render: (row) => (
+                row.status === 'Pending' ? (
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="secondary" onClick={() => handleApproveLeave(row.id)}>Approve</Button>
+                    <Button size="sm" variant="outline" onClick={() => handleRejectLeave(row.id)}>Reject</Button>
+                  </div>
+                ) : (
+                  <span className="text-[11px] text-slate-500 font-semibold">Finalized</span>
+                )
+              )}
+            ]} data={leaves} />
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'permissions' && (
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-5">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+              <div>
+                <h3 className="text-sm font-extrabold text-white">Permission Matrix — Module-wise Access Control</h3>
+                <p className="text-xs text-slate-400 mt-0.5">Control module access, feature toggles, and branch-specific permissions per role.</p>
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" variant="primary" onClick={() => triggerToast('Permissions saved successfully for all roles.')}>Save All Changes</Button>
+                <Button size="sm" variant="secondary" onClick={() => triggerToast('Resetting all permissions to default policy...')}>Reset Defaults</Button>
+              </div>
+            </div>
+
+            {/* Full Permission Matrix */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs min-w-[700px]">
+                <thead>
+                  <tr className="border-b border-[#23324C]/60">
+                    <th className="text-left py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider w-44">Module / Feature</th>
+                    {['Dispatcher','Driver','Warehouse','Accounts','Yard Attd','Customer'].map(r=>(
+                      <th key={r} className="text-center py-3 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">{r}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#23324C]/30">
+                  {[
+                    {label:'Create Loads',key:'createLoads',def:['dispatcher']},
+                    {label:'Edit Routes',key:'editRoutes',def:['dispatcher']},
+                    {label:'View Financials',key:'viewFinancials',def:['accounts']},
+                    {label:'Approve Payroll',key:'approvePayroll',def:['accounts']},
+                    {label:'Warehouse Access',key:'warehouseAccess',def:['warehouse','yard']},
+                    {label:'Driver Management',key:'driverMgmt',def:['dispatcher']},
+                    {label:'Customer Portal',key:'customerPortal',def:['dispatcher','accounts','customer']},
+                    {label:'Export Reports',key:'exportReports',def:['dispatcher','accounts']},
+                    {label:'Asset Register',key:'assetRegister',def:['warehouse']},
+                    {label:'Expense Submit',key:'expenseSubmit',def:['dispatcher','driver','warehouse','accounts','yard']},
+                    {label:'Invoice View',key:'invoiceView',def:['accounts','customer']},
+                    {label:'Settings Access',key:'settingsAccess',def:[]},
+                  ].map(perm=>(
+                    <tr key={perm.key} className="hover:bg-slate-900/20 transition-colors">
+                      <td className="py-2.5 px-3 font-semibold text-slate-300 text-xs">{perm.label}</td>
+                      {['dispatcher','driver','warehouse','accounts','yard','customer'].map(role=>{
+                        const pk=`${perm.key}_${role}`;
+                        const on=userPermissions[pk]!==undefined?userPermissions[pk]:perm.def.includes(role);
+                        return(
+                          <td key={role} className="py-2.5 px-2 text-center">
+                            <button onClick={()=>{setUserPermissions(p=>({...p,[pk]:!on}));triggerToast(`'${perm.label}' for ${role}: ${on?'disabled':'enabled'}.`);}}
+                              className={`w-9 h-4.5 rounded-full transition-all relative cursor-pointer ${on?'bg-brand-500 shadow-brand-500/20':'bg-slate-700'}`}>
+                              <span className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full shadow transition-all ${on?'left-4.5':'left-0.5'}`}/>
+                            </button>
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Feature Toggles */}
+          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+            <h3 className="text-sm font-extrabold text-white">Feature Toggles</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                {label:'AI Dispatch Suggestions',desc:'Show AI-powered route & driver suggestions',key:'aiDispatch',on:true},
+                {label:'GPS Live Tracking',desc:'Enable real-time vehicle GPS map view',key:'gpsTracking',on:true},
+                {label:'Driver Chat (In-App)',desc:'Allow dispatcher-driver messaging',key:'driverChat',on:true},
+                {label:'Customer Portal Access',desc:'Let customers log in to track loads',key:'custPortal',on:false},
+                {label:'Expense Receipt AI',desc:'AI auto-scan and categorize expenses',key:'expAI',on:true},
+                {label:'White Label Mode',desc:'Hide Hero Logistics branding for clients',key:'whiteLabel',on:false},
+                {label:'Auto-Invoice on Delivery',desc:'Generate invoice when load is delivered',key:'autoInvoice',on:true},
+                {label:'SMS Notifications',desc:'Send automated SMS alerts to drivers',key:'smsAlerts',on:false},
+              ].map((f,i)=>(
+                <div key={i} className="flex items-center justify-between p-3 bg-[#111827]/50 border border-[#23324C]/40 rounded-xl">
+                  <div>
+                    <p className="text-xs font-bold text-white">{f.label}</p>
+                    <p className="text-[10px] text-slate-500 mt-0.5">{f.desc}</p>
+                  </div>
+                  <button onClick={()=>triggerToast(`Feature '${f.label}' toggled.`)} className={`w-10 h-5 rounded-full relative cursor-pointer flex-shrink-0 ml-3 transition-all ${f.on?'bg-brand-500':'bg-slate-700'}`}>
+                    <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${f.on?'left-5':'left-0.5'}`}/>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Branch-wise Permissions + User Groups */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
+              <h3 className="text-sm font-extrabold text-white">Branch-wise Permissions</h3>
+              <p className="text-[10px] text-slate-500">Restrict users to specific branches only.</p>
+              {[{branch:'Chicago HQ Terminal',users:8,restrict:false},{branch:'Los Angeles Depot',users:4,restrict:true},{branch:'Dallas Terminal',users:3,restrict:false}].map((b,i)=>(
+                <div key={i} className="flex items-center justify-between p-3 bg-[#111827]/40 border border-[#23324C]/30 rounded-xl text-xs">
+                  <div>
+                    <p className="font-bold text-white">{b.branch}</p>
+                    <p className="text-slate-500">{b.users} users assigned</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-[10px] font-bold ${b.restrict?'text-red-400':'text-emerald-400'}`}>{b.restrict?'Restricted':'Open'}</span>
+                    <button onClick={()=>triggerToast(`Branch restriction toggled for ${b.branch}.`)} className={`w-9 h-4.5 rounded-full relative cursor-pointer transition-all ${b.restrict?'bg-red-500':'bg-emerald-500'}`}>
+                      <span className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full shadow transition-all ${b.restrict?'left-4.5':'left-0.5'}`}/>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
+              <div className="flex justify-between items-center">
+                <h3 className="text-sm font-extrabold text-white">User Groups</h3>
+                <Button size="sm" variant="outline" onClick={()=>triggerToast('Create user group modal opened.')}>+ New Group</Button>
+              </div>
+              {[{name:'Dispatch Team',members:4,perms:['Create Loads','Edit Routes','Driver Access']},{name:'Finance Team',members:2,perms:['View Financials','Export Reports','Invoice View']},{name:'Ops Managers',members:3,perms:['All Modules','Settings','Reports']}].map((g,i)=>(
+                <div key={i} className="p-3 bg-[#111827]/40 border border-[#23324C]/30 rounded-xl space-y-2">
+                  <div className="flex justify-between items-center">
+                    <p className="font-bold text-white text-xs">{g.name}</p>
+                    <span className="text-[10px] bg-slate-800 text-slate-400 border border-[#23324C] px-2 py-0.5 rounded-full font-bold">{g.members} members</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {g.perms.map((p,j)=>(<span key={j} className="text-[9px] bg-brand-500/10 text-brand-400 border border-brand-500/20 px-1.5 py-0.5 rounded font-bold">{p}</span>))}
+                  </div>
+                  <button onClick={()=>triggerToast(`Editing group: ${g.name}`)} className="text-[10px] text-slate-400 hover:text-brand-400 cursor-pointer transition-colors">Edit Group →</button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== WAREHOUSE INTEGRATION ===== */}
+      {activeTab === 'warehouse-yard' && (
+        <div className="space-y-6">
+          {/* Warehouse KPIs */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {[{label:'Yard Occupancy',value:'74%',color:'text-brand-400',sub:'22 of 30 spots used'},{label:'Inventory Items',value:'1,842',color:'text-white',sub:'14 categories'},{label:'Active Bays',value:'6/8',color:'text-emerald-400',sub:'2 bays available'},{label:'Scans Today',value:'284',color:'text-slate-300',sub:'\u2191 +22% vs yesterday'}].map((k,i)=>(
+              <div key={i} className="p-4 glass border border-[#23324C]/60 rounded-2xl text-left space-y-1">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{k.label}</p>
+                <p className={`text-2xl font-black ${k.color}`}>{k.value}</p>
+                <p className="text-[10px] text-slate-400 font-semibold">{k.sub}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Yard Occupancy Visual */}
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <h3 className="text-sm font-extrabold text-white">Yard Occupancy Map</h3>
+              <div className="grid grid-cols-6 gap-2">
+                {Array.from({length:30}).map((_,i)=>{
+                  const occupied=i<22;
+                  const reserved=i>=18&&i<22;
+                  return(
+                    <div key={i} onClick={()=>triggerToast(`Spot ${i+1}: ${occupied?reserved?'Reserved':'Occupied':'Available'}`)}
+                      className={`aspect-square rounded-xl border text-center flex items-center justify-center text-[8px] font-bold cursor-pointer transition-all ${
+                        reserved?'bg-amber-500/20 border-amber-500/30 text-amber-400 hover:border-amber-500/50':
+                        occupied?'bg-brand-500/15 border-brand-500/25 text-brand-400 hover:border-brand-500/40':
+                        'bg-slate-900/40 border-[#23324C]/30 text-slate-500 hover:border-emerald-500/30 hover:text-emerald-400'
+                      }`}>
+                      {i+1}
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="flex gap-4 text-[10px] font-bold">
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-brand-500/40 inline-block"/>Occupied (22)</span>
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-amber-500/40 inline-block"/>Reserved (4)</span>
+                <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded bg-slate-700 inline-block"/>Available (8)</span>
+              </div>
+            </div>
+
+            {/* Loading Bays Status */}
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <h3 className="text-sm font-extrabold text-white">Loading Bays Status</h3>
+              <div className="space-y-2">
+                {[{bay:'Bay 1',status:'Active',load:'LD-9411',driver:'John D.',time:'08:30'},{bay:'Bay 2',status:'Active',load:'LD-9418',driver:'Sarah R.',time:'09:15'},{bay:'Bay 3',status:'Available',load:'—',driver:'—',time:'—'},{bay:'Bay 4',status:'Active',load:'LD-9420',driver:'Dave K.',time:'10:00'},{bay:'Bay 5',status:'Maintenance',load:'—',driver:'—',time:'—'},{bay:'Bay 6',status:'Active',load:'LD-9422',driver:'Mike T.',time:'10:30'},{bay:'Bay 7',status:'Available',load:'—',driver:'—',time:'—'},{bay:'Bay 8',status:'Active',load:'LD-9424',driver:'Anna B.',time:'11:00'}].map((b,i)=>(
+                  <div key={i} className="flex items-center justify-between p-2.5 bg-[#111827]/40 border border-[#23324C]/30 rounded-xl text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${b.status==='Active'?'bg-emerald-400':b.status==='Maintenance'?'bg-amber-400':'bg-slate-600'}`}/>
+                      <span className="font-bold text-white">{b.bay}</span>
+                    </div>
+                    <span className="text-slate-400 font-mono">{b.load}</span>
+                    <span className="text-slate-300">{b.driver}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${b.status==='Active'?'bg-emerald-500/10 text-emerald-400 border-emerald-500/20':b.status==='Maintenance'?'bg-amber-500/10 text-amber-400 border-amber-500/20':'bg-slate-800 text-slate-400 border-[#23324C]'}`}>{b.status}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Scan Activity Feed + Inventory */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
+              <h3 className="text-sm font-extrabold text-white">Recent Scan Activity</h3>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {[{item:'Pallet #PA-8812',action:'Scan In',loc:'Bay 2',by:'Sarah R.',time:'11:42'},
+                  {item:'Box #BX-0041',action:'Moved',loc:'Zone A-3',by:'Mike T.',time:'11:38'},
+                  {item:'Pallet #PA-8808',action:'Scan Out',loc:'Bay 1',by:'John D.',time:'11:25'},
+                  {item:'Container #CT-112',action:'Received',loc:'Dock Door',by:'Dave K.',time:'11:10'},
+                  {item:'Pallet #PA-8801',action:'Relocated',loc:'Zone B-1',by:'Anna B.',time:'10:55'},
+                  {item:'Box #BX-0038',action:'Scan In',loc:'Bay 4',by:'Tom R.',time:'10:40'}
+                ].map((s,i)=>(
+                  <div key={i} className="flex items-center gap-3 p-2.5 bg-[#111827]/40 border border-[#23324C]/20 rounded-xl text-xs">
+                    <div className="w-7 h-7 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-[10px] flex-shrink-0">📦</div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-white truncate">{s.item} — <span className="text-brand-400">{s.action}</span></p>
+                      <p className="text-slate-500">{s.loc} • {s.by}</p>
+                    </div>
+                    <span className="text-[10px] font-mono text-slate-500 flex-shrink-0">{s.time}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
+              <div className="flex justify-between items-center">
+                <h3 className="text-sm font-extrabold text-white">Inventory Status</h3>
+                <Button size="sm" variant="outline" onClick={()=>triggerToast('Inventory report exported.')}>Export</Button>
+              </div>
+              <div className="space-y-2">
+                {[{cat:'Auto Parts',qty:284,allocated:210,pct:74},{cat:'Electronics',qty:142,allocated:95,pct:67},{cat:'Hazmat Goods',qty:28,allocated:28,pct:100},{cat:'General Freight',qty:680,allocated:412,pct:61},{cat:'Perishables',qty:48,allocated:40,pct:83}].map((inv,i)=>(
+                  <div key={i} className="p-3 bg-[#111827]/40 border border-[#23324C]/30 rounded-xl space-y-1.5">
+                    <div className="flex justify-between text-xs">
+                      <span className="font-semibold text-white">{inv.cat}</span>
+                      <span className="text-slate-400 font-mono">{inv.allocated}/{inv.qty} units</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                      <div className={`h-full rounded-full ${inv.pct>=90?'bg-red-500':inv.pct>=70?'bg-amber-500':'bg-brand-500'}`} style={{width:`${inv.pct}%`}}/>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== REPORTS MODULE ===== */}
+      {activeTab === 'reports' && (
+        <div className="space-y-6">
+          {selectedReport ? (
+            <div className="space-y-6 animate-fade-in text-left">
+              {/* Detailed Report View */}
+              <div className="flex justify-between items-center bg-[#111827]/40 border border-[#23324C]/60 p-4 rounded-2xl">
+                <div>
+                  <h3 className="text-base font-extrabold text-white">{selectedReport}</h3>
+                  <p className="text-xs text-slate-400 mt-0.5">Real-time operational summary & business ledger insights.</p>
+                </div>
+                <Button variant="secondary" size="sm" onClick={() => setSelectedReport(null)}>
+                  ← Back to Reports
+                </Button>
+              </div>
+
+              {/* Chart section */}
+              <div className="glass rounded-2xl p-5 border border-[#23324C]/60">
+                <h4 className="text-xs font-bold text-slate-450 uppercase mb-4">{selectedReport} Trend Analytics</h4>
+                <div className="h-56 w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={[
+                      { name: 'Jan', value: 45000 },
+                      { name: 'Feb', value: 52000 },
+                      { name: 'Mar', value: 49000 },
+                      { name: 'Apr', value: 68000 },
+                      { name: 'May', value: 74000 },
+                      { name: 'Jun', value: 84200 }
+                    ]}>
+                      <defs>
+                        <linearGradient id="colorReport" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#0ea0ea" stopOpacity={0.3}/>
+                          <stop offset="95%" stopColor="#0ea0ea" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#23324C" />
+                      <XAxis dataKey="name" stroke="#94a3b8" fontSize={10} />
+                      <YAxis stroke="#94a3b8" fontSize={10} />
+                      <Tooltip contentStyle={{ backgroundColor: '#0B0F19', borderColor: '#23324C' }} />
+                      <Area type="monotone" dataKey="value" stroke="#0ea0ea" fillOpacity={1} fill="url(#colorReport)" strokeWidth={2} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Table section */}
+              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 space-y-4">
+                <div className="flex justify-between items-center">
+                  <h4 className="text-xs font-bold text-slate-450 uppercase">Itemised Ledger Registry</h4>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="secondary" onClick={() => triggerToast(`${selectedReport} PDF exported successfully.`)}>PDF</Button>
+                    <Button size="sm" variant="primary" onClick={() => triggerToast(`${selectedReport} Excel sheet downloaded.`)}>XLS</Button>
+                  </div>
+                </div>
+                
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b border-[#23324C]/60 text-slate-500 uppercase font-bold text-[10px]">
+                        <th className="py-2.5 px-3 text-left">Record / Reference</th>
+                        <th className="py-2.5 px-3 text-left">Date / Period</th>
+                        <th className="py-2.5 px-3 text-left">Type / Category</th>
+                        <th className="py-2.5 px-3 text-right">Debit / Cost</th>
+                        <th className="py-2.5 px-3 text-right">Credit / Revenue</th>
+                        <th className="py-2.5 px-3 text-center">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#23324C]/20 text-slate-300">
+                      {[
+                        { ref: 'REF-8812 (Chicago HQ)', date: 'Jun 26, 2026', cat: 'Standard Billing', deb: '$0.00', cred: '$4,200.00', status: 'Settled' },
+                        { ref: 'REF-8411 (BP station Chicago)', date: 'Jun 25, 2026', cat: 'Fuel Expense', deb: '$340.50', cred: '$0.00', status: 'Approved' },
+                        { ref: 'REF-7922 (Dallas terminal)', date: 'Jun 24, 2026', cat: 'Inter-Company', deb: '$0.00', cred: '$1,800.00', status: 'Settled' },
+                        { ref: 'REF-6821 (Tyre replacements)', date: 'Jun 21, 2026', cat: 'Maintenance', deb: '$1,200.00', cred: '$0.00', status: 'Approved' },
+                        { ref: 'REF-4819 (Memphis Shippers)', date: 'Jun 20, 2026', cat: 'Bulk Freight', deb: '$0.00', cred: '$8,800.00', status: 'Settled' }
+                      ].map((row, idx) => (
+                        <tr key={idx} className="hover:bg-slate-900/20">
+                          <td className="py-2.5 px-3 font-bold text-white">{row.ref}</td>
+                          <td className="py-2.5 px-3 font-mono text-slate-400">{row.date}</td>
+                          <td className="py-2.5 px-3 text-slate-400">{row.cat}</td>
+                          <td className="py-2.5 px-3 text-right text-red-400 font-mono">{row.deb}</td>
+                          <td className="py-2.5 px-3 text-right text-emerald-400 font-mono font-bold">{row.cred}</td>
+                          <td className="py-2.5 px-3 text-center"><span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-[10px] font-bold">{row.status}</span></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-medium text-xs">
+                {[{label:'Revenue MTD',value:'$84,200',color:'text-emerald-400'},{label:'Expense MTD',value:'$31,540',color:'text-red-400'},{label:'Net Profit',value:'$52,660',color:'text-brand-400'},{label:'GST Collected',value:'$8,420',color:'text-amber-400'}].map((k,i)=>(
+                  <div key={i} className="p-3 glass border border-[#23324C]/60 rounded-2xl text-left">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{k.label}</p>
+                    <p className={`text-xl font-black ${k.color} mt-0.5`}>{k.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {[
+                  {title:'Revenue Report',desc:'Monthly revenue breakdown by customer and branch.',icon:'💰',color:'emerald'},
+                  {title:'Expense Report',desc:'All company expenses categorised by type.',icon:'📉',color:'red'},
+                  {title:'Profit & Loss',desc:'Full P&L statement with branch comparison.',icon:'📊',color:'brand'},
+                  {title:'Driver Performance',desc:'Ratings, on-time %, safety scores per driver.',icon:'🚚',color:'brand'},
+                  {title:'Fleet Utilization',desc:'Vehicle usage, KMs, downtime, fuel efficiency.',icon:'🛢️',color:'amber'},
+                  {title:'Customer Revenue',desc:'Revenue per customer, load volume, growth.',icon:'👥',color:'blue'},
+                  {title:'Branch Report',desc:'Revenue, expenses, staff, loads per branch.',icon:'🏢',color:'purple'},
+                  {title:'Payroll Report',desc:'Weekly payroll summaries and cost breakdowns.',icon:'💳',color:'emerald'},
+                  {title:'GST Report',desc:'Tax-ready GST collected and paid summary.',icon:'🧾',color:'amber'},
+                ].map((r,i)=>(
+                  <div key={i} className="glass rounded-2xl p-4 border border-[#23324C]/60 text-left space-y-3 hover:border-brand-500/30 transition-all group">
+                    <div className="flex items-start justify-between">
+                      <div className="w-10 h-10 rounded-xl bg-[#111827] border border-[#23324C] flex items-center justify-center text-xl">{r.icon}</div>
+                      <span className="text-[9px] text-slate-500 font-bold uppercase bg-slate-800/60 px-2 py-0.5 rounded-full border border-[#23324C]">Report</span>
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-extrabold text-white">{r.title}</h4>
+                      <p className="text-[10px] text-slate-400 mt-0.5">{r.desc}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={()=>setSelectedReport(r.title)} className="flex-1 py-2 bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 border border-brand-500/20 rounded-xl text-[10px] font-bold transition-all cursor-pointer">View Report</button>
+                      <button onClick={()=>triggerToast(`${r.title} PDF exported.`)} className="px-3 py-2 bg-slate-800/60 hover:bg-slate-800 text-slate-400 rounded-xl text-[10px] font-bold transition-all cursor-pointer">PDF</button>
+                      <button onClick={()=>triggerToast(`${r.title} Excel downloaded.`)} className="px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 rounded-xl text-[10px] font-bold transition-all cursor-pointer">XLS</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* ===== ASSET REGISTER ENHANCEMENTS ===== */}
+      {activeTab === 'assets' && (
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {[{label:'Total Assets',value:assets.length,color:'text-white',sub:'All categories'},{label:'Active',value:assets.filter(a=>a.status==='Active').length,color:'text-emerald-400',sub:'Operational'},{label:'In Maintenance',value:assets.filter(a=>a.status==='Maintenance').length,color:'text-amber-400',sub:'Being serviced'},{label:'Assigned',value:assets.length,color:'text-brand-400',sub:'Across branches'}].map((k,i)=>(
+              <div key={i} className="p-4 glass border border-[#23324C]/60 rounded-2xl text-left space-y-1">
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{k.label}</p>
+                <p className={`text-2xl font-black ${k.color}`}>{k.value}</p>
+                <p className="text-[10px] text-slate-400 font-semibold">{k.sub}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+              <h3 className="text-sm font-extrabold text-white">Asset Register</h3>
+              <div className="flex gap-2">
+                <SearchInput value={searchQuery} onChange={(e)=>setSearchQuery(e.target.value)} onClear={()=>setSearchQuery('')} className="max-w-[180px]" />
+                <Button size="sm" variant="primary" icon={Plus} onClick={()=>setAddModalOpen(true)}>Add Asset</Button>
+              </div>
+            </div>
+
+            {/* Asset Category Filter */}
+            <div className="flex flex-wrap gap-2">
+              {['All','Warehouse Equipment','Scanning Devices','Power Units','Vehicles','IT Equipment'].map(cat=>(
+                <button key={cat} onClick={()=>triggerToast(`Filtered assets by category: ${cat}`)} className="px-3 py-1 rounded-full text-[10px] font-bold bg-slate-800/60 text-slate-400 hover:text-white hover:bg-slate-800 border border-[#23324C]/40 transition-all cursor-pointer">{cat}</button>
+              ))}
+            </div>
+
+            <DataTable columns={[
+              {key:'name',label:'Asset Name',render:(row)=><span className="font-extrabold text-white">{row.name}</span>},
+              {key:'type',label:'Category / Type',render:(row)=><span className="text-slate-300 font-semibold">{row.type}</span>},
+              {key:'serial',label:'Serial / Tag',render:(row)=><span className="font-mono text-brand-400 text-[10px]">{row.serial}</span>},
+              {key:'status',label:'Status',render:(row)=><StatusBadge status={row.status}/>},
+              {key:'depreciation',label:'Est. Value',render:()=><span className="font-mono text-emerald-400 text-xs">${(Math.random()*8000+2000).toFixed(0)}</span>},
+              {key:'qr',label:'QR Code',render:(row)=><button onClick={()=>{setSelectedAssetForQr(row); setQrModalOpen(true);}} className="px-2 py-1 bg-slate-800 text-slate-300 border border-[#23324C] rounded-lg text-[10px] font-bold cursor-pointer hover:text-brand-400 hover:border-brand-500/30 transition-all">Generate QR</button>},
+              {key:'actions',label:'Actions',render:(row)=>(
+                <div className="flex gap-2">
+                  <Button size="sm" variant="secondary" onClick={()=>handleOpenInspect(row, 'asset')}>Inspect</Button>
+                  <Button size="sm" variant="outline" onClick={()=>{setSelectedAssetForAssign(row); setAssignBranchModalOpen(true);}}>Assign</Button>
+                </div>
+              )}
+            ]} data={assets.filter(a=>a.name.toLowerCase().includes(searchQuery.toLowerCase()))} />
+          </div>
+
+          {/* Depreciation Table */}
+          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
+            <h3 className="text-sm font-extrabold text-white">Asset Depreciation Schedule</h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs">
+                <thead><tr className="border-b border-[#23324C]/60">{['Asset','Purchase Cost','Annual Dep.','Current Value','Age','Status'].map(h=>(<th key={h} className="text-left py-2 px-3 text-[10px] font-bold text-slate-500 uppercase">{h}</th>))}</tr></thead>
+                <tbody className="divide-y divide-[#23324C]/20">
+                  {[{name:'Forklift TR-01',cost:'$45,000',dep:'$9,000',val:'$27,000',age:'2 yrs',s:'Good'},{name:'Zebra TC57 Scanner',cost:'$1,200',dep:'$300',val:'$600',age:'2 yrs',s:'Good'},{name:'Detroit Generator',cost:'$12,000',dep:'$2,400',val:'$4,800',age:'3 yrs',s:'Fair'}].map((r,i)=>(
+                    <tr key={i} className="hover:bg-slate-900/20">
+                      <td className="py-2.5 px-3 font-bold text-white">{r.name}</td>
+                      <td className="py-2.5 px-3 font-mono text-slate-300">{r.cost}</td>
+                      <td className="py-2.5 px-3 font-mono text-red-400">{r.dep}</td>
+                      <td className="py-2.5 px-3 font-mono text-emerald-400">{r.val}</td>
+                      <td className="py-2.5 px-3 text-slate-400">{r.age}</td>
+                      <td className="py-2.5 px-3"><span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${r.s==='Good'?'bg-emerald-500/10 text-emerald-400 border-emerald-500/20':'bg-amber-500/10 text-amber-400 border-amber-500/20'}`}>{r.s}</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== AI FEATURES CENTER ===== */}
+      {activeTab === 'ai-center' && (
+        <div className="space-y-6">
+          <div className="p-5 bg-gradient-to-r from-brand-500/10 to-purple-500/10 border border-brand-500/25 rounded-2xl flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-brand-500/20 border border-brand-500/30 flex items-center justify-center text-2xl flex-shrink-0">🤖</div>
+            <div>
+              <h3 className="text-sm font-extrabold text-white">AI Command Center</h3>
+              <p className="text-xs text-slate-400 mt-0.5">Intelligent automation, predictions, and suggestions powered by Hero Logistics AI engine.</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              {title:'AI Receipt Reader',desc:'Auto-extract vendor, amount, date from receipt photos.',icon:'📷',badge:'Active',color:'emerald',action:'Scan Receipt',fn:'AI Receipt Reader activated. Upload a receipt photo to extract data.'},
+              {title:'AI Dispatch Suggestions',desc:'Smart driver & vehicle matching for incoming loads.',icon:'🗺️',badge:'Active',color:'emerald',action:'Get Suggestions',fn:'AI analysed 14 active loads. Suggestion: Assign John D. to LD-9422 (ETA improvement: +18%).'},
+              {title:'AI ETA Prediction',desc:'Predict delivery ETAs using traffic, weather & history.',icon:'⏱️',badge:'Active',color:'emerald',action:'Predict ETAs',fn:'AI ETA: LD-9411 Chicago→Dallas — Predicted arrival: 06/27 14:30 (95.2% confidence).'},
+              {title:'AI Cost Suggestions',desc:'Optimise routes to reduce fuel and toll costs.',icon:'💡',badge:'Active',color:'emerald',action:'Optimise Costs',fn:'AI identified $1,240 in potential savings: Route LD-9418 via I-94 saves 42 miles & $320 fuel.'},
+              {title:'AI Alert Center',desc:'Proactive alerts for compliance, expiries, and anomalies.',icon:'🔔',badge:'3 Alerts',color:'amber',action:'View Alerts',fn:'3 AI Alerts: 2 CDL licenses expiring <15 days, 1 vehicle insurance renewal overdue.'},
+              {title:'AI Load Optimiser',desc:'Group and sequence loads for maximum efficiency.',icon:'📦',badge:'Beta',color:'purple',action:'Optimise Loads',fn:'AI load grouping: Combining LD-9418 & LD-9420 reduces total KMs by 180 miles.'},
+            ].map((ai,i)=>(
+              <div key={i} className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3 hover:border-brand-500/25 transition-all">
+                <div className="flex items-center justify-between">
+                  <div className="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-xl">{ai.icon}</div>
+                  <span className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full border ${
+                    ai.color==='emerald'?'bg-emerald-500/10 text-emerald-400 border-emerald-500/20':
+                    ai.color==='amber'?'bg-amber-500/10 text-amber-400 border-amber-500/20':
+                    'bg-purple-500/10 text-purple-400 border-purple-500/20'
+                  }`}>{ai.badge}</span>
+                </div>
+                <div>
+                  <h4 className="text-sm font-extrabold text-white">{ai.title}</h4>
+                  <p className="text-[10px] text-slate-400 mt-0.5">{ai.desc}</p>
+                </div>
+                <button onClick={()=>triggerToast(ai.fn)} className="w-full py-2 bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 border border-brand-500/20 rounded-xl text-xs font-bold transition-all cursor-pointer">{ai.action}</button>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -1217,6 +2487,105 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
         </form>
       </Modal>
 
+      {/* Asset Assignment Modal */}
+      <Modal isOpen={assignBranchModalOpen} onClose={() => setAssignBranchModalOpen(false)} title="Assign Asset to Branch">
+        {selectedAssetForAssign && (
+          <div className="space-y-4 text-left text-xs">
+            <p className="text-slate-350">Assign asset <strong className="text-white">{selectedAssetForAssign.name}</strong> ({selectedAssetForAssign.serial}) to a terminal location depot:</p>
+            <div>
+              <label className="block text-slate-400 font-bold uppercase text-[9px] mb-1">Select Branch Terminal</label>
+              <select id="assign-asset-branch-select" className="w-full px-3 py-2 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 focus:outline-none">
+                {branches.map(b => (
+                  <option key={b.id} value={b.name}>{b.name}</option>
+                ))}
+              </select>
+            </div>
+            <Button 
+              variant="primary" 
+              className="w-full mt-2"
+              onClick={() => {
+                const branchName = document.getElementById('assign-asset-branch-select')?.value || 'Chicago HQ Terminal';
+                triggerToast(`Asset ${selectedAssetForAssign.name} successfully assigned to ${branchName}.`);
+                setAssignBranchModalOpen(false);
+              }}
+            >
+              Confirm Assignment
+            </Button>
+          </div>
+        )}
+      </Modal>
+
+      {/* Asset QR Code Modal */}
+      <Modal isOpen={qrModalOpen} onClose={() => setQrModalOpen(false)} title="Asset Barcode & QR Code Tag">
+        {selectedAssetForQr && (
+          <div className="space-y-4 text-center text-xs">
+            <p className="text-slate-350">Scan tag below to check-in/out or update asset maintenance log:</p>
+            
+            <div className="bg-white p-4 rounded-2xl inline-block mx-auto border border-slate-200">
+              <svg width="150" height="150" viewBox="0 0 100 100" className="mx-auto">
+                <rect x="0" y="0" width="100" height="100" fill="white" />
+                <rect x="5" y="5" width="25" height="25" fill="black" />
+                <rect x="10" y="10" width="15" height="15" fill="white" />
+                <rect x="13" y="13" width="9" height="9" fill="black" />
+
+                <rect x="70" y="5" width="25" height="25" fill="black" />
+                <rect x="75" y="10" width="15" height="15" fill="white" />
+                <rect x="78" y="13" width="9" height="9" fill="black" />
+
+                <rect x="5" y="70" width="25" height="25" fill="black" />
+                <rect x="10" y="75" width="15" height="15" fill="white" />
+                <rect x="13" y="78" width="9" height="9" fill="black" />
+                
+                <rect x="35" y="15" width="5" height="10" fill="black" />
+                <rect x="45" y="5" width="15" height="5" fill="black" />
+                <rect x="45" y="20" width="10" height="10" fill="black" />
+                <rect x="15" y="45" width="15" height="5" fill="black" />
+                <rect x="5" y="55" width="5" height="10" fill="black" />
+                <rect x="35" y="35" width="20" height="5" fill="black" />
+                <rect x="35" y="45" width="5" height="15" fill="black" />
+                <rect x="45" y="55" width="15" height="10" fill="black" />
+                <rect x="65" y="35" width="10" height="20" fill="black" />
+                <rect x="80" y="45" width="15" height="5" fill="black" />
+                <rect x="75" y="55" width="5" height="15" fill="black" />
+                <rect x="65" y="75" width="10" height="5" fill="black" />
+                <rect x="85" y="70" width="10" height="10" fill="black" />
+                <rect x="80" y="85" width="15" height="5" fill="black" />
+                <rect x="35" y="75" width="15" height="15" fill="black" />
+                <rect x="55" y="80" width="5" height="5" fill="black" />
+              </svg>
+            </div>
+            
+            <div>
+              <p className="font-extrabold text-white text-sm">{selectedAssetForQr.name}</p>
+              <p className="font-mono text-[10px] text-brand-400 mt-0.5">{selectedAssetForQr.serial}</p>
+            </div>
+
+            <div className="flex gap-2">
+              <Button 
+                variant="primary" 
+                className="flex-1"
+                onClick={() => {
+                  triggerToast(`QR tag PNG for ${selectedAssetForQr.name} downloaded.`);
+                  setQrModalOpen(false);
+                }}
+              >
+                Download PNG
+              </Button>
+              <Button 
+                variant="secondary" 
+                className="flex-1"
+                onClick={() => {
+                  triggerToast(`QR tag sent to printer.`);
+                  setQrModalOpen(false);
+                }}
+              >
+                Print Label
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
+
       {/* Details Drawer */}
       <Drawer isOpen={detailsDrawerOpen} onClose={() => setDetailsDrawerOpen(false)} title={`${drawerType.toUpperCase()} Detail Inspector`}>
         {selectedItem && (
@@ -1229,7 +2598,7 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
               </div>
             </div>
 
-            {/* Render Tabs for Fleet and Drivers */}
+            {/* Render Tabs for Fleet, Drivers, Branches, and Customers */}
             {drawerType === 'fleet' && (
               <Tabs 
                 tabs={[
@@ -1258,32 +2627,357 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
               />
             )}
 
+            {drawerType === 'branch' && (
+              <Tabs 
+                tabs={[
+                  { id: 'profile', label: 'Profile', icon: MapPin },
+                  { id: 'ops', label: 'Ops & Manager', icon: Briefcase },
+                  { id: 'docs', label: 'Documents', icon: Calendar },
+                  { id: 'history', label: 'History', icon: Activity }
+                ]} 
+                activeTab={inspectTab} 
+                onChange={setInspectTab} 
+                className="border-[#23324C]/40"
+              />
+            )}
+
+            {drawerType === 'customer' && (
+              <Tabs 
+                tabs={[
+                  { id: 'profile', label: 'Profile', icon: Users },
+                  { id: 'ratecards', label: 'Rate Cards', icon: DollarSign },
+                  { id: 'docs', label: 'Documents', icon: Calendar },
+                  { id: 'timeline', label: 'Timeline', icon: Activity }
+                ]} 
+                activeTab={inspectTab} 
+                onChange={setInspectTab} 
+                className="border-[#23324C]/40"
+              />
+            )}
+
             <div className="flex-1 py-1">
               {/* --- BRANCH DETAIL --- */}
               {drawerType === 'branch' && (
-                <div className="space-y-3.5">
-                  <div>
-                    <span className="text-[10px] text-slate-500 font-bold block uppercase">Address Location</span>
-                    <strong className="text-white text-xs">{selectedItem.address}, {selectedItem.city}, {selectedItem.state}</strong>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-500 font-bold block uppercase">HQ Operations Manager</span>
-                    <span className="text-xs font-mono text-slate-350">{selectedItem.manager}</span>
-                  </div>
+                <div className="space-y-4">
+                  {inspectTab === 'profile' && (
+                    <div className="space-y-4 animate-fade-in">
+                      {/* Key Info Grid */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="p-3 bg-[#111827]/60 border border-[#23324C]/50 rounded-xl">
+                          <span className="text-[9px] text-slate-500 font-bold uppercase block">Staff Count</span>
+                          <strong className="text-white text-lg">{selectedItem.staff || 0}</strong>
+                          <span className="text-[9px] text-slate-400 block">employees</span>
+                        </div>
+                        <div className="p-3 bg-[#111827]/60 border border-[#23324C]/50 rounded-xl">
+                          <span className="text-[9px] text-slate-500 font-bold uppercase block">Active Loads</span>
+                          <strong className="text-brand-400 text-lg">6</strong>
+                          <span className="text-[9px] text-slate-400 block">this branch</span>
+                        </div>
+                        <div className="p-3 bg-[#111827]/60 border border-[#23324C]/50 rounded-xl">
+                          <span className="text-[9px] text-slate-500 font-bold uppercase block">Fleet Here</span>
+                          <strong className="text-white text-lg">{Math.ceil(fleet.length / 2)}</strong>
+                          <span className="text-[9px] text-slate-400 block">vehicles assigned</span>
+                        </div>
+                        <div className="p-3 bg-[#111827]/60 border border-emerald-500/20 rounded-xl">
+                          <span className="text-[9px] text-slate-500 font-bold uppercase block">Revenue</span>
+                          <strong className="text-emerald-400 text-lg">$42.1K</strong>
+                          <span className="text-[9px] text-slate-400 block">this month</span>
+                        </div>
+                      </div>
+
+                      {/* Address & Contact */}
+                      <div className="p-3.5 bg-[#111827]/50 border border-[#23324C]/45 rounded-xl space-y-2.5">
+                        <div>
+                          <span className="text-[10px] text-slate-500 font-bold block uppercase">Address Location</span>
+                          <strong className="text-white text-xs">{selectedItem.address}, {selectedItem.city}, {selectedItem.state}</strong>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-slate-500 font-bold block uppercase">HQ Operations Manager</span>
+                          <span className="text-xs font-mono text-slate-300">{selectedItem.manager}</span>
+                        </div>
+                        <div className="flex justify-between items-center border-t border-[#23324C]/30 pt-2">
+                          <div>
+                            <span className="text-[10px] text-slate-500 font-bold block uppercase">Branch Status</span>
+                            <span className={`text-[10px] font-bold uppercase ${(branchStatus[selectedItem.id] || 'Active') === 'Active' ? 'text-emerald-400' : 'text-red-400'}`}>
+                              ● {(branchStatus[selectedItem.id] || 'Active') === 'Active' ? 'Active' : 'Inactive'}
+                            </span>
+                          </div>
+                          <button 
+                            onClick={() => {
+                              const curr = branchStatus[selectedItem.id] || 'Active';
+                              const next = curr === 'Active' ? 'Inactive' : 'Active';
+                              setBranchStatus({ ...branchStatus, [selectedItem.id]: next });
+                              triggerToast(`Branch status toggled to ${next}.`);
+                            }}
+                            className={`w-9 h-4.5 rounded-full transition-all relative cursor-pointer ${(branchStatus[selectedItem.id] || 'Active') === 'Active' ? 'bg-emerald-500' : 'bg-slate-700'}`}
+                          >
+                            <span className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full shadow transition-all ${(branchStatus[selectedItem.id] || 'Active') === 'Active' ? 'left-4.5' : 'left-0.5'}`} />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Assigned Vehicles List */}
+                      <div>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block mb-2">Assigned Fleet</span>
+                        <div className="space-y-1.5">
+                          {fleet.slice(0, 3).map((v, i) => (
+                            <div key={i} className="flex justify-between items-center p-2 bg-slate-900/40 border border-[#23324C]/30 rounded-lg text-xs">
+                              <span className="font-mono font-bold text-white">{v.plate}</span>
+                              <span className="text-slate-400">{v.type}</span>
+                              <StatusBadge status={v.status || 'Active'} />
+                            </div>
+                          ))}
+                          {fleet.length === 0 && <p className="text-[11px] text-slate-500 text-center py-2">No fleet assigned to this branch.</p>}
+                        </div>
+                      </div>
+
+                      {/* Quick Actions */}
+                      <div className="flex gap-2 pt-1">
+                        <button
+                          onClick={() => triggerToast(`Branch P&L report loading for ${selectedItem.name}...`)}
+                          className="flex-1 py-2 bg-brand-500/10 hover:bg-brand-500/20 border border-brand-500/20 text-brand-400 text-xs rounded-xl font-bold transition-all cursor-pointer"
+                        >
+                          View Branch P&L
+                        </button>
+                        <button
+                          onClick={() => triggerToast(`Editing branch ${selectedItem.name}...`)}
+                          className="flex-1 py-2 bg-slate-800/60 hover:bg-slate-800 text-slate-300 text-xs rounded-xl font-bold transition-all cursor-pointer"
+                        >
+                          Edit Branch
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {inspectTab === 'ops' && (
+                    <div className="space-y-4 animate-fade-in text-xs">
+                      {/* Manager Assignment */}
+                      <div className="p-3 bg-[#111827]/40 border border-[#23324C] rounded-xl space-y-2">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">Manager Assignment</span>
+                        <div>
+                          <label className="block text-slate-500 uppercase text-[9px] font-semibold mb-1">Select Operations Manager</label>
+                          <select 
+                            defaultValue={selectedItem.manager}
+                            onChange={(e) => {
+                              setBranches(branches.map(b => b.id === selectedItem.id ? { ...b, manager: e.target.value } : b));
+                              setSelectedItem({ ...selectedItem, manager: e.target.value });
+                              triggerToast(`Operations Manager reassigned for ${selectedItem.name}.`);
+                            }}
+                            className="w-full px-3 py-1.5 bg-[#111827] border border-[#23324C] rounded-lg text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500"
+                          >
+                            <option value="hq@company.com">hq@company.com (HQ Lead)</option>
+                            <option value="la@company.com">la@company.com (LA Lead)</option>
+                            <option value="dallas@company.com">dallas@company.com (Dallas Lead)</option>
+                            <option value="ops-lead@company.com">ops-lead@company.com (Ops General)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Operating Hours Editor */}
+                      <div className="p-3 bg-[#111827]/40 border border-[#23324C] rounded-xl space-y-2">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">Operating Hours & Schedule</span>
+                        <div className="space-y-2 font-mono text-[11px] text-slate-350">
+                          <div className="flex justify-between"><span>Mon - Fri</span><span className="text-white">08:00 AM - 06:00 PM</span></div>
+                          <div className="flex justify-between"><span>Saturday</span><span className="text-white">09:00 AM - 02:00 PM</span></div>
+                          <div className="flex justify-between text-red-400"><span>Sunday</span><span>Closed</span></div>
+                        </div>
+                        <button 
+                          onClick={() => triggerToast('Business operating hours editor opened.')}
+                          className="w-full py-1.5 mt-2 bg-slate-800 hover:bg-slate-750 text-slate-200 border border-[#23324C] rounded-lg text-[10px] font-bold transition-all cursor-pointer"
+                        >
+                          Configure Hours
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {inspectTab === 'docs' && (
+                    <div className="space-y-4 animate-fade-in text-xs">
+                      {/* Document Management */}
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">Branch Documents & Policies</span>
+                      <div className="space-y-2">
+                        {[
+                          { name: 'WHS Safety Certificate', size: '2.4 MB', updated: '05/20/2026' },
+                          { name: 'Depot Lease Agreement.pdf', size: '14.8 MB', updated: '02/12/2026' },
+                          { name: 'Public Liability Policy.pdf', size: '4.1 MB', updated: '06/01/2026' }
+                        ].map((doc, i) => (
+                          <div key={i} className="p-2.5 bg-slate-900/60 border border-[#23324C]/45 rounded-xl flex justify-between items-center text-xs">
+                            <div>
+                              <strong className="text-slate-200 block">{doc.name}</strong>
+                              <span className="text-[9px] text-slate-500 font-mono">Size: {doc.size} • Updated: {doc.updated}</span>
+                            </div>
+                            <button 
+                              onClick={() => triggerToast(`Downloading ${doc.name}...`)}
+                              className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 border border-[#23324C] rounded text-[10px] font-bold cursor-pointer"
+                            >
+                              Download
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="border-2 border-dashed border-[#23324C] rounded-xl p-4 text-center hover:border-brand-500/30 transition-all cursor-pointer" onClick={() => triggerToast('Branch document upload dialog opened.')}>
+                        <p className="text-[11px] font-bold text-slate-350">Upload New compliance/facility document</p>
+                        <p className="text-[9px] text-slate-500">PDF, PNG, JPG up to 20MB</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {inspectTab === 'history' && (
+                    <div className="space-y-4 animate-fade-in text-xs">
+                      {/* Transfer History */}
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">Custodian Load Transfers</span>
+                      <div className="space-y-2">
+                        {[
+                          { load: 'LD-9411', partner: 'Super Freight Carriers', type: 'Load Out', date: 'Jun 25', status: 'Accepted' },
+                          { load: 'LD-1102', partner: 'Rapid Logistics SA', type: 'Load In', date: 'Jun 22', status: 'Accepted' },
+                          { load: 'LD-4809', partner: 'Car Transporters Co', type: 'Load Out', date: 'Jun 18', status: 'Rejected' }
+                        ].map((tx, i) => (
+                          <div key={i} className="p-2.5 bg-[#111827]/40 border border-[#23324C]/35 rounded-xl flex justify-between items-center text-xs">
+                            <div>
+                              <strong className="text-white block">{tx.load} ({tx.type})</strong>
+                              <span className="text-[9px] text-slate-500">Partner: {tx.partner} • {tx.date}</span>
+                            </div>
+                            <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase ${tx.status === 'Accepted' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+                              {tx.status}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
               {/* --- CUSTOMER DETAIL --- */}
               {drawerType === 'customer' && (
-                <div className="space-y-3.5">
-                  <div>
-                    <span className="text-[10px] text-slate-500 font-bold block uppercase">Client Contact Billing</span>
-                    <strong className="text-white text-xs font-mono">{selectedItem.email}</strong>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-slate-500 font-bold block uppercase">Contract Terms</span>
-                    <span className="text-xs text-slate-300">{selectedItem.contract} ({selectedItem.billing})</span>
-                  </div>
+                <div className="space-y-4">
+                  {inspectTab === 'profile' && (
+                    <div className="space-y-4 animate-fade-in text-xs sm:text-sm">
+                      <div className="p-3.5 bg-[#111827]/50 border border-[#23324C]/45 rounded-xl space-y-2.5">
+                        <div>
+                          <span className="text-[10px] text-slate-500 font-bold block uppercase">Client Contact Billing</span>
+                          <strong className="text-white text-xs font-mono">{selectedItem.email}</strong>
+                        </div>
+                        <div>
+                          <span className="text-[10px] text-slate-500 font-bold block uppercase">Contract Terms</span>
+                          <span className="text-xs text-slate-300">{selectedItem.contract} ({selectedItem.billing})</span>
+                        </div>
+                      </div>
+
+                      {/* Credit Limit & Portal Access */}
+                      <div className="p-3.5 bg-[#111827]/50 border border-[#23324C]/45 rounded-xl space-y-3 text-xs">
+                        <div>
+                          <label className="block text-slate-400 uppercase text-[9px] font-bold mb-1">Credit Limit ($)</label>
+                          <div className="flex gap-2">
+                            <input 
+                              type="number" 
+                              id="cust-credit-limit"
+                              defaultValue="50000" 
+                              className="flex-1 px-3 py-1.5 bg-[#111827] border border-[#23324C] rounded-lg text-slate-200 font-mono text-xs focus:outline-none" 
+                            />
+                            <button 
+                              onClick={() => {
+                                const val = document.getElementById('cust-credit-limit')?.value || '50000';
+                                triggerToast(`Credit limit updated to $${parseFloat(val).toLocaleString()} for ${selectedItem.name}.`);
+                              }}
+                              className="px-3 py-1.5 bg-brand-500 hover:bg-brand-600 text-slate-950 rounded-lg font-black transition-all cursor-pointer"
+                            >
+                              Apply
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-between items-center border-t border-[#23324C]/35 pt-3">
+                          <div>
+                            <span className="font-bold text-white block">Client Portal Access</span>
+                            <span className="text-[9px] text-slate-500">Allow this client to log in and track custody loads</span>
+                          </div>
+                          <button 
+                            onClick={() => triggerToast(`Client portal access toggled.`)}
+                            className="w-10 h-5 bg-brand-500 shadow-brand-500/20 rounded-full relative cursor-pointer transition-all"
+                          >
+                            <span className="absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all left-5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {inspectTab === 'ratecards' && (
+                    <div className="space-y-4 animate-fade-in text-xs">
+                      {/* Rate Cards Table */}
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">Configured Agreement Rate Cards</span>
+                      <div className="space-y-2">
+                        {[
+                          { route: 'Chicago ➔ Dallas', cargo: 'General Freight', rate: '$2,850', fsc: '12%' },
+                          { route: 'Los Angeles ➔ Seattle', cargo: 'Refrigerated', rate: '$4,100', fsc: '14%' },
+                          { route: 'Dallas ➔ Los Angeles', cargo: 'Hazmat Goods', rate: '$3,900', fsc: '15%' }
+                        ].map((card, i) => (
+                          <div key={i} className="p-3 bg-slate-900/60 border border-[#23324C]/45 rounded-xl flex justify-between items-center text-xs">
+                            <div>
+                              <strong className="text-white block">{card.route}</strong>
+                              <span className="text-[9px] text-slate-500">Cargo: {card.cargo}</span>
+                            </div>
+                            <div className="text-right">
+                              <span className="font-bold font-mono text-emerald-450 block">{card.rate}</span>
+                              <span className="text-[9px] text-slate-500">FSC Surcharge: {card.fsc}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <Button variant="outline" size="sm" className="w-full" onClick={() => triggerToast('Custom rate card configuration loaded.')}>
+                        + Add Custom Rate Card
+                      </Button>
+                    </div>
+                  )}
+
+                  {inspectTab === 'docs' && (
+                    <div className="space-y-4 animate-fade-in text-xs">
+                      {/* Documents Tab */}
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">Signed Agreements & Licenses</span>
+                      <div className="space-y-2">
+                        {[
+                          { name: 'Master Services Agreement (MSA).pdf', date: '04/10/2026' },
+                          { name: 'Credit Application Form.pdf', date: '04/09/2026' },
+                          { name: 'W9 Tax Exemption Certificate.pdf', date: '04/12/2026' }
+                        ].map((doc, i) => (
+                          <div key={i} className="p-2.5 bg-slate-900/60 border border-[#23324C]/40 rounded-xl flex justify-between items-center">
+                            <div>
+                              <strong className="text-slate-200 block truncate max-w-[200px]">{doc.name}</strong>
+                              <span className="text-[9px] text-slate-500 font-mono">Uploaded: {doc.date}</span>
+                            </div>
+                            <button 
+                              onClick={() => triggerToast(`Downloading ${doc.name}...`)}
+                              className="px-2 py-1 bg-slate-800 hover:bg-slate-750 rounded text-[9px] font-bold cursor-pointer"
+                            >
+                              Download
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {inspectTab === 'timeline' && (
+                    <div className="space-y-4 animate-fade-in text-xs">
+                      {/* Customer Activity Timeline */}
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">Recent Customer Events</span>
+                      <div className="space-y-3.5 pl-3 border-l border-[#23324C]/80 ml-1">
+                        {[
+                          { time: 'Jun 26 11:15', text: 'Invoice #INV-0411 ($12,400) dispatched to email.' },
+                          { time: 'Jun 25 09:20', text: 'New load LD-9418 requested for route Chicago ➔ LA.' },
+                          { time: 'Jun 22 14:10', text: 'Credit limit increased by $10,000 via dashboard override.' },
+                          { time: 'Jun 10 10:00', text: 'Master Services Agreement (MSA) signed for 12 months.' }
+                        ].map((evt, i) => (
+                          <div key={i} className="relative">
+                            <span className="absolute left-[-16px] top-1.5 w-1.5 h-1.5 rounded-full bg-brand-500" />
+                            <p className="text-slate-200 text-xs font-semibold leading-normal">{evt.text}</p>
+                            <span className="text-[9.5px] text-slate-500 font-mono mt-0.5 block">{evt.time}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1300,6 +2994,31 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
                   </div>
                 </div>
               )}
+
+              {/* --- ASSET DETAIL --- */}
+              {drawerType === 'asset' && (
+                <div className="space-y-4">
+                  <div className="p-3 bg-[#111827]/60 border border-[#23324C]/50 rounded-xl space-y-2 text-xs">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase block">Asset Information</span>
+                    <div className="flex justify-between"><span className="text-slate-400">Name</span><span className="text-white font-bold">{selectedItem.name}</span></div>
+                    <div className="flex justify-between"><span className="text-slate-400">Category Type</span><span className="text-slate-300 font-semibold">{selectedItem.type}</span></div>
+                    <div className="flex justify-between"><span className="text-slate-400">Serial Code</span><span className="text-brand-400 font-mono font-bold">{selectedItem.serial}</span></div>
+                  </div>
+
+                  <div className="p-3 bg-[#111827]/60 border border-[#23324C]/50 rounded-xl space-y-2 text-xs">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase block">Maintenance Schedule</span>
+                    <div className="flex justify-between"><span className="text-slate-400">Last Service Date</span><span className="text-slate-300 font-mono">05/15/2026</span></div>
+                    <div className="flex justify-between"><span className="text-slate-400">Next Due Date</span><span className="text-amber-400 font-mono font-bold">08/15/2026</span></div>
+                    <div className="flex justify-between"><span className="text-slate-400">Service Cycle</span><span className="text-slate-300">Every 90 Days</span></div>
+                  </div>
+
+                  <Button variant="outline" size="sm" className="w-full" onClick={() => triggerToast(`Maintenance scheduled for asset: ${selectedItem.name}`)}>
+                    Schedule Asset Maintenance
+                  </Button>
+                </div>
+              )}
+
+
 
               {/* --- FLEET VEHICLE COMPLIANCE TABS --- */}
               {drawerType === 'fleet' && (

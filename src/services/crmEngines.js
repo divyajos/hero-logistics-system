@@ -32,13 +32,33 @@ export const crmMetricsEngine = {
     }, 0);
     const mrr = Math.round(wonRevenue + trialsPotential);
 
+    // New KPIs
+    const newLeadsStageCount = leads.filter(l => l.stage === 'New Lead').length;
+    const demosBooked = demos.filter(d => d.status === 'Upcoming').length;
+    const trialsActive = trials.filter(t => t.status === 'Active').length;
+    const proposalsSent = proposals.filter(p => p.status === 'Sent').length;
+    const dealsWon = wonCount;
+    const dealsLost = leads.filter(l => l.stage === 'Lost').length;
+    const totalPipelineValue = leads
+      .filter(l => l.stage !== 'Won' && l.stage !== 'Lost')
+      .reduce((sum, l) => sum + (l.revenue || 0), 0);
+
     return {
       newLeads: totalLeads,
       activeLeads,
       demoCompleted,
       trialStarted,
       conversion: conversion || 14.8, // fallback to standard if 0
-      mrr: mrr || 42910 // fallback to standard if 0
+      mrr: mrr || 42910, // fallback to standard if 0
+      
+      // Expanded KPIs
+      newLeadsStageCount,
+      demosBooked,
+      trialsActive,
+      proposalsSent,
+      dealsWon,
+      dealsLost,
+      totalPipelineValue
     };
   },
 

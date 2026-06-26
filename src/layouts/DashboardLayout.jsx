@@ -34,6 +34,15 @@ export default function DashboardLayout({ role: roleProp }) {
 
   // Render role dashboard component
   const renderDashboard = (role, tab) => {
+    // Company Admin handles its own tabs inline
+    if (role === 'Company Admin') {
+      if (tab === 'search-results') return <SearchResultsDashboard activeTab={tab} setActiveTab={setActiveTab} />;
+      if (tab === 'settings') return <SettingsPanels activeTab={tab} />;
+      return <CompanyAdminDashboard activeTab={tab} />;
+    }
+    if (role === 'Sales') {
+      return <SalesDashboard activeTab={tab} />;
+    }
     if (tab === 'reports') return <ReportsDashboard activeTab={tab} />;
     if (tab === 'ai-center') return <AiCenterDashboard activeTab={tab} />;
     if (tab === 'settings') return <SettingsPanels activeTab={tab} />;

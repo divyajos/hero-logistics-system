@@ -45,8 +45,17 @@ import { KpiGridSkeleton, TableSkeleton, ListSkeleton } from '../common/Skeleton
 import { 
   Shield, Users, Activity, BarChart, Plus, Check, Edit2, 
   Trash2, Sliders, Palette, FileText, CheckCircle, RefreshCw,
-  AlertCircle, MessageSquare
+  AlertCircle, MessageSquare, Bell, Lock, Key, Database, Clock,
+  TrendingUp, Zap, Server, Globe, Mail, Copy, RotateCcw, Download,
+  ArrowRight, ChevronDown, ChevronUp, Eye, BarChart2, Settings2,
+  ShieldCheck
 } from 'lucide-react';
+
+import {
+  ResponsiveContainer, AreaChart, Area,
+  BarChart as RechartBar, Bar, XAxis, YAxis, CartesianGrid,
+  Tooltip as RechartTooltip, Legend, PieChart, Pie, Cell
+} from 'recharts';
 
 export default function SuperAdminDashboard({ activeTab = 'overview', setActiveTab }) {
   const dispatch = useDispatch();
@@ -209,6 +218,57 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
   const [reportType, setReportType] = useState('Global Platform');
   const [reportFormat, setReportFormat] = useState('PDF');
 
+  // ---- NEW: Support Tickets Filters ----
+  const [supportPriorityFilter, setSupportPriorityFilter] = useState('');
+  const [supportStatusFilter, setSupportStatusFilter] = useState('');
+
+  // ---- NEW: Billing Sub-Tab ----
+  const [billingSubTab, setBillingSubTab] = useState('Invoices');
+
+  // ---- NEW: Settings Sub-Tab ----
+  const [settingsSubTab, setSettingsSubTab] = useState('general');
+
+  // ---- NEW: AI Feature Toggles ----
+  const [aiFeatureToggles, setAiFeatureToggles] = useState(() => {
+    const saved = localStorage.getItem('hero_ai_toggles');
+    if (saved) try { return JSON.parse(saved); } catch(e) {}
+    return {
+      'Load Parse AI': true,
+      'Receipt Scan OCR': true,
+      'Odometer Detection': true,
+      'Smart Dispatch': false,
+      'ETA Prediction': true,
+      'Chat Assistant': false
+    };
+  });
+  const [aiLimits, setAiLimits] = useState({ loadParse: '85', ocrScan: '90', odometer: '95', dailyCalls: '1000' });
+
+  // ---- NEW: SMTP / Notification / Security Settings ----
+  const [smtpSettings, setSmtpSettings] = useState({ host: 'smtp.mailgun.org', port: '587', username: 'platform@hero-logistics.com', fromName: 'Hero Logistics Platform', fromEmail: 'noreply@hero-logistics.com' });
+  const [notifToggles, setNotifToggles] = useState({ failedPayment: true, trialExpiry: true, renewalReminder: true, highLoad: false, slaAlert: true, securityAlert: true, platformError: false });
+  const [maintenanceMode, setMaintenanceMode] = useState(false);
+  const [sessionTimeout, setSessionTimeout] = useState('60');
+
+  // ---- NEW: API Keys Management ----
+  const [apiKeysList, setApiKeysList] = useState(() => {
+    const saved = localStorage.getItem('hero_api_keys');
+    if (saved) try { return JSON.parse(saved); } catch(e) {}
+    return [
+      { id: 1, name: 'Production API Key', key: 'hlk_prod_xK9m...', created: '2026-01-15', lastUsed: '2026-06-26', status: 'Active' },
+      { id: 2, name: 'Staging API Key', key: 'hlk_stg_pQ4n...', created: '2026-03-01', lastUsed: '2026-06-20', status: 'Active' },
+      { id: 3, name: 'Webhook Integration', key: 'hlk_wh_rT8k...', created: '2026-04-10', lastUsed: '2026-06-25', status: 'Active' }
+    ];
+  });
+
+  // ---- NEW: Transfers ----
+  const [transferExpandedId, setTransferExpandedId] = useState(null);
+  const [transferStatusFilter, setTransferStatusFilter] = useState('');
+  const [transferSearchQuery, setTransferSearchQuery] = useState('');
+
+  // ---- NEW: Audit Logs Filters ----
+  const [auditLogsActionFilter, setAuditLogsActionFilter] = useState('');
+  const [auditLogsDateFilter, setAuditLogsDateFilter] = useState('');
+
   // Subscriptions Tab Specific States
   const [subSearchQuery, setSubSearchQuery] = useState('');
   const [subIdSearchQuery, setSubIdSearchQuery] = useState('');
@@ -228,6 +288,14 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
   const [editSubModalOpen, setEditSubModalOpen] = useState(false);
   const [editSubRenewalDate, setEditSubRenewalDate] = useState('');
   const [editSubAutoRenewal, setEditSubAutoRenewal] = useState(true);
+
+  // ---- Mock Transfers Data ----
+  const mockTransfers = [
+    { id: 'TRF-501', from: 'Swift Cargo Express', to: 'Global Shipping Co.', item: 'Tesla Model 3 — VIN-901', status: 'Completed', date: '2026-06-20', requestedBy: 'admin@swift.com', chain: ['Swift Cargo Express', 'Transfer Hub Alpha', 'Global Shipping Co.'] },
+    { id: 'TRF-502', from: 'Apex Logistics', to: 'Vance Transport Ltd.', item: 'General Freight Pallets × 24', status: 'Transit', date: '2026-06-22', requestedBy: 'ops@apex.com', chain: ['Apex Logistics', 'Vance Transport Ltd.'] },
+    { id: 'TRF-503', from: 'Blue Ocean Freight', to: 'Mountain Peak Carriers', item: 'Reefer Container — 40FT', status: 'Pending', date: '2026-06-25', requestedBy: 'dispatch@blueocean.com', chain: ['Blue Ocean Freight', 'Mountain Peak Carriers'] },
+    { id: 'TRF-504', from: 'Prime Delivery Services', to: 'FastTrack Networks', item: 'Hazmat Class B Drums × 8', status: 'Rejected', date: '2026-06-18', requestedBy: 'safety@prime.com', chain: ['Prime Delivery Services', 'FastTrack Networks'] }
+  ];
 
   const activeCompany = selectedCompany ? (tenants.find(t => t.id === selectedCompany.id) || selectedCompany) : null;
 
@@ -1813,120 +1881,969 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
           )}
 
           {activeTab === 'billing' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-              <h3 className="text-sm font-extrabold text-white">Billing History & Invoices</h3>
-              <DataTable tableName="sa_billing_list" columns={[
-                { key: 'id', label: 'Invoice ID', render: (row) => <span>#INV-{row.id}</span> },
-                { key: 'company', label: 'Company Name', render: (row) => <span>{row.name}</span> },
-                { key: 'plan', label: 'Tier Plan', render: (row) => <span>{row.plan}</span> },
-                { key: 'amount', label: 'Monthly Invoiced', render: (row) => <span>{row.plan === 'Starter' ? '$199.00' : row.plan === 'Professional' ? '$499.00' : '$1,299.00'}</span> },
-                {
-                  key: 'actions',
-                  label: 'Actions',
-                  render: (row) => (
-                    <Button size="sm" variant="secondary" onClick={() => triggerToast(`Billing history details open for ${row.name}`)}>
-                      View Billing
-                    </Button>
-                  )
-                }
-              ]} data={tenants} />
+            <div className="space-y-6">
+              {/* Billing KPI Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                <StatCard title="Total Revenue" value={`$${(calculatedMrrVal * 6).toLocaleString()}`} description="Cumulative 6-month revenue" trend="+12%" trendDirection="up" />
+                <StatCard title="Monthly MRR" value={formattedMrr} description="Current monthly baseline" trend="+8%" trendDirection="up" />
+                <StatCard title="Paid Invoices" value={tenants.filter(t => t.status === 'Active').length} description="Successfully collected" trend="Stable" trendDirection="neutral" />
+                <StatCard title="Unpaid Invoices" value={tenants.filter(t => t.status === 'Hold').length} description="Awaiting payment" trend="Alert" trendDirection="down" />
+                <StatCard title="Failed Payments" value={tenants.filter(t => t.status === 'Hold').length} description="Gateway errors" trend="0 issues" trendDirection="neutral" />
+                <StatCard title="Refunds Issued" value={0} description="Dispute resolutions" trend="Clean" trendDirection="neutral" />
+              </div>
+
+              {/* Revenue Chart */}
+              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left">
+                <h3 className="text-sm font-extrabold text-white mb-3">Monthly Revenue Trend (USD)</h3>
+                <MiniChart type="line" data={monthlyRevenueTrend} labels={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']} />
+              </div>
+
+              {/* Billing Sub-Tabs */}
+              <div className="glass rounded-2xl border border-[#23324C]/60 overflow-hidden">
+                <div className="flex gap-1 border-b border-[#23324C]/50 p-3 overflow-x-auto scrollbar-none">
+                  {['Invoices', 'Payments', 'Failed Payments', 'Tax / GST Summary'].map(tab => (
+                    <button key={tab} onClick={() => setBillingSubTab(tab)} className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wide whitespace-nowrap transition-all cursor-pointer ${
+                      billingSubTab === tab ? 'bg-brand-500 text-slate-950 shadow-md' : 'bg-[#111827]/40 border border-[#23324C]/50 text-slate-400 hover:text-slate-200'
+                    }`}>{tab}</button>
+                  ))}
+                </div>
+                <div className="p-5 text-xs">
+
+                  {billingSubTab === 'Invoices' && (
+                    <div className="overflow-x-auto rounded-xl border border-[#23324C]/50">
+                      <table className="w-full text-xs text-slate-350">
+                        <thead className="bg-[#161F30]/60 text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                          <tr>
+                            <th className="p-3 text-left">Invoice ID</th>
+                            <th className="p-3 text-left">Company</th>
+                            <th className="p-3 text-left">Plan Tier</th>
+                            <th className="p-3 text-right">Amount</th>
+                            <th className="p-3 text-center">Status</th>
+                            <th className="p-3 text-left">Due Date</th>
+                            <th className="p-3 text-center">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[#23324C]/30">
+                          {tenants.map((row, idx) => (
+                            <tr key={row.id} className="hover:bg-slate-800/20">
+                              <td className="p-3 font-mono font-bold text-slate-400">#INV-{1000 + idx + 1}</td>
+                              <td className="p-3 font-bold text-white">{row.name}</td>
+                              <td className="p-3 text-slate-300">{row.plan}</td>
+                              <td className="p-3 text-right font-bold text-emerald-400">{row.plan === 'Starter' ? '$199.00' : row.plan === 'Professional' ? '$499.00' : '$1,299.00'}</td>
+                              <td className="p-3 text-center">
+                                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                                  row.status === 'Active' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                                }`}>{row.status === 'Active' ? 'Paid' : 'Unpaid'}</span>
+                              </td>
+                              <td className="p-3 text-slate-400 font-mono text-[10px]">07/01/2026</td>
+                              <td className="p-3 text-center">
+                                <div className="flex gap-1 justify-center">
+                                  <Button size="sm" variant="secondary" onClick={() => triggerToast(`Invoice #INV-${1000 + idx + 1} PDF generated.`)}>Download</Button>
+                                  <Button size="sm" variant="outline" onClick={() => { setTempCompany(row); setInvoiceAmount(String(row.plan === 'Starter' ? 199 : row.plan === 'Professional' ? 499 : 1299)); setInvoicePeriod('June 2026'); setInvoiceModalOpen(true); }}>Regenerate</Button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  {billingSubTab === 'Payments' && (
+                    <div className="overflow-x-auto rounded-xl border border-[#23324C]/50">
+                      <table className="w-full text-xs text-slate-350">
+                        <thead className="bg-[#161F30]/60 text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                          <tr>
+                            <th className="p-3 text-left">Payment ID</th>
+                            <th className="p-3 text-left">Company</th>
+                            <th className="p-3 text-left">Method</th>
+                            <th className="p-3 text-right">Amount</th>
+                            <th className="p-3 text-left">Date</th>
+                            <th className="p-3 text-center">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[#23324C]/30">
+                          {tenants.filter(t => t.status === 'Active').map((row, idx) => (
+                            <tr key={row.id} className="hover:bg-slate-800/20">
+                              <td className="p-3 font-mono font-bold text-slate-400">#PAY-{2000 + idx + 1}</td>
+                              <td className="p-3 font-bold text-white">{row.name}</td>
+                              <td className="p-3 text-slate-400">Stripe Card ····{4000 + idx}</td>
+                              <td className="p-3 text-right font-bold text-emerald-400">{row.plan === 'Starter' ? '$199.00' : row.plan === 'Professional' ? '$499.00' : '$1,299.00'}</td>
+                              <td className="p-3 text-slate-400 font-mono text-[10px]">06/{String(idx + 1).padStart(2, '0')}/2026</td>
+                              <td className="p-3 text-center"><span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full text-[9px] font-bold">Successful</span></td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+
+                  {billingSubTab === 'Failed Payments' && (
+                    <div className="space-y-4">
+                      {tenants.filter(t => t.status === 'Hold').length === 0 ? (
+                        <div className="text-center py-12 text-slate-500 text-xs italic">✅ No failed payments detected. Gateway is healthy.</div>
+                      ) : (
+                        <div className="overflow-x-auto rounded-xl border border-[#23324C]/50">
+                          <table className="w-full text-xs text-slate-350">
+                            <thead className="bg-[#161F30]/60 text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                              <tr>
+                                <th className="p-3 text-left">Company</th>
+                                <th className="p-3 text-right">Amount</th>
+                                <th className="p-3 text-left">Failure Reason</th>
+                                <th className="p-3 text-center">Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-[#23324C]/30">
+                              {tenants.filter(t => t.status === 'Hold').map(row => (
+                                <tr key={row.id} className="hover:bg-slate-800/20">
+                                  <td className="p-3 font-bold text-white">{row.name}</td>
+                                  <td className="p-3 text-right font-bold text-red-400">{row.plan === 'Starter' ? '$199.00' : row.plan === 'Professional' ? '$499.00' : '$1,299.00'}</td>
+                                  <td className="p-3 text-slate-400">Card Declined — Insufficient Funds</td>
+                                  <td className="p-3 text-center">
+                                    <div className="flex gap-1 justify-center">
+                                      <Button size="sm" variant="outline" onClick={() => triggerToast(`Retrying payment for ${row.name}...`)}>Retry</Button>
+                                      <Button size="sm" variant="secondary" onClick={() => handleSendReminder(row.id, row.name)}>Send Reminder</Button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {billingSubTab === 'Tax / GST Summary' && (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center text-[10px]">
+                        {[
+                          { label: 'Total Tax Collected', value: `$${Math.round(calculatedMrrVal * 0.1).toLocaleString()}`, color: 'text-brand-400' },
+                          { label: 'GST Rate', value: '10%', color: 'text-white' },
+                          { label: 'Tax Filing Period', value: 'Q2 2026', color: 'text-emerald-400' },
+                          { label: 'Nexus States', value: '8 States', color: 'text-amber-400' }
+                        ].map(s => (
+                          <div key={s.label} className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3">
+                            <span className={`text-sm font-black block ${s.color}`}>{s.value}</span>
+                            <span className="text-slate-500 text-[9px] uppercase font-bold">{s.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="overflow-x-auto rounded-xl border border-[#23324C]/50">
+                        <table className="w-full text-xs text-slate-350">
+                          <thead className="bg-[#161F30]/60 text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                            <tr>
+                              <th className="p-3 text-left">Company</th>
+                              <th className="p-3 text-right">Invoice Amount</th>
+                              <th className="p-3 text-right">Tax Rate</th>
+                              <th className="p-3 text-right">Tax Amount</th>
+                              <th className="p-3 text-right">Total Inc. Tax</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-[#23324C]/30">
+                            {tenants.filter(t => t.status === 'Active').map(row => {
+                              const base = row.plan === 'Starter' ? 199 : row.plan === 'Professional' ? 499 : 1299;
+                              const tax = Math.round(base * 0.1 * 100) / 100;
+                              return (
+                                <tr key={row.id} className="hover:bg-slate-800/20">
+                                  <td className="p-3 font-bold text-white">{row.name}</td>
+                                  <td className="p-3 text-right text-slate-300 font-mono">${base.toFixed(2)}</td>
+                                  <td className="p-3 text-right text-slate-400">10%</td>
+                                  <td className="p-3 text-right text-amber-400 font-bold font-mono">${tax.toFixed(2)}</td>
+                                  <td className="p-3 text-right text-emerald-400 font-black font-mono">${(base + tax).toFixed(2)}</td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+              </div>
+
+              {/* Export Actions */}
+              <div className="p-4 bg-[#111827]/40 border border-[#23324C]/60 rounded-xl flex items-center justify-between">
+                <span className="text-[10px] text-slate-400 font-bold">Export billing records:</span>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={() => triggerToast('Exporting billing PDF report...')}>PDF Report</Button>
+                  <Button size="sm" variant="outline" onClick={() => triggerToast('Exporting billing CSV...')}>CSV Export</Button>
+                  <Button size="sm" variant="outline" onClick={() => triggerToast('Exporting tax summary...')}>Tax Report</Button>
+                </div>
+              </div>
             </div>
           )}
 
           {activeTab === 'analytics' && (
             <div className="space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <StatCard title="Total Platform Bandwidth" value="4.2 TB/mo" description="Data load limits" progress={42} />
-                <StatCard title="API Ingestion Response" value="45 ms" description="Latency statistics" progress={12} />
-                <StatCard title="Monthly SLA Target" value="99.98%" description="Target threshold uptime" progress={99} />
+              {/* 8 KPI Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <StatCard title="Platform Revenue" value={formattedArr} description="Annual recurring revenue" trend="+12%" trendDirection="up" />
+                <StatCard title="MRR Growth" value="+8.2%" description="Month-over-month" trend="Growing" trendDirection="up" />
+                <StatCard title="Company Growth" value={`+${tenants.length}`} description="Total registered tenants" trend="+2 MTD" trendDirection="up" />
+                <StatCard title="Active Users" value={tenants.reduce((a, t) => a + (t.users || 3), 0)} description="Platform users online" trend="+3 active" trendDirection="up" />
+                <StatCard title="API Requests/min" value="1,250 RPM" description="Current throughput rate" trend="Stable" trendDirection="neutral" />
+                <StatCard title="Storage Used" value={`${calculatedStorage.toFixed(2)} TB`} description="Total of 10 TB capacity" trend="Normal" trendDirection="neutral" />
+                <StatCard title="Login Events" value={tenants.length * 14} description="User sessions (30 days)" trend="+5%" trendDirection="up" />
+                <StatCard title="SLA Score" value="99.98%" description="Monthly uptime performance" trend="Target Met" trendDirection="up" />
               </div>
-              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left">
-                <h3 className="text-sm font-extrabold text-white mb-3">Live Platform SLA Uptime timeline (%)</h3>
-                <MiniChart type="line" data={[99.9, 99.95, 99.98, 99.92, 99.99, 99.98]} labels={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']} />
+
+              {/* Revenue + Company Growth Charts */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div className="lg:col-span-8 glass rounded-2xl p-5 border border-[#23324C]/60 text-left">
+                  <h3 className="text-sm font-extrabold text-white mb-1">Platform Revenue Analytics (USD)</h3>
+                  <p className="text-[10px] text-slate-500 mb-4">Monthly MRR vs Annual projection baseline.</p>
+                  <MiniChart type="line" data={monthlyRevenueTrend} labels={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']} />
+                </div>
+                <div className="lg:col-span-4 glass rounded-2xl p-5 border border-[#23324C]/60 text-left">
+                  <h3 className="text-sm font-extrabold text-white mb-1">Company Growth</h3>
+                  <p className="text-[10px] text-slate-500 mb-4">New tenants provisioned per month.</p>
+                  <MiniChart type="bar" data={[1, 2, 1, 3, 2, tenants.length]} labels={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']} />
+                </div>
+              </div>
+
+              {/* Module Usage Analytics */}
+              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                <div>
+                  <h3 className="text-sm font-extrabold text-white">Module Usage Analytics</h3>
+                  <p className="text-[10px] text-slate-500">Most accessed platform modules across all tenants.</p>
+                </div>
+                <div className="space-y-3">
+                  {[
+                    { module: 'Dispatch / Load Management', usage: 94, color: 'bg-brand-500' },
+                    { module: 'Live GPS Tracking', usage: 87, color: 'bg-emerald-500' },
+                    { module: 'Driver Management', usage: 82, color: 'bg-indigo-500' },
+                    { module: 'Vehicle / Fleet', usage: 76, color: 'bg-amber-500' },
+                    { module: 'Warehouse / Yard', usage: 68, color: 'bg-purple-500' },
+                    { module: 'Accounts / Payroll', usage: 61, color: 'bg-cyan-500' },
+                    { module: 'AI Load Parsing', usage: 54, color: 'bg-pink-500' },
+                    { module: 'Customer Portal', usage: 48, color: 'bg-orange-500' }
+                  ].map(item => (
+                    <div key={item.module} className="flex items-center gap-3 text-xs">
+                      <span className="text-slate-400 font-semibold w-52 flex-shrink-0">{item.module}</span>
+                      <div className="flex-1 bg-slate-900 rounded-full h-2">
+                        <div className={`${item.color} h-full rounded-full transition-all`} style={{ width: `${item.usage}%` }} />
+                      </div>
+                      <span className="font-mono font-bold text-white w-10 text-right">{item.usage}%</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* API Usage & Storage */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
+                  <h3 className="text-sm font-extrabold text-white">API Usage Timeline</h3>
+                  <p className="text-[10px] text-slate-500">API requests processed per day.</p>
+                  <MiniChart type="line" data={[980, 1120, 1050, 1300, 1200, 1250]} labels={['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Today']} />
+                </div>
+                <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
+                  <h3 className="text-sm font-extrabold text-white">Storage Usage per Company</h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-[10px] text-slate-350">
+                      <thead className="text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                        <tr><th className="pb-2 text-left">Company</th><th className="pb-2 text-right">Storage</th><th className="pb-2 text-right">% of Limit</th></tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#23324C]/20">
+                        {tenants.slice(0, 6).map((t, i) => {
+                          const storage = (((t.users || 1) * 5 + (t.drivers || 0) * 10 + (t.vehicles || 0) * 15) / 1000);
+                          const pct = Math.min(100, storage * 100);
+                          return (
+                            <tr key={t.id}>
+                              <td className="py-2 font-bold text-white">{t.name}</td>
+                              <td className="py-2 text-right font-mono text-slate-300">{storage.toFixed(2)} TB</td>
+                              <td className="py-2 text-right">
+                                <div className="flex items-center gap-2 justify-end">
+                                  <div className="w-16 bg-slate-900 rounded-full h-1">
+                                    <div className={`h-full rounded-full ${pct > 80 ? 'bg-red-500' : 'bg-brand-500'}`} style={{ width: `${Math.max(pct, 2)}%` }} />
+                                  </div>
+                                  <span className="font-mono font-bold">{pct.toFixed(0)}%</span>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              {/* Login Analytics */}
+              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
+                <h3 className="text-sm font-extrabold text-white">Login Analytics</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs text-slate-350">
+                    <thead className="bg-[#161F30]/60 text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                      <tr>
+                        <th className="p-3 text-left">Company</th>
+                        <th className="p-3 text-center">Monthly Logins</th>
+                        <th className="p-3 text-center">Active Users</th>
+                        <th className="p-3 text-left">Last Login</th>
+                        <th className="p-3 text-center">Activity Score</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#23324C]/30">
+                      {tenants.map((t, i) => (
+                        <tr key={t.id} className="hover:bg-slate-800/20">
+                          <td className="p-3 font-bold text-white">{t.name}</td>
+                          <td className="p-3 text-center font-mono">{(t.users || 3) * 14 + i * 2}</td>
+                          <td className="p-3 text-center font-mono text-brand-400 font-bold">{t.users || 3}</td>
+                          <td className="p-3 text-slate-400 font-mono text-[10px]">{t.lastLogin || 'Today, 03:24 PM'}</td>
+                          <td className="p-3 text-center">
+                            <div className="flex items-center gap-2 justify-center">
+                              <div className="w-16 bg-slate-900 rounded-full h-1.5">
+                                <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${70 + (i * 5) % 30}%` }} />
+                              </div>
+                              <span className="font-mono font-bold text-emerald-400 text-[10px]">{70 + (i * 5) % 30}%</span>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           )}
 
           {activeTab === 'transfers' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-              <h3 className="text-sm font-extrabold text-white">Inter-Company Transfers Audit Logs</h3>
-              <DataTable tableName="sa_transfers_list" columns={[
-                { key: 'id', label: 'Transfer ID', render: (row) => <span>#{row.id}</span> },
-                { key: 'from', label: 'Origin Company', render: (row) => <span>{row.from}</span> },
-                { key: 'to', label: 'Target Company', render: (row) => <span>{row.to}</span> },
-                { key: 'item', label: 'Item Manifest', render: (row) => <span>{row.item}</span> },
-                { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> },
-                {
-                  key: 'actions',
-                  label: 'Actions',
-                  render: (row) => (
-                    <Button size="sm" variant="secondary" onClick={() => triggerToast(`Transfer Chain Audit Trail: ${row.id}`)}>
-                      View Transfer Chain
-                    </Button>
-                  )
-                }
-              ]} data={[
-                { id: 'TRF-501', from: 'Swift Cargo', to: 'Global Shipping', item: 'Tesla Model 3 VIN-901', status: 'Completed' },
-                { id: 'TRF-502', from: 'Apex Logistics', to: 'Vance Transport', item: 'General Freight Pallets x 24', status: 'Transit' }
-              ]} />
+            <div className="space-y-6">
+              {/* KPI Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+                <StatCard title="Total Transfers" value={mockTransfers.length} description="All-time platform transfers" trend="Synced" trendDirection="neutral" />
+                <StatCard title="Completed" value={mockTransfers.filter(t => t.status === 'Completed').length} description="Successfully delivered" trend="Stable" trendDirection="neutral" />
+                <StatCard title="In Transit" value={mockTransfers.filter(t => t.status === 'Transit').length} description="Currently in transit" trend="Active" trendDirection="neutral" />
+                <StatCard title="Pending Approval" value={mockTransfers.filter(t => t.status === 'Pending').length} description="Awaiting admin approval" trend="Alert" trendDirection="down" />
+                <StatCard title="Rejected" value={mockTransfers.filter(t => t.status === 'Rejected').length} description="Denied transfers" trend="Stable" trendDirection="neutral" />
+              </div>
+
+              {/* Transfer Registry */}
+              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-extrabold text-white">Inter-Company Transfer Registry</h3>
+                    <p className="text-[10px] text-slate-500">Full audit log of all platform asset and load transfers.</p>
+                  </div>
+                  <div className="flex gap-3 items-center">
+                    <SearchInput value={transferSearchQuery} onChange={(e) => setTransferSearchQuery(e.target.value)} onClear={() => setTransferSearchQuery('')} placeholder="Search transfers..." className="w-full sm:max-w-[180px]" />
+                    <select value={transferStatusFilter} onChange={(e) => setTransferStatusFilter(e.target.value)} className="bg-[#0B0F19] border border-[#23324C] rounded-lg p-2 text-xs text-slate-300 outline-none font-semibold cursor-pointer">
+                      <option value="">All Statuses</option>
+                      <option value="Completed">Completed</option>
+                      <option value="Transit">In Transit</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Rejected">Rejected</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {mockTransfers.filter(t => {
+                    const q = transferSearchQuery.toLowerCase();
+                    const matchSearch = !transferSearchQuery || t.id.toLowerCase().includes(q) || t.from.toLowerCase().includes(q) || t.to.toLowerCase().includes(q) || t.item.toLowerCase().includes(q);
+                    const matchStatus = !transferStatusFilter || t.status === transferStatusFilter;
+                    return matchSearch && matchStatus;
+                  }).map(transfer => (
+                    <div key={transfer.id} className="border border-[#23324C]/60 rounded-xl overflow-hidden">
+                      <div className="flex items-center justify-between p-4 bg-[#111827]/30">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="font-mono font-bold text-slate-400 text-[10px]">#{transfer.id}</span>
+                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                              transfer.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                              transfer.status === 'Transit' ? 'bg-brand-500/10 text-brand-400 border border-brand-500/20' :
+                              transfer.status === 'Pending' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+                              'bg-red-500/10 text-red-400 border border-red-500/20'
+                            }`}>{transfer.status}</span>
+                          </div>
+                          <p className="text-xs font-bold text-white">{transfer.item}</p>
+                          <p className="text-[10px] text-slate-500 mt-0.5">
+                            <span className="text-slate-300">{transfer.from}</span>
+                            <span className="mx-2">→</span>
+                            <span className="text-slate-300">{transfer.to}</span>
+                            <span className="ml-3 font-mono">{transfer.date}</span>
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button size="sm" variant={transfer.status === 'Pending' ? 'success' : 'secondary'} onClick={() => {
+                            if (transfer.status === 'Pending') {
+                              logAuditAction('Transfer Approved', `Transfer ${transfer.id} approved.`);
+                              triggerToast(`Transfer ${transfer.id} approved successfully.`);
+                            } else {
+                              triggerToast(`Viewing full audit trail for ${transfer.id}.`);
+                            }
+                          }}>{transfer.status === 'Pending' ? 'Approve' : 'Audit Trail'}</Button>
+                          {transfer.status === 'Pending' && (
+                            <Button size="sm" variant="danger" onClick={() => { logAuditAction('Transfer Rejected', `Transfer ${transfer.id} rejected.`); triggerToast(`Transfer ${transfer.id} rejected.`, 'warning'); }}>Reject</Button>
+                          )}
+                          <button onClick={() => setTransferExpandedId(transferExpandedId === transfer.id ? null : transfer.id)} className="p-1.5 text-slate-400 hover:text-white cursor-pointer">
+                            {transferExpandedId === transfer.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Transfer Chain Viewer */}
+                      {transferExpandedId === transfer.id && (
+                        <div className="border-t border-[#23324C]/50 p-4 bg-[#0B0F19]/30">
+                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-3">Transfer Chain Viewer</p>
+                          <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-2">
+                            {transfer.chain.map((node, nIdx) => (
+                              <React.Fragment key={nIdx}>
+                                <div className="flex-shrink-0 bg-[#111827] border border-[#23324C]/60 rounded-xl px-3 py-2 text-center min-w-[120px]">
+                                  <div className={`w-2 h-2 rounded-full mx-auto mb-1.5 ${nIdx < transfer.chain.length - 1 || transfer.status === 'Completed' ? 'bg-emerald-400' : 'bg-amber-400 animate-pulse'}`} />
+                                  <p className="text-[9px] font-bold text-white">{node}</p>
+                                  <p className="text-[8px] text-slate-500 mt-0.5">{nIdx === 0 ? 'Origin' : nIdx === transfer.chain.length - 1 ? 'Destination' : 'Transit Hub'}</p>
+                                </div>
+                                {nIdx < transfer.chain.length - 1 && <ArrowRight className="h-4 w-4 text-slate-500 flex-shrink-0" />}
+                              </React.Fragment>
+                            ))}
+                          </div>
+                          <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px]">
+                            <div><span className="text-slate-500 block">Requested By</span><span className="font-bold text-white">{transfer.requestedBy}</span></div>
+                            <div><span className="text-slate-500 block">Transfer Date</span><span className="font-bold text-white font-mono">{transfer.date}</span></div>
+                            <div><span className="text-slate-500 block">Transfer ID</span><span className="font-mono font-bold text-brand-400">{transfer.id}</span></div>
+                            <div><span className="text-slate-500 block">Status</span><StatusBadge status={transfer.status} /></div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Transfer Permissions Matrix */}
+                <div className="pt-4 border-t border-[#23324C]/40 space-y-3">
+                  <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider">Company Transfer Permissions Matrix</h4>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-[10px] text-slate-350">
+                      <thead className="text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                        <tr><th className="pb-2 text-left">Company</th><th className="pb-2 text-center">Can Send</th><th className="pb-2 text-center">Can Receive</th><th className="pb-2 text-center">Auto-Approve</th></tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#23324C]/20">
+                        {tenants.slice(0, 5).map((t, i) => (
+                          <tr key={t.id}>
+                            <td className="py-2 font-bold text-white">{t.name}</td>
+                            <td className="py-2 text-center"><span className={i % 3 !== 0 ? 'text-emerald-400 font-bold' : 'text-red-400 font-bold'}>{i % 3 !== 0 ? '✓ Yes' : '✗ No'}</span></td>
+                            <td className="py-2 text-center"><span className="text-emerald-400 font-bold">✓ Yes</span></td>
+                            <td className="py-2 text-center">
+                              <button onClick={() => triggerToast(`Auto-approve toggled for ${t.name}.`)} className="text-[9px] px-2 py-0.5 rounded font-bold cursor-pointer border border-[#23324C]/60 hover:border-brand-500/40 text-slate-400 hover:text-slate-200">{i % 2 === 0 ? 'Enabled' : 'Disabled'}</button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
           {activeTab === 'ai-controls' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-              <h3 className="text-sm font-extrabold text-white">Global Platform AI Configurations</h3>
-              <div className="space-y-4 max-w-md">
-                <TextInput label="Load Parse Confidence threshold (%)" defaultValue="85" />
-                <TextInput label="Receipt Scan OCR Confidence threshold (%)" defaultValue="90" />
-                <TextInput label="Odometer Image Confidence threshold (%)" defaultValue="95" />
-                <Button variant="primary" onClick={() => triggerToast('Global AI confidence settings saved.')}>
-                  Save AI Controls
-                </Button>
+            <div className="space-y-6">
+              {/* AI KPI Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                <StatCard title="AI Features Active" value={Object.values(aiFeatureToggles).filter(Boolean).length} description="Enabled AI modules" trend="Stable" trendDirection="neutral" />
+                <StatCard title="AI Requests Today" value="4,820" description="Processed model inferences" trend="+12%" trendDirection="up" />
+                <StatCard title="Avg Latency" value="142 ms" description="Model inference response time" trend="Good" trendDirection="neutral" />
+                <StatCard title="Success Rate" value="98.7%" description="Successful AI job completions" trend="Target Met" trendDirection="up" />
+                <StatCard title="Failed Requests" value="62" description="Errors in last 24 hrs" trend="Low" trendDirection="neutral" />
+                <StatCard title="AI Storage" value="0.84 TB" description="Model artifacts + embeddings" trend="Stable" trendDirection="neutral" />
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* AI Feature Toggles */}
+                <div className="lg:col-span-5 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                  <div>
+                    <h3 className="text-sm font-extrabold text-white">AI Feature Enable / Disable</h3>
+                    <p className="text-[10px] text-slate-500">Control which AI modules are active globally.</p>
+                  </div>
+                  <div className="space-y-3">
+                    {Object.entries(aiFeatureToggles).map(([feature, enabled]) => (
+                      <div key={feature} className="flex items-center justify-between p-3 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl">
+                        <div>
+                          <span className="text-xs font-bold text-white block">{feature}</span>
+                          <span className={`text-[9px] font-bold ${enabled ? 'text-emerald-400' : 'text-slate-500'}`}>{enabled ? '● Active' : '○ Inactive'}</span>
+                        </div>
+                        <button
+                          onClick={() => {
+                            const updated = { ...aiFeatureToggles, [feature]: !enabled };
+                            setAiFeatureToggles(updated);
+                            localStorage.setItem('hero_ai_toggles', JSON.stringify(updated));
+                            logAuditAction('AI Feature Toggle', `${feature} ${!enabled ? 'enabled' : 'disabled'}.`);
+                            triggerToast(`${feature} ${!enabled ? 'enabled' : 'disabled'}.`, !enabled ? 'success' : 'warning');
+                          }}
+                          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer flex-shrink-0 ${enabled ? 'bg-brand-500' : 'bg-slate-700'}`}
+                        >
+                          <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow-sm transform transition-transform ${enabled ? 'translate-x-4' : 'translate-x-1'}`} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <Button variant="secondary" size="sm" className="w-full" onClick={() => {
+                    const allEnabled = Object.fromEntries(Object.keys(aiFeatureToggles).map(k => [k, true]));
+                    setAiFeatureToggles(allEnabled);
+                    localStorage.setItem('hero_ai_toggles', JSON.stringify(allEnabled));
+                    triggerToast('All AI features enabled.');
+                  }}>Enable All Features</Button>
+                </div>
+
+                {/* AI Config + Activity Logs */}
+                <div className="lg:col-span-7 space-y-6">
+                  <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                    <div>
+                      <h3 className="text-sm font-extrabold text-white">AI Model Configuration & Limits</h3>
+                      <p className="text-[10px] text-slate-500">Configure confidence thresholds and daily processing limits.</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      {[
+                        { key: 'loadParse', label: 'Load Parse Confidence (%)', unit: '%' },
+                        { key: 'ocrScan', label: 'Receipt OCR Confidence (%)', unit: '%' },
+                        { key: 'odometer', label: 'Odometer Detection (%)', unit: '%' },
+                        { key: 'dailyCalls', label: 'Daily API Call Limit', unit: '/day' }
+                      ].map(field => (
+                        <div key={field.key} className="space-y-1.5">
+                          <label className="text-[10px] text-slate-400 font-bold block">{field.label}</label>
+                          <div className="flex items-center gap-1">
+                            <input type="number" value={aiLimits[field.key]} onChange={(e) => setAiLimits(prev => ({ ...prev, [field.key]: e.target.value }))} className="flex-1 bg-[#0B0F19]/50 border border-[#23324C] hover:border-brand-500/20 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                            <span className="text-[10px] text-slate-500 font-mono">{field.unit}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <Button variant="primary" size="sm" onClick={() => { logAuditAction('AI Config Saved', 'AI model thresholds and limits updated.'); triggerToast('AI model configuration saved successfully.'); }}>Save AI Configuration</Button>
+                  </div>
+
+                  <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
+                    <div>
+                      <h3 className="text-sm font-extrabold text-white">AI Activity Logs</h3>
+                      <p className="text-[10px] text-slate-500">Recent AI model events and processing history.</p>
+                    </div>
+                    <div className="space-y-2 max-h-52 overflow-y-auto scrollbar-none">
+                      {[
+                        { feature: 'Load Parse AI', event: 'Confidence threshold crossed — load #LDX-9021 rejected', time: '2026-06-26 16:42', type: 'warning' },
+                        { feature: 'Receipt Scan OCR', event: 'Batch scan completed — 14 receipts processed', time: '2026-06-26 15:30', type: 'success' },
+                        { feature: 'Odometer Detection', event: 'Anomaly detected — vehicle #VH-443 odometer mismatch', time: '2026-06-26 14:15', type: 'error' },
+                        { feature: 'Smart Dispatch', event: 'Feature disabled by administrator', time: '2026-06-26 12:00', type: 'info' },
+                        { feature: 'ETA Prediction', event: 'Model retrained — accuracy improved to 94.2%', time: '2026-06-25 22:10', type: 'success' },
+                        ...((auditLogs || []).filter(l => l.action?.includes('AI')).slice(0, 3).map(l => ({ feature: 'Platform', event: l.detail, time: l.time, type: 'info' })))
+                      ].slice(0, 8).map((log, idx) => (
+                        <div key={idx} className="flex gap-3 p-2.5 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl items-start">
+                          <div className={`mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0 ${log.type === 'success' ? 'bg-emerald-400' : log.type === 'error' ? 'bg-red-400' : log.type === 'warning' ? 'bg-amber-400' : 'bg-brand-400'}`} />
+                          <div className="flex-1">
+                            <p className="text-[10px] text-white font-bold">{log.feature}</p>
+                            <p className="text-[10px] text-slate-400">{log.event}</p>
+                          </div>
+                          <span className="text-[9px] text-slate-500 font-mono flex-shrink-0">{log.time}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* AI Usage Analytics */}
+              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
+                <h3 className="text-sm font-extrabold text-white">AI Usage Analytics — Requests by Feature</h3>
+                <div className="space-y-2.5">
+                  {Object.entries(aiFeatureToggles).map(([feature, enabled], i) => {
+                    const requests = enabled ? ([1200, 980, 840, 620, 480, 320][i] || 200) : 0;
+                    return (
+                      <div key={feature} className="flex items-center gap-3 text-xs">
+                        <span className="text-slate-400 font-semibold w-44 flex-shrink-0">{feature}</span>
+                        <div className="flex-1 bg-slate-900 rounded-full h-2">
+                          <div className={`h-full rounded-full transition-all ${enabled ? 'bg-brand-500' : 'bg-slate-700'}`} style={{ width: enabled ? `${(requests / 1200) * 100}%` : '3%' }} />
+                        </div>
+                        <span className="font-mono font-bold text-white w-16 text-right">{requests.toLocaleString()} req</span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}
 
           {activeTab === 'settings' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-              <h3 className="text-sm font-extrabold text-white">Super Admin Settings Profile</h3>
-              <div className="space-y-4 max-w-md">
-                <TextInput label="Support Email" defaultValue="platform-support@hero.com" />
-                <TextInput label="Database Master Endpoint" defaultValue="aurora-cluster-prod.hero-internal" />
-                <Button variant="primary" onClick={() => triggerToast('Platform server connection values updated.')}>
-                  Save Settings
-                </Button>
+            <div className="space-y-6 text-left">
+              <div className="glass rounded-2xl border border-[#23324C]/60 overflow-hidden">
+                <div className="flex gap-1 border-b border-[#23324C]/50 p-3 overflow-x-auto scrollbar-none">
+                  {[
+                    { id: 'general', label: 'General' },
+                    { id: 'smtp', label: 'SMTP / Email' },
+                    { id: 'notifications', label: 'Notifications' },
+                    { id: 'security', label: 'Security' },
+                    { id: 'apikeys', label: 'API Keys' },
+                    { id: 'backup', label: 'Backup & Restore' },
+                    { id: 'auditlogs', label: 'Audit Logs' }
+                  ].map(tab => (
+                    <button key={tab.id} onClick={() => setSettingsSubTab(tab.id)} className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wide whitespace-nowrap transition-all cursor-pointer ${
+                      settingsSubTab === tab.id ? 'bg-brand-500 text-slate-950 shadow-md' : 'bg-[#111827]/40 border border-[#23324C]/50 text-slate-400 hover:text-slate-200'
+                    }`}>{tab.label}</button>
+                  ))}
+                </div>
+
+                <div className="p-5">
+                  {settingsSubTab === 'general' && (
+                    <div className="space-y-5 max-w-2xl">
+                      <div>
+                        <h3 className="text-sm font-extrabold text-white">Platform General Settings</h3>
+                        <p className="text-[10px] text-slate-500 mt-1">Configure core platform parameters and default behaviors.</p>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <TextInput label="Platform Name" defaultValue="Hero Logistics System" />
+                        <TextInput label="Support Email" defaultValue="platform-support@hero.com" />
+                        <TextInput label="Database Master Endpoint" defaultValue="aurora-cluster-prod.hero-internal" />
+                        <TextInput label="Default Timezone" defaultValue="UTC-5 (Eastern)" />
+                        <TextInput label="Default Language" defaultValue="en-US" />
+                        <TextInput label="Platform Version" defaultValue="v4.1.0-enterprise" />
+                      </div>
+                      <div className="p-3 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl flex items-center justify-between">
+                        <div>
+                          <span className="text-xs font-bold text-white block">Maintenance Mode</span>
+                          <span className="text-[9px] text-slate-500">Prevents non-admin logins during maintenance windows.</span>
+                        </div>
+                        <button onClick={() => { setMaintenanceMode(!maintenanceMode); logAuditAction('Maintenance Mode', `Maintenance mode ${!maintenanceMode ? 'enabled' : 'disabled'}.`); triggerToast(`Maintenance mode ${!maintenanceMode ? 'enabled' : 'disabled'}.`, !maintenanceMode ? 'warning' : 'success'); }} className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer focus:outline-none ${maintenanceMode ? 'bg-amber-500' : 'bg-slate-700'}`}>
+                          <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow-sm transform transition-transform ${maintenanceMode ? 'translate-x-4' : 'translate-x-1'}`} />
+                        </button>
+                      </div>
+                      <Button variant="primary" onClick={() => { logAuditAction('Settings Saved', 'General platform settings updated.'); triggerToast('General platform settings saved.'); }}>Save General Settings</Button>
+                    </div>
+                  )}
+
+                  {settingsSubTab === 'smtp' && (
+                    <div className="space-y-5 max-w-2xl">
+                      <div>
+                        <h3 className="text-sm font-extrabold text-white">SMTP / Email Configuration</h3>
+                        <p className="text-[10px] text-slate-500 mt-1">Configure outbound email delivery settings.</p>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {[
+                          { key: 'host', label: 'SMTP Host', type: 'text' },
+                          { key: 'port', label: 'SMTP Port', type: 'text' },
+                          { key: 'username', label: 'SMTP Username', type: 'text' },
+                          { key: 'fromName', label: 'From Name', type: 'text' },
+                          { key: 'fromEmail', label: 'From Email', type: 'email' }
+                        ].map(field => (
+                          <div key={field.key} className="space-y-1.5">
+                            <label className="text-[10px] text-slate-400 font-bold block uppercase">{field.label}</label>
+                            <input type={field.type} value={smtpSettings[field.key]} onChange={e => setSmtpSettings(p => ({ ...p, [field.key]: e.target.value }))} className="w-full bg-[#0B0F19]/50 border border-[#23324C] hover:border-brand-500/20 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                          </div>
+                        ))}
+                        <div className="space-y-1.5">
+                          <label className="text-[10px] text-slate-400 font-bold block uppercase">SMTP Password</label>
+                          <input type="password" defaultValue="••••••••••••" className="w-full bg-[#0B0F19]/50 border border-[#23324C] hover:border-brand-500/20 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                        </div>
+                      </div>
+                      <div className="flex gap-3">
+                        <Button variant="primary" onClick={() => { logAuditAction('SMTP Settings Saved', 'Email server configuration updated.'); triggerToast('SMTP settings saved successfully.'); }}>Save SMTP Settings</Button>
+                        <Button variant="secondary" onClick={() => triggerToast('Test email sent to platform-support@hero.com.')}>Send Test Email</Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {settingsSubTab === 'notifications' && (
+                    <div className="space-y-5">
+                      <div>
+                        <h3 className="text-sm font-extrabold text-white">Notification & Alert Configuration</h3>
+                        <p className="text-[10px] text-slate-500 mt-1">Toggle platform-wide alert notifications.</p>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {[
+                          { key: 'failedPayment', label: 'Failed Payment Alerts', desc: 'Notify when Stripe gateway returns payment failure.' },
+                          { key: 'trialExpiry', label: 'Trial Expiry Alerts', desc: 'Alert 3 days before trial workspaces expire.' },
+                          { key: 'renewalReminder', label: 'Subscription Renewal Alerts', desc: 'Send renewal reminder 7 days before expiry.' },
+                          { key: 'highLoad', label: 'High System Load Alerts', desc: 'Alert when platform CPU exceeds 85% threshold.' },
+                          { key: 'slaAlert', label: 'Support SLA Alerts', desc: 'Escalate when ticket response time exceeds SLA target.' },
+                          { key: 'securityAlert', label: 'Security Alerts', desc: 'Notify on suspicious login activity or brute force.' },
+                          { key: 'platformError', label: 'Platform Error Alerts', desc: 'Alert on 5xx server errors and database failures.' }
+                        ].map(notif => (
+                          <div key={notif.key} className="flex items-center justify-between p-3 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl">
+                            <div className="flex-1 pr-4">
+                              <span className="text-xs font-bold text-white block">{notif.label}</span>
+                              <p className="text-[9px] text-slate-500 leading-normal mt-0.5">{notif.desc}</p>
+                            </div>
+                            <button onClick={() => { const updated = { ...notifToggles, [notif.key]: !notifToggles[notif.key] }; setNotifToggles(updated); triggerToast(`${notif.label} ${!notifToggles[notif.key] ? 'enabled' : 'disabled'}.`); }} className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer flex-shrink-0 ${notifToggles[notif.key] ? 'bg-brand-500' : 'bg-slate-700'}`}>
+                              <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white shadow-sm transform transition-transform ${notifToggles[notif.key] ? 'translate-x-4' : 'translate-x-1'}`} />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <Button variant="primary" onClick={() => { logAuditAction('Notification Settings Saved', 'Alert configurations updated.'); triggerToast('Notification settings saved.'); }}>Save Notification Settings</Button>
+                    </div>
+                  )}
+
+                  {settingsSubTab === 'security' && (
+                    <div className="space-y-5 max-w-2xl">
+                      <div>
+                        <h3 className="text-sm font-extrabold text-white">Security Configuration</h3>
+                        <p className="text-[10px] text-slate-500 mt-1">Manage platform access security policies.</p>
+                      </div>
+                      <div className="space-y-3">
+                        <div className="p-3 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl flex items-center justify-between">
+                          <div>
+                            <span className="text-xs font-bold text-white block">Two-Factor Authentication</span>
+                            <span className="text-[9px] text-slate-500">Enforce TOTP / SMS verification on every Super Admin login.</span>
+                          </div>
+                          <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded text-[9px] font-bold">Enforced</span>
+                        </div>
+                        <div className="p-3 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl space-y-2">
+                          <span className="text-xs font-black text-white">Session Timeout</span>
+                          <div className="flex items-center gap-3">
+                            <label className="text-[10px] text-slate-400 font-bold w-36">Timeout (minutes)</label>
+                            <input type="number" value={sessionTimeout} onChange={e => setSessionTimeout(e.target.value)} className="w-24 bg-[#0B0F19]/50 border border-[#23324C] text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                          </div>
+                        </div>
+                        <div className="p-3 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl space-y-2">
+                          <span className="text-xs font-black text-white">IP Whitelist</span>
+                          <textarea rows={3} defaultValue={`192.168.1.0/24\n10.0.0.0/8\n203.45.12.0/24`} className="w-full bg-[#0B0F19]/50 border border-[#23324C] text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:ring-1 focus:ring-brand-500 font-mono" />
+                          <p className="text-[9px] text-slate-500">One CIDR block per line. Leave blank to allow all IPs.</p>
+                        </div>
+                        <div className="p-3 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl flex items-center justify-between">
+                          <div>
+                            <span className="text-xs font-bold text-white block">Login Attempt Limit</span>
+                            <span className="text-[9px] text-slate-500">Lock account after 5 consecutive failed logins.</span>
+                          </div>
+                          <span className="bg-brand-500/10 text-brand-400 border border-brand-500/20 px-2 py-0.5 rounded text-[9px] font-bold">5 attempts</span>
+                        </div>
+                      </div>
+                      <Button variant="primary" onClick={() => { logAuditAction('Security Settings Saved', 'Platform security policies updated.'); triggerToast('Security configuration saved.'); }}>Save Security Settings</Button>
+                    </div>
+                  )}
+
+                  {settingsSubTab === 'apikeys' && (
+                    <div className="space-y-5">
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <h3 className="text-sm font-extrabold text-white">API Keys Management</h3>
+                          <p className="text-[10px] text-slate-500 mt-1">Manage platform API access credentials.</p>
+                        </div>
+                        <Button variant="primary" size="sm" icon={Plus} onClick={() => {
+                          const newKey = { id: Date.now(), name: `API Key ${apiKeysList.length + 1}`, key: `hlk_${Math.random().toString(36).slice(2, 6)}...`, created: new Date().toISOString().split('T')[0], lastUsed: 'Never', status: 'Active' };
+                          const updated = [...apiKeysList, newKey];
+                          setApiKeysList(updated);
+                          localStorage.setItem('hero_api_keys', JSON.stringify(updated));
+                          triggerToast('New API key generated.');
+                        }}>Generate New Key</Button>
+                      </div>
+                      <div className="space-y-3">
+                        {apiKeysList.map(apiKey => (
+                          <div key={apiKey.id} className="p-4 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl flex items-center justify-between gap-4">
+                            <div className="flex-1">
+                              <span className="text-xs font-bold text-white block">{apiKey.name}</span>
+                              <div className="flex items-center gap-2 mt-1">
+                                <span className="font-mono text-[10px] text-slate-400 bg-slate-900/60 px-2 py-0.5 rounded">{apiKey.key}</span>
+                                <button onClick={() => triggerToast('API key copied to clipboard.')} className="text-slate-500 hover:text-slate-300 cursor-pointer"><Copy className="h-3 w-3" /></button>
+                              </div>
+                              <p className="text-[9px] text-slate-500 mt-1">Created: {apiKey.created} · Last used: {apiKey.lastUsed}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded text-[9px] font-bold">{apiKey.status}</span>
+                              <Button size="sm" variant="outline" onClick={() => { logAuditAction('API Key Rotated', `API key "${apiKey.name}" rotated.`); triggerToast(`${apiKey.name} rotated successfully.`); }}>Rotate</Button>
+                              <Button size="sm" variant="danger" onClick={() => {
+                                const updated = apiKeysList.filter(k => k.id !== apiKey.id);
+                                setApiKeysList(updated);
+                                localStorage.setItem('hero_api_keys', JSON.stringify(updated));
+                                logAuditAction('API Key Revoked', `API key "${apiKey.name}" revoked.`);
+                                triggerToast(`${apiKey.name} revoked.`, 'warning');
+                              }}>Revoke</Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {settingsSubTab === 'backup' && (
+                    <div className="space-y-5">
+                      <div>
+                        <h3 className="text-sm font-extrabold text-white">Backup & Restore</h3>
+                        <p className="text-[10px] text-slate-500 mt-1">Manage platform data backup schedule and restore points.</p>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="p-4 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl space-y-3">
+                          <span className="text-xs font-black text-white uppercase tracking-wide">Backup Schedule</span>
+                          <div className="space-y-2 text-xs">
+                            {[['Frequency', 'Daily at 02:00 UTC'], ['Retention', '30 days'], ['Backup Type', 'Full Snapshot'], ['Storage Location', 'AWS S3 us-east-1'], ['Last Backup', '2026-06-26 02:01 UTC'], ['Backup Size', '2.34 GB']].map(([k, v]) => (
+                              <div key={k} className="flex justify-between"><span className="text-slate-400">{k}</span><span className={`font-bold ${k === 'Last Backup' ? 'text-emerald-400' : 'text-white'}`}>{v}</span></div>
+                            ))}
+                          </div>
+                          <Button variant="primary" size="sm" className="w-full" onClick={() => triggerToast('Manual backup initiated. This may take a few minutes.')}>Run Manual Backup</Button>
+                        </div>
+                        <div className="p-4 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl space-y-3">
+                          <span className="text-xs font-black text-white uppercase tracking-wide">Restore Points</span>
+                          <div className="space-y-2">
+                            {['2026-06-26 02:01 UTC', '2026-06-25 02:01 UTC', '2026-06-24 02:01 UTC', '2026-06-23 02:01 UTC'].map((date, i) => (
+                              <div key={i} className="flex items-center justify-between p-2 bg-[#0B0F19]/40 border border-[#23324C]/40 rounded-lg">
+                                <div>
+                                  <span className="text-xs font-bold text-white font-mono">{date}</span>
+                                  <span className="text-[9px] text-slate-500 block">Full snapshot · {(2.34 - i * 0.1).toFixed(2)} GB</span>
+                                </div>
+                                <Button size="sm" variant="danger" onClick={() => triggerToast(`Restore point ${date} initiated. Platform will restart.`, 'warning')}>Restore</Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {settingsSubTab === 'auditlogs' && (
+                    <div className="space-y-4">
+                      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+                        <div>
+                          <h3 className="text-sm font-extrabold text-white">Platform Audit Logs</h3>
+                          <p className="text-[10px] text-slate-500 mt-1">Complete record of all administrative actions.</p>
+                        </div>
+                        <div className="flex gap-3">
+                          <input type="text" placeholder="Filter by action..." value={auditLogsActionFilter} onChange={e => setAuditLogsActionFilter(e.target.value)} className="bg-[#0B0F19] border border-[#23324C] rounded-lg p-2 text-xs text-slate-300 outline-none w-36" />
+                          <input type="date" value={auditLogsDateFilter} onChange={e => setAuditLogsDateFilter(e.target.value)} className="bg-[#0B0F19] border border-[#23324C] rounded-lg p-2 text-xs text-slate-300 outline-none" />
+                          <Button size="sm" variant="outline" onClick={() => { setAuditLogsActionFilter(''); setAuditLogsDateFilter(''); }}>Reset</Button>
+                        </div>
+                      </div>
+                      <div className="overflow-x-auto rounded-xl border border-[#23324C]/50">
+                        <table className="w-full text-xs text-slate-350">
+                          <thead className="bg-[#161F30]/60 text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                            <tr>
+                              <th className="p-3 text-left">Log ID</th>
+                              <th className="p-3 text-left">Action</th>
+                              <th className="p-3 text-left">Detail</th>
+                              <th className="p-3 text-left">Company</th>
+                              <th className="p-3 text-left">Timestamp</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-[#23324C]/30">
+                            {(auditLogs || []).filter(l => {
+                              const matchAction = !auditLogsActionFilter || (l.action || '').toLowerCase().includes(auditLogsActionFilter.toLowerCase());
+                              const matchDate = !auditLogsDateFilter || (l.time || '').includes(auditLogsDateFilter);
+                              return matchAction && matchDate;
+                            }).slice(0, 25).map(log => (
+                              <tr key={log.id} className="hover:bg-slate-800/20">
+                                <td className="p-3 font-mono text-slate-500 text-[10px]">#{log.id}</td>
+                                <td className="p-3 font-bold text-white">{log.action}</td>
+                                <td className="p-3 text-slate-400 max-w-[200px] truncate">{log.detail}</td>
+                                <td className="p-3 text-slate-400">{log.companyName || '—'}</td>
+                                <td className="p-3 text-slate-500 font-mono text-[10px]">{log.time}</td>
+                              </tr>
+                            ))}
+                            {(!auditLogs || auditLogs.length === 0) && (
+                              <tr><td colSpan={5} className="p-8 text-center text-slate-500 italic text-xs">No audit logs recorded yet.</td></tr>
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+                      <div className="flex justify-end">
+                        <Button variant="outline" size="sm" onClick={() => triggerToast('Audit logs exported as CSV.')}>Export Audit Log CSV</Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}
 
           {activeTab === 'support' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-              <h3 className="text-sm font-extrabold text-white">Inbound Customer Support Queries</h3>
-              
-              <div className="divide-y divide-[#23324C]/40">
-                {tickets.map(t => (
-                  <div key={t.id} className="py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-slate-500 font-mono">#{t.id}</span>
-                        <strong className="text-white text-xs">{t.subject}</strong>
-                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
-                          t.priority === 'High' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-slate-800 text-slate-400'
-                        }`}>
-                          {t.priority}
-                        </span>
-                      </div>
-                      <p className="text-slate-400 text-xs truncate max-w-lg">{t.message}</p>
-                    </div>
+            <div className="space-y-6">
+              {/* Support KPI Cards */}
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-4">
+                <StatCard title="Total Tickets" value={tickets.length} description="All-time support tickets" trend="Synced" trendDirection="neutral" />
+                <StatCard title="Open Tickets" value={tickets.filter(t => t.status === 'Open').length} description="Requiring response" trend="Alert" trendDirection="down" />
+                <StatCard title="Resolved" value={tickets.filter(t => t.status === 'Resolved').length} description="Closed successfully" trend="Stable" trendDirection="neutral" />
+                <StatCard title="High Priority" value={tickets.filter(t => t.priority === 'High' && t.status === 'Open').length} description="Urgent escalations" trend="Alert" trendDirection="down" />
+                <StatCard title="Avg Response" value="2.4 hrs" description="Average first reply time" trend="Stable" trendDirection="neutral" />
+              </div>
 
-                    <div className="flex items-center gap-3">
-                      <StatusBadge status={t.status} />
-                      <Button size="sm" variant="secondary" onClick={() => { setSelectedTicket(t); setTicketDrawerOpen(true); }}>
-                        View Support Ticket
-                      </Button>
+              {/* Ticket Management Table */}
+              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-extrabold text-white">Support Ticket Queue</h3>
+                    <p className="text-[10px] text-slate-500">Manage inbound platform support requests.</p>
+                  </div>
+                  <div className="flex flex-wrap gap-3 items-center">
+                    <SearchInput value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onClear={() => setSearchQuery('')} placeholder="Search tickets..." className="w-full sm:max-w-[180px]" />
+                    <select value={supportPriorityFilter} onChange={(e) => setSupportPriorityFilter(e.target.value)} className="bg-[#0B0F19] border border-[#23324C] rounded-lg p-2 text-xs text-slate-300 outline-none font-semibold cursor-pointer">
+                      <option value="">All Priorities</option>
+                      <option value="High">High</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Low">Low</option>
+                    </select>
+                    <select value={supportStatusFilter} onChange={(e) => setSupportStatusFilter(e.target.value)} className="bg-[#0B0F19] border border-[#23324C] rounded-lg p-2 text-xs text-slate-300 outline-none font-semibold cursor-pointer">
+                      <option value="">All Statuses</option>
+                      <option value="Open">Open</option>
+                      <option value="Resolved">Resolved</option>
+                    </select>
+                    <Button variant="primary" size="sm" icon={Plus} onClick={() => triggerToast('New support ticket creation form loaded.')}>New Ticket</Button>
+                  </div>
+                </div>
+
+                <div className="overflow-x-auto rounded-xl border border-[#23324C]/50">
+                  <table className="w-full text-xs text-slate-350">
+                    <thead className="bg-[#161F30]/60 text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                      <tr>
+                        <th className="p-3 text-left">Ticket ID</th>
+                        <th className="p-3 text-left">Company</th>
+                        <th className="p-3 text-left">Subject</th>
+                        <th className="p-3 text-center">Priority</th>
+                        <th className="p-3 text-center">Status</th>
+                        <th className="p-3 text-left">Assigned Agent</th>
+                        <th className="p-3 text-left">Created</th>
+                        <th className="p-3 text-center">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#23324C]/30">
+                      {tickets.filter(t => {
+                        const q = (searchQuery || '').toLowerCase();
+                        const matchSearch = !searchQuery || (t.subject || '').toLowerCase().includes(q) || (t.company || '').toLowerCase().includes(q);
+                        const matchPriority = !supportPriorityFilter || t.priority === supportPriorityFilter;
+                        const matchStatus = !supportStatusFilter || t.status === supportStatusFilter;
+                        return matchSearch && matchPriority && matchStatus;
+                      }).map((t, idx) => (
+                        <tr key={t.id} className="hover:bg-slate-800/20">
+                          <td className="p-3 font-mono font-bold text-slate-400">#{t.id}</td>
+                          <td className="p-3 font-bold text-white">{t.company || tenants[idx % Math.max(tenants.length, 1)]?.name || 'Hero Platform'}</td>
+                          <td className="p-3 text-slate-300 max-w-[180px] truncate">{t.subject}</td>
+                          <td className="p-3 text-center">
+                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                              t.priority === 'High' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+                              t.priority === 'Medium' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+                              'bg-slate-800 text-slate-400 border border-slate-700'
+                            }`}>{t.priority || 'Medium'}</span>
+                          </td>
+                          <td className="p-3 text-center"><StatusBadge status={t.status} /></td>
+                          <td className="p-3 text-slate-400">{t.assignedAgent || 'Unassigned'}</td>
+                          <td className="p-3 text-slate-500 font-mono text-[10px]">{t.createdAt || '2026-06-20'}</td>
+                          <td className="p-3">
+                            <div className="flex gap-1 justify-center flex-wrap">
+                              <Button size="sm" variant="secondary" onClick={() => { setSelectedTicket(t); setTicketDrawerOpen(true); }}>View</Button>
+                              <Button size="sm" variant="outline" onClick={() => { logAuditAction('Ticket Assigned', `Ticket #${t.id} assigned to support team.`); triggerToast(`Ticket #${t.id} assigned to L2 support.`); }}>Assign</Button>
+                              <Button size="sm" variant="success" onClick={() => { logAuditAction('Ticket Resolved', `Ticket #${t.id} closed.`); triggerToast(`Ticket #${t.id} marked resolved.`); }}>Resolve</Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                      {tickets.length === 0 && (
+                        <tr><td colSpan={8} className="p-8 text-center text-slate-500 italic text-xs">No support tickets in the queue.</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Response History */}
+                {tickets.filter(t => t.replies && t.replies.length > 0).length > 0 && (
+                  <div className="space-y-2 pt-2 border-t border-[#23324C]/40">
+                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Recent Response History</h4>
+                    <div className="space-y-2 max-h-48 overflow-y-auto scrollbar-none">
+                      {tickets.filter(t => t.replies?.length > 0).flatMap(t => (t.replies || []).map(r => ({ ...r, ticketId: t.id, subject: t.subject }))).slice(0, 5).map((r, i) => (
+                        <div key={i} className="p-2.5 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl text-xs">
+                          <div className="flex justify-between mb-1">
+                            <span className="font-bold text-white">Ticket #{r.ticketId} — {r.subject}</span>
+                            <span className="text-slate-500 font-mono text-[9px]">{r.time}</span>
+                          </div>
+                          <p className="text-slate-400">{r.message}</p>
+                        </div>
+                      ))}
                     </div>
                   </div>
-                ))}
+                )}
               </div>
             </div>
           )}

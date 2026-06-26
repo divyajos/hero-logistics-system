@@ -186,11 +186,12 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
         <>
           {activeTab === 'overview' && (
             <div className="space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <StatCard title="Active Transits" value={shipments.filter(s => s.status === 'Transit').length} description="Live GPS tracking coordinates" trend="1 in transit" trendDirection="neutral" />
                 <StatCard title="Completed Runs" value={shipments.filter(s => s.status === 'Delivered').length} description="Signed POD manifests" trend="No issues" trendDirection="up" />
                 <StatCard title="Awaiting Match" value={shipments.filter(s => s.status === 'Pending' || s.status === 'Scheduled').length} description="Dispatcher queue pending" trend="Awaiting carrier" trendDirection="neutral" />
-                <StatCard title="Ledger Balance due" value={`$${invoices.filter(i => i.status === 'Pending').reduce((acc, curr) => acc + parseFloat(curr.amount.replace(/[$,]/g, '')), 0).toLocaleString()}`} description="Invoices outstanding bills" trend="Net 30 terms" trendDirection="neutral" />
+                <StatCard title="Ledger Balance Due" value={`$${invoices.filter(i => i.status === 'Pending').reduce((acc, curr) => acc + parseFloat(curr.amount.replace(/[$,]/g, '')), 0).toLocaleString()}`} description="Invoices outstanding bills" trend="Net 30 terms" trendDirection="neutral" />
+                <StatCard title="Total Loads Shipped" value={shipments.length} description="All-time lifetime bookings" trend="Lifetime total" trendDirection="up" />
               </div>
 
               <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left flex flex-col justify-between h-[300px] min-h-[250px]">
@@ -243,7 +244,13 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
                     { key: 'route', label: 'Origin/Destination Path', render: (row) => <span className="text-slate-400">{row.route}</span> },
                     { key: 'cost', label: 'Cost', render: (row) => <span className="font-mono font-bold text-brand-400">{row.cost || '$950.00'}</span> },
                     { key: 'status', label: 'Transit State', render: (row) => <StatusBadge status={row.status} /> },
-                    { key: 'actions', label: 'Actions', render: (row) => <Button size="sm" variant="secondary" onClick={() => { setSelectedShipment(row); setDetailsDrawerOpen(true); }}>Inspect</Button> }
+                    { key: 'actions', label: 'Actions', render: (row) => (
+                      <div className="flex gap-1.5 flex-wrap">
+                        <Button size="sm" variant="secondary" onClick={() => { setSelectedShipment(row); setDetailsDrawerOpen(true); }}>Inspect</Button>
+                        <button type="button" onClick={() => triggerToast(`Downloading BOL for ${row.loadId || row.id}... Saved.`)} className="px-2 py-1 text-[10px] font-bold rounded-lg border border-[#23324C] hover:border-brand-500/40 text-slate-350 hover:text-white cursor-pointer transition-colors">Download BOL</button>
+                        <button type="button" onClick={() => triggerToast(`GPS tracking opened for ${row.loadId || row.id}.`)} className="px-2 py-1 text-[10px] font-bold rounded-lg border border-[#23324C] hover:border-emerald-500/40 text-slate-350 hover:text-white cursor-pointer transition-colors">Track</button>
+                      </div>
+                    )}
                   ]} data={paginatedShipments} />
                   
                   <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
@@ -374,6 +381,59 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
                 { key: 'date', label: 'Payment Date', render: (row) => <span className="font-mono text-slate-400">{row.date}</span> },
                 { key: 'method', label: 'Billing Method', render: (row) => <span>{row.method}</span> }
               ]} data={transactions || []} />
+            </div>
+          )}
+
+          {/* Customer Instructions Screen */}
+          {activeTab === 'customer-instructions' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              <div className="lg:col-span-8 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h3 className="text-sm font-extrabold text-white">Delivery Instructions &amp; Site Requirements</h3>
+                    <p className="text-xs text-slate-450 mt-1">Manage site-specific delivery instructions, access codes, and site contacts per address.</p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" variant="primary" onClick={() => triggerToast('New delivery instruction added to address book.')}>
+                      Add Instruction
+                    </Button>
+                    <Button size="sm" variant="secondary" onClick={() => triggerToast('Instructions exported to PDF for driver brief.')}>
+                      Export to PDF
+                    </Button>
+                  </div>
+                </div>
+                <DataTable columns={[
+                  { key: 'address', label: 'Delivery Address', render: (row) => <span className="font-extrabold text-white text-xs">{row.address}</span> },
+                  { key: 'contact', label: 'Site Contact', render: (row) => <span className="text-slate-300">{row.contact}</span> },
+                  { key: 'instruction', label: 'Special Instruction', render: (row) => <span className="text-slate-400 text-xs">{row.instruction}</span> },
+                  { key: 'access', label: 'Access Code', render: (row) => <span className="font-mono text-brand-400 font-bold">{row.access}</span> },
+                  { key: 'actions', label: 'Actions', render: () => (
+                    <div className="flex gap-1.5">
+                      <Button size="sm" variant="secondary" onClick={() => triggerToast('Instruction editor opened.')}>Edit</Button>
+                      <Button size="sm" variant="outline" onClick={() => triggerToast('Instruction removed.')}>Remove</Button>
+                    </div>
+                  )}
+                ]} data={[
+                  { address: '742 Warehouse Blvd, Chicago IL', contact: 'Mike Thompson', instruction: 'Back dock entry only. Ring buzzer 3 times.', access: 'DOCK-A4' },
+                  { address: '99 Industrial Ave, Dallas TX', contact: 'Sarah Lin', instruction: 'Forklift unload required. No hand trucks.', access: 'GATE-12' },
+                  { address: '55 Freight Way, Atlanta GA', contact: 'James Pool', instruction: 'Call 30 min before arrival. Security escort required.', access: 'SEC-777' }
+                ]} />
+              </div>
+              <div className="lg:col-span-4 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
+                <h3 className="text-sm font-extrabold text-white">Quick Actions</h3>
+                {[
+                  { label: 'Add Delivery Address', desc: 'Save new pickup or drop-off location', action: 'New delivery address saved to address book.' },
+                  { label: 'Edit Delivery Instructions', desc: 'Update site-specific notes for drivers', action: 'Instruction editor opened.' },
+                  { label: 'Print Driver Brief', desc: 'Generate printable instruction sheet', action: 'Driver instruction brief sent to print.' },
+                  { label: 'Notify Carrier', desc: 'Send updated instructions to carrier', action: 'Updated instructions dispatched to assigned carrier.' },
+                ].map(item => (
+                  <button key={item.label} type="button" onClick={() => triggerToast(item.action)}
+                    className="w-full text-left p-3 bg-[#111827]/40 border border-[#23324C] hover:border-brand-500/40 rounded-xl transition-colors group cursor-pointer">
+                    <strong className="text-white text-xs block group-hover:text-brand-400 transition-colors">{item.label}</strong>
+                    <span className="text-[10px] text-slate-500">{item.desc}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 

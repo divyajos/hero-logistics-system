@@ -7,7 +7,8 @@ import DataTable from '../common/DataTable';
 import StatusBadge from '../common/StatusBadge';
 import { 
   Settings, Key, Compass, Database, Bell, FileText, 
-  RefreshCw, Check, CheckCircle2, ShieldAlert, Cpu
+  RefreshCw, Check, CheckCircle2, ShieldAlert, Cpu,
+  Palette, Clock, CreditCard, Layout
 } from 'lucide-react';
 
 export default function SettingsPanels({ activeTab = 'settings' }) {
@@ -88,10 +89,14 @@ export default function SettingsPanels({ activeTab = 'settings' }) {
       <div className="flex flex-wrap border-b border-[#23324C]/40 pb-px text-xs font-bold gap-4">
         {[
           { id: 'profile', label: 'Company Profile', icon: Settings },
+          { id: 'branding', label: 'Branding & Theme', icon: Palette },
+          { id: 'business-hours', label: 'Business Hours', icon: Clock },
+          { id: 'billing', label: 'Billing & Plans', icon: CreditCard },
+          { id: 'white-label', label: 'White Labeling', icon: Layout },
           { id: 'niche', label: 'Niche Configuration', icon: Cpu },
           { id: 'gps', label: 'GPS Providers', icon: Compass },
           { id: 'accounting', label: 'Accounting Integration', icon: Database },
-          { id: 'templates', label: 'Notifications Templates', icon: Bell },
+          { id: 'templates', label: 'Notification Templates', icon: Bell },
           { id: 'audit', label: 'System Audit Logs', icon: FileText }
         ].map((tab) => {
           const Icon = tab.icon;
@@ -131,6 +136,205 @@ export default function SettingsPanels({ activeTab = 'settings' }) {
 
             <Button type="button" variant="primary" className="w-full" onClick={() => triggerToast('Profile details updated successfully.')}>
               Save Profile Settings
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Branding & Themes Settings */}
+      {activeSubTab === 'branding' && (
+        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 max-w-xl animate-fade-in">
+          <h3 className="text-sm font-extrabold text-white">Company Branding & Custom Theme</h3>
+          <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">Customize the workspace color palette, layout mode, and upload your official company logo.</p>
+          
+          <div className="space-y-4">
+            <div>
+              <span className="block text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">Primary Workspace Theme Color</span>
+              <div className="flex gap-2.5">
+                {[
+                  { name: 'Brand Cyan', hex: 'bg-brand-500', label: 'Default' },
+                  { name: 'Sleek Purple', hex: 'bg-purple-600', label: 'Purple' },
+                  { name: 'Forest Green', hex: 'bg-emerald-500', label: 'Green' },
+                  { name: 'Vibrant Orange', hex: 'bg-orange-500', label: 'Orange' },
+                  { name: 'Deep Blue', hex: 'bg-blue-600', label: 'Blue' }
+                ].map((color, i) => (
+                  <button 
+                    key={i} 
+                    onClick={() => triggerToast(`Workspace color theme changed to: ${color.name}`)}
+                    className="flex flex-col items-center gap-1 cursor-pointer group"
+                    type="button"
+                  >
+                    <span className={`w-8 h-8 rounded-xl ${color.hex} border border-slate-700 group-hover:scale-105 transition-all shadow-md`} />
+                    <span className="text-[9px] text-slate-500 font-semibold">{color.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="border-t border-[#23324C]/35 pt-4">
+              <span className="block text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">Company Logo Upload</span>
+              <div className="border-2 border-dashed border-[#23324C] rounded-2xl p-6 text-center hover:border-brand-500/30 transition-all cursor-pointer" onClick={() => triggerToast('Logo file selection window opened.')}>
+                <div className="text-xl">🏢</div>
+                <p className="text-xs font-bold text-slate-350 mt-1">Click or drag logo file here</p>
+                <p className="text-[9px] text-slate-500">Supports SVG, PNG, JPG up to 5MB</p>
+              </div>
+            </div>
+
+            <Button type="button" variant="primary" className="w-full mt-2" onClick={() => triggerToast('Branding settings saved successfully.')}>
+              Apply Branding & Themes
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Business Hours Settings */}
+      {activeSubTab === 'business-hours' && (
+        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 max-w-xl animate-fade-in">
+          <h3 className="text-sm font-extrabold text-white">Default Terminal Business Hours</h3>
+          <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">Establish base operating hours across company depots. Individual depots can override these in Branch Settings.</p>
+          
+          <div className="space-y-3.5">
+            {[
+              { day: 'Monday - Friday', active: true, hours: '08:00 AM - 06:00 PM' },
+              { day: 'Saturday', active: true, hours: '09:00 AM - 02:00 PM' },
+              { day: 'Sunday', active: false, hours: 'Closed' }
+            ].map((b, i) => (
+              <div key={i} className="flex justify-between items-center p-3 bg-slate-900/60 border border-[#23324C] rounded-xl">
+                <div>
+                  <span className="text-xs font-bold text-white block">{b.day}</span>
+                  <span className="text-[10px] font-mono text-slate-450">{b.hours}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className={`text-[10px] font-bold ${b.active ? 'text-emerald-450' : 'text-red-400'}`}>{b.active ? 'Open' : 'Closed'}</span>
+                  <button 
+                    onClick={() => triggerToast(`Toggled business hours for ${b.day}`)}
+                    className={`w-9 h-4.5 rounded-full transition-all relative cursor-pointer ${b.active ? 'bg-emerald-500' : 'bg-slate-700'}`}
+                    type="button"
+                  >
+                    <span className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full shadow transition-all ${b.active ? 'left-4.5' : 'left-0.5'}`} />
+                  </button>
+                </div>
+              </div>
+            ))}
+            
+            <Button type="button" variant="primary" className="w-full mt-2" onClick={() => triggerToast('Default depot business hours updated.')}>
+              Save Default Hours
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Billing & Subscriptions Settings */}
+      {activeSubTab === 'billing' && (
+        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-5 animate-fade-in">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+            <div>
+              <h3 className="text-sm font-extrabold text-white">Billing & Subscription Management</h3>
+              <p className="text-[10px] text-slate-450 mt-0.5">Manage plan subscription levels, invoices, and active payment cards.</p>
+            </div>
+            <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-xs font-bold font-mono">Enterprise Tier</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Active Card */}
+            <div className="p-4 bg-[#111827]/40 border border-[#23324C] rounded-2xl text-xs space-y-3">
+              <span className="text-[10px] font-bold text-slate-500 uppercase block">Active Payment Method</span>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-7 rounded bg-slate-800 border border-[#23324C] flex items-center justify-center text-sm font-bold text-slate-200">Visa</div>
+                <div>
+                  <strong className="text-white block font-bold text-xs">Visa ending in 8812</strong>
+                  <span className="text-[10px] text-slate-550 font-mono">Expires 09/2029</span>
+                </div>
+              </div>
+              <button 
+                onClick={() => triggerToast('Update credit card payment form loaded.')}
+                className="text-[10px] text-brand-400 font-bold hover:underline cursor-pointer"
+                type="button"
+              >
+                Update Card Details →
+              </button>
+            </div>
+
+            {/* Plan Usage */}
+            <div className="p-4 bg-[#111827]/40 border border-[#23324C] rounded-2xl text-xs space-y-2">
+              <span className="text-[10px] font-bold text-slate-500 uppercase block">Subscription Usage</span>
+              <div className="flex justify-between">
+                <span className="text-slate-400">depots count</span>
+                <span className="text-white font-bold">2 / Unlimited</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">users count</span>
+                <span className="text-white font-bold">12 / Unlimited</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">monthly invoice value</span>
+                <span className="text-brand-400 font-bold font-mono">$499.00 / mo</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Invoice History */}
+          <div className="space-y-3">
+            <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Billing Invoices Registry</span>
+            <div className="space-y-2">
+              {[
+                { inv: 'INV-89112', date: 'Jun 20, 2026', amt: '$499.00', status: 'Paid' },
+                { inv: 'INV-88029', date: 'May 20, 2026', amt: '$499.00', status: 'Paid' },
+                { inv: 'INV-87002', date: 'Apr 20, 2026', amt: '$499.00', status: 'Paid' }
+              ].map((row, i) => (
+                <div key={i} className="p-3 bg-slate-900/50 border border-[#23324C]/35 rounded-xl flex justify-between items-center text-xs">
+                  <div>
+                    <span className="font-bold text-white block">Invoice #{row.inv}</span>
+                    <span className="text-[9.5px] text-slate-500 font-mono">{row.date}</span>
+                  </div>
+                  <div className="text-right flex items-center gap-3">
+                    <div>
+                      <span className="font-bold font-mono text-white block">{row.amt}</span>
+                      <span className="text-[9px] text-emerald-450 font-bold uppercase">{row.status}</span>
+                    </div>
+                    <button 
+                      onClick={() => triggerToast(`Downloading Invoice PDF: ${row.inv}...`)}
+                      className="px-2.5 py-1 bg-slate-800 hover:bg-slate-750 border border-[#23324C] rounded text-[10px] font-bold cursor-pointer"
+                      type="button"
+                    >
+                      PDF
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* White Label Settings */}
+      {activeSubTab === 'white-label' && (
+        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 max-w-xl animate-fade-in">
+          <h3 className="text-sm font-extrabold text-white">White Label & Domain Setup</h3>
+          <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">Customize the system workspace to match your own brand name and host it on your custom domain URL hostname.</p>
+          
+          <div className="space-y-3.5">
+            <TextInput label="Custom Domain Hostname" defaultValue="logistics.herologistics.com" placeholder="e.g. logistics.yourcompany.com" />
+            <TextInput label="Login Screen Welcome Header Title" defaultValue="Hero Logistics Operate System" />
+            
+            <div className="space-y-2 border-t border-[#23324C]/35 pt-4">
+              <span className="block text-xs font-bold text-slate-400 uppercase tracking-wide">Brand Theme Options</span>
+              <label className="flex items-center justify-between p-3.5 bg-slate-900/60 border border-[#23324C] rounded-xl cursor-pointer select-none">
+                <div className="space-y-0.5">
+                  <span className="text-xs font-bold text-slate-200 block">Hide Hero Logistics branding labels</span>
+                  <span className="text-[10px] text-slate-500 block">Hides all logo footers and help links in dispatcher & driver dashboards</span>
+                </div>
+                <input 
+                  type="checkbox" 
+                  defaultChecked={true}
+                  className="rounded text-brand-500 focus:ring-brand-500 h-4.5 w-4.5 cursor-pointer" 
+                  onChange={() => triggerToast('White label branding filter toggled.')}
+                />
+              </label>
+            </div>
+
+            <Button type="button" variant="primary" className="w-full mt-2" onClick={() => triggerToast('White label settings and DNS hostname configured successfully.')}>
+              Save White Labeling Setup
             </Button>
           </div>
         </div>

@@ -152,6 +152,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
   const [editLeadModalOpen, setEditLeadModalOpen] = useState(false);
   const [inspectDrawerOpen, setInspectDrawerOpen] = useState(false);
   const [proposalModalOpen, setProposalModalOpen] = useState(false);
+  const [proposalPreviewModalOpen, setProposalPreviewModalOpen] = useState(false);
   const [demoModalOpen, setDemoModalOpen] = useState(false);
   const [followupModalOpen, setFollowupModalOpen] = useState(false);
   const [dragConfirmModalOpen, setDragConfirmModalOpen] = useState(false);
@@ -164,8 +165,59 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
   const [previewDocModalOpen, setPreviewDocModalOpen] = useState(false);
   const [conversionWizardOpen, setConversionWizardOpen] = useState(false);
 
+  // --- CRM CONFIGS, REVISIONS, AND REPORT STATES ---
+  const [revisingProposalId, setRevisingProposalId] = useState(null);
+  const [selectedSubReport, setSelectedSubReport] = useState('Leads');
+  
+  const [customTemplates, setCustomTemplates] = useState(() => {
+    const saved = localStorage.getItem('hero_crm_templates');
+    if (saved) return JSON.parse(saved);
+    return {
+      'Welcome Sandbox Invite': 'Hi {{contact_name}},\n\nYour 14-day evaluation sandbox for {{company_name}} is provisioned. Please download your platform access keys here: https://hero-telematics.com/keys.\n\nBest,\n{{rep_name}}',
+      'Pricing Proposal Followup': 'Hi {{contact_name}},\n\nFollowing up on the SaaS License Core Agreement we dispatched. We can offer a corporate discount options alignment discussion. Let us lock a zoom block.\n\nRegards,\n{{rep_name}}',
+      'Demo Presentation Confirmation': 'Hi {{contact_name}},\n\nThank you for booking product demo slot with Hero Logistics. Zoom link details: https://zoom.us/j/9812903. Focus points will telematics dispatch.\n\nBest,\n{{rep_name}}'
+    };
+  });
+
+  const [pipelineStages, setPipelineStages] = useState(() => {
+    const saved = localStorage.getItem('hero_crm_stages');
+    if (saved) return JSON.parse(saved);
+    return [
+      'New Lead', 'Contacted', 'Demo Booked', 'Demo Completed', 
+      'Trial Started', 'Proposal Sent', 'Negotiation', 'Won', 'Lost'
+    ];
+  });
+
+  const [leadSources, setLeadSources] = useState(() => {
+    const saved = localStorage.getItem('hero_crm_lead_sources');
+    if (saved) return JSON.parse(saved);
+    return ['Google Search', 'LinkedIn', 'Partner Referral', 'Cold Call', 'Other'];
+  });
+
+  // Settings sub-state
+  const [settingsActiveTemplate, setSettingsActiveTemplate] = useState('Welcome Sandbox Invite');
+  const [settingsTemplateSubject, setSettingsTemplateSubject] = useState('Welcome to Hero Logistics System Trial!');
+  const [settingsTemplateBody, setSettingsTemplateBody] = useState('');
+  const [newStageInput, setNewStageInput] = useState('');
+  const [newLeadSourceInput, setNewLeadSourceInput] = useState('');
+
+  // Shadow global stages constant with state-driven stages
+  const stages = pipelineStages;
+
+  // Synchronize template body editor when template selection changes
+  useEffect(() => {
+    setSettingsTemplateBody(customTemplates[settingsActiveTemplate] || '');
+  }, [settingsActiveTemplate, customTemplates]);
+
   // --- SELECTED ENTITIES ---
   const [selectedLead, setSelectedLead] = useState(null);
+  const [overviewSelectedLeadId, setOverviewSelectedLeadId] = useState(() => {
+    const db = crmRepository.getCrmDatabase();
+    return db.leads[0]?.id || null;
+  });
+  const overviewSelectedLead = useMemo(() => {
+    return crmDb.leads.find(l => String(l.id) === String(overviewSelectedLeadId)) || crmDb.leads[0];
+  }, [crmDb.leads, overviewSelectedLeadId]);
   const [selectedProposal, setSelectedProposal] = useState(null);
   const [selectedDemo, setSelectedDemo] = useState(null);
   const [selectedTrial, setSelectedTrial] = useState(null);
@@ -203,7 +255,8 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
     fleetSize: '25', niche: 'General Freight', currentSoftware: 'Spreadsheets (Excel)',
     leadSource: 'Google Search', painPoints: 'Manual routing takes hours',
     revenue: '2500', country: 'USA', state: 'IL', address: '12 Logistics Center',
-    priority: 'Medium', tags: 'SaaS Inbound', rep: 'Alex Wright', notes: ''
+    priority: 'Medium', tags: 'SaaS Inbound', rep: 'Alex Wright', notes: '',
+    nextFollowup: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
   });
 
   // --- MOCK FORM STATES ---
@@ -215,7 +268,8 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
       fleetSize: '25', niche: 'General Freight', currentSoftware: 'Spreadsheets (Excel)',
       leadSource: 'Google Search', painPoints: 'Manual routing takes hours',
       revenue: '2500', country: 'USA', state: 'IL', address: '12 Logistics Center',
-      priority: 'Medium', tags: 'SaaS Inbound', rep: 'Alex Wright', notes: ''
+      priority: 'Medium', tags: 'SaaS Inbound', rep: 'Alex Wright', notes: '',
+      nextFollowup: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
     });
     setAddLeadModalOpen(true);
   };
@@ -241,6 +295,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
       revenue: leadForm.revenue,
       notes: leadForm.notes,
       tags: leadForm.tags,
+      nextFollowup: leadForm.nextFollowup,
       stage: andBookDemo ? 'Demo Booked' : 'New Lead'
     });
 
@@ -278,7 +333,8 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
       priority: lead.priority,
       tags: lead.tags || '',
       rep: lead.rep,
-      notes: lead.notes?.[0]?.text || ''
+      notes: lead.notes?.[0]?.text || '',
+      nextFollowup: lead.nextFollowup || ''
     });
     setEditLeadModalOpen(true);
   };
@@ -297,7 +353,8 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
       revenue: leadForm.revenue,
       priority: leadForm.priority,
       rep: leadForm.rep,
-      tags: leadForm.tags
+      tags: leadForm.tags,
+      nextFollowup: leadForm.nextFollowup
     });
 
     const firstNoteText = selectedLead.notes?.[0]?.text || '';
@@ -437,26 +494,55 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
 
     const totalVal = Math.round((coreValue - discountAmt) * (1 + (proposalBuilder.tax / 100)));
 
-    crmRepository.createProposal(selectedLead.id, {
-      title: proposalBuilder.title,
-      value: coreValue,
-      discount: proposalBuilder.discount,
-      tax: proposalBuilder.tax,
-      total: totalVal,
-      validity: proposalBuilder.validity
-    });
+    if (revisingProposalId) {
+      crmRepository.reviseProposal(revisingProposalId, {
+        title: proposalBuilder.title,
+        value: coreValue,
+        discount: proposalBuilder.discount,
+        tax: proposalBuilder.tax,
+        total: totalVal,
+        validity: proposalBuilder.validity,
+        items: proposalBuilder.items
+      });
 
-    crmActivityEngine.logMutation(
-      selectedLead.id,
-      permissionRole,
-      'Proposal Sent',
-      `Proposal generated: $${totalVal} total MRR (inclusive of ${proposalBuilder.discount}% discount).`,
-      selectedLead.stage,
-      'Proposal Sent'
-    );
+      crmActivityEngine.logMutation(
+        selectedLead.id,
+        permissionRole,
+        'Proposal Revised',
+        `Proposal revised to new version. Total: $${totalVal} total MRR.`,
+        selectedLead.stage,
+        'Proposal Sent'
+      );
 
-    setProposalModalOpen(false);
-    triggerToast(`SaaS contract proposal V1 dispatched for ${selectedLead.company}!`);
+      const db = crmRepository.getCrmDatabase();
+      const updatedProp = db.proposals.find(p => p.id === revisingProposalId);
+      setSelectedProposal(updatedProp);
+      setRevisingProposalId(null);
+      setProposalModalOpen(false);
+      triggerToast(`SaaS contract proposal revised successfully!`);
+    } else {
+      crmRepository.createProposal(selectedLead.id, {
+        title: proposalBuilder.title,
+        value: coreValue,
+        discount: proposalBuilder.discount,
+        tax: proposalBuilder.tax,
+        total: totalVal,
+        validity: proposalBuilder.validity,
+        items: proposalBuilder.items
+      });
+
+      crmActivityEngine.logMutation(
+        selectedLead.id,
+        permissionRole,
+        'Proposal Sent',
+        `Proposal generated: $${totalVal} total MRR (inclusive of ${proposalBuilder.discount}% discount).`,
+        selectedLead.stage,
+        'Proposal Sent'
+      );
+
+      setProposalModalOpen(false);
+      triggerToast(`SaaS contract proposal V1 dispatched for ${selectedLead.company}!`);
+    }
   };
 
   // Accept Proposal
@@ -585,15 +671,10 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
 
   // --- EMAIL CENTER ---
   const [emailForm, setEmailForm] = useState({ subject: '', template: 'Welcome Sandbox Invite', body: '', status: 'Sent' });
-  const templates = {
-    'Welcome Sandbox Invite': 'Hi {{contact_name}},\n\nYour 14-day evaluation sandbox for {{company_name}} is provisioned. Please download your platform access keys here: https://hero-telematics.com/keys.\n\nBest,\n{{rep_name}}',
-    'Pricing Proposal Followup': 'Hi {{contact_name}},\n\nFollowing up on the SaaS License Core Agreement we dispatched. We can offer a corporate discount options alignment discussion. Let us lock a zoom block.\n\nRegards,\n{{rep_name}}',
-    'Demo Presentation Confirmation': 'Hi {{contact_name}},\n\nThank you for booking product demo slot with Hero Logistics. Zoom link details: https://zoom.us/j/9812903. Focus points will telematics dispatch.\n\nBest,\n{{rep_name}}'
-  };
 
   useEffect(() => {
     if (selectedLead && emailForm) {
-      const parsed = templates[emailForm.template]
+      const parsed = customTemplates[emailForm.template]
         ?.replace(/{{contact_name}}/g, selectedLead.name)
         ?.replace(/{{company_name}}/g, selectedLead.company)
         ?.replace(/{{rep_name}}/g, selectedLead.rep) || '';
@@ -603,7 +684,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
         return { ...prev, body: parsed, subject: emailForm.template };
       });
     }
-  }, [emailForm?.template, selectedLead]);
+  }, [emailForm?.template, selectedLead, customTemplates]);
 
   const handleSendEmail = (e) => {
     e.preventDefault();
@@ -1021,149 +1102,444 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
         <div className="space-y-6 text-left">
           
           {/* Top Stat cards */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            <StatCard title="Active Leads Pool" value={kpis.newLeads} description="Total incoming pool" trend="+14% MoM" trendDirection="up" />
-            <StatCard title="Demo Schedule" value={`${kpis.demoCompleted} completed`} description="Scheduled zoom presentations" trend="6 Upcoming slots" trendDirection="neutral" />
-            <StatCard title="Trials Sandbox" value={kpis.trialStarted} description="Active evaluation portals" trend="Usage telemetry log" trendDirection="up" />
-            <StatCard title="Win Ratio" value={`${kpis.conversion}%`} description="Leads to closed agreements" trend="+2.4% MoM" trendDirection="up" />
-            <div className="col-span-2 md:col-span-1 bg-[#111827]/40 border border-[#23324C]/60 rounded-2xl p-4.5 text-left flex flex-col justify-between">
-              <div>
-                <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Revenue Forecast (Target)</span>
-                <h3 className="text-xl font-black text-brand-400 mt-1">${kpis.mrr.toLocaleString()} <span className="text-[9px] text-slate-400">/ $60k</span></h3>
-              </div>
-              <div className="w-full bg-slate-900 rounded-full h-1.5 mt-2">
-                <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${Math.min(100, (kpis.mrr / 60000) * 100)}%` }} />
-              </div>
-            </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4">
+            <StatCard title="New Leads" value={kpis.newLeadsStageCount} description="Stage: New Lead" trend={`${kpis.newLeadsStageCount} pending`} trendDirection="neutral" />
+            <StatCard title="Demos Booked" value={kpis.demosBooked} description="Upcoming demos" trend="Zoom slots ready" trendDirection="up" />
+            <StatCard title="Trials Active" value={kpis.trialsActive} description="Active sandboxes" trend="Usage monitored" trendDirection="up" />
+            <StatCard title="Proposals Sent" value={kpis.proposalsSent} description="Negotiation contracts" trend="Awaiting signature" trendDirection="neutral" />
+            <StatCard title="Deals Won" value={kpis.dealsWon} description="Closed won accounts" trend="Syncing onboarding" trendDirection="up" />
+            <StatCard title="Deals Lost" value={kpis.dealsLost} description="Closed lost accounts" trend="Needs re-engagement" trendDirection="down" />
+            <StatCard title="Total Pipeline Value" value={`$${kpis.totalPipelineValue.toLocaleString()}`} description="Value of active leads" trend="Potential monthly MRR" trendDirection="up" />
           </div>
 
-          {/* Quick Actions & Live Smart Notification Center */}
+          {/* Main Grid for Widgets */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
             
-            {/* Quick Actions */}
-            <div className="lg:col-span-7 glass rounded-2xl p-5 border border-[#23324C]/60 space-y-4">
-              <span className="text-[10px] font-bold text-brand-400 uppercase tracking-widest block">CRM Core Quick Actions</span>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                <Button size="sm" variant="secondary" icon={UserPlus} className="justify-center text-xs font-bold" onClick={handleOpenAddLeadModal}>
-                  Add New Lead
-                </Button>
-                <Button size="sm" variant="secondary" icon={Calendar} className="justify-center text-xs font-bold" onClick={() => handleOpenDemoModal(crmDb.leads[0])}>
-                  Book Zoom Demo
-                </Button>
-                <Button size="sm" variant="secondary" icon={FilePlus2} className="justify-center text-xs font-bold" onClick={() => handleOpenProposalModal(crmDb.leads[0])}>
-                  Generate SLA
-                </Button>
-                <Button size="sm" variant="secondary" icon={Play} className="justify-center text-xs font-bold" onClick={() => handleStartTrial(crmDb.leads[0])}>
-                  Start Sandbox
-                </Button>
-                <Button size="sm" variant="secondary" icon={CheckSquare2} className="justify-center text-xs font-bold" onClick={() => {
-                  setSelectedLead(crmDb.leads[0]);
-                  setTaskModalOpen(true);
-                }}>
-                  Log Followup Task
-                </Button>
+            {/* Widget 1 & 2: Pipeline and Selected Lead Details Panel */}
+            <div className="lg:col-span-8 space-y-6">
+              
+              {/* Widget 1: Kanban Sales Pipeline Indicator */}
+              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 space-y-4">
+                <div className="flex justify-between items-center border-b border-[#23324C]/45 pb-3">
+                  <span className="text-[10px] font-bold text-brand-400 uppercase tracking-widest block">Pipeline Stage Distribution Matrix</span>
+                  <span className="text-[10px] text-slate-400 font-mono font-bold">{crmDb.leads.length} Leads Active</span>
+                </div>
+                
+                <div className="grid grid-cols-3 sm:grid-cols-9 gap-2">
+                  {stages.map(stage => {
+                    const count = crmDb.leads.filter(l => l.stage === stage).length;
+                    return (
+                      <div key={stage} className="p-2 bg-[#111827]/40 border border-[#23324C]/45 rounded-xl text-center space-y-1 hover:border-brand-500/30 transition-all cursor-pointer" onClick={() => {
+                        // Switch to leads tab
+                        window.dispatchEvent(new CustomEvent('hero-switch-tab', { detail: 'leads' }));
+                      }}>
+                        <span className="text-[8px] uppercase tracking-wider text-slate-400 block truncate">{stage}</span>
+                        <strong className="text-white text-sm block font-mono">{count}</strong>
+                        <div className="w-full bg-slate-900 rounded-full h-1">
+                          <div className="bg-brand-500 h-full rounded-full" style={{ width: `${Math.min(100, (count / (crmDb.leads.length || 1)) * 100)}%` }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
 
-            {/* Smart Notification Center Feed */}
-            <div className="lg:col-span-5 glass rounded-2xl p-5 border border-[#23324C]/60 flex flex-col justify-between">
-              <div className="flex justify-between items-center border-b border-[#23324C]/40 pb-2">
-                <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Smart Notifications Center</span>
-                <span className="bg-red-500 text-white font-mono font-bold text-[9px] px-2 py-0.5 rounded-full">
-                  {crmDb.notifications.filter(n => !n.isRead).length} Alerts
-                </span>
-              </div>
-              <div className="space-y-3 my-3 max-h-[120px] overflow-y-auto pr-1">
-                {crmDb.notifications.map(n => (
-                  <div 
-                    key={n.id} 
-                    onClick={() => {
-                      // Mark read and open drawer
-                      crmRepository.markNotificationRead(n.id);
-                      const lead = crmRepository.getLeadById(n.leadId);
-                      if (lead) {
-                        setSelectedLead(lead);
-                        setInspectDrawerOpen(true);
-                      }
-                    }}
-                    className={`p-2.5 rounded-xl border text-[11px] cursor-pointer transition-all flex items-start gap-2 ${
-                      n.isRead ? 'bg-[#111827]/20 border-[#23324C]/40 text-slate-400' : 'bg-brand-500/5 border-brand-500/20 text-slate-200'
-                    }`}
-                  >
-                    <AlertCircle className={`h-4 w-4 mt-0.5 flex-shrink-0 ${n.isRead ? 'text-slate-500' : 'text-brand-400'}`} />
-                    <div>
-                      <strong className="block text-[10px] font-bold text-white">{n.type}</strong>
-                      <p className="mt-0.5 font-medium leading-normal">{n.message}</p>
+              {/* Widget 2: Selected Lead Details Panel */}
+              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 space-y-4">
+                <div className="flex justify-between items-center border-b border-[#23324C]/45 pb-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[10px] font-bold text-brand-400 uppercase tracking-widest block">Selected Lead details Workspace</span>
+                    <select
+                      value={overviewSelectedLeadId || ''}
+                      onChange={(e) => setOverviewSelectedLeadId(e.target.value)}
+                      className="bg-[#0B0F19] border border-[#23324C]/60 text-slate-200 text-[10px] font-bold px-2 py-1 rounded focus:outline-none cursor-pointer"
+                    >
+                      {crmDb.leads.map(l => (
+                        <option key={l.id} value={l.id}>{l.company} ({l.name})</option>
+                      ))}
+                    </select>
+                  </div>
+                  {overviewSelectedLead && (
+                    <span className="bg-brand-500/10 border border-brand-500/20 text-brand-400 px-2 py-0.5 rounded text-[10px] uppercase font-bold">
+                      {overviewSelectedLead.stage}
+                    </span>
+                  )}
+                </div>
+
+                {overviewSelectedLead ? (
+                  <div className="space-y-4">
+                    {/* Stats table */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-[#111827]/40 border border-[#23324C]/45 rounded-xl p-3.5 text-xs">
+                      <div>
+                        <span className="text-[9px] text-slate-500 uppercase block font-bold">Fleet Size</span>
+                        <strong className="text-white block mt-0.5">{overviewSelectedLead.fleetSize} Trucks</strong>
+                      </div>
+                      <div>
+                        <span className="text-[9px] text-slate-500 uppercase block font-bold">Transport Niche</span>
+                        <strong className="text-white block mt-0.5">{overviewSelectedLead.niche}</strong>
+                      </div>
+                      <div>
+                        <span className="text-[9px] text-slate-500 uppercase block font-bold">Current Software</span>
+                        <strong className="text-white block mt-0.5 truncate" title={overviewSelectedLead.currentSoftware}>{overviewSelectedLead.currentSoftware}</strong>
+                      </div>
+                      <div>
+                        <span className="text-[9px] text-slate-500 uppercase block font-bold">Estimated Value</span>
+                        <strong className="text-brand-400 block mt-0.5 font-black">${overviewSelectedLead.revenue.toLocaleString()}/mo</strong>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                      <div className="bg-[#111827]/25 border border-[#23324C]/40 rounded-xl p-3">
+                        <span className="text-[9px] text-slate-500 uppercase block font-bold">Core Pain Points</span>
+                        <p className="text-slate-300 mt-1 italic">"{overviewSelectedLead.painPoints || 'No pain points recorded.'}"</p>
+                      </div>
+                      <div className="bg-[#111827]/25 border border-[#23324C]/40 rounded-xl p-3">
+                        <span className="text-[9px] text-slate-500 uppercase block font-bold">Next Follow-Up Target</span>
+                        <div className="flex justify-between items-center mt-1">
+                          <strong className="text-white">{overviewSelectedLead.nextFollowup || 'None Scheduled'}</strong>
+                          <button
+                            onClick={() => {
+                              setSelectedLead(overviewSelectedLead);
+                              setTaskForm({ title: 'Schedule followup Touchpoint', type: 'Call', dueDate: overviewSelectedLead.nextFollowup || new Date().toISOString().split('T')[0], priority: 'Medium' });
+                              setTaskModalOpen(true);
+                            }}
+                            className="text-brand-400 hover:text-brand-300 text-[9px] font-bold uppercase cursor-pointer"
+                          >
+                            Schedule
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Notes area */}
+                    <div className="space-y-1.5 text-xs">
+                      <span className="text-[9px] text-slate-500 uppercase font-bold block">Internal Notes / Log Comment</span>
+                      <div className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3 max-h-20 overflow-y-auto space-y-1.5">
+                        {overviewSelectedLead.notes?.map(note => (
+                          <div key={note.id} className="border-b border-[#23324C]/30 pb-1.5 last:border-b-0 text-[10px]">
+                            <p className="text-slate-300 font-medium">{note.text}</p>
+                            <span className="text-[8px] text-slate-500 block text-right font-mono">- {note.author} on {note.date}</span>
+                          </div>
+                        )) || <span className="text-slate-500 italic">No internal notes logged.</span>}
+                      </div>
+                    </div>
+
+                    {/* Quick Action buttons */}
+                    <div className="border-t border-[#23324C]/45 pt-3 space-y-3">
+                      <span className="text-[9px] text-slate-500 uppercase font-black tracking-wider block">CRM Direct Dispatch Actions</span>
+                      
+                      <div className="flex flex-wrap items-center gap-2">
+                        {/* Assign rep */}
+                        <div className="flex items-center gap-1.5 bg-slate-900 border border-[#23324C]/60 rounded-xl px-2 py-1">
+                          <User className="h-3 w-3 text-brand-400" />
+                          <span className="text-[9px] text-slate-400 font-bold">Rep:</span>
+                          <select
+                            value={overviewSelectedLead.rep}
+                            onChange={(e) => {
+                              crmRepository.assignRep(overviewSelectedLead.id, e.target.value);
+                              triggerToast(`Re-assigned representative to ${e.target.value}`);
+                            }}
+                            className="bg-transparent text-slate-200 text-[9px] font-bold focus:outline-none cursor-pointer"
+                          >
+                            <option value="Alex Wright" className="bg-[#161F30]">Alex Wright</option>
+                            <option value="Sarah K." className="bg-[#161F30]">Sarah K.</option>
+                            <option value="Michael Scott" className="bg-[#161F30]">Michael Scott</option>
+                            <option value="Jan Levinson" className="bg-[#161F30]">Jan Levinson</option>
+                          </select>
+                        </div>
+
+                        {/* Recommend Plan */}
+                        <button
+                          onClick={() => {
+                            let recPlan = 'Starter Plan';
+                            let details = 'Recommended for fleet size of < 35 trucks.';
+                            if (overviewSelectedLead.fleetSize >= 35 && overviewSelectedLead.fleetSize <= 100) {
+                              recPlan = 'Professional Plan';
+                              details = 'Recommended for fleets of 35-100 trucks needing factoring interfaces.';
+                            } else if (overviewSelectedLead.fleetSize > 100) {
+                              recPlan = 'Enterprise Custom Plan';
+                              details = 'Recommended for major enterprise fleets > 100 trucks with custom SLA requirements.';
+                            }
+                            triggerToast(`Recommended license: ${recPlan}. Reason: ${details}`, 'info');
+                          }}
+                          className="bg-purple-950 hover:bg-purple-900 text-purple-200 border border-purple-800 text-[10px] font-bold px-3 py-1.5 rounded-xl cursor-pointer flex items-center gap-1"
+                        >
+                          <Sparkles className="h-3 w-3" /> Recommend Plan
+                        </button>
+
+                        <button
+                          onClick={() => handleOpenDemoModal(overviewSelectedLead)}
+                          className="bg-brand-500 hover:bg-brand-600 text-slate-950 text-[10px] font-bold px-3 py-1.5 rounded-xl cursor-pointer flex items-center gap-1 animate-pulse"
+                        >
+                          <Calendar className="h-3 w-3" /> Book Demo
+                        </button>
+
+                        <button
+                          onClick={() => handleStartTrial(overviewSelectedLead)}
+                          className="bg-indigo-950 hover:bg-indigo-900 text-indigo-200 border border-indigo-800 text-[10px] font-bold px-3 py-1.5 rounded-xl cursor-pointer flex items-center gap-1"
+                        >
+                          <Play className="h-3 w-3" /> Start Trial
+                        </button>
+
+                        <button
+                          onClick={() => handleOpenProposalModal(overviewSelectedLead)}
+                          className="bg-slate-900 hover:bg-slate-800 border border-[#23324C] text-slate-200 text-[10px] font-bold px-3 py-1.5 rounded-xl cursor-pointer flex items-center gap-1"
+                        >
+                          <Send className="h-3 w-3" /> Send Proposal
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            crmWorkflowEngine.handleStageChange(overviewSelectedLead.id, 'Won', 'Marked won from overview actions panel', permissionRole);
+                            triggerToast(`Marked ${overviewSelectedLead.company} as Won!`);
+                          }}
+                          className="bg-emerald-950 hover:bg-emerald-900 text-emerald-200 border border-emerald-800 text-[10px] font-bold px-3 py-1.5 rounded-xl cursor-pointer flex items-center gap-1"
+                        >
+                          <Check className="h-3 w-3" /> Mark Won
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            crmWorkflowEngine.handleStageChange(overviewSelectedLead.id, 'Lost', 'Marked lost from overview actions panel', permissionRole);
+                            triggerToast(`Marked ${overviewSelectedLead.company} as Lost.`, 'warning');
+                          }}
+                          className="bg-red-950 hover:bg-red-900 text-red-200 border border-red-800 text-[10px] font-bold px-3 py-1.5 rounded-xl cursor-pointer flex items-center gap-1"
+                        >
+                          <X className="h-3 w-3" /> Mark Lost
+                        </button>
+
+                        {overviewSelectedLead.stage === 'Won' && (
+                          <button
+                            onClick={() => {
+                              setSelectedLead(overviewSelectedLead);
+                              setConversionWizardOpen(true);
+                            }}
+                            className="bg-amber-500 hover:bg-amber-600 text-slate-950 text-[10px] font-black px-3 py-1.5 rounded-xl cursor-pointer flex items-center gap-1"
+                          >
+                            <UserCheck className="h-3 w-3" /> Convert to Company
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Communication Integration buttons */}
+                      <div className="flex gap-2 items-center flex-wrap pt-1.5 border-t border-[#23324C]/30">
+                        <button
+                          onClick={() => {
+                            setSelectedLead(overviewSelectedLead);
+                            setEmailForm({ subject: 'Welcome Sandbox Invite', template: 'Welcome Sandbox Invite', body: '', status: 'Sent' });
+                            setEmailModalOpen(true);
+                          }}
+                          className="p-2 bg-slate-900 border border-[#23324C]/65 hover:border-brand-500/25 rounded-xl text-slate-400 hover:text-white cursor-pointer"
+                          title="Send Email"
+                        >
+                          <Mail className="h-3.5 w-3.5" />
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setSelectedLead(overviewSelectedLead);
+                            setCallForm({ duration: '2m 15s', outcome: 'Connected', notes: '' });
+                            setCallModalOpen(true);
+                          }}
+                          className="p-2 bg-slate-900 border border-[#23324C]/65 hover:border-brand-500/25 rounded-xl text-slate-400 hover:text-white cursor-pointer"
+                          title="Log Call"
+                        >
+                          <Phone className="h-3.5 w-3.5" />
+                        </button>
+
+                        <button
+                          onClick={() => {
+                            setSelectedLead(overviewSelectedLead);
+                            setTaskForm({ title: 'Urgent follow-up', type: 'Call', dueDate: new Date().toISOString().split('T')[0], priority: 'Medium' });
+                            setTaskModalOpen(true);
+                          }}
+                          className="p-2 bg-slate-900 border border-[#23324C]/65 hover:border-brand-500/25 rounded-xl text-slate-400 hover:text-white cursor-pointer"
+                          title="Schedule Follow-up"
+                        >
+                          <Calendar className="h-3.5 w-3.5" />
+                        </button>
+
+                        <input
+                          type="text"
+                          placeholder="Quick write note and press Enter..."
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && e.target.value.trim()) {
+                              crmRepository.addNote(overviewSelectedLead.id, e.target.value, permissionRole);
+                              triggerToast('Internal note saved!');
+                              e.target.value = '';
+                            }
+                          }}
+                          className="bg-[#0B0F19] border border-[#23324C]/60 text-slate-200 text-[10px] px-3 py-2 rounded-xl flex-grow focus:outline-none"
+                        />
+                      </div>
                     </div>
                   </div>
-                ))}
+                ) : (
+                  <div className="text-slate-500 italic py-10 text-center text-xs">No active leads selected.</div>
+                )}
               </div>
             </div>
 
-          </div>
-
-          {/* Agenda tasks & leaderboard dashboard grids */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            
-            {/* Today's Activities */}
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 flex flex-col justify-between">
-              <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block border-b border-[#23324C]/40 pb-2">Today's Agenda Touchpoints</span>
-              <div className="space-y-3.5 my-3.5 max-h-56 overflow-y-auto scrollbar-none">
-                {crmDb.followups.filter(f => f.status === 'Pending').slice(0, 3).map(f => (
-                  <div key={f.id} className="p-3 bg-[#111827]/40 border border-[#23324C]/60 rounded-xl flex items-center justify-between text-xs">
-                    <div>
-                      <strong className="text-white block">{f.company}</strong>
-                      <span className="text-[9px] text-slate-550 block mt-0.5">{f.contact} • Due Today at {f.dueTime}</span>
-                      <span className="text-[9px] text-brand-400 font-bold block mt-1">Action: Log {f.type}</span>
-                    </div>
-                    <button 
+            {/* Widget 3 & 4: Upcoming Follow-ups & Recent Activity Timeline */}
+            <div className="lg:col-span-4 space-y-6">
+              
+              {/* Widget 3: Upcoming Follow-up Tasks */}
+              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-between items-center border-b border-[#23324C]/40 pb-2">
+                    <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Upcoming Follow-Up Tasks</span>
+                    <button
                       onClick={() => {
-                        crmRepository.completeFollowup(f.id);
-                        triggerToast(`Marked ${f.type} followup call with ${f.contact} completed.`);
+                        setSelectedLead(crmDb.leads[0]);
+                        setTaskForm({ title: 'General followup Call', type: 'Call', dueDate: new Date().toISOString().split('T')[0], priority: 'Medium' });
+                        setTaskModalOpen(true);
                       }}
-                      className="px-2 py-1 bg-slate-900 border border-[#23324C]/60 hover:bg-slate-800 rounded text-[9px] font-black uppercase text-slate-350 cursor-pointer"
+                      className="text-brand-400 hover:text-brand-350 text-[9px] font-bold uppercase cursor-pointer"
                     >
-                      Complete
+                      + Add Task
                     </button>
                   </div>
-                ))}
+                  <div className="space-y-3 my-3 max-h-[160px] overflow-y-auto pr-1">
+                    {crmDb.followups.filter(f => f.status === 'Pending').slice(0, 5).map(f => {
+                      const isOverdue = new Date(f.dueDate) < new Date(new Date().toISOString().split('T')[0]);
+                      return (
+                        <div key={f.id} className="p-2.5 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl flex items-center justify-between text-xs hover:border-brand-500/25 transition-all">
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <strong className="text-white block font-bold">{f.company}</strong>
+                              {isOverdue && (
+                                <span className="bg-red-500/10 border border-red-500/25 text-red-400 text-[7px] font-black uppercase px-1 rounded font-mono">Overdue</span>
+                              )}
+                            </div>
+                            <span className="text-[9px] text-slate-400 block mt-0.5">Due: {f.dueDate} at {f.dueTime}</span>
+                            <span className="text-[9px] text-brand-400 block mt-0.5">Task: {f.type} • {f.notes}</span>
+                          </div>
+                          <button
+                            onClick={() => {
+                              crmRepository.completeFollowup(f.id);
+                              triggerToast(`Completed ${f.type} followup with ${f.contact}`);
+                            }}
+                            className="p-1 bg-slate-900 border border-[#23324C] hover:bg-slate-800 text-slate-200 rounded-lg cursor-pointer"
+                            title="Complete"
+                          >
+                            <Check className="h-3 w-3 text-emerald-400" />
+                          </button>
+                        </div>
+                      );
+                    })}
+                    {crmDb.followups.filter(f => f.status === 'Pending').length === 0 && (
+                      <span className="text-slate-500 italic block py-4 text-center">No upcoming follow-ups scheduled.</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Widget 4: Recent Sales Activity Timeline */}
+              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 flex flex-col justify-between">
+                <div>
+                  <div className="flex justify-between items-center border-b border-[#23324C]/40 pb-2">
+                    <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Recent Activity Timeline</span>
+                    <Activity className="h-3.5 w-3.5 text-brand-400" />
+                  </div>
+                  <div className="space-y-3.5 my-3 max-h-[220px] overflow-y-auto pr-1">
+                    {(() => {
+                      const allEvents = crmDb.leads.flatMap(l => 
+                        l.timeline.map(t => ({
+                          ...t,
+                          company: l.company,
+                          rep: l.rep
+                        }))
+                      ).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
+
+                      return allEvents.map((ev, idx) => (
+                        <div key={idx} className="flex gap-2.5 text-left text-xs border-b border-[#23324C]/20 pb-2 last:border-0">
+                          <div className="mt-1 flex-shrink-0">
+                            <div className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <strong className="text-white text-[11px]">{ev.company}</strong>
+                              <span className="text-[8px] bg-slate-900 border border-[#23324C]/50 text-slate-400 px-1 rounded">{ev.date}</span>
+                            </div>
+                            <span className="text-[10px] text-slate-350 block mt-0.5">{ev.event}: {ev.detail}</span>
+                            <span className="text-[8px] text-slate-500 block font-mono">User: {ev.user}</span>
+                          </div>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          {/* Widgets 5 & 6: Analytics Charts Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-left">
+            
+            {/* Widget 5: Monthly Sales Analytics */}
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 space-y-4">
+              <div>
+                <h4 className="text-sm font-extrabold text-white">Monthly Sales Analytics</h4>
+                <p className="text-[10px] text-slate-500">Pipeline growth performance forecast.</p>
+              </div>
+              <div className="h-[200px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={[
+                    { month: 'Jan', pipeline: 12000, won: 4500 },
+                    { month: 'Feb', pipeline: 18500, won: 6200 },
+                    { month: 'Mar', pipeline: 24000, won: 11000 },
+                    { month: 'Apr', pipeline: 31000, won: 18000 },
+                    { month: 'May', pipeline: 48000, won: 26000 },
+                    { month: 'Jun', pipeline: kpis.totalPipelineValue, won: kpis.mrr }
+                  ]} margin={{ left: -15, right: 10, top: 10, bottom: 5 }}>
+                    <defs>
+                      <linearGradient id="colorPipeline" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10B981" stopOpacity={0.2}/>
+                        <stop offset="95%" stopColor="#10B981" stopOpacity={0.0}/>
+                      </linearGradient>
+                      <linearGradient id="colorWon" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#FFD400" stopOpacity={0.2}/>
+                        <stop offset="95%" stopColor="#FFD400" stopOpacity={0.0}/>
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#23324C" opacity={0.2} />
+                    <XAxis dataKey="month" stroke="#94a3b8" fontSize={9} />
+                    <YAxis stroke="#94a3b8" fontSize={9} />
+                    <Tooltip contentStyle={{ backgroundColor: '#161F30', borderColor: '#23324C', borderRadius: '12px', fontSize: '11px', color: '#fff' }} />
+                    <Area type="monotone" dataKey="pipeline" name="Pipeline Value" stroke="#10B981" strokeWidth={2} fillOpacity={1} fill="url(#colorPipeline)" />
+                    <Area type="monotone" dataKey="won" name="Won MRR" stroke="#FFD400" strokeWidth={2} fillOpacity={1} fill="url(#colorWon)" />
+                  </AreaChart>
+                </ResponsiveContainer>
               </div>
             </div>
 
-            {/* Recently Closed Deals */}
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 flex flex-col justify-between">
-              <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block border-b border-[#23324C]/40 pb-2">Recently Closed Deals</span>
-              <div className="space-y-3.5 my-3.5 max-h-56 overflow-y-auto scrollbar-none">
-                {crmDb.leads.filter(l => ['Won', 'Lost'].includes(l.stage)).slice(0, 3).map(l => (
-                  <div key={l.id} className="p-3 bg-[#111827]/40 border border-[#23324C]/60 rounded-xl flex justify-between items-center text-xs">
-                    <div>
-                      <strong className="text-white block">{l.company}</strong>
-                      <span className="text-[9px] text-slate-450 block mt-0.5">Value: ${l.revenue.toLocaleString()}/mo • Rep: {l.rep}</span>
-                    </div>
-                    <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
-                      l.stage === 'Won' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'
-                    }`}>{l.stage}</span>
-                  </div>
-                ))}
+            {/* Widget 6: Conversion Rate Chart */}
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 space-y-4">
+              <div>
+                <h4 className="text-sm font-extrabold text-white">Conversion Rate Chart</h4>
+                <p className="text-[10px] text-slate-500">Funnel efficiency progression across stages.</p>
               </div>
-            </div>
-
-            {/* Sales Representative Leaderboard */}
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 flex flex-col justify-between">
-              <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider block border-b border-[#23324C]/40 pb-2">Agent Performance Leaders</span>
-              <div className="space-y-3.5 my-3.5 max-h-56 overflow-y-auto scrollbar-none">
-                {repPerformanceData.sort((a,b) => b.revenue - a.revenue).map((rep, idx) => (
-                  <div key={idx} className="flex justify-between items-center text-xs p-2 bg-[#111827]/30 border border-[#23324C]/45 rounded-xl">
-                    <div className="flex items-center gap-2">
-                      <span className="font-mono font-bold text-slate-450">#{idx + 1}</span>
-                      <strong className="text-white">{rep.name}</strong>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-brand-400 font-bold block">${rep.revenue.toLocaleString()}/mo</span>
-                      <span className="text-[9px] text-slate-450 block">{rep.won} Deals won</span>
-                    </div>
-                  </div>
-                ))}
+              <div className="h-[200px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={[
+                    { stage: 'Leads', count: crmDb.leads.length },
+                    { stage: 'Demos', count: crmDb.demos.length },
+                    { stage: 'Trials', count: crmDb.trials.length },
+                    { stage: 'Proposals', count: crmDb.proposals.length },
+                    { stage: 'Won', count: kpis.dealsWon }
+                  ]} margin={{ left: -15, right: 10, top: 10, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#23324C" opacity={0.2} />
+                    <XAxis dataKey="stage" stroke="#94a3b8" fontSize={9} />
+                    <YAxis stroke="#94a3b8" fontSize={9} />
+                    <Tooltip contentStyle={{ backgroundColor: '#161F30', borderColor: '#23324C', borderRadius: '12px', fontSize: '11px', color: '#fff' }} />
+                    <Bar dataKey="count" name="Entities Pool" fill="#6366F1" radius={[4, 4, 0, 0]}>
+                      {Array.from({ length: 5 }).map((_, idx) => (
+                        <Cell key={`cell-${idx}`} fill={['#6366F1', '#3B82F6', '#10B981', '#F59E0B', '#EF4444'][idx]} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </div>
 
@@ -1462,13 +1838,17 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
       {activeTab === 'scheduler' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch text-left">
           
-          <div className="lg:col-span-8 glass rounded-2xl p-5 border border-[#23324C]/60 space-y-4">
+          {/* Calendar visual column */}
+          <div className="lg:col-span-7 glass rounded-2xl p-5 border border-[#23324C]/60 space-y-4">
             <div className="flex justify-between items-center border-b border-[#23324C]/45 pb-3">
-              <h3 className="text-sm font-extrabold text-white">Product Demo Walkthroughs Schedule</h3>
-              <span className="text-[10px] font-mono font-bold bg-[#111827] px-3 py-1 rounded text-slate-455 border border-[#23324C]/50">June 2026</span>
+              <div>
+                <h3 className="text-sm font-extrabold text-white">Product Demo Walkthroughs Schedule</h3>
+                <p className="text-[10px] text-slate-500">Date-wise booking distribution (June 2026).</p>
+              </div>
+              <span className="text-[10px] font-mono font-bold bg-[#111827] px-3 py-1 rounded text-slate-400 border border-[#23324C]/50">June 2026</span>
             </div>
 
-            <div className="grid grid-cols-7 gap-2 text-center text-[10px] font-bold text-slate-505 border-b border-[#23324C]/40 pb-2">
+            <div className="grid grid-cols-7 gap-2 text-center text-[10px] font-bold text-slate-500 border-b border-[#23324C]/40 pb-2">
               <span>SUN</span><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span>
             </div>
             <div className="grid grid-cols-7 gap-2 items-stretch">
@@ -1480,7 +1860,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                 return (
                   <div 
                     key={day} 
-                    className="min-h-[75px] p-2 border border-[#23324C]/40 hover:border-brand-500/20 bg-[#111827]/20 rounded-xl flex flex-col justify-between transition-all"
+                    className="min-h-[85px] p-2 border border-[#23324C]/40 hover:border-brand-500/20 bg-[#111827]/20 rounded-xl flex flex-col justify-between transition-all"
                   >
                     <span className="text-[9px] font-mono font-bold text-slate-500">{day}</span>
                     <div className="space-y-1 mt-1">
@@ -1489,11 +1869,12 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                           key={d.id} 
                           onClick={() => {
                             const lead = crmDb.leads.find(l => l.id === d.leadId);
-                            if (lead) { setSelectedLead(lead); setDrawerActiveTab('Overview'); setInspectDrawerOpen(true); }
+                            if (lead) { setSelectedLead(lead); setDrawerActiveTab('Meetings'); setInspectDrawerOpen(true); }
                           }}
                           className={`rounded px-1.5 py-0.5 text-[8px] font-extrabold truncate cursor-pointer ${
                             d.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-400' : (d.status === 'Cancelled' ? 'bg-red-500/10 text-red-400' : 'bg-brand-500/10 text-brand-400')
                           }`}
+                          title={`Presenter: ${d.presenter} • ${d.time}`}
                         >
                           {d.company.split(' ')[0]}
                         </div>
@@ -1505,44 +1886,106 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
             </div>
           </div>
 
-          <div className="lg:col-span-4 glass rounded-2xl p-5 border border-[#23324C]/60 flex flex-col justify-between">
-            <div className="space-y-4">
-              <h3 className="text-sm font-extrabold text-white">Upcoming Slots Walkthrough</h3>
-              <div className="space-y-3.5 max-h-[360px] overflow-y-auto scrollbar-none">
+          {/* Scheduling list and feedback sidebar column */}
+          <div className="lg:col-span-5 glass rounded-2xl p-5 border border-[#23324C]/60 flex flex-col justify-between space-y-4">
+            <div className="space-y-4 flex-grow overflow-y-auto max-h-[500px] pr-1">
+              <div className="flex justify-between items-center border-b border-[#23324C]/40 pb-2">
+                <h3 className="text-sm font-extrabold text-white">Upcoming Slots Walkthrough</h3>
+                <Button size="sm" variant="primary" onClick={() => handleOpenDemoModal(crmDb.leads[0])}>
+                  + Book Demo
+                </Button>
+              </div>
+
+              <div className="space-y-3.5">
                 {crmDb.demos.map(d => (
-                  <div key={d.id} className="p-3 bg-[#111827]/40 border border-[#23324C]/60 rounded-xl space-y-2.5">
+                  <div key={d.id} className="p-3 bg-[#111827]/40 border border-[#23324C]/60 rounded-xl space-y-3">
                     <div className="flex justify-between items-start">
                       <div>
                         <strong className="text-white text-xs block">{d.company}</strong>
-                        <span className="text-[10px] text-slate-400 block mt-0.5">Presenter: {d.presenter} • {d.date} at {d.time}</span>
+                        <span className="text-[10px] text-slate-400 block mt-0.5">Presenter: {d.presenter} • {d.date} at {d.time} {d.timezone}</span>
+                        {d.feedback && (
+                          <div className="mt-1.5 p-2 bg-[#0B0F19]/60 rounded border border-[#23324C]/35 text-[9px] text-slate-350">
+                            <span className="font-bold text-slate-400 block">Feedback (Rating: {d.rating}/5 ⭐)</span>
+                            "{d.feedback}"
+                          </div>
+                        )}
                       </div>
-                      <span className={`px-2 py-0.5 rounded text-[8px] font-bold ${
-                        d.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-400' : (d.status === 'Upcoming' ? 'bg-brand-500/10 text-brand-400' : 'bg-red-500/10 text-red-400')
-                      }`}>{d.status}</span>
+                      
+                      <div className="flex flex-col items-end gap-1.5">
+                        <select
+                          value={d.status}
+                          onChange={(e) => {
+                            crmRepository.updateDemo(d.id, { status: e.target.value });
+                            triggerToast(`Updated demo status to ${e.target.value}`);
+                          }}
+                          className="bg-[#0B0F19] border border-[#23324C]/60 text-slate-200 text-[9px] px-1 py-0.5 rounded cursor-pointer font-bold focus:outline-none"
+                        >
+                          <option value="Upcoming">Upcoming</option>
+                          <option value="Completed">Completed</option>
+                          <option value="Cancelled">Cancelled</option>
+                        </select>
+                      </div>
                     </div>
 
-                    {d.status === 'Upcoming' && (
-                      <div className="flex gap-2">
-                        <a href={d.meetingLink} target="_blank" rel="noreferrer" className="flex-grow bg-brand-500 hover:bg-brand-600 text-slate-950 text-[10px] font-black py-1.5 rounded-lg text-center cursor-pointer flex items-center justify-center gap-1">
-                          <Play className="h-3 w-3" /> Start Meeting
-                        </a>
-                        <button 
-                          onClick={() => handleMarkDemoCompleted(d)} 
-                          className="flex-grow bg-slate-800 hover:bg-slate-700 text-slate-200 text-[10px] font-bold py-1.5 rounded-lg cursor-pointer"
+                    <div className="flex flex-wrap gap-2 pt-1.5 border-t border-[#23324C]/30 justify-between items-center">
+                      <div className="flex gap-1.5">
+                        {d.status === 'Upcoming' && (
+                          <a href={d.meetingLink} target="_blank" rel="noreferrer" className="bg-brand-500 hover:bg-brand-600 text-slate-950 text-[9px] font-black px-2.5 py-1.5 rounded-lg text-center cursor-pointer flex items-center gap-1">
+                            <Play className="h-3 w-3" /> Join Zoom
+                          </a>
+                        )}
+                        {d.status === 'Upcoming' && (
+                          <button 
+                            onClick={() => {
+                              crmRepository.completeDemo(d.id);
+                              triggerToast(`Demo presentation complete.`);
+                            }}
+                            className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-[9px] font-bold px-2.5 py-1.5 rounded-lg cursor-pointer"
+                          >
+                            Mark Complete
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="flex gap-1.5">
+                        {/* Send Demo Reminder notification */}
+                        <button
+                          onClick={() => {
+                            crmActivityEngine.logMutation(
+                              d.leadId,
+                              permissionRole,
+                              'Demo Reminder Sent',
+                              `Walkthrough reminder alert dispatched for Zoom link details to host/client: ${d.meetingLink}`,
+                              'None',
+                              'Sent'
+                            );
+                            triggerToast("Demo reminder notification successfully dispatched to attendees!");
+                          }}
+                          className="text-[9px] text-brand-400 hover:text-brand-300 font-bold uppercase cursor-pointer"
                         >
-                          Complete
+                          Send Reminder
+                        </button>
+
+                        {/* Feedback Logger */}
+                        <button
+                          onClick={() => {
+                            const feedbackText = prompt("Log presentation summary & carrier feedback:") || '';
+                            const rating = parseInt(prompt("Log rating (1-5 ⭐):") || '5') || 5;
+                            crmRepository.logDemoFeedback(d.id, feedbackText, rating);
+                            triggerToast("Demo feedback logs registered.");
+                          }}
+                          className="text-[9px] text-slate-400 hover:text-slate-250 font-bold uppercase cursor-pointer border-l border-[#23324C] pl-2"
+                        >
+                          Feedback
                         </button>
                       </div>
-                    )}
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
-
-            <Button variant="outline" className="w-full mt-4" onClick={() => handleOpenDemoModal(crmDb.leads[0])}>
-              Book New Presentation Meeting
-            </Button>
           </div>
+
         </div>
       )}
 
@@ -1551,61 +1994,108 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
           ============================================================================ */}
       {activeTab === 'trials' && (
         <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-          <h3 className="text-sm font-extrabold text-white">SaaS Trial Workspace Quotas</h3>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {crmDb.trials.map(t => (
-              <div key={t.id} className="p-4 bg-[#111827]/40 border border-[#23324C]/60 rounded-xl space-y-4">
-                
-                <div className="flex justify-between items-start border-b border-[#23324C]/30 pb-3">
-                  <div>
-                    <h4 className="text-white text-xs font-black">{t.company}</h4>
-                    <span className="text-[10px] text-slate-450 block mt-0.5">Admin: {t.admin}</span>
-                  </div>
-                  <span className={`px-2 py-0.5 rounded text-[8px] font-bold ${
-                    t.status === 'Active' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'
-                  }`}>{t.status}</span>
-                </div>
-
-                <div className="space-y-3.5 text-[10px]">
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-slate-400">
-                      <span>Days Remaining</span>
-                      <strong className="text-white">{t.daysRemaining} / 14 Days</strong>
-                    </div>
-                    <div className="w-full bg-slate-900 rounded-full h-1">
-                      <div className="bg-brand-500 h-full rounded-full" style={{ width: `${(t.daysRemaining / 14) * 100}%` }} />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between text-slate-400">
-                    <span>Most Used Module:</span>
-                    <strong className="text-white text-right">{t.mostUsedModule}</strong>
-                  </div>
-
-                  <div className="flex justify-between text-slate-400">
-                    <span>Quota:</span>
-                    <strong className="text-white">{t.activeUsers} Users • {t.storage}</strong>
-                  </div>
-                </div>
-
-                <div className="flex gap-2 pt-2 border-t border-[#23324C]/30">
-                  <button 
-                    onClick={() => triggerToast(`Impersonating admin session takeover context for ${t.company}...`)}
-                    className="flex-1 bg-brand-500 hover:bg-brand-600 text-slate-950 text-[10px] font-black py-1.5 rounded-lg cursor-pointer"
-                  >
-                    Login As Company
-                  </button>
-                  <button 
-                    onClick={() => { setSelectedTrial(t); setExtendTrialModalOpen(true); }}
-                    className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[10px] font-bold py-1.5 rounded-lg cursor-pointer"
-                  >
-                    Extend Trial
-                  </button>
-                </div>
-
+          <div className="flex justify-between items-center border-b border-[#23324C]/45 pb-3 flex-wrap gap-2">
+            <div>
+              <h3 className="text-sm font-extrabold text-white">SaaS Trial Workspace Quotas</h3>
+              <p className="text-[10px] text-slate-500">Track Sandbox active evaluations and limits.</p>
+            </div>
+            
+            {/* Conversion Metrics Headers */}
+            <div className="flex gap-4 text-xs">
+              <div className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl px-3 py-1.5 text-center">
+                <span className="text-[9px] text-slate-400 block font-bold">ACTIVE TRIALS</span>
+                <strong className="text-white text-sm font-mono">{crmDb.trials.filter(t => t.status === 'Active').length}</strong>
               </div>
-            ))}
+              <div className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl px-3 py-1.5 text-center">
+                <span className="text-[9px] text-slate-400 block font-bold">CONVERSION RATE</span>
+                <strong className="text-brand-400 text-sm font-mono">
+                  {Math.round((crmDb.leads.filter(l => l.stage === 'Won').length / (crmDb.leads.length || 1)) * 100)}%
+                </strong>
+              </div>
+              <div className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl px-3 py-1.5 text-center">
+                <span className="text-[9px] text-slate-400 block font-bold">EXPIRED PORTALS</span>
+                <strong className="text-red-400 text-sm font-mono">{crmDb.trials.filter(t => t.status === 'Expired').length}</strong>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {crmDb.trials.map(t => {
+              const expiringSoon = t.status === 'Active' && t.daysRemaining <= 3;
+              return (
+                <div key={t.id} className={`p-4 rounded-xl space-y-4 border transition-all ${
+                  expiringSoon 
+                    ? 'bg-red-500/5 border-red-500/30' 
+                    : 'bg-[#111827]/40 border-[#23324C]/60 hover:border-brand-500/25'
+                }`}>
+                  
+                  <div className="flex justify-between items-start border-b border-[#23324C]/30 pb-3">
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <h4 className="text-white text-xs font-black">{t.company}</h4>
+                        {expiringSoon && (
+                          <span className="bg-red-500 text-white text-[7px] font-black uppercase px-1 rounded animate-pulse">EXPIRING SOON</span>
+                        )}
+                      </div>
+                      <span className="text-[10px] text-slate-450 block mt-0.5">Admin: {t.admin}</span>
+                    </div>
+                    <span className={`px-2 py-0.5 rounded text-[8px] font-bold ${
+                      t.status === 'Active' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'
+                    }`}>{t.status}</span>
+                  </div>
+
+                  {expiringSoon && (
+                    <div className="bg-red-950/20 border border-red-900/30 text-red-400 text-[9px] p-2 rounded-lg font-bold flex items-center gap-1.5 animate-pulse">
+                      <AlertTriangle className="h-4 w-4" />
+                      <span>Action Required: sandbox term expires in {t.daysRemaining} days ({t.expiryDate})!</span>
+                    </div>
+                  )}
+
+                  <div className="space-y-3 text-[10px]">
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-slate-400">
+                        <span>Days Remaining</span>
+                        <strong className="text-white">{t.daysRemaining} / 14 Days</strong>
+                      </div>
+                      <div className="w-full bg-slate-900 rounded-full h-1">
+                        <div className="bg-brand-500 h-full rounded-full" style={{ width: `${Math.min(100, (t.daysRemaining / 14) * 100)}%` }} />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between text-slate-450">
+                      <span>Term Period:</span>
+                      <strong className="text-slate-200">{t.startDate} to {t.expiryDate}</strong>
+                    </div>
+
+                    <div className="flex justify-between text-slate-400">
+                      <span>Most Used Module:</span>
+                      <strong className="text-white text-right">{t.mostUsedModule}</strong>
+                    </div>
+
+                    <div className="flex justify-between text-slate-400">
+                      <span>Quota limits:</span>
+                      <strong className="text-white">{t.activeUsers} Users • {t.storage}</strong>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 pt-2 border-t border-[#23324C]/30">
+                    <button 
+                      onClick={() => triggerToast(`Impersonating admin session takeover context for ${t.company}...`)}
+                      className="flex-1 bg-brand-500 hover:bg-brand-600 text-slate-950 text-[10px] font-black py-1.5 rounded-lg cursor-pointer"
+                    >
+                      Login As Company
+                    </button>
+                    <button 
+                      onClick={() => { setSelectedTrial(t); setExtendTrialModalOpen(true); }}
+                      className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[10px] font-bold py-1.5 rounded-lg cursor-pointer"
+                    >
+                      Extend Trial
+                    </button>
+                  </div>
+
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
@@ -1651,16 +2141,27 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                   <div>
                     <span className="text-[9px] font-mono font-bold bg-[#111827] px-2.5 py-1 rounded text-slate-450 border border-[#23324C]/60 uppercase tracking-widest">SaaS License Proposal</span>
                     <h4 className="text-white text-base font-extrabold mt-2">{selectedProposal.title}</h4>
-                    <span className="text-[10px] text-slate-455 block mt-1">Proposal ID: PROP-{selectedProposal.id} • Issued: {selectedProposal.createdDate}</span>
+                    <span className="text-[10px] text-slate-455 block mt-1">Proposal ID: PROP-{selectedProposal.id} • Issued: {selectedProposal.createdDate} • Version: {selectedProposal.version || 'V1'}</span>
                   </div>
                   
-                  <button 
-                    onClick={() => triggerToast(`SaaS license agreement contract PDF generated for PROP-${selectedProposal.id}.`)}
-                    className="p-2 bg-slate-900 border border-[#23324C] hover:border-brand-500/40 rounded-xl text-slate-400 hover:text-white cursor-pointer"
-                    title="Download PDF"
-                  >
-                    <Download className="h-4 w-4" />
-                  </button>
+                  <div className="flex gap-2">
+                    <button 
+                      onClick={() => {
+                        setProposalPreviewModalOpen(true);
+                      }}
+                      className="p-2 bg-slate-900 border border-[#23324C] hover:border-brand-500/40 rounded-xl text-slate-400 hover:text-white cursor-pointer flex items-center justify-center"
+                      title="Print / PDF Preview"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </button>
+                    <button 
+                      onClick={() => triggerToast(`SaaS license agreement contract PDF generated for PROP-${selectedProposal.id}.`)}
+                      className="p-2 bg-slate-900 border border-[#23324C] hover:border-brand-500/40 rounded-xl text-slate-400 hover:text-white cursor-pointer"
+                      title="Download PDF"
+                    >
+                      <Download className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* Proposal Calculations */}
@@ -1697,14 +2198,39 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                   </div>
                 </div>
 
-                {selectedProposal.status === 'Sent' && (
-                  <div className="flex gap-2 border-t border-[#23324C]/45 pt-4">
+                {/* Historical versions list */}
+                {selectedProposal.versionsList && selectedProposal.versionsList.length > 0 && (
+                  <div className="space-y-2 text-xs">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Proposal Revision History</span>
+                    <div className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3.5 space-y-2">
+                      {selectedProposal.versionsList.map((ver, idx) => (
+                        <div key={idx} className="flex justify-between items-center text-[10px] text-slate-355 border-b border-[#23324C]/20 pb-2 last:border-0 last:pb-0">
+                          <div>
+                            <span className="text-white font-extrabold">Version {ver.version}</span>
+                            <span className="text-slate-500 ml-2">({ver.date})</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className="text-brand-400 font-black">${ver.total.toLocaleString()} / mo</span>
+                            <span className={`px-1.5 py-0.2 rounded font-mono text-[8px] ${
+                              ver.status === 'Accepted' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-slate-800 text-slate-400'
+                            }`}>{ver.status}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex flex-wrap gap-2 border-t border-[#23324C]/45 pt-4">
+                  {selectedProposal.status === 'Sent' && (
                     <button 
                       onClick={() => handleProposalAccept(selectedProposal)}
                       className="flex-grow bg-emerald-500 hover:bg-emerald-600 text-slate-950 text-[11px] font-black py-2 rounded-lg cursor-pointer"
                     >
                       Accept Contract & Convert
                     </button>
+                  )}
+                  {selectedProposal.status === 'Sent' && (
                     <button 
                       onClick={() => {
                         crmRepository.updateProposal(selectedProposal.id, { status: 'Rejected' });
@@ -1715,8 +2241,28 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                     >
                       Reject Contract
                     </button>
-                  </div>
-                )}
+                  )}
+                  <button 
+                    onClick={() => {
+                      setRevisingProposalId(selectedProposal.id);
+                      setSelectedLead(crmDb.leads.find(l => l.id === selectedProposal.leadId));
+                      
+                      setProposalBuilder({
+                        title: selectedProposal.title,
+                        items: selectedProposal.items || [
+                          { name: 'Enterprise License Tier base', price: selectedProposal.value, qty: 1 }
+                        ],
+                        discount: selectedProposal.discount,
+                        tax: selectedProposal.tax,
+                        validity: selectedProposal.validity
+                      });
+                      setProposalModalOpen(true);
+                    }}
+                    className="flex-grow bg-brand-500/10 border border-brand-500/30 hover:bg-brand-500/20 text-brand-400 hover:text-brand-300 text-[11px] font-bold py-2 rounded-lg cursor-pointer flex items-center justify-center gap-1.5"
+                  >
+                    <RefreshCw className="h-3.5 w-3.5" /> Revise Proposal (Draft {selectedProposal.version ? `V${parseInt(selectedProposal.version.replace('V', '')) + 1}` : 'V2'})
+                  </button>
+                </div>
 
               </div>
             ) : (
@@ -1923,59 +2469,365 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
       {activeTab === 'reports' && (
         <div className="space-y-6 text-left">
           
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-            
-            <div className="lg:col-span-8 glass rounded-2xl p-5 border border-[#23324C]/60 flex flex-col justify-between">
-              <div>
-                <h4 className="text-sm font-extrabold text-white">Monthly MRR Growth Projection</h4>
-                <p className="text-[10px] text-slate-500">Revenue added vs target forecasts.</p>
-              </div>
-              <div className="my-4 h-[240px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={[
-                    { label: 'Jan', value: 8500 },
-                    { label: 'Feb', value: 11200 },
-                    { label: 'Mar', value: 14800 },
-                    { label: 'Apr', value: 19500 },
-                    { label: 'May', value: 24200 },
-                    { label: 'Jun', value: kpis.mrr }
-                  ]} margin={{ left: -10, right: 10, top: 10, bottom: 5 }}>
-                    <defs>
-                      <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#FFD400" stopOpacity={0.25}/>
-                        <stop offset="95%" stopColor="#FFD400" stopOpacity={0.0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#23324C" opacity={0.3} />
-                    <XAxis dataKey="label" stroke="#94a3b8" fontSize={9} />
-                    <YAxis stroke="#94a3b8" fontSize={9} />
-                    <Tooltip contentStyle={{ backgroundColor: '#161F30', borderColor: '#23324C', borderRadius: '12px', fontSize: '11px', color: '#fff' }} />
-                    <Area type="monotone" dataKey="value" name="Actual MRR" stroke="#FFD400" strokeWidth={2.5} fillOpacity={1} fill="url(#colorRevenue)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
+          {/* Sub-Reports Navigation Tabs */}
+          <div className="glass rounded-2xl border border-[#23324C]/60 overflow-hidden">
+            <div className="flex gap-1 border-b border-[#23324C]/50 p-3 overflow-x-auto scrollbar-none">
+              {['Leads', 'Conversions', 'Revenue', 'Demos', 'Trials', 'Proposals', 'Rep Performance', 'Activities'].map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setSelectedSubReport(tab)}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wide whitespace-nowrap transition-all cursor-pointer ${
+                    selectedSubReport === tab
+                      ? 'bg-brand-500 text-slate-950 shadow-md'
+                      : 'bg-[#111827]/40 border border-[#23324C]/50 text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
             </div>
 
-            <div className="lg:col-span-4 glass rounded-2xl p-5 border border-[#23324C]/60 flex flex-col justify-between">
-              <div>
-                <h4 className="text-sm font-extrabold text-white">Lead Acquisition Sources</h4>
-                <p className="text-[10px] text-slate-500">Distribution ratios across channels.</p>
-              </div>
-              <div className="my-4 h-[240px] flex items-center justify-center">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Tooltip contentStyle={{ backgroundColor: '#161F30', borderColor: '#23324C', borderRadius: '12px', fontSize: '11px', color: '#fff' }} />
-                    <Legend verticalAlign="bottom" height={36} iconType="circle" iconSize={6} wrapperStyle={{ fontSize: '8px', fontWeight: 'bold' }} />
-                    <Pie data={sourcesData} dataKey="value" nameKey="name" cx="50%" cy="45%" innerRadius={50} outerRadius={70} paddingAngle={4}>
-                      {sourcesData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={['#FFD400', '#10B981', '#6366F1', '#475569'][index % 4]} />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
+            <div className="p-5 text-xs text-left">
+              {/* Leads Sub-Report */}
+              {selectedSubReport === 'Leads' && (
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-[11px] font-black text-white uppercase tracking-wider">Leads Report — All Pipeline Records</span>
+                    <span className="text-[10px] text-slate-500 font-mono">{crmDb.leads.length} Total Leads</span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-3 text-center text-[10px]">
+                    {[
+                      { label: 'New Leads', value: kpis.newLeadsStageCount, color: 'text-brand-400' },
+                      { label: 'Active Pipeline', value: crmDb.leads.filter(l => !['Won','Lost'].includes(l.stage)).length, color: 'text-indigo-400' },
+                      { label: 'Won', value: kpis.dealsWon, color: 'text-emerald-400' },
+                      { label: 'Lost', value: kpis.dealsLost, color: 'text-red-400' }
+                    ].map(s => (
+                      <div key={s.label} className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3">
+                        <span className={`text-xl font-black block ${s.color}`}>{s.value}</span>
+                        <span className="text-slate-500 text-[9px] uppercase font-bold">{s.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="overflow-x-auto rounded-xl border border-[#23324C]/50">
+                    <table className="w-full text-[10px] text-slate-350">
+                      <thead className="bg-[#161F30]/60 text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                        <tr>
+                          <th className="p-2.5 text-left">Company</th>
+                          <th className="p-2.5 text-left">Rep</th>
+                          <th className="p-2.5 text-left">Niche</th>
+                          <th className="p-2.5 text-right">Revenue</th>
+                          <th className="p-2.5 text-center">Stage</th>
+                          <th className="p-2.5 text-center">Score</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#23324C]/30">
+                        {crmDb.leads.slice(0, 8).map(l => (
+                          <tr key={l.id} className="hover:bg-slate-800/20">
+                            <td className="p-2.5 font-bold text-white">{l.company}</td>
+                            <td className="p-2.5 text-slate-400">{l.rep}</td>
+                            <td className="p-2.5 text-slate-400">{l.niche}</td>
+                            <td className="p-2.5 text-right text-brand-400 font-black">${l.revenue?.toLocaleString()}</td>
+                            <td className="p-2.5 text-center"><span className="bg-brand-500/10 border border-brand-500/20 text-brand-400 px-1.5 py-0.5 rounded text-[8px] font-bold">{l.stage}</span></td>
+                            <td className="p-2.5 text-center font-mono font-bold">{l.score}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
 
+              {/* Conversions Sub-Report */}
+              {selectedSubReport === 'Conversions' && (
+                <div className="space-y-4">
+                  <span className="text-[11px] font-black text-white uppercase tracking-wider block">Conversions Funnel Report</span>
+                  <div className="h-[200px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={[
+                        { stage: 'New Lead', count: crmDb.leads.filter(l => l.stage === 'New Lead').length },
+                        { stage: 'Demo', count: crmDb.demos.length },
+                        { stage: 'Trial', count: crmDb.trials.length },
+                        { stage: 'Proposal', count: crmDb.proposals.length },
+                        { stage: 'Won', count: kpis.dealsWon }
+                      ]} margin={{ left: -10, right: 5, top: 5, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#23324C" opacity={0.2} />
+                        <XAxis dataKey="stage" stroke="#94a3b8" fontSize={8} />
+                        <YAxis stroke="#94a3b8" fontSize={8} />
+                        <Tooltip contentStyle={{ backgroundColor: '#161F30', borderColor: '#23324C', borderRadius: '12px', fontSize: '11px', color: '#fff' }} />
+                        <Bar dataKey="count" name="Count" fill="#6366F1" radius={[4,4,0,0]}>
+                          {[0,1,2,3,4].map(i => (
+                            <Cell key={i} fill={['#6366F1','#3B82F6','#10B981','#F59E0B','#10B981'][i]} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3 text-[10px] text-center">
+                    <div className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3">
+                      <span className="text-xl font-black block text-brand-400">{Math.round((kpis.dealsWon / (crmDb.leads.length || 1)) * 100)}%</span>
+                      <span className="text-slate-500 text-[9px] uppercase font-bold">Conversion Rate</span>
+                    </div>
+                    <div className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3">
+                      <span className="text-xl font-black block text-emerald-400">{Math.round((crmDb.demos.filter(d => d.status === 'Completed').length / (crmDb.demos.length || 1)) * 100)}%</span>
+                      <span className="text-slate-500 text-[9px] uppercase font-bold">Demo → Trial Rate</span>
+                    </div>
+                    <div className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3">
+                      <span className="text-xl font-black block text-amber-400">{Math.round((crmDb.proposals.filter(p => p.status === 'Accepted').length / (crmDb.proposals.length || 1)) * 100)}%</span>
+                      <span className="text-slate-500 text-[9px] uppercase font-bold">Proposal Accept Rate</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Revenue Sub-Report */}
+              {selectedSubReport === 'Revenue' && (
+                <div className="space-y-4">
+                  <span className="text-[11px] font-black text-white uppercase tracking-wider block">Revenue Analytics Report</span>
+                  <div className="grid grid-cols-3 gap-3 text-center text-[10px]">
+                    <div className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3">
+                      <span className="text-sm font-black block text-brand-400">${kpis.mrr.toLocaleString()}</span>
+                      <span className="text-slate-500 text-[9px] uppercase font-bold">Monthly MRR</span>
+                    </div>
+                    <div className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3">
+                      <span className="text-sm font-black block text-emerald-400">${(kpis.mrr * 12).toLocaleString()}</span>
+                      <span className="text-slate-500 text-[9px] uppercase font-bold">Annual ARR</span>
+                    </div>
+                    <div className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3">
+                      <span className="text-sm font-black block text-amber-400">${kpis.totalPipelineValue.toLocaleString()}</span>
+                      <span className="text-slate-500 text-[9px] uppercase font-bold">Pipeline Value</span>
+                    </div>
+                  </div>
+                  <div className="h-[160px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={stages.filter(s => !['Won','Lost'].includes(s)).map(s => ({
+                        stage: s,
+                        value: crmDb.leads.filter(l => l.stage === s).reduce((sum, l) => sum + (l.revenue || 0), 0)
+                      }))} margin={{ left: -10, right: 5, top: 5, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#23324C" opacity={0.2} />
+                        <XAxis dataKey="stage" stroke="#94a3b8" fontSize={7} />
+                        <YAxis stroke="#94a3b8" fontSize={8} />
+                        <Tooltip contentStyle={{ backgroundColor: '#161F30', borderColor: '#23324C', borderRadius: '12px', fontSize: '11px', color: '#fff' }} formatter={(v) => [`$${v.toLocaleString()}`, 'Pipeline $']} />
+                        <Bar dataKey="value" name="Pipeline $" fill="#FFD400" radius={[4,4,0,0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              )}
+
+              {/* Demos Sub-Report */}
+              {selectedSubReport === 'Demos' && (
+                <div className="space-y-4">
+                  <span className="text-[11px] font-black text-white uppercase tracking-wider block">Demo Bookings Report</span>
+                  <div className="grid grid-cols-3 gap-3 text-center text-[10px]">
+                    {[
+                      { label: 'Total Demos', value: crmDb.demos.length, color: 'text-white' },
+                      { label: 'Upcoming', value: crmDb.demos.filter(d => d.status === 'Upcoming').length, color: 'text-brand-400' },
+                      { label: 'Completed', value: crmDb.demos.filter(d => d.status === 'Completed').length, color: 'text-emerald-400' }
+                    ].map(s => (
+                      <div key={s.label} className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3">
+                        <span className={`text-xl font-black block ${s.color}`}>{s.value}</span>
+                        <span className="text-slate-500 text-[9px] uppercase font-bold">{s.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="overflow-x-auto rounded-xl border border-[#23324C]/50">
+                    <table className="w-full text-[10px] text-slate-350">
+                      <thead className="bg-[#161F30]/60 text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                        <tr>
+                          <th className="p-2.5 text-left">Company</th>
+                          <th className="p-2.5 text-left">Presenter</th>
+                          <th className="p-2.5 text-left">Date</th>
+                          <th className="p-2.5 text-left">Time</th>
+                          <th className="p-2.5 text-center">Status</th>
+                          <th className="p-2.5 text-center">Rating</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#23324C]/30">
+                        {crmDb.demos.map(d => (
+                          <tr key={d.id} className="hover:bg-slate-800/20">
+                            <td className="p-2.5 font-bold text-white">{d.company}</td>
+                            <td className="p-2.5 text-slate-400">{d.presenter}</td>
+                            <td className="p-2.5 text-mono">{d.date}</td>
+                            <td className="p-2.5">{d.time}</td>
+                            <td className="p-2.5 text-center">
+                              <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold ${d.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-400' : d.status === 'Cancelled' ? 'bg-red-500/10 text-red-400' : 'bg-brand-500/10 text-brand-400'}`}>{d.status}</span>
+                            </td>
+                            <td className="p-2.5 text-center font-mono">{d.rating ? `${d.rating}/5 ⭐` : '—'}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* Trials Sub-Report */}
+              {selectedSubReport === 'Trials' && (
+                <div className="space-y-4">
+                  <span className="text-[11px] font-black text-white uppercase tracking-wider block">Trial Workspaces Report</span>
+                  <div className="grid grid-cols-3 gap-3 text-center text-[10px]">
+                    {[
+                      { label: 'Active Trials', value: crmDb.trials.filter(t => t.status === 'Active').length, color: 'text-emerald-400' },
+                      { label: 'Expired', value: crmDb.trials.filter(t => t.status === 'Expired').length, color: 'text-red-400' },
+                      { label: 'Expiring Soon', value: crmDb.trials.filter(t => t.status === 'Active' && t.daysRemaining <= 3).length, color: 'text-amber-400' }
+                    ].map(s => (
+                      <div key={s.label} className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3">
+                        <span className={`text-xl font-black block ${s.color}`}>{s.value}</span>
+                        <span className="text-slate-500 text-[9px] uppercase font-bold">{s.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="space-y-3">
+                    {crmDb.trials.map(t => (
+                      <div key={t.id} className="p-3 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl flex items-center justify-between gap-4">
+                        <div>
+                          <strong className="text-white text-xs block">{t.company}</strong>
+                          <span className="text-[9px] text-slate-450 block mt-0.5">Admin: {t.admin} • Plan: {t.currentPlan}</span>
+                        </div>
+                        <div className="flex items-center gap-4 text-[10px]">
+                          <div className="w-24">
+                            <div className="flex justify-between text-slate-500 mb-1"><span>Days Left</span><span className="font-mono font-bold text-white">{t.daysRemaining}</span></div>
+                            <div className="w-full bg-slate-900 rounded-full h-1">
+                              <div className={`h-full rounded-full ${t.daysRemaining <= 3 ? 'bg-red-500' : 'bg-brand-500'}`} style={{ width: `${Math.min(100, (t.daysRemaining / 14) * 100)}%` }} />
+                            </div>
+                          </div>
+                          <span className={`px-2 py-0.5 rounded text-[8px] font-bold ${t.status === 'Active' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>{t.status}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Proposals Sub-Report */}
+              {selectedSubReport === 'Proposals' && (
+                <div className="space-y-4">
+                  <span className="text-[11px] font-black text-white uppercase tracking-wider block">Proposal Issuances Report</span>
+                  <div className="grid grid-cols-4 gap-3 text-center text-[10px]">
+                    {[
+                      { label: 'Total', value: crmDb.proposals.length, color: 'text-white' },
+                      { label: 'Sent', value: crmDb.proposals.filter(p => p.status === 'Sent').length, color: 'text-brand-400' },
+                      { label: 'Accepted', value: crmDb.proposals.filter(p => p.status === 'Accepted').length, color: 'text-emerald-400' },
+                      { label: 'Rejected', value: crmDb.proposals.filter(p => p.status === 'Rejected').length, color: 'text-red-400' }
+                    ].map(s => (
+                      <div key={s.label} className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3">
+                        <span className={`text-xl font-black block ${s.color}`}>{s.value}</span>
+                        <span className="text-slate-500 text-[9px] uppercase font-bold">{s.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="overflow-x-auto rounded-xl border border-[#23324C]/50">
+                    <table className="w-full text-[10px] text-slate-350">
+                      <thead className="bg-[#161F30]/60 text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                        <tr>
+                          <th className="p-2.5 text-left">Company</th>
+                          <th className="p-2.5 text-left">Title</th>
+                          <th className="p-2.5 text-right">Value</th>
+                          <th className="p-2.5 text-center">Version</th>
+                          <th className="p-2.5 text-center">Status</th>
+                          <th className="p-2.5 text-left">Validity</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#23324C]/30">
+                        {crmDb.proposals.map(p => (
+                          <tr key={p.id} className="hover:bg-slate-800/20">
+                            <td className="p-2.5 font-bold text-white">{p.company}</td>
+                            <td className="p-2.5 text-slate-400 truncate max-w-[160px]">{p.title}</td>
+                            <td className="p-2.5 text-right text-brand-400 font-black">${p.total?.toLocaleString()}</td>
+                            <td className="p-2.5 text-center font-mono font-bold">{p.version || 'V1'}</td>
+                            <td className="p-2.5 text-center">
+                              <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold ${p.status === 'Accepted' ? 'bg-emerald-500/10 text-emerald-400' : p.status === 'Rejected' ? 'bg-red-500/10 text-red-400' : 'bg-brand-500/10 text-brand-400'}`}>{p.status}</span>
+                            </td>
+                            <td className="p-2.5">{p.validity}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* Rep Performance Sub-Report */}
+              {selectedSubReport === 'Rep Performance' && (
+                <div className="space-y-4">
+                  <span className="text-[11px] font-black text-white uppercase tracking-wider block">Sales Representatives Performance Scorecard</span>
+                  <div className="h-[200px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={repPerformanceData} margin={{ left: -10, right: 5, top: 5, bottom: 5 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#23324C" opacity={0.2} />
+                        <XAxis dataKey="name" stroke="#94a3b8" fontSize={9} />
+                        <YAxis stroke="#94a3b8" fontSize={8} />
+                        <Tooltip contentStyle={{ backgroundColor: '#161F30', borderColor: '#23324C', borderRadius: '12px', fontSize: '11px', color: '#fff' }} />
+                        <Bar dataKey="won" name="Deals Won" fill="#10B981" radius={[4,4,0,0]} />
+                        <Bar dataKey="revenue" name="Revenue" fill="#FFD400" radius={[4,4,0,0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="overflow-x-auto rounded-xl border border-[#23324C]/50">
+                    <table className="w-full text-[10px] text-slate-350">
+                      <thead className="bg-[#161F30]/60 text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                        <tr>
+                          <th className="p-2.5 text-left">Rep Name</th>
+                          <th className="p-2.5 text-center">Leads Assigned</th>
+                          <th className="p-2.5 text-center">Deals Won</th>
+                          <th className="p-2.5 text-right">Revenue Generated</th>
+                          <th className="p-2.5 text-center">Win Rate</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#23324C]/30">
+                        {repPerformanceData.map(rep => {
+                          const assigned = crmDb.leads.filter(l => l.rep === rep.name).length;
+                          const winRate = assigned > 0 ? Math.round((rep.won / assigned) * 100) : 0;
+                          return (
+                            <tr key={rep.name} className="hover:bg-slate-800/20">
+                              <td className="p-2.5 font-bold text-white">{rep.name}</td>
+                              <td className="p-2.5 text-center font-mono">{assigned}</td>
+                              <td className="p-2.5 text-center font-mono text-emerald-400 font-black">{rep.won}</td>
+                              <td className="p-2.5 text-right text-brand-400 font-black">${rep.revenue?.toLocaleString()}</td>
+                              <td className="p-2.5 text-center">
+                                <div className="flex items-center gap-2">
+                                  <div className="flex-1 bg-slate-900 rounded-full h-1">
+                                    <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${winRate}%` }} />
+                                  </div>
+                                  <span className="font-mono font-bold">{winRate}%</span>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* Activities Sub-Report */}
+              {selectedSubReport === 'Activities' && (
+                <div className="space-y-4">
+                  <span className="text-[11px] font-black text-white uppercase tracking-wider block">Sales Activities &amp; Touchpoints Log</span>
+                  <div className="space-y-2 max-h-[320px] overflow-y-auto scrollbar-none">
+                    {crmDb.leads.flatMap(l => 
+                      (l.timeline || []).map(t => ({ ...t, company: l.company, rep: l.rep }))
+                    ).sort((a, b) => (b.date || '').localeCompare(a.date || '')).slice(0, 20).map((ev, idx) => (
+                      <div key={idx} className="flex gap-3 p-2.5 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl items-start">
+                        <div className="mt-1.5 flex-shrink-0">
+                          <div className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <strong className="text-white text-[11px]">{ev.company}</strong>
+                            <span className="text-[8px] bg-slate-900 border border-[#23324C]/50 text-slate-400 px-1.5 py-0.5 rounded font-mono">{ev.date}</span>
+                            <span className="text-[8px] bg-brand-500/10 text-brand-400 border border-brand-500/20 px-1.5 py-0.5 rounded font-bold">{ev.event}</span>
+                          </div>
+                          <p className="text-[10px] text-slate-450 mt-0.5 truncate">{ev.detail}</p>
+                        </div>
+                        <span className="text-[8px] text-slate-500 font-mono flex-shrink-0">By: {ev.user}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="p-4 bg-[#111827]/40 border border-[#23324C]/60 rounded-xl flex items-center justify-between">
@@ -1994,71 +2846,8 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
       )}
 
       {/* ============================================================================
-          TAB 10: SETTINGS PANELS CONFIGURATION
+          TAB 10: SETTINGS PANELS CONFIGURATION  (OLD BLOCK REMOVED - new block is above)
           ============================================================================ */}
-      {activeTab === 'settings' && (
-        <div className="glass rounded-2xl p-6 border border-[#23324C]/60 text-left space-y-6">
-          <div className="border-b border-[#23324C]/45 pb-4">
-            <h3 className="text-sm font-extrabold text-white">Sales Pipeline Configuration</h3>
-            <p className="text-[10px] text-slate-500">Customize template email triggers and client role restrictions.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Trial Welcome Mailer Template</span>
-              <div className="space-y-3.5">
-                <TextInput label="Subject Line" defaultValue="Welcome to Hero Logistics System Trial!" />
-                <div className="space-y-1.5 text-[11px]">
-                  <label className="text-slate-400 font-bold block">Body Outline</label>
-                  <textarea 
-                    rows={4}
-                    defaultValue="Hi {{contact_name}}, your 14-day Professional sandbox trial is active. Access your carrier mapping dashboards here..."
-                    className="w-full bg-[#0B0F19]/50 border border-[#23324C] hover:border-brand-500/20 text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 transition-all font-sans"
-                  />
-                </div>
-                <Button variant="primary" onClick={() => triggerToast("Email automation template updated.")}>
-                  Save Mail Template
-                </Button>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Simulator Permission Clearances</span>
-              <div className="space-y-4">
-                <div className="p-3 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl space-y-2">
-                  <div className="flex justify-between items-center text-xs">
-                    <strong className="text-slate-200">Delete Client Cards</strong>
-                    <span className="text-[10px] font-bold text-slate-500">Sales Director Only</span>
-                  </div>
-                  <p className="text-[9px] text-slate-500 leading-normal">Determines whether sales reps can discard prospects from databases altogether.</p>
-                </div>
-
-                <div className="p-3 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl space-y-2">
-                  <div className="flex justify-between items-center text-xs">
-                    <strong className="text-slate-200">Trial Sandbox Expiry Overrides</strong>
-                    <span className="text-[10px] font-bold text-slate-500">Sales Director Only</span>
-                  </div>
-                  <p className="text-[9px] text-slate-500 leading-normal">Allows agents to extend evaluation terms over 30 days without director signoff.</p>
-                </div>
-
-                <button 
-                  onClick={() => {
-                    if (!verifyPermission('modify_role_permissions')) return;
-                    triggerToast("Permissions policy updated successfully.");
-                  }}
-                  className={`w-full py-2 border rounded-xl text-center text-xs font-black uppercase cursor-pointer ${
-                    verifyPermission('modify_role_permissions', true)
-                      ? 'bg-brand-500 text-slate-950 hover:bg-brand-600 border-brand-500'
-                      : 'bg-slate-900/40 border-slate-850 text-slate-500 cursor-not-allowed'
-                  }`}
-                >
-                  {permissionRole === 'Sales Director' ? "Update Permissions Table" : "🔒 Restricted to Director"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ============================================================================
           CRM DRAWERS & INTERACTIVE DIALOGS
@@ -2178,12 +2967,19 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
             />
           </div>
 
-          <TextInput 
-            label="Message Details / Notes" 
-            placeholder="e.g. Needs net-15 factoring options..." 
-            value={leadForm.notes} 
-            onChange={(e) => setLeadForm({ ...leadForm, notes: e.target.value })} 
-          />
+          <div className="grid grid-cols-2 gap-3">
+            <DatePicker
+              label="Next Follow-Up Date"
+              value={leadForm.nextFollowup}
+              onChange={(e) => setLeadForm({ ...leadForm, nextFollowup: e.target.value })}
+            />
+            <TextInput 
+              label="Message Details / Notes" 
+              placeholder="e.g. Needs net-15 factoring options..." 
+              value={leadForm.notes} 
+              onChange={(e) => setLeadForm({ ...leadForm, notes: e.target.value })} 
+            />
+          </div>
 
           <div className="flex gap-2 pt-2 pb-4">
             <Button type="submit" variant="primary" className="flex-grow">
@@ -2282,11 +3078,18 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
             />
           </div>
 
-          <TextInput 
-            label="Message Details / Notes" 
-            value={leadForm.notes} 
-            onChange={(e) => setLeadForm({ ...leadForm, notes: e.target.value })} 
-          />
+          <div className="grid grid-cols-2 gap-3">
+            <DatePicker
+              label="Next Follow-Up Date"
+              value={leadForm.nextFollowup}
+              onChange={(e) => setLeadForm({ ...leadForm, nextFollowup: e.target.value })}
+            />
+            <TextInput 
+              label="Message Details / Notes" 
+              value={leadForm.notes} 
+              onChange={(e) => setLeadForm({ ...leadForm, notes: e.target.value })} 
+            />
+          </div>
 
           <div className="pt-2 pb-4">
             <Button type="submit" variant="primary" className="w-full">
@@ -2917,6 +3720,58 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                     <p className="p-3 bg-slate-900/60 border border-[#23324C]/45 rounded-xl text-slate-300 italic leading-relaxed">
                       "{selectedLead.painPoints}"
                     </p>
+                  </div>
+
+                  <div className="border-t border-[#23324C]/45 pt-3 space-y-2">
+                    <span className="text-[9px] text-slate-500 uppercase font-black tracking-wider block">Lead Direct Actions</span>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => {
+                          let recPlan = 'Starter Plan';
+                          let details = 'Recommended for fleet size of < 35 trucks.';
+                          if (selectedLead.fleetSize >= 35 && selectedLead.fleetSize <= 100) {
+                            recPlan = 'Professional Plan';
+                            details = 'Recommended for fleets of 35-100 trucks.';
+                          } else if (selectedLead.fleetSize > 100) {
+                            recPlan = 'Enterprise Custom Plan';
+                            details = 'Recommended for fleets > 100 trucks.';
+                          }
+                          triggerToast(`Recommended license: ${recPlan}. Reason: ${details}`, 'info');
+                        }}
+                        className="bg-purple-950 hover:bg-purple-900 text-purple-200 border border-purple-800 text-[10px] font-bold px-2.5 py-1 rounded-xl cursor-pointer"
+                      >
+                        Recommend Plan
+                      </button>
+                      <button
+                        onClick={() => {
+                          crmWorkflowEngine.handleStageChange(selectedLead.id, 'Won', 'Marked won from drawer actions', permissionRole);
+                          triggerToast(`Marked ${selectedLead.company} as Won!`);
+                          setSelectedLead(crmRepository.getLeadById(selectedLead.id));
+                        }}
+                        className="bg-emerald-950 hover:bg-emerald-900 text-emerald-200 border border-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-xl cursor-pointer"
+                      >
+                        Mark Won
+                      </button>
+                      <button
+                        onClick={() => {
+                          crmWorkflowEngine.handleStageChange(selectedLead.id, 'Lost', 'Marked lost from drawer actions', permissionRole);
+                          triggerToast(`Marked ${selectedLead.company} as Lost.`, 'warning');
+                          setSelectedLead(crmRepository.getLeadById(selectedLead.id));
+                        }}
+                        className="bg-red-950 hover:bg-red-900 text-red-200 border border-red-800 text-[10px] font-bold px-2.5 py-1 rounded-xl cursor-pointer"
+                      >
+                        Mark Lost
+                      </button>
+                      <button
+                        onClick={() => {
+                          setTaskForm({ title: 'Schedule Touchpoint', type: 'Call', dueDate: selectedLead.nextFollowup || new Date().toISOString().split('T')[0], priority: 'Medium' });
+                          setTaskModalOpen(true);
+                        }}
+                        className="bg-slate-900 hover:bg-slate-800 border border-[#23324C] text-slate-200 text-[10px] font-bold px-2.5 py-1 rounded-xl cursor-pointer"
+                      >
+                        Schedule Follow-Up
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
