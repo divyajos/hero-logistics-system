@@ -2866,70 +2866,307 @@ if (isMockMode) {
         }
 
         // --- WHITE LABEL CONTROLLERS ---
+        const defaultBranding = {
+          companyName: 'Hero Logistics System',
+          platformName: 'Logistics OS',
+          portalName: 'Enterprise Tenant Portal',
+          shortName: 'HeroLog',
+          logoLight: 'https://hero-mock-storage.s3.amazonaws.com/uploads/logo-light.png',
+          logoDark: 'https://hero-mock-storage.s3.amazonaws.com/uploads/logo-dark.png',
+          favicon: 'https://hero-mock-storage.s3.amazonaws.com/uploads/favicon.ico',
+          mobileIcon: 'https://hero-mock-storage.s3.amazonaws.com/uploads/mobile-icon.png',
+          emailLogo: 'https://hero-mock-storage.s3.amazonaws.com/uploads/email-logo.png',
+          pdfLogo: 'https://hero-mock-storage.s3.amazonaws.com/uploads/pdf-logo.png',
+          invoiceLogo: 'https://hero-mock-storage.s3.amazonaws.com/uploads/invoice-logo.png',
+          loginBg: 'https://hero-mock-storage.s3.amazonaws.com/uploads/login-bg.jpg',
+          dashboardBg: 'https://hero-mock-storage.s3.amazonaws.com/uploads/dashboard-bg.jpg',
+          loadingScreen: 'https://hero-mock-storage.s3.amazonaws.com/uploads/loading.gif',
+          watermark: 'https://hero-mock-storage.s3.amazonaws.com/uploads/watermark.png',
+          splashScreen: 'https://hero-mock-storage.s3.amazonaws.com/uploads/splash.png',
+          brandFont: 'Inter',
+          typography: 'Modern Sans',
+          accentColor: '#0ea5e9',
+          bgColor: '#0B0F19',
+          cardRadius: '16px',
+          buttonStyle: 'Solid Fill',
+          gradientStart: '#0ea5e9',
+          gradientEnd: '#6366f1',
+          customDomain: 'tms.herologistics.com',
+          subDomain: 'portal.herologistics.com',
+          sslStatus: 'Active',
+          sslExpiry: '12/31/2026',
+          dnsVerified: true,
+          smtpSenderName: 'Logistics OS Mailer',
+          smtpSenderEmail: 'mailer@herologistics.com',
+          smtpHost: 'smtp.sendgrid.net',
+          smtpPort: '587',
+          smtpUser: 'apikey',
+          smsSender: 'HEROLOG',
+          smsTemplates: {
+            otp: 'Your OTP code is {code}. Valid for 5 minutes.',
+            dispatch: 'Load {loadId} is dispatched. Driver: {driverName}. ETA: {eta}.',
+            billing: 'Invoice {invoiceId} of ${amount} has been generated for your account.'
+          },
+          pdfHeader: 'HERO LOGISTICS ENTERPRISE SOLUTION',
+          pdfFooter: 'Confidential Document • Page {page} of {total}',
+          pdfWatermarkEnabled: true,
+          pdfQrEnabled: true,
+          androidPackageName: 'com.herologistics.driver',
+          iosBundleId: 'com.herologistics.driver.ios',
+          appStoreName: 'Hero Driver ELD',
+          brandDriverPortal: true,
+          brandDispatcherPortal: true,
+          brandCustomerPortal: true,
+          approvalStatus: 'Published',
+          version: '1.4.0',
+          lastDeployed: '06/25/2026, 09:40:00 AM',
+          themeMode: 'Dark Theme Only',
+          sidebarBg: '#111827',
+          headerBg: '#161F30',
+          tableBorder: '#23324C',
+          shadowDepth: 'Medium Shadow',
+          animationsEnabled: true,
+          loginWelcomeMessage: 'Welcome to Enterprise Logistics OS',
+          loginIllustration: 'Global Logistics Net',
+          helpCenterUrl: 'https://support.herologistics.com',
+          privacyPolicyUrl: 'https://herologistics.com/privacy',
+        };
+
+        const defaultThemes = [
+          {
+            id: 'theme-1',
+            name: 'Dark Glassmorphism',
+            sidebarBg: '#111827',
+            headerBg: '#161F30',
+            accentColor: '#0ea5e9',
+            gradientStart: '#0ea5e9',
+            gradientEnd: '#6366f1',
+            cardRadius: '16px',
+            buttonStyle: 'Solid Fill',
+            brandFont: 'Inter',
+            typography: 'Modern Sans',
+            status: 'Published'
+          },
+          {
+            id: 'theme-2',
+            name: 'Vibrant Ocean',
+            sidebarBg: '#0f172a',
+            headerBg: '#1e293b',
+            accentColor: '#0284c7',
+            gradientStart: '#0284c7',
+            gradientEnd: '#06b6d4',
+            cardRadius: '8px',
+            buttonStyle: 'Gradient Accent',
+            brandFont: 'Outfit',
+            typography: 'Modern Sans',
+            status: 'Draft'
+          },
+          {
+            id: 'theme-3',
+            name: 'Emerald Forest',
+            sidebarBg: '#064e3b',
+            headerBg: '#022c22',
+            accentColor: '#10b981',
+            gradientStart: '#10b981',
+            gradientEnd: '#059669',
+            cardRadius: '12px',
+            buttonStyle: 'Solid Fill',
+            brandFont: 'Roboto',
+            typography: 'Elegant Serif',
+            status: 'Draft'
+          }
+        ];
+
+        const defaultDomains = [
+          {
+            id: 'dom-1',
+            domain: 'tms.herologistics.com',
+            subdomain: 'portal.herologistics.com',
+            sslStatus: 'Active',
+            sslExpiry: '12/31/2026',
+            dnsVerified: true,
+            health: 'Excellent',
+            redirectRules: 'Force HTTPS'
+          },
+          {
+            id: 'dom-2',
+            domain: 'driver.herologistics.com',
+            subdomain: 'api.herologistics.com',
+            sslStatus: 'Active',
+            sslExpiry: '10/15/2026',
+            dnsVerified: true,
+            health: 'Good',
+            redirectRules: 'Force HTTPS'
+          }
+        ];
+
+        const defaultWhiteLabelAudits = [
+          { id: 1, action: 'Brand Color Updated', detail: 'Accent color changed from #2563eb to #0ea5e9.', user: 'Super Admin', time: '06/25/2026, 09:30:00 AM', ip: '192.168.1.5', browser: 'Chrome 126.0' },
+          { id: 2, action: 'SMTP Server Configured', detail: 'SMTP host redirected to SendGrid secure server.', user: 'Super Admin', time: '06/25/2026, 09:35:00 AM', ip: '192.168.1.5', browser: 'Chrome 126.0' }
+        ];
+
         if (url === 'white-label' && method === 'GET') {
-          return resolve({ status: 200, data: mockDb.whiteLabelConfig || {} });
+          let wlConfig = localStorage.getItem('hero_white_label');
+          if (!wlConfig) {
+            wlConfig = JSON.stringify(defaultBranding);
+            localStorage.setItem('hero_white_label', wlConfig);
+          }
+          return resolve({ status: 200, data: JSON.parse(wlConfig) });
         }
         if (url === 'white-label' && method === 'PUT') {
-          mockDb.whiteLabelConfig = {
-            ...mockDb.whiteLabelConfig,
-            ...body
+          localStorage.setItem('hero_white_label', JSON.stringify(body));
+          return resolve({ status: 200, data: body });
+        }
+        if (url === 'white-label/themes' && method === 'GET') {
+          let wlThemes = localStorage.getItem('hero_white_label_themes');
+          if (!wlThemes) {
+            wlThemes = JSON.stringify(defaultThemes);
+            localStorage.setItem('hero_white_label_themes', wlThemes);
+          }
+          return resolve({ status: 200, data: JSON.parse(wlThemes) });
+        }
+        if (url === 'white-label/themes' && method === 'POST') {
+          let wlThemesStr = localStorage.getItem('hero_white_label_themes') || JSON.stringify(defaultThemes);
+          const wlThemes = JSON.parse(wlThemesStr);
+          const newTheme = {
+            id: `theme-${Date.now()}`,
+            name: body.name,
+            sidebarBg: body.sidebarBg || '#111827',
+            headerBg: body.headerBg || '#161F30',
+            accentColor: body.accentColor || '#0ea5e9',
+            gradientStart: body.gradientStart || '#0ea5e9',
+            gradientEnd: body.gradientEnd || '#6366f1',
+            cardRadius: body.cardRadius || '16px',
+            buttonStyle: body.buttonStyle || 'Solid Fill',
+            brandFont: body.brandFont || 'Inter',
+            typography: body.typography || 'Modern Sans',
+            status: body.status || 'Draft'
           };
-          saveDb();
-          return resolve({ status: 200, data: mockDb.whiteLabelConfig });
+          
+          const isDuplicate = wlThemes.some(t => t.name.toLowerCase() === newTheme.name.toLowerCase());
+          if (isDuplicate) {
+            return reject({ status: 400, data: { message: 'A theme with this name already exists.' } });
+          }
+
+          wlThemes.push(newTheme);
+          localStorage.setItem('hero_white_label_themes', JSON.stringify(wlThemes));
+          return resolve({ status: 201, data: newTheme });
         }
-        if (url === 'white-label/deployments' && method === 'GET') {
-          return resolve({ status: 200, data: mockDb.whiteLabelDeployments || [] });
+        if (url.startsWith('white-label/themes/') && method === 'PUT') {
+          const id = url.split('/')[2];
+          let wlThemesStr = localStorage.getItem('hero_white_label_themes') || JSON.stringify(defaultThemes);
+          const wlThemes = JSON.parse(wlThemesStr);
+          const idx = wlThemes.findIndex(t => t.id === id);
+          if (idx !== -1) {
+            wlThemes[idx] = {
+              ...wlThemes[idx],
+              ...body
+            };
+            localStorage.setItem('hero_white_label_themes', JSON.stringify(wlThemes));
+            return resolve({ status: 200, data: wlThemes[idx] });
+          }
+          return reject({ status: 404, data: { message: 'Theme not found' } });
         }
-        if (url === 'white-label/deployments' && method === 'POST') {
-          const newDeployment = {
+        if (url.startsWith('white-label/themes/') && method === 'DELETE') {
+          const id = url.split('/')[2];
+          let wlThemesStr = localStorage.getItem('hero_white_label_themes') || JSON.stringify(defaultThemes);
+          let wlThemes = JSON.parse(wlThemesStr);
+          wlThemes = wlThemes.filter(t => t.id !== id);
+          localStorage.setItem('hero_white_label_themes', JSON.stringify(wlThemes));
+          return resolve({ status: 200, data: { success: true } });
+        }
+        if (url === 'white-label/deploy' && method === 'POST') {
+          let wlConfigStr = localStorage.getItem('hero_white_label') || JSON.stringify(defaultBranding);
+          const wlConfig = JSON.parse(wlConfigStr);
+          
+          const nextVerParts = wlConfig.version.split('.');
+          nextVerParts[2] = parseInt(nextVerParts[2]) + 1;
+          const nextVer = nextVerParts.join('.');
+
+          wlConfig.version = nextVer;
+          wlConfig.lastDeployed = new Date().toLocaleString();
+          wlConfig.approvalStatus = 'Published';
+
+          localStorage.setItem('hero_white_label', JSON.stringify(wlConfig));
+
+          let wlDeployments = localStorage.getItem('hero_white_label_deployments');
+          const deploymentsList = wlDeployments ? JSON.parse(wlDeployments) : [
+            { id: 'dep-1', version: '1.4.0', environment: 'Production', build: 'Build #334', status: 'Published', publishedBy: 'System Root', time: '06/25/2026, 09:40:00 AM', changeLog: 'Updated light logo and unified gradient builder.', duration: '12s', errors: 0, success: true },
+            { id: 'dep-2', version: '1.3.0', environment: 'Production', build: 'Build #312', status: 'Archived', publishedBy: 'System Root', time: '06/10/2026, 12:15:00 PM', changeLog: 'Configured CNAME redirects for custom tenant portals.', duration: '14s', errors: 0, success: true }
+          ];
+
+          const newDep = {
             id: `dep-${Date.now()}`,
-            version: body.version || `1.4.${(mockDb.whiteLabelDeployments?.length || 0) + 1}`,
+            version: nextVer,
             environment: body.environment || 'Production',
             build: body.build || `Build #3${Math.floor(Math.random() * 90 + 10)}`,
-            status: body.status || 'Published',
+            status: 'Published',
             publishedBy: body.publishedBy || 'Super Admin',
-            time: new Date().toLocaleString(),
-            changeLog: body.changeLog || 'Branding build deploy execution.'
+            time: wlConfig.lastDeployed,
+            changeLog: body.changeLog || 'Branding build compilation & asset package pipeline.',
+            duration: `${Math.floor(Math.random() * 8 + 6)}s`,
+            errors: 0,
+            success: true
           };
-          mockDb.whiteLabelDeployments = mockDb.whiteLabelDeployments || [];
-          mockDb.whiteLabelDeployments.unshift(newDeployment);
-          
-          mockDb.whiteLabelConfig.version = newDeployment.version;
-          mockDb.whiteLabelConfig.lastDeployed = newDeployment.time;
-          mockDb.whiteLabelConfig.approvalStatus = 'Published';
-          
-          saveDb();
-          return resolve({ status: 201, data: newDeployment });
+
+          deploymentsList.unshift(newDep);
+          localStorage.setItem('hero_white_label_deployments', JSON.stringify(deploymentsList));
+
+          let wlAuditsStr = localStorage.getItem('hero_white_label_audits');
+          const wlAudits = wlAuditsStr ? JSON.parse(wlAuditsStr) : defaultWhiteLabelAudits;
+          wlAudits.unshift({
+            id: Date.now(),
+            action: 'Branding Deployed',
+            detail: `Compiled branding variables & published build version ${nextVer} to production.`,
+            user: body.publishedBy || 'Super Admin',
+            time: wlConfig.lastDeployed,
+            ip: body.ip || '192.168.1.5',
+            browser: body.browser || 'Chrome 126'
+          });
+          localStorage.setItem('hero_white_label_audits', JSON.stringify(wlAudits));
+
+          return resolve({ status: 200, data: { success: true, version: nextVer, deployment: newDep } });
         }
-        if (url.startsWith('white-label/deployments/') && url.endsWith('/rollback') && method === 'POST') {
-          const id = url.split('/')[2];
-          const deployment = mockDb.whiteLabelDeployments?.find(d => d.id === id);
-          if (deployment) {
-            mockDb.whiteLabelConfig.version = deployment.version;
-            mockDb.whiteLabelConfig.lastDeployed = new Date().toLocaleString();
-            mockDb.whiteLabelConfig.approvalStatus = 'Published';
-            
-            const newAudit = {
+        if (url === 'white-label/rollback' && method === 'POST') {
+          let wlDeployments = localStorage.getItem('hero_white_label_deployments');
+          const deploymentsList = wlDeployments ? JSON.parse(wlDeployments) : [];
+          const targetDep = deploymentsList.find(d => d.version === body.version);
+          if (targetDep) {
+            let wlConfigStr = localStorage.getItem('hero_white_label') || JSON.stringify(defaultBranding);
+            const wlConfig = JSON.parse(wlConfigStr);
+            wlConfig.version = targetDep.version;
+            wlConfig.lastDeployed = new Date().toLocaleString();
+            wlConfig.approvalStatus = 'Published';
+            localStorage.setItem('hero_white_label', JSON.stringify(wlConfig));
+
+            let wlAuditsStr = localStorage.getItem('hero_white_label_audits');
+            const wlAudits = wlAuditsStr ? JSON.parse(wlAuditsStr) : defaultWhiteLabelAudits;
+            wlAudits.unshift({
               id: Date.now(),
-              action: 'Rollback Branding Version',
-              detail: `Rolled back styling options to version ${deployment.version} (Build: ${deployment.build}).`,
+              action: 'Rollback Executed',
+              detail: `Rolled back production branding state variables to Version ${targetDep.version} (${targetDep.build}).`,
               user: body.user || 'Super Admin',
-              time: new Date().toLocaleString(),
+              time: wlConfig.lastDeployed,
               ip: body.ip || '192.168.1.5',
               browser: 'Chrome 126'
-            };
-            mockDb.whiteLabelAudits = mockDb.whiteLabelAudits || [];
-            mockDb.whiteLabelAudits.unshift(newAudit);
-            
-            saveDb();
-            return resolve({ status: 200, data: { success: true, version: deployment.version } });
+            });
+            localStorage.setItem('hero_white_label_audits', JSON.stringify(wlAudits));
+
+            return resolve({ status: 200, data: { success: true, version: targetDep.version } });
           }
-          return reject({ status: 404, data: { message: 'Deployment not found' } });
+          return reject({ status: 404, data: { message: 'Deployment target not found' } });
         }
         if (url === 'white-label/audits' && method === 'GET') {
-          return resolve({ status: 200, data: mockDb.whiteLabelAudits || [] });
+          let wlAuditsStr = localStorage.getItem('hero_white_label_audits');
+          if (!wlAuditsStr) {
+            wlAuditsStr = JSON.stringify(defaultWhiteLabelAudits);
+            localStorage.setItem('hero_white_label_audits', wlAuditsStr);
+          }
+          return resolve({ status: 200, data: JSON.parse(wlAuditsStr) });
         }
         if (url === 'white-label/audits' && method === 'POST') {
+          let wlAuditsStr = localStorage.getItem('hero_white_label_audits') || JSON.stringify(defaultWhiteLabelAudits);
+          const wlAudits = JSON.parse(wlAuditsStr);
           const newAudit = {
             id: Date.now(),
             action: body.action,
@@ -2939,10 +3176,64 @@ if (isMockMode) {
             ip: body.ip || '192.168.1.5',
             browser: body.browser || 'Chrome 126'
           };
-          mockDb.whiteLabelAudits = mockDb.whiteLabelAudits || [];
-          mockDb.whiteLabelAudits.unshift(newAudit);
-          saveDb();
+          wlAudits.unshift(newAudit);
+          localStorage.setItem('hero_white_label_audits', JSON.stringify(wlAudits));
           return resolve({ status: 201, data: newAudit });
+        }
+        if (url === 'white-label/test-email' && method === 'POST') {
+          if (!body.email || !body.email.includes('@')) {
+            return reject({ status: 400, data: { message: 'Invalid test envelope email target.' } });
+          }
+          return resolve({ status: 200, data: { success: true, message: `Email envelope successfully dispatched via SMTP relays to ${body.email}.` } });
+        }
+        if (url === 'white-label/test-sms' && method === 'POST') {
+          if (!body.phone) {
+            return reject({ status: 400, data: { message: 'Invalid test target telephone number.' } });
+          }
+          return resolve({ status: 200, data: { success: true, message: `SMS test message successfully dispatched via Twilio to ${body.phone}.` } });
+        }
+        if (url === 'white-label/domains' && method === 'GET') {
+          let wlDomainsStr = localStorage.getItem('hero_white_label_domains');
+          if (!wlDomainsStr) {
+            wlDomainsStr = JSON.stringify(defaultDomains);
+            localStorage.setItem('hero_white_label_domains', wlDomainsStr);
+          }
+          return resolve({ status: 200, data: JSON.parse(wlDomainsStr) });
+        }
+        if (url === 'white-label/domains' && method === 'POST') {
+          let wlDomainsStr = localStorage.getItem('hero_white_label_domains') || JSON.stringify(defaultDomains);
+          const wlDomains = JSON.parse(wlDomainsStr);
+          
+          const isDuplicate = wlDomains.some(d => d.domain.toLowerCase() === body.domain.toLowerCase());
+          if (isDuplicate) {
+            return reject({ status: 400, data: { message: 'A mapping record for this domain already exists.' } });
+          }
+
+          const newDom = {
+            id: `dom-${Date.now()}`,
+            domain: body.domain,
+            subdomain: body.subdomain || `portal.${body.domain}`,
+            sslStatus: 'Active',
+            sslExpiry: '12/31/2026',
+            dnsVerified: true,
+            health: 'Excellent',
+            redirectRules: body.redirectRules || 'Force HTTPS'
+          };
+          wlDomains.push(newDom);
+          localStorage.setItem('hero_white_label_domains', JSON.stringify(wlDomains));
+          return resolve({ status: 201, data: newDom });
+        }
+        if (url === 'white-label/deployments' && method === 'GET') {
+          let wlDeployments = localStorage.getItem('hero_white_label_deployments');
+          if (!wlDeployments) {
+            const initialDeps = [
+              { id: 'dep-1', version: '1.4.0', environment: 'Production', build: 'Build #334', status: 'Published', publishedBy: 'System Root', time: '06/25/2026, 09:40:00 AM', changeLog: 'Updated light logo and unified gradient builder.', duration: '12s', errors: 0, success: true },
+              { id: 'dep-2', version: '1.3.0', environment: 'Production', build: 'Build #312', status: 'Archived', publishedBy: 'System Root', time: '06/10/2026, 12:15:00 PM', changeLog: 'Configured CNAME redirects for custom tenant portals.', duration: '14s', errors: 0, success: true }
+            ];
+            localStorage.setItem('hero_white_label_deployments', JSON.stringify(initialDeps));
+            wlDeployments = JSON.stringify(initialDeps);
+          }
+          return resolve({ status: 200, data: JSON.parse(wlDeployments) });
         }
 
 
