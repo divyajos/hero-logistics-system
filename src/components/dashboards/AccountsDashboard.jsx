@@ -325,11 +325,33 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
         <>
           {activeTab === 'overview' && (
             <div className="space-y-6">
+              {/* Top 4 KPI Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <StatCard title="Factored Funding" value={`$${factoringFunding.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description="Active invoice reserves" trend="Factored" trendDirection="neutral" />
                 <StatCard title="Driver Payroll" value={`${localLedgers.filter(l => (l.type === 'Driver Pay' || l.type === 'Wages') && l.status === 'Pending').length} Pending`} description="Awaiting payment runs" trend={`$${dynamicPayroll.toLocaleString()} paid`} trendDirection="neutral" />
-                <StatCard title="Outstanding Shipper Invoices" value={`$${outstandingInvoices.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description="Open balances ledger" trend="Awaiting Customer" trendDirection="up" />
+                <StatCard title="Outstanding Invoices" value={`$${outstandingInvoices.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description="Open balances ledger" trend="Awaiting Customer" trendDirection="up" />
                 <StatCard title="Net Profit Margin" value={`$${dynamicNetProfit.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description={`Margin: ${dynamicMargin}%`} trend={`Revenue: $${dynamicRevenue.toLocaleString()}`} trendDirection="up" />
+              </div>
+
+              {/* Bottom 4 KPI Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <StatCard title="Total Revenue" value={`$${dynamicRevenue.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description="From paid shipper invoices" trend="Revenue" trendDirection="up" />
+                <StatCard title="Total Expenses" value={`$${dynamicExpenses.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description="Payroll + Fuel + Maintenance" trend="Costs" trendDirection="neutral" />
+                <StatCard title="Gross Profit" value={`$${dynamicGrossProfit.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description="After labour costs" trend="Before overheads" trendDirection="up" />
+                <StatCard title="Contractor Pay" value={`$${dynamicContractor.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description="Subcontractor settlements" trend="Brokerage costs" trendDirection="neutral" />
+              </div>
+
+              {/* Quick Actions Strip */}
+              <div className="glass rounded-2xl p-4 border border-[#23324C]/60">
+                <div className="flex flex-wrap gap-2 items-center">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase mr-2">Quick Actions:</span>
+                  <Button size="sm" variant="primary" icon={Plus} onClick={() => { setLedgerType('Invoice'); setAddModalOpen(true); }}>New Invoice</Button>
+                  <Button size="sm" variant="secondary" onClick={() => triggerToast('Credit note raised and applied to customer account.')}>Raise Credit Note</Button>
+                  <Button size="sm" variant="secondary" onClick={() => triggerToast('Factoring application submitted to finance provider.')}>Submit Factoring</Button>
+                  <Button size="sm" variant="secondary" onClick={() => triggerToast('Manual payment record logged to ledger.')}>Record Payment</Button>
+                  <Button size="sm" variant="danger" onClick={() => triggerToast('Bad debt written off and flagged in ledger.')}>Write Off Bad Debt</Button>
+                  <Button size="sm" variant="secondary" onClick={() => triggerToast('Payroll run initiated for all pending workers.')}>Run Payroll</Button>
+                </div>
               </div>
 
               {/* Cost Categories P&L breakdowns */}

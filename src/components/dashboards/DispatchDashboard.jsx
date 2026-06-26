@@ -25,7 +25,7 @@ import { PageHeader } from '../common/UXEnhancements';
 import { KpiGridSkeleton, TableSkeleton } from '../common/Skeletons';
 import { 
   Layers, Navigation, Truck, ShieldAlert, Plus, Check, Clock, User, Phone, 
-  MapPin, MessageSquare, ArrowRight, ArrowLeft, Send, Calendar as CalendarIcon, FileText, Activity, Trash2
+  MapPin, MessageSquare, ArrowRight, ArrowLeft, Send, Calendar as CalendarIcon, FileText, Activity, Trash2, Filter, Info, Eye
 } from 'lucide-react';
 
 export default function DispatchDashboard({ activeTab = 'overview' }) {
@@ -34,9 +34,11 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
   const { drivers } = useSelector((state) => state.drivers);
   const { fleet } = useSelector((state) => state.vehicles);
   const { customerInstructions } = useSelector((state) => state.customers);
+  const { user } = useSelector((state) => state.auth);
   
   const { 
-    selectedNiche, 
+    selectedNiche,
+    setSelectedNiche,
     aiQueue, 
     resolveAiItem, 
     transfers, 
@@ -45,94 +47,67 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
     rejectTransfer 
   } = useLogistics();
 
-  // Niche-specific states
-  const [carVin, setCarVin] = useState('');
-  const [carRego, setCarRego] = useState('');
-  const [carStock, setCarStock] = useState('');
-  const [carModel, setCarModel] = useState('');
-  
-  const [freightPallets, setFreightPallets] = useState('');
-  const [freightDimensions, setFreightDimensions] = useState('');
+  // Selected overview load for Centre/Right panels
+  const [selectedOverviewLoadId, setSelectedOverviewLoadId] = useState(null);
 
-  const [hazmatCode, setHazmatCode] = useState('');
-  const [unNumber, setUnNumber] = useState('');
-
-  // Modals & Drawers
-  const [wizardOpen, setWizardOpen] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [selectedLoad, setSelectedLoad] = useState(null);
-  const [drawerTab, setDrawerTab] = useState('details');
-  const [newNoteText, setNewNoteText] = useState('');
-
-  // Selected load details reactively updated from Redux store state
-  const selectedLoadDetail = loads.find(l => l.id === selectedLoad?.id) || selectedLoad;
-
-  // Wizard Steps State
-  const [wizardStep, setWizardStep] = useState(1);
-  
-  // Cargo details
-  const [cargoName, setCargoName] = useState('');
-  const [cargoWeight, setCargoWeight] = useState('');
-  const [cargoCost, setCargoCost] = useState('$1,200.00');
-
-  // Step 1: Customer Information
-  const [customerName, setCustomerName] = useState('');
-  const [customerEmail, setCustomerEmail] = useState('');
-  const [customerPhone, setCustomerPhone] = useState('');
-  const [customerRef, setCustomerRef] = useState('');
-
-  // Step 2: Pickup Details
-  const [pickupAddress, setPickupAddress] = useState('');
-  const [pickupDate, setPickupDate] = useState('');
-  const [pickupContact, setPickupContact] = useState('');
-  const [pickupNotes, setPickupNotes] = useState('');
-
-  // Step 3: Delivery Details
-  const [deliveryAddress, setDeliveryAddress] = useState('');
-  const [deliveryDate, setDeliveryDate] = useState('');
-  const [deliveryContact, setDeliveryContact] = useState('');
-  const [deliveryNotes, setDeliveryNotes] = useState('');
-
-  // Step 4: Stop & Item Management
-  const [wizardStops, setWizardStops] = useState([]);
-  const [stopAddress, setStopAddress] = useState('');
-  const [stopType, setStopType] = useState('Layover');
-  const [stopNotes, setStopNotes] = useState('');
-  const [wizardItems, setWizardItems] = useState([
-    { id: 'ITM-1', name: 'Automotive Components Gearbox', weight: '22,000 lbs' },
-    { id: 'ITM-2', name: 'Chassis Frame Rails', weight: '20,000 lbs' }
-  ]);
-  const [newItemName, setNewItemName] = useState('');
-  const [newItemWeight, setNewItemWeight] = useState('');
-  const [selectedItemIdsForStop, setSelectedItemIdsForStop] = useState([]);
-
-  // Step 5: Vehicle Assignment
-  const [assignedVehicle, setAssignedVehicle] = useState('TX-ROAD88');
-  const [trailerType, setTrailerType] = useState('Semi-Truck');
-
-  // Step 6: Driver Assignment
-  const [assignedDriver, setAssignedDriver] = useState('John D.');
-  const [driverContactInfo, setDriverContactInfo] = useState('555-0192');
-
-  // Step 7: Documents Checklist & Mock Uploads
-  const [docsRateConf, setDocsRateConf] = useState(false);
-  const [docsBOL, setDocsBOL] = useState(false);
-  const [docsCustoms, setDocsCustoms] = useState(false);
-  const [uploadedFiles, setUploadedFiles] = useState([]); // Array of { name, size, date, type }
-
-  // Step 8: Special Dispatch Notes
-  const [specialDispatchNotes, setSpecialDispatchNotes] = useState('');
-
-  // Live Map pin tracking telemetry
-  const [selectedVehicleTelemetry, setSelectedVehicleTelemetry] = useState(null);
-  const [newTrailerPlate, setNewTrailerPlate] = useState('TR-9118');
-  const [swapReason, setSwapReason] = useState('');
-
-  // Search & Filter
+  // Filters State
   const [search, setSearch] = useState('');
+  const [filterBranch, setFilterBranch] = useState('');
   const [filterStatus, setFilterStatus] = useState('');
+  const [filterDriver, setFilterDriver] = useState('');
+  const [filterCustomer, setFilterCustomer] = useState('');
+  const [filterDestination, setFilterDestination] = useState('');
+  const [filterRequiredDate, setFilterRequiredDate] = useState('');
+  const [filterNicheType, setFilterNicheType] = useState('');
+  const [filterVehicleTrailer, setFilterVehicleTrailer] = useState('');
+  const [filterAvailableWorkersOnly, setFilterAvailableWorkersOnly] = useState(false);
+  const [showFiltersPanel, setShowFiltersPanel] = useState(false);
+
+  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 6;
+
+  // 11-Step Create Load Stepper State
+  const [createStep, setCreateStep] = useState(1);
+  const [newLoadHeader, setNewLoadHeader] = useState({
+    loadId: `LD-${Math.floor(Math.random() * 9000) + 1000}`,
+    niche: 'general_freight',
+    branch: 'Chicago HQ Terminal',
+    requiredDate: ''
+  });
+  const [newStops, setNewStops] = useState([]);
+  const [newItems, setNewItems] = useState([]);
+  const [newDocs, setNewDocs] = useState({
+    rateConf: false,
+    bol: false,
+    customs: false
+  });
+  const [newNotes, setNewNotes] = useState('');
+  
+  // Create stop inputs
+  const [stopAddress, setStopAddress] = useState('');
+  const [stopType, setStopType] = useState('Pickup');
+  const [stopNotes, setStopNotes] = useState('');
+  
+  // Create item inputs
+  const [itemName, setItemName] = useState('');
+  const [itemWeight, setItemWeight] = useState('');
+  const [itemVin, setItemVin] = useState('');
+  const [itemRego, setItemRego] = useState('');
+  const [itemPallets, setItemPallets] = useState('');
+  const [itemHazmatClass, setItemHazmatClass] = useState('');
+  const [itemUnNumber, setItemUnNumber] = useState('');
+  const [itemCustLink, setItemCustLink] = useState('');
+
+  // Link Items mapping: itemId -> stopId
+  const [itemPickupLinks, setItemPickupLinks] = useState({});
+  const [itemDeliveryLinks, setItemDeliveryLinks] = useState({});
+  
+  // Stepper Assignment selections
+  const [assignedDriver, setAssignedDriver] = useState('');
+  const [assignedVehicle, setAssignedVehicle] = useState('');
+  const [assignedTrailer, setAssignedTrailer] = useState('TR-4022');
+  const [swapReason, setSwapReason] = useState('');
 
   // Dispatch Chat Inbox State
   const [chats, setChats] = useState([
@@ -142,21 +117,22 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
   ]);
   const [newMessage, setNewMessage] = useState('');
 
-  // Route Planner inputs & simulations
-  const [plannerOrigin, setPlannerOrigin] = useState('Chicago HQ');
-  const [plannerDest, setPlannerDest] = useState('Dallas Depot');
-  const [plannerResult, setPlannerResult] = useState(null);
-  const [plannerStops, setPlannerStops] = useState([]);
-  const [plannerStopAddress, setPlannerStopAddress] = useState('');
-  const [plannerStopType, setPlannerStopType] = useState('Layover');
-  const [plannerStopDuration, setPlannerStopDuration] = useState('2'); // in hours
-  const [averageSpeed, setAverageSpeed] = useState('60'); // in mph
-  const [trafficDelay, setTrafficDelay] = useState('None'); // None, Light, Heavy
-  const [optimizationMode, setOptimizationMode] = useState('Fastest Route');
+  // Modals & Drawers
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedLoad, setSelectedLoad] = useState(null);
+  const [drawerTab, setDrawerTab] = useState('details');
+  const [newNoteText, setNewNoteText] = useState('');
+  
+  // Selected load details reactively updated from Redux store state
+  const selectedLoadDetail = loads.find(l => l.id === selectedLoad?.id) || selectedLoad;
+  const selectedOverviewLoad = loads.find(l => l.id === selectedOverviewLoadId) || loads[0];
+
+  // Trailer swap in-drawer state
+  const [newTrailerPlate, setNewTrailerPlate] = useState('TR-9118');
 
   // Toasts
   const [toastMessage, setToastMessage] = useState('');
-  const [toastType, setToastType] = useState('info');
+  const [toastType, setToastType] = useState('success');
 
   useEffect(() => {
     dispatch(fetchLoads());
@@ -170,322 +146,20 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
     setToastType(type);
   };
 
-  const resetWizard = () => {
-    setWizardStep(1);
-    setCargoName('');
-    setCargoWeight('');
-    setCargoCost('$1,200.00');
-    setCustomerName('');
-    setCustomerEmail('');
-    setCustomerPhone('');
-    setCustomerRef('');
-    setPickupAddress('');
-    setPickupDate('');
-    setPickupContact('');
-    setPickupNotes('');
-    setDeliveryAddress('');
-    setDeliveryDate('');
-    setDeliveryContact('');
-    setDeliveryNotes('');
-    setWizardStops([]);
-    setWizardItems([
-      { id: 'ITM-1', name: 'Automotive Components Gearbox', weight: '22,000 lbs' },
-      { id: 'ITM-2', name: 'Chassis Frame Rails', weight: '20,000 lbs' }
-    ]);
-    setNewItemName('');
-    setNewItemWeight('');
-    setSelectedItemIdsForStop([]);
-    setAssignedVehicle('TX-ROAD88');
-    setAssignedDriver('John D.');
-    setDriverContactInfo('555-0192');
-    setDocsRateConf(false);
-    setDocsBOL(false);
-    setDocsCustoms(false);
-    setUploadedFiles([]);
-    setSpecialDispatchNotes('');
-  };
-
-  // Wizard Next/Prev
-  const handleWizardNext = () => {
-    if (wizardStep === 1) {
-      if (!customerName || !customerEmail) {
-        triggerToast('Customer Name and Email are required.', 'error');
-        return;
-      }
-    }
-    if (wizardStep === 2) {
-      if (!pickupAddress || !pickupDate) {
-        triggerToast('Pickup Address and Date are required.', 'error');
-        return;
-      }
-    }
-    if (wizardStep === 3) {
-      if (!deliveryAddress || !deliveryDate) {
-        triggerToast('Delivery Address and Date are required.', 'error');
-        return;
-      }
-    }
-    if (wizardStep === 5) {
-      if (!cargoName || !cargoWeight) {
-        triggerToast('Cargo description and weight are required.', 'error');
-        return;
-      }
-    }
-    setWizardStep(wizardStep + 1);
-  };
-
-  // Submit Wizard (Finalize)
-  const handleWizardSubmit = (e) => {
-    if (e) e.preventDefault();
-    
-    const finalCargoName = wizardItems.map(i => i.name).join(', ') || cargoName || 'General Cargo';
-    const totalWeight = wizardItems.length > 0 
-      ? `${wizardItems.reduce((sum, i) => sum + (parseFloat(i.weight.replace(/[^\d.]/g, '')) || 0), 0).toLocaleString()} lbs`
-      : `${parseFloat(cargoWeight || 0).toLocaleString()} lbs`;
-
-    const generatedStops = [
-      {
-        id: 1,
-        address: pickupAddress,
-        type: 'Pickup',
-        itemIds: wizardItems.map(i => i.id),
-        status: 'Pending',
-        sequence: 1,
-        notes: pickupNotes || 'Origin Terminal Cargo Pick-up'
-      },
-      ...wizardStops.map((stop, idx) => ({
-        id: idx + 2,
-        address: stop.address,
-        type: stop.type,
-        itemIds: stop.itemIds || [],
-        status: 'Pending',
-        sequence: idx + 2,
-        notes: stop.notes
-      })),
-      {
-        id: wizardStops.length + 2,
-        address: deliveryAddress,
-        type: 'Delivery',
-        itemIds: wizardItems.map(i => i.id),
-        status: 'Pending',
-        sequence: wizardStops.length + 2,
-        notes: deliveryNotes || 'Destination Terminal Cargo Drop-off'
-      }
-    ];
-
-    dispatch(createLoad({
-      status: 'Planned',
-      cargo: finalCargoName,
-      weight: totalWeight,
-      route: `${pickupAddress} ➔ ${deliveryAddress}`,
-      customerName,
-      customerEmail,
-      customerPhone,
-      customerRef,
-      pickupAddress,
-      pickupDate,
-      pickupContact,
-      pickupNotes,
-      deliveryAddress,
-      deliveryDate,
-      deliveryContact,
-      deliveryNotes,
-      items: wizardItems,
-      stops: generatedStops,
-      vehicle: assignedVehicle,
-      driver: assignedDriver,
-      cost: cargoCost,
-      notes: specialDispatchNotes ? [specialDispatchNotes] : [],
-      documents: [
-        ...(docsRateConf ? [{ name: 'Rate Confirmation.pdf', type: 'PDF', date: 'Just now', url: '#' }] : []),
-        ...(docsBOL ? [{ name: 'Bill of Lading.pdf', type: 'PDF', date: 'Just now', url: '#' }] : []),
-        ...(docsCustoms ? [{ name: 'Customs Bond.pdf', type: 'PDF', date: 'Just now', url: '#' }] : []),
-        ...uploadedFiles.map(f => ({ name: f.name, type: f.type, date: f.date, url: '#' }))
-      ]
-    }));
-
-    triggerToast(`Shipment booked and planned!`);
-    setWizardOpen(false);
-    resetWizard();
-  };
-
-  // Save Draft (can be triggered at any step)
-  const handleSaveDraft = () => {
-    const finalCargoName = wizardItems.map(i => i.name).join(', ') || cargoName || 'Draft Cargo';
-    const totalWeight = wizardItems.length > 0 
-      ? `${wizardItems.reduce((sum, i) => sum + (parseFloat(i.weight.replace(/[^\d.]/g, '')) || 0), 0).toLocaleString()} lbs`
-      : `${parseFloat(cargoWeight || 0).toLocaleString()} lbs`;
-
-    const generatedStops = [
-      {
-        id: 1,
-        address: pickupAddress || 'Unassigned Origin',
-        type: 'Pickup',
-        itemIds: wizardItems.map(i => i.id),
-        status: 'Pending',
-        sequence: 1,
-        notes: pickupNotes || 'Origin Terminal Cargo Pick-up'
-      },
-      ...wizardStops.map((stop, idx) => ({
-        id: idx + 2,
-        address: stop.address,
-        type: stop.type,
-        itemIds: stop.itemIds || [],
-        status: 'Pending',
-        sequence: idx + 2,
-        notes: stop.notes
-      })),
-      {
-        id: wizardStops.length + 2,
-        address: deliveryAddress || 'Unassigned Destination',
-        type: 'Delivery',
-        itemIds: wizardItems.map(i => i.id),
-        status: 'Pending',
-        sequence: wizardStops.length + 2,
-        notes: deliveryNotes || 'Destination Terminal Cargo Drop-off'
-      }
-    ];
-
-    dispatch(createLoad({
-      status: 'Draft',
-      cargo: finalCargoName,
-      weight: totalWeight,
-      route: `${pickupAddress || 'Unassigned'} ➔ ${deliveryAddress || 'Unassigned'}`,
-      customerName,
-      customerEmail,
-      customerPhone,
-      customerRef,
-      pickupAddress,
-      pickupDate,
-      pickupContact,
-      pickupNotes,
-      deliveryAddress,
-      deliveryDate,
-      deliveryContact,
-      deliveryNotes,
-      items: wizardItems,
-      stops: generatedStops,
-      vehicle: assignedVehicle,
-      driver: assignedDriver,
-      cost: cargoCost,
-      notes: specialDispatchNotes ? [specialDispatchNotes] : [],
-      documents: [
-        ...(docsRateConf ? [{ name: 'Rate Confirmation.pdf', type: 'PDF', date: 'Just now', url: '#' }] : []),
-        ...(docsBOL ? [{ name: 'Bill of Lading.pdf', type: 'PDF', date: 'Just now', url: '#' }] : []),
-        ...(docsCustoms ? [{ name: 'Customs Bond.pdf', type: 'PDF', date: 'Just now', url: '#' }] : []),
-        ...uploadedFiles.map(f => ({ name: f.name, type: f.type, date: f.date, url: '#' }))
-      ]
-    }));
-
-    triggerToast(`Load saved as draft successfully.`);
-    setWizardOpen(false);
-    resetWizard();
-  };
-
-  const handleAddWizardStop = () => {
-    if (!stopAddress.trim()) {
-      triggerToast('Stop address is required.', 'error');
-      return;
-    }
-    setWizardStops([
-      ...wizardStops,
-      { 
-        id: Date.now(), 
-        address: stopAddress.trim(), 
-        type: stopType, 
-        notes: stopNotes.trim() || 'General Stop', 
-        sequence: wizardStops.length + 1,
-        itemIds: selectedItemIdsForStop 
-      }
-    ]);
-    setStopAddress('');
-    setStopNotes('');
-    setSelectedItemIdsForStop([]);
-    triggerToast('Intermediate stop added.');
-  };
-
-  const handleRemoveWizardStop = (stopId) => {
-    setWizardStops(wizardStops.filter(s => s.id !== stopId).map((s, idx) => ({ ...s, sequence: idx + 1 })));
-    triggerToast('Stop removed.');
-  };
-
-  const handleAddPlannerStop = () => {
-    if (!plannerStopAddress.trim()) {
-      triggerToast('Stop address is required.', 'error');
-      return;
-    }
-    setPlannerStops([
-      ...plannerStops,
-      { id: Date.now(), address: plannerStopAddress.trim(), type: plannerStopType, duration: parseFloat(plannerStopDuration) || 2 }
-    ]);
-    setPlannerStopAddress('');
-    triggerToast('Stop added to planner.');
-  };
-
-  const handleRemovePlannerStop = (stopId) => {
-    setPlannerStops(plannerStops.filter(s => s.id !== stopId));
-    triggerToast('Stop removed from planner.');
-  };
-
-  // Search Route Planner
-  const handleCalculateRoute = (e) => {
-    e.preventDefault();
-    if (!plannerOrigin || !plannerDest) return;
-    
-    // Mock distance calculation logic
-    const baseDistance = Math.floor(Math.random() * 200) + 380; // 380 - 580 miles base
-    const stopDistanceAdd = plannerStops.length * 140;
-    const totalDistance = baseDistance + stopDistanceAdd;
-    
-    const speed = parseFloat(averageSpeed) || 60;
-    const drivingHours = totalDistance / speed;
-    const stopLayoverHours = plannerStops.reduce((sum, s) => sum + s.duration, 0);
-    const trafficMultiplier = trafficDelay === 'Heavy' ? 1.35 : trafficDelay === 'Light' ? 1.12 : 1.0;
-    const totalDurationHours = (drivingHours + stopLayoverHours) * trafficMultiplier;
-    
-    const fuelGals = Math.floor(totalDistance / 6.2); // average 6.2 mpg
-    
-    let fuelPricePerGal = 3.90;
-    if (optimizationMode === 'Minimize Fuel') fuelPricePerGal = 3.65;
-    
-    let baseTollCost = 145;
-    if (optimizationMode === 'Avoid Tolls') baseTollCost = 0;
-    
-    const totalCostVal = (fuelGals * fuelPricePerGal) + baseTollCost + (plannerStops.length * 110);
-
-    setPlannerResult({
-      distance: `${totalDistance} Miles`,
-      duration: `${totalDurationHours.toFixed(1)} Hours`,
-      fuel: `${fuelGals} Gallons`,
-      estCost: `$${totalCostVal.toLocaleString('en-US', { maximumFractionDigits: 2 })}`,
-      stopsCount: plannerStops.length
-    });
-    triggerToast('Optimized routes calculated.');
-  };
-
-  // Chat message submit
   const handleSendMessage = (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!newMessage) return;
-    setChats([{ id: Date.now(), sender: 'Dispatcher Operator', msg: newMessage, time: 'Just now' }, ...chats]);
+    setChats([{ id: Date.now(), sender: 'Dispatcher (You)', msg: newMessage, time: 'Just now' }, ...chats]);
     setNewMessage('');
-    triggerToast('Dispatch message sent.');
+    triggerToast('Message dispatched to driver.');
   };
 
-  // Open load details in side drawer
-  const handleOpenLoad = (load) => {
-    setSelectedLoad(load);
-    setDrawerTab('details');
-    setDrawerOpen(true);
-  };
-
-  // Transition load through lifecycle stages
   const handleStatusTransition = (newStatus) => {
     if (!selectedLoadDetail) return;
     dispatch(updateLoadStatus({ 
       id: selectedLoadDetail.id, 
       status: newStatus,
-      statusNote: `Status advanced to ${newStatus}`
+      statusNote: `Status advanced to ${newStatus} by Dispatcher`
     }));
     triggerToast(`Load status updated to ${newStatus}`);
   };
@@ -496,7 +170,7 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
     if (newTrailerPlate === oldTrailer) {
       triggerToast('New trailer must be different from current trailer.', 'error');
       return;
-    }
+      }
     if (!swapReason.trim()) {
       triggerToast('Please provide a swap reason.', 'error');
       return;
@@ -523,7 +197,6 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
     triggerToast(`Trailer swapped to ${newTrailerPlate} successfully.`);
   };
 
-  // Add notes to load record
   const handleAddNote = (e) => {
     e.preventDefault();
     if (!newNoteText.trim() || !selectedLoadDetail) return;
@@ -537,11 +210,206 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
     triggerToast('Note successfully recorded.');
   };
 
+  // Add Stop in 11-step Stepper
+  const handleAddStepperStop = () => {
+    if (!stopAddress.trim()) {
+      triggerToast('Stop address is required.', 'error');
+      return;
+    }
+    const stop = {
+      id: `STP-${Date.now()}`,
+      address: stopAddress.trim(),
+      type: stopType,
+      sequence: newStops.length + 1,
+      notes: stopNotes.trim() || 'No instructions'
+    };
+    setNewStops([...newStops, stop]);
+    setStopAddress('');
+    setStopNotes('');
+    triggerToast('Stop successfully added.');
+  };
+
+  const handleRemoveStepperStop = (id) => {
+    setNewStops(newStops.filter(s => s.id !== id).map((s, idx) => ({ ...s, sequence: idx + 1 })));
+    triggerToast('Stop removed.');
+  };
+
+  const handleReorderStops = () => {
+    // Reverse sequence or shift order to demonstrate reordering
+    if (newStops.length < 2) {
+      triggerToast('Need at least 2 stops to reorder.', 'warning');
+      return;
+    }
+    const reordered = [...newStops].reverse().map((s, idx) => ({ ...s, sequence: idx + 1 }));
+    setNewStops(reordered);
+    triggerToast('Stops sequence reordered and optimized.');
+  };
+
+  // Add Item in 11-step Stepper
+  const handleAddStepperItem = () => {
+    if (!itemName.trim()) {
+      triggerToast('Item name is required.', 'error');
+      return;
+    }
+    const item = {
+      id: `ITM-${Date.now()}`,
+      name: itemName.trim(),
+      weight: itemWeight.trim() || '0 lbs',
+      vin: itemVin.trim(),
+      rego: itemRego.trim(),
+      pallets: itemPallets.trim(),
+      hazmatClass: itemHazmatClass.trim(),
+      unNumber: itemUnNumber.trim(),
+      customer: itemCustLink.trim() || newLoadHeader.branch
+    };
+    setNewItems([...newItems, item]);
+    setItemName('');
+    setItemWeight('');
+    setItemVin('');
+    setItemRego('');
+    setItemPallets('');
+    setItemHazmatClass('');
+    setItemUnNumber('');
+    setItemCustLink('');
+    triggerToast('Item added to manifest.');
+  };
+
+  const handleRemoveStepperItem = (id) => {
+    setNewItems(newItems.filter(i => i.id !== id));
+    triggerToast('Item removed.');
+  };
+
+  const handleSaveDraft = () => {
+    const finalCargo = newItems.map(i => i.name).join(', ') || 'Draft Shipment';
+    const totalWeight = `${newItems.reduce((acc, curr) => acc + (parseFloat(curr.weight) || 0), 0)} lbs`;
+    
+    dispatch(createLoad({
+      status: 'Draft',
+      loadId: newLoadHeader.loadId,
+      cargo: finalCargo,
+      weight: totalWeight,
+      route: newStops.map(s => s.address).join(' ➔ ') || 'Planned Route',
+      pickupAddress: newStops[0]?.address || 'Pending Origin',
+      deliveryAddress: newStops[newStops.length - 1]?.address || 'Pending Destination',
+      driver: assignedDriver || 'Unassigned',
+      vehicle: assignedVehicle || 'Unassigned',
+      trailer: assignedTrailer,
+      stops: newStops.map(s => ({
+        ...s,
+        status: 'Pending',
+        itemIds: Object.keys(itemPickupLinks).filter(itmId => itemPickupLinks[itmId] === s.id || itemDeliveryLinks[itmId] === s.id)
+      })),
+      items: newItems,
+      customerName: newItems[0]?.customer || 'General Shipper',
+      notes: newNotes ? [newNotes] : [],
+      documents: [
+        ...(newDocs.rateConf ? [{ name: 'Rate Confirmation.pdf', type: 'PDF', date: 'Just now', url: '#' }] : []),
+        ...(newDocs.bol ? [{ name: 'Bill of Lading.pdf', type: 'PDF', date: 'Just now', url: '#' }] : []),
+        ...(newDocs.customs ? [{ name: 'Customs Manifest.pdf', type: 'PDF', date: 'Just now', url: '#' }] : [])
+      ]
+    }));
+
+    triggerToast('Load saved as Draft successfully!');
+    resetStepper();
+  };
+
+  const handleActivateLoad = (dispatchImmediately = false) => {
+    if (newStops.length === 0) {
+      triggerToast('Must configure at least 1 stop.', 'error');
+      return;
+    }
+    const finalCargo = newItems.map(i => i.name).join(', ') || 'General Cargo';
+    const totalWeight = `${newItems.reduce((acc, curr) => acc + (parseFloat(curr.weight) || 0), 0)} lbs`;
+
+    dispatch(createLoad({
+      status: dispatchImmediately ? 'In Transit' : 'Planned',
+      loadId: newLoadHeader.loadId,
+      cargo: finalCargo,
+      weight: totalWeight,
+      route: newStops.map(s => s.address).join(' ➔ ') || 'Planned Route',
+      pickupAddress: newStops[0]?.address || 'Pending Origin',
+      deliveryAddress: newStops[newStops.length - 1]?.address || 'Pending Destination',
+      driver: assignedDriver || 'Unassigned',
+      vehicle: assignedVehicle || 'Unassigned',
+      trailer: assignedTrailer,
+      stops: newStops.map(s => ({
+        ...s,
+        status: 'Pending',
+        itemIds: Object.keys(itemPickupLinks).filter(itmId => itemPickupLinks[itmId] === s.id || itemDeliveryLinks[itmId] === s.id)
+      })),
+      items: newItems,
+      customerName: newItems[0]?.customer || 'General Shipper',
+      notes: newNotes ? [newNotes] : [],
+      documents: [
+        ...(newDocs.rateConf ? [{ name: 'Rate Confirmation.pdf', type: 'PDF', date: 'Just now', url: '#' }] : []),
+        ...(newDocs.bol ? [{ name: 'Bill of Lading.pdf', type: 'PDF', date: 'Just now', url: '#' }] : []),
+        ...(newDocs.customs ? [{ name: 'Customs Manifest.pdf', type: 'PDF', date: 'Just now', url: '#' }] : [])
+      ]
+    }));
+
+    triggerToast(dispatchImmediately ? 'Load dispatched directly!' : 'Load activated & scheduled!');
+    resetStepper();
+  };
+
+  const resetStepper = () => {
+    setCreateStep(1);
+    setNewLoadHeader({
+      loadId: `LD-${Math.floor(Math.random() * 9000) + 1000}`,
+      niche: 'general_freight',
+      branch: 'Chicago HQ Terminal',
+      requiredDate: ''
+    });
+    setNewStops([]);
+    setNewItems([]);
+    setNewDocs({ rateConf: false, bol: false, customs: false });
+    setNewNotes('');
+    setItemPickupLinks({});
+    setItemDeliveryLinks({});
+    setAssignedDriver('');
+    setAssignedVehicle('');
+  };
+
+  // 9-Dimensional filter predicates
   const filteredLoads = loads.filter((l) => {
-    const matchesSearch = l.route.toLowerCase().includes(search.toLowerCase()) || 
-                          l.driver.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = 
+      l.route.toLowerCase().includes(search.toLowerCase()) || 
+      l.driver.toLowerCase().includes(search.toLowerCase()) ||
+      (l.loadId && l.loadId.toLowerCase().includes(search.toLowerCase())) ||
+      (l.cargo && l.cargo.toLowerCase().includes(search.toLowerCase()));
+      
     const matchesStatus = filterStatus === '' || l.status === filterStatus;
-    return matchesSearch && matchesStatus;
+    
+    const matchesBranch = filterBranch === '' || 
+      (l.branch && l.branch.toLowerCase().includes(filterBranch.toLowerCase())) ||
+      (l.pickupAddress && l.pickupAddress.toLowerCase().includes(filterBranch.toLowerCase()));
+      
+    const matchesDriver = filterDriver === '' || l.driver === filterDriver;
+    
+    const matchesCustomer = filterCustomer === '' || 
+      (l.customerName && l.customerName === filterCustomer);
+      
+    const matchesDestination = filterDestination === '' || 
+      l.route.toLowerCase().includes(filterDestination.toLowerCase()) ||
+      (l.deliveryAddress && l.deliveryAddress.toLowerCase().includes(filterDestination.toLowerCase()));
+      
+    const matchesDate = filterRequiredDate === '' || 
+      (l.pickupDate && l.pickupDate.startsWith(filterRequiredDate)) ||
+      (l.deliveryDate && l.deliveryDate.startsWith(filterRequiredDate));
+      
+    const matchesNiche = filterNicheType === '' || 
+      l.niche === filterNicheType ||
+      (filterNicheType === 'car_carrying' && l.cargo.toLowerCase().includes('car')) ||
+      (filterNicheType === 'dangerous_goods' && l.cargo.toLowerCase().includes('hazmat')) ||
+      (filterNicheType === 'general_freight' && !l.cargo.toLowerCase().includes('car') && !l.cargo.toLowerCase().includes('hazmat'));
+      
+    const matchesVehicleTrailer = filterVehicleTrailer === '' || 
+      l.vehicle === filterVehicleTrailer || 
+      l.trailer === filterVehicleTrailer;
+      
+    const matchesAvailableWorkers = !filterAvailableWorkersOnly || 
+      (l.driver && drivers.some(d => d.name === l.driver && d.status === 'Active'));
+
+    return matchesSearch && matchesStatus && matchesBranch && matchesDriver && matchesCustomer && matchesDestination && matchesDate && matchesNiche && matchesVehicleTrailer && matchesAvailableWorkers;
   });
 
   const totalPages = Math.ceil(filteredLoads.length / itemsPerPage);
@@ -553,475 +421,746 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
   return (
     <div className="space-y-6">
       
-      {/* Toast notifications */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 animate-slide-in">
           <Toast message={toastMessage} type={toastType} onClose={() => setToastMessage('')} />
         </div>
       )}
 
-      {/* Header controls */}
+      {/* Title Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#23324C]/60 pb-5">
         <div>
           <h2 className="text-xl sm:text-2xl font-black text-white capitalize">Dispatcher • {activeTab.replace('-', ' ')}</h2>
-          <p className="text-xs text-slate-400">Match loads, track route geofences, and message terminal drivers.</p>
+          <p className="text-xs text-slate-400">Match loads, track route geofences, and audit driver logs.</p>
         </div>
-
-        {activeTab === 'loads' && (
-          <Button variant="primary" icon={Plus} onClick={() => { setWizardStep(1); setWizardOpen(true); }}>
-            Create Load Wizard
-          </Button>
-        )}
+        <div className="flex gap-2">
+          {activeTab !== 'create-load' && (
+            <Button variant="primary" icon={Plus} onClick={() => { resetStepper(); triggerToast('Stepper loaded. Complete 11 steps.'); }}>
+              Create Load
+            </Button>
+          )}
+        </div>
       </div>
 
       {loading && loads.length === 0 ? (
         <TableSkeleton rows={4} cols={5} />
       ) : (
         <>
+          {/* 1. DISPATCH DASHBOARD OVERVIEW LAYOUT */}
           {activeTab === 'overview' && (
             <div className="space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard title="Unassigned Loads" value={`${unassignedCount} Loads`} description="Matching queue pending" trend="-2" trendDirection="down" />
-                <StatCard title="Active Transits" value={loads.filter(l => l.status === 'Transit').length} description="In interstate coordinates" trend="+4" trendDirection="up" />
-                <StatCard title="Available Drivers" value={`${driverCount} Fleet`} description="Awaiting cargo match" trend="Stable" trendDirection="neutral" />
-                <StatCard title="Delayed Shipments" value={loads.filter(l => l.status === 'Delayed').length} description="Requires dispatch call" trend="Alert" trendDirection="down" />
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                {/* Visual map preview */}
-                <div className="lg:col-span-8 glass rounded-2xl p-5 border border-[#23324C]/60 text-left flex flex-col justify-between h-[340px] lg:h-auto min-h-[300px]">
-                  <div>
-                    <h3 className="text-sm font-extrabold text-white mb-1">Live GIS Route Map</h3>
-                    <p className="text-[10px] text-slate-500">Live fleet coordinates mapped via Google Maps.</p>
-                  </div>
-                  <div className="flex-1 bg-[#0B0F19] rounded-xl border border-[#23324C] relative overflow-hidden flex items-center justify-center my-4 min-h-[200px]">
-                    <div className="absolute inset-0 bg-[radial-gradient(#23324c_1px,transparent_1px)] [background-size:16px_16px] opacity-40"></div>
-                    <svg className="absolute inset-0 w-full h-full">
-                      <path d="M 60 120 Q 140 60 220 180" fill="none" stroke="#23324c" strokeWidth="2" strokeDasharray="4,4" />
-                      <path d="M 80 80 L 260 120" fill="none" stroke="#0ea0ea" strokeWidth="2.5" strokeOpacity="0.4" />
-                    </svg>
-                    <div className="absolute top-1/3 left-1/4 w-3.5 h-3.5 bg-brand-500 rounded-full border-2 border-[#0B0F19] animate-ping" />
-                    <div className="absolute top-1/3 left-1/4 w-3 h-3 bg-brand-500 rounded-full border-2 border-[#0B0F19]" />
-                    <div className="absolute top-1/2 right-1/4 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[#0B0F19]" />
-                  </div>
-                </div>
-
-                {/* Dispatch Activity Inbox */}
-                <div className="lg:col-span-4 glass rounded-2xl p-5 border border-[#23324C]/60 text-left flex flex-col justify-between">
-                  <h3 className="text-sm font-extrabold text-white mb-3">Operator Live Logs</h3>
-                  <div className="space-y-3.5 max-h-[250px] overflow-y-auto pr-1">
-                    {chats.map(log => (
-                      <div key={log.id} className="p-3 bg-[#111827]/60 border border-[#23324C]/40 rounded-xl text-[11px] leading-relaxed">
-                        <div className="flex justify-between font-bold text-white mb-1">
-                          <span>{log.sender}</span>
-                          <span className="text-slate-500 font-mono text-[9px]">{log.time}</span>
-                        </div>
-                        <p className="text-slate-400">"{log.msg}"</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Active Loads screen */}
-          {activeTab === 'loads' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-              <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-                <div>
-                  <h3 className="text-sm font-extrabold text-white">Active Cargo Loads</h3>
-                  <div className="flex gap-1.5 mt-2 flex-wrap">
-                    <Button size="xs" variant="success" onClick={() => triggerToast('Optimizing active load paths...')}>Optimise Load</Button>
-                    <Button size="xs" variant="outline" onClick={() => triggerToast('Searching active database by VIN...')}>Search by VIN</Button>
-                    <Button size="xs" variant="outline" onClick={() => triggerToast('Searching active database by Rego...')}>Search by Rego</Button>
-                    <Button size="xs" variant="outline" onClick={() => triggerToast('Searching active database by Destination...')}>Search by Destination</Button>
-                  </div>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                  <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} onClear={() => setSearch('')} className="w-full sm:max-w-[200px]" />
-                  <SelectInput value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} options={[
-                    { value: '', label: 'All Statuses' },
-                    { value: 'Draft', label: 'Draft' },
-                    { value: 'Planned', label: 'Planned' },
-                    { value: 'Assigned', label: 'Assigned' },
-                    { value: 'Accepted', label: 'Accepted' },
-                    { value: 'In Transit', label: 'In Transit' },
-                    { value: 'Delivered', label: 'Delivered' },
-                    { value: 'Invoiced', label: 'Invoiced' },
-                    { value: 'Closed', label: 'Closed' }
-                  ]} className="w-full sm:max-w-[150px]" />
-                </div>
-              </div>
-
-              {filteredLoads.length === 0 ? (
-                <EmptyState title="No Shipments matches" description="Search index empty. Setup a load dispatch card wizard." icon={Layers} actionLabel="Create Load" onAction={() => setWizardOpen(true)} />
-              ) : (
-                <>
-                  <DataTable columns={[
-                    { key: 'route', label: 'Origin/Destination Path', render: (row) => <span className="font-extrabold text-white">{row.route}</span> },
-                    { key: 'driver', label: 'Driver', render: (row) => <span className="text-slate-300 font-semibold">{row.driver}</span> },
-                    { key: 'compliance', label: 'Compliance', render: (row) => (
-                      row.complianceChecked ? (
-                        <span className="text-[10px] text-emerald-400 font-bold">✓ Compliant</span>
-                      ) : (
-                        <span className="text-[10px] text-amber-500 font-bold">⚠️ Pending Check</span>
-                      )
-                    )},
-                    { key: 'weight', label: 'Weight Specs', render: (row) => <span className="font-mono text-[11px]">{row.weight}</span> },
-                    { key: 'status', label: 'Transit Status', render: (row) => <StatusBadge status={row.status} /> },
-                    { key: 'eta', label: 'ETA Timer', render: (row) => <span className="text-brand-400 font-mono font-bold">{row.eta || 'N/A'}</span> },
-                    { key: 'actions', label: 'Actions', render: (row) => <Button size="sm" variant="secondary" onClick={() => handleOpenLoad(row)}>Track GPS</Button> }
-                  ]} data={paginatedLoads} />
-                  
-                  <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
-                </>
-              )}
-            </div>
-          )}
-
-          {/* Planning Board Screen */}
-          {activeTab === 'planning-board' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-              <h3 className="text-sm font-extrabold text-white">Active Cargo Timelines</h3>
-              <div className="space-y-4">
-                {loads.map(load => (
-                  <div key={load.id} className="p-4 bg-[#111827]/40 border border-[#23324C]/60 rounded-xl space-y-3.5">
-                    <div className="flex justify-between items-center text-xs">
-                      <div>
-                        <strong className="text-white block font-bold">{load.route}</strong>
-                        <span className="text-[10px] text-slate-400 mt-0.5 block">Driver: {load.driver} • {load.weight}</span>
-                      </div>
-                      <StatusBadge status={load.status} />
-                    </div>
-
-                    {/* Progress timeline meter */}
-                    <div className="relative">
-                      <div className="w-full bg-slate-800 rounded-full h-1" />
-                      <div className={`h-1.5 rounded-full absolute top-[-1px] ${
-                        load.status === 'Delivered' ? 'bg-emerald-500 w-full' : load.status === 'Transit' ? 'bg-brand-500 w-2/3' : 'bg-slate-500 w-1/3'
-                      }`} />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Route Planner & GIS Screen */}
-          {activeTab === 'route-planner' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-              {/* Planner settings */}
-              <div className="lg:col-span-5 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-                <div>
-                  <h3 className="text-sm font-extrabold text-white">Route Optimization Planner</h3>
-                  <p className="text-[10px] text-slate-400">Configure stops, simulate traffic speed variables, and calculate fuel cost margins.</p>
+              
+              {/* Collapsible Filter Bar */}
+              <div className="glass rounded-xl border border-[#23324C]/65 p-4 text-left">
+                <div className="flex justify-between items-center cursor-pointer" onClick={() => setShowFiltersPanel(!showFiltersPanel)}>
+                  <span className="text-xs font-bold text-white flex items-center gap-2">
+                    <Filter className="h-4 w-4 text-brand-500" />
+                    Advanced Load Filter Dashboard ({filteredLoads.length} matched)
+                  </span>
+                  <span className="text-[10px] text-brand-400 underline">{showFiltersPanel ? 'Hide Filters' : 'Expand Filters'}</span>
                 </div>
                 
-                <form onSubmit={handleCalculateRoute} className="space-y-3.5">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <TextInput label="Route Origin" required value={plannerOrigin} onChange={(e) => setPlannerOrigin(e.target.value)} />
-                    <TextInput label="Route Destination" required value={plannerDest} onChange={(e) => setPlannerDest(e.target.value)} />
-                  </div>
-
-                  {/* Stop Manager Sub-panel */}
-                  <div className="p-3.5 bg-[#111827]/40 border border-[#23324C] rounded-xl space-y-3">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">Add Intermediate Stops</span>
-                    
-                    {plannerStops.length > 0 && (
-                      <div className="space-y-2 mb-2 max-h-32 overflow-y-auto">
-                        {plannerStops.map((stop) => (
-                          <div key={stop.id} className="flex justify-between items-center p-2.5 bg-slate-900/60 border border-[#23324C]/40 rounded-lg text-[11px]">
-                            <span className="text-slate-200 truncate max-w-[160px] font-bold">{stop.address} ({stop.type})</span>
-                            <div className="flex items-center gap-1.5">
-                              <span className="text-[9px] text-slate-500 font-mono">{stop.duration}h delay</span>
-                              <button type="button" onClick={() => handleRemovePlannerStop(stop.id)} className="text-red-400 hover:text-red-300">
-                                <Trash2 className="h-3.5 w-3.5" />
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    
-                    <div className="space-y-2.5">
-                      <TextInput placeholder="Stop location name..." value={plannerStopAddress} onChange={(e) => setPlannerStopAddress(e.target.value)} />
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        <SelectInput value={plannerStopType} onChange={(e) => setPlannerStopType(e.target.value)} options={[
-                          { value: 'Layover', label: 'Layover Rest' },
-                          { value: 'Customs', label: 'Customs Clear' },
-                          { value: 'Border', label: 'Border Check' },
-                          { value: 'Fuel', label: 'Fuel Stop' }
-                        ]} />
-                        <TextInput type="number" placeholder="Duration (hrs)" value={plannerStopDuration} onChange={(e) => setPlannerStopDuration(e.target.value)} />
-                      </div>
-                      <Button type="button" variant="outline" size="sm" className="w-full" onClick={handleAddPlannerStop}>
-                        Add Stop Location
-                      </Button>
+                {showFiltersPanel && (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-3 pt-4 border-t border-[#23324C]/40 mt-3 text-xs">
+                    <div>
+                      <label className="block text-slate-450 mb-1">Branch Terminal</label>
+                      <select value={filterBranch} onChange={(e) => setFilterBranch(e.target.value)} className="w-full bg-[#111827] border border-[#23324C] text-slate-300 p-2 rounded-lg focus:outline-none">
+                        <option value="">All Branches</option>
+                        <option value="Chicago">Chicago HQ</option>
+                        <option value="Los Angeles">Los Angeles Depot</option>
+                        <option value="Atlanta">Atlanta Depot</option>
+                      </select>
                     </div>
-                  </div>
-
-                  {/* ETA Simulator Parameters */}
-                  <div className="p-3.5 bg-[#111827]/40 border border-[#23324C] rounded-xl space-y-3">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">ETA Simulation Controls</span>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                      <div>
-                        <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Avg Speed (mph)</label>
-                        <input 
-                          type="range" min="45" max="75" step="5" 
-                          value={averageSpeed} onChange={(e) => setAverageSpeed(e.target.value)} 
-                          className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-brand-500" 
-                        />
-                        <span className="font-mono text-[10px] text-brand-400 mt-1 block">{averageSpeed} mph</span>
-                      </div>
-                      <SelectInput label="Traffic delays" value={trafficDelay} onChange={(e) => setTrafficDelay(e.target.value)} options={[
-                        { value: 'None', label: 'None (Smooth)' },
-                        { value: 'Light', label: 'Light congestion (+12%)' },
-                        { value: 'Heavy', label: 'Heavy Traffic (+35%)' }
-                      ]} />
+                    <div>
+                      <label className="block text-slate-450 mb-1">Status Type</label>
+                      <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="w-full bg-[#111827] border border-[#23324C] text-slate-300 p-2 rounded-lg focus:outline-none">
+                        <option value="">All Statuses</option>
+                        <option value="Draft">Draft</option>
+                        <option value="Planned">Planned</option>
+                        <option value="Assigned">Assigned</option>
+                        <option value="Accepted">Accepted</option>
+                        <option value="In Transit">In Transit</option>
+                        <option value="Delivered">Delivered</option>
+                        <option value="Closed">Closed</option>
+                      </select>
                     </div>
-                  </div>
-
-                  {/* Route Optimization UI Options */}
-                  <SelectInput label="Optimization Protocol" value={optimizationMode} onChange={(e) => setOptimizationMode(e.target.value)} options={[
-                    { value: 'Fastest Route', label: 'Fastest Route (Default)' },
-                    { value: 'Minimize Fuel', label: 'Fuel Efficient Route' },
-                    { value: 'Avoid Tolls', label: 'Avoid Turnpike Tolls' },
-                    { value: 'Multi-drop Optimized', label: 'Stops Optimized Sequencer' }
-                  ]} />
-                  
-                  <Button type="submit" variant="primary" className="w-full">
-                    Recompute Dispatch Routing
-                  </Button>
-                </form>
-
-                {plannerResult && (
-                  <div className="border-t border-[#23324C]/60 pt-4 space-y-3.5 text-xs text-slate-350">
-                    <div className="flex justify-between">
-                      <span>Total Distance</span>
-                      <strong className="text-white">{plannerResult.distance}</strong>
+                    <div>
+                      <label className="block text-slate-450 mb-1">Active Driver</label>
+                      <select value={filterDriver} onChange={(e) => setFilterDriver(e.target.value)} className="w-full bg-[#111827] border border-[#23324C] text-slate-300 p-2 rounded-lg focus:outline-none">
+                        <option value="">All Drivers</option>
+                        {drivers.map(d => <option key={d.id} value={d.name}>{d.name}</option>)}
+                      </select>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Intermediate Stops</span>
-                      <strong className="text-white">{plannerResult.stopsCount} stops</strong>
+                    <div>
+                      <label className="block text-slate-450 mb-1">Customer / Shipper</label>
+                      <select value={filterCustomer} onChange={(e) => setFilterCustomer(e.target.value)} className="w-full bg-[#111827] border border-[#23324C] text-slate-300 p-2 rounded-lg focus:outline-none">
+                        <option value="">All Customers</option>
+                        <option value="Global Retail Corp">Global Retail Corp</option>
+                        <option value="HEB Distributors">HEB Distributors</option>
+                        <option value="Seattle Metalworks">Seattle Metalworks</option>
+                        <option value="East Coast Textiles">East Coast Textiles</option>
+                      </select>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Drive & Layover Duration</span>
-                      <strong className="text-white">{plannerResult.duration}</strong>
+                    <div>
+                      <label className="block text-slate-450 mb-1">Destination Search</label>
+                      <input type="text" placeholder="e.g. Dallas" value={filterDestination} onChange={(e) => setFilterDestination(e.target.value)} className="w-full bg-[#111827] border border-[#23324C] text-slate-300 p-2 rounded-lg focus:outline-none" />
                     </div>
-                    <div className="flex justify-between">
-                      <span>Fuel Consumption</span>
-                      <strong className="text-white">{plannerResult.fuel}</strong>
+                    <div>
+                      <label className="block text-slate-450 mb-1">Required Date</label>
+                      <input type="date" value={filterRequiredDate} onChange={(e) => setFilterRequiredDate(e.target.value)} className="w-full bg-[#111827] border border-[#23324C] text-slate-300 p-2 rounded-lg focus:outline-none" />
                     </div>
-                    <div className="flex justify-between border-t border-[#23324C]/45 pt-2 text-brand-400 font-bold">
-                      <span>Estimated Expense Cost</span>
-                      <span>{plannerResult.estCost}</span>
+                    <div>
+                      <label className="block text-slate-450 mb-1">Niche Category</label>
+                      <select value={filterNicheType} onChange={(e) => setFilterNicheType(e.target.value)} className="w-full bg-[#111827] border border-[#23324C] text-slate-300 p-2 rounded-lg focus:outline-none">
+                        <option value="">All Niches</option>
+                        <option value="general_freight">General Freight</option>
+                        <option value="car_carrying">Car Carrying</option>
+                        <option value="dangerous_goods">Dangerous Goods (HAZMAT)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-slate-450 mb-1">Vehicle / Trailer Plate</label>
+                      <input type="text" placeholder="e.g. TX-ROAD88" value={filterVehicleTrailer} onChange={(e) => setFilterVehicleTrailer(e.target.value)} className="w-full bg-[#111827] border border-[#23324C] text-slate-300 p-2 rounded-lg focus:outline-none" />
+                    </div>
+                    <div className="flex items-center pt-5">
+                      <label className="flex items-center gap-2 cursor-pointer text-slate-300">
+                        <input type="checkbox" checked={filterAvailableWorkersOnly} onChange={(e) => setFilterAvailableWorkersOnly(e.target.checked)} className="rounded border-[#23324C] text-brand-500 focus:ring-brand-500 h-4.5 w-4.5" />
+                        <span>Active Drivers Only</span>
+                      </label>
+                    </div>
+                    <div className="flex items-end">
+                      <button 
+                        onClick={() => {
+                          setFilterBranch('');
+                          setFilterStatus('');
+                          setFilterDriver('');
+                          setFilterCustomer('');
+                          setFilterDestination('');
+                          setFilterRequiredDate('');
+                          setFilterNicheType('');
+                          setFilterVehicleTrailer('');
+                          setFilterAvailableWorkersOnly(false);
+                          setSearch('');
+                          triggerToast('Filters reset.');
+                        }}
+                        className="w-full bg-slate-800 hover:bg-slate-700 py-2 rounded-lg text-slate-300 font-bold"
+                      >
+                        Reset Filters
+                      </button>
                     </div>
                   </div>
                 )}
               </div>
 
-              {/* Routing map previews */}
-              <div className="lg:col-span-7 glass rounded-2xl p-5 border border-[#23324C]/60 text-left flex flex-col justify-between h-[450px] lg:h-auto min-h-[350px]">
-                <div>
-                  <h3 className="text-sm font-extrabold text-white mb-1">GIS Optimized Route Map</h3>
-                  <p className="text-[10px] text-slate-500">Route paths calculated showing waypoint stops.</p>
-                </div>
+              {/* Recommended 3-Column Layout: Left (Loads) | Centre (Planning Board) | Right (Live Map) */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
                 
-                <div className="flex-grow bg-[#0B0F19] border border-[#23324C] rounded-xl flex items-center justify-center my-4 relative overflow-hidden min-h-[260px]">
-                  <div className="absolute inset-0 bg-[radial-gradient(#23324c_1px,transparent_1px)] [background-size:16px_16px] opacity-40"></div>
+                {/* Left Column: Load List */}
+                <div className="lg:col-span-3 glass rounded-2xl p-4 border border-[#23324C]/60 text-left flex flex-col justify-between max-h-[500px] overflow-hidden">
+                  <div>
+                    <h3 className="text-sm font-extrabold text-white mb-2">Dispatcher Load List</h3>
+                    <input 
+                      type="text" 
+                      placeholder="Quick search load/driver..." 
+                      value={search} 
+                      onChange={(e) => setSearch(e.target.value)} 
+                      className="w-full mb-3 px-3 py-2 bg-[#0B0F19] border border-[#23324C] focus:border-brand-500 rounded-xl text-slate-200 text-xs focus:outline-none"
+                    />
+                  </div>
                   
-                  <svg className="absolute inset-0 w-full h-full">
-                    {/* SVG map visual representation */}
-                    <circle cx="60" cy="200" r="6" fill="#3b82f6" />
-                    <text x="75" y="204" fill="#64748b" className="text-[10px] font-bold font-mono uppercase">Origin</text>
-                    
-                    {plannerStops.map((stop, idx) => {
-                      const cx = 100 + idx * 70;
-                      const cy = 160 - idx * 20;
-                      return (
-                        <g key={stop.id}>
-                          <circle cx={cx} cy={cy} r="5" fill="#f59e0b" />
-                          <line x1={idx === 0 ? 60 : 100 + (idx - 1) * 70} y1={idx === 0 ? 200 : 160 - (idx - 1) * 20} x2={cx} y2={cy} stroke="#fbbf24" strokeWidth="2" strokeDasharray="3,3" />
-                          <text x={cx + 10} y={cy + 4} fill="#94a3b8" className="text-[9px] font-mono">{stop.address.split(',')[0]}</text>
-                        </g>
-                      );
-                    })}
-                    
-                    {plannerResult && (
-                      <>
-                        <circle cx="340" cy="100" r="6" fill="#10b981" />
-                        <text x="355" y="104" fill="#10b981" className="text-[10px] font-bold font-mono uppercase">Destination</text>
-                        
-                        <path 
-                          d={plannerStops.length > 0 
-                            ? `M 60 200 ${plannerStops.map((s, idx) => `L ${100 + idx * 70} ${160 - idx * 20}`).join(' ')} L 340 100`
-                            : "M 60 200 Q 180 120 340 100"
-                          } 
-                          fill="none" 
-                          stroke="#0ea0ea" 
-                          strokeWidth="3.5" 
-                          className="animate-pulse" 
-                        />
-                      </>
+                  <div className="flex-1 overflow-y-auto space-y-2.5 pr-1 scrollbar-thin">
+                    {filteredLoads.length === 0 ? (
+                      <p className="text-slate-500 text-xs text-center py-8">No matching shipments.</p>
+                    ) : (
+                      filteredLoads.map((load) => (
+                        <div 
+                          key={load.id} 
+                          onClick={() => setSelectedOverviewLoadId(load.id)}
+                          className={`p-3 rounded-xl border transition-all cursor-pointer text-left ${
+                            (selectedOverviewLoad?.id === load.id)
+                              ? 'bg-brand-500/10 border-brand-500' 
+                              : 'bg-[#111827]/40 border-[#23324C]/40 hover:border-[#23324C]'
+                          }`}
+                        >
+                          <div className="flex justify-between items-center text-[10px] mb-1">
+                            <strong className="text-white font-mono">{load.loadId || `LD-${load.id}`}</strong>
+                            <StatusBadge status={load.status} />
+                          </div>
+                          <h4 className="text-[11px] font-extrabold text-slate-200 truncate">{load.cargo}</h4>
+                          <div className="flex justify-between text-[9px] text-slate-450 mt-1">
+                            <span>Driver: {load.driver}</span>
+                            <span>{load.weight}</span>
+                          </div>
+                        </div>
+                      ))
                     )}
-                  </svg>
-                  
-                  <span className="absolute bottom-4 left-4 text-[10px] text-slate-500 font-mono font-bold uppercase">
-                    {plannerResult ? `[ Optimal Path Coordinates Calculated: ${plannerResult.distance} ]` : '[ Awaiting route planning parameters ]'}
-                  </span>
+                  </div>
+                </div>
+
+                {/* Centre Column: Planning Board */}
+                <div className="lg:col-span-5 glass rounded-2xl p-4 border border-[#23324C]/60 text-left flex flex-col justify-between max-h-[500px] overflow-hidden">
+                  <div>
+                    <h3 className="text-sm font-extrabold text-white mb-2 flex items-center justify-between">
+                      <span>Planning Board</span>
+                      {selectedOverviewLoad && <span className="text-[10px] text-brand-400 font-mono font-bold">{selectedOverviewLoad.loadId}</span>}
+                    </h3>
+                  </div>
+
+                  {selectedOverviewLoad ? (
+                    <div className="flex-1 overflow-y-auto space-y-3.5 pr-1 scrollbar-thin">
+                      <div className="p-3 bg-[#0B0F19]/60 border border-[#23324C] rounded-xl text-xs space-y-2">
+                        <div className="flex justify-between text-[10px] text-slate-400 font-bold uppercase">
+                          <span>Route Summary</span>
+                          <span>Niche: {selectedOverviewLoad.niche || 'General'}</span>
+                        </div>
+                        <p className="text-white font-extrabold">{selectedOverviewLoad.route}</p>
+                        <p className="text-slate-350 text-[11px]">Vehicles assigned: <span className="text-brand-400 font-bold">{selectedOverviewLoad.vehicle || 'TX-ROAD88'}</span> | Trailer: <span className="text-brand-400 font-bold">{selectedOverviewLoad.trailer || 'TR-4022'}</span></p>
+                      </div>
+
+                      {/* Customer Instructions */}
+                      {(() => {
+                        const matching = (customerInstructions || []).filter(ins => {
+                          const scope = ins.scope.toLowerCase();
+                          return scope.includes(selectedOverviewLoad.customerName?.toLowerCase() || '') || scope.includes(selectedOverviewLoad.loadId?.toLowerCase() || '');
+                        });
+                        if (matching.length === 0) return null;
+                        return (
+                          <div className="p-3 bg-brand-500/10 border border-brand-500/20 rounded-xl space-y-1">
+                            <span className="text-[9px] font-bold text-brand-400 uppercase tracking-wider block">Customer Instructions</span>
+                            {matching.map((ins, idx) => (
+                              <p key={idx} className="italic text-[10px] text-slate-200">"{ins.text}"</p>
+                            ))}
+                          </div>
+                        );
+                      })()}
+
+                      {/* Stops Timeline */}
+                      <div className="space-y-3 pt-2">
+                        <strong className="text-[10px] text-slate-500 uppercase tracking-wider block">Sequence Stops</strong>
+                        {(selectedOverviewLoad.stops || []).length === 0 ? (
+                          <div className="p-4 border border-[#23324C]/40 rounded-xl text-slate-500 text-xs text-center">
+                            No intermediate stops defined.
+                          </div>
+                        ) : (
+                          (selectedOverviewLoad.stops || []).map((stop, index) => (
+                            <div key={index} className="flex gap-3 relative">
+                              {index < selectedOverviewLoad.stops.length - 1 && (
+                                <div className="absolute left-2.5 top-5 bottom-[-20px] w-0.5 bg-slate-800" />
+                              )}
+                              <div className="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black bg-brand-500/10 border border-brand-500/30 text-brand-400 flex-shrink-0 z-10">
+                                {index + 1}
+                              </div>
+                              <div className="text-left text-xs">
+                                <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 text-[8px] font-bold uppercase tracking-wider">{stop.type}</span>
+                                <strong className="text-white block mt-1">{stop.address}</strong>
+                                <p className="text-slate-455 text-[10px] mt-0.5">{stop.notes}</p>
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex-1 flex items-center justify-center text-slate-500 text-xs">
+                      Select a shipment from the Left Load list to track routing schedule.
+                    </div>
+                  )}
+
+                  <div className="flex gap-2 pt-3 border-t border-[#23324C]/40">
+                    <Button size="xs" variant="success" onClick={() => triggerToast('Optimizing load stop order...')} className="w-full">
+                      Optimise Load
+                    </Button>
+                    <Button size="xs" variant="outline" onClick={() => handleOpenLoad(selectedOverviewLoad)} className="w-full">
+                      Review Load
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Right Column: Live GPS Map */}
+                <div className="lg:col-span-4 glass rounded-2xl p-4 border border-[#23324C]/60 text-left flex flex-col justify-between max-h-[500px]">
+                  <div>
+                    <h3 className="text-sm font-extrabold text-white mb-1">Live GIS Route Map</h3>
+                    <p className="text-[10px] text-slate-500">Fleet coordinates updated via telemetry feed.</p>
+                  </div>
+
+                  <div className="flex-grow bg-[#0B0F19] rounded-xl border border-[#23324C] relative overflow-hidden flex items-center justify-center my-3 min-h-[220px]">
+                    <div className="absolute inset-0 bg-[radial-gradient(#23324c_1px,transparent_1px)] [background-size:16px_16px] opacity-40"></div>
+                    <svg className="absolute inset-0 w-full h-full">
+                      <path d="M 40 160 Q 120 80 260 140" fill="none" stroke="#23324c" strokeWidth="2" strokeDasharray="4,4" />
+                      {selectedOverviewLoad && <path d="M 40 160 L 260 140" fill="none" stroke="#0ea0ea" strokeWidth="2.5" strokeOpacity="0.4" />}
+                    </svg>
+                    <div className="absolute top-1/3 left-1/4 w-3.5 h-3.5 bg-brand-500 rounded-full border-2 border-[#0B0F19] animate-ping" />
+                    <div className="absolute top-1/3 left-1/4 w-3 h-3 bg-brand-500 rounded-full border-2 border-[#0B0F19]" />
+                    <div className="absolute top-1/2 right-1/4 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[#0B0F19]" />
+                  </div>
+
+                  {/* GPS Buttons */}
+                  <div className="grid grid-cols-2 gap-1.5 text-[10px]">
+                    <Button size="xs" variant="primary" onClick={() => triggerToast('Toggling live GIS map view...')}>View Live Map</Button>
+                    <Button size="xs" variant="secondary" onClick={() => triggerToast('Real-time driver tracking initiated.')}>Track Driver</Button>
+                    <Button size="xs" variant="outline" onClick={() => triggerToast('Opening Google Maps route...')}>Open Route</Button>
+                    <Button size="xs" variant="outline" onClick={() => triggerToast('Location coordinates sent to driver.')}>Send Location to Driver</Button>
+                    <Button size="xs" variant="success" onClick={() => triggerToast('GPS coordinates refreshed.')}>Refresh GPS</Button>
+                    <Button size="xs" variant="secondary" onClick={() => triggerToast('Loading vehicle location history...')}>View Location History</Button>
+                    <Button size="xs" variant="danger" className="col-span-2 mt-1" onClick={() => triggerToast('Load flagged as delayed. Alert sent to customer.')}>Flag Delay</Button>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Bottom Column: Driver ELD Status Bar */}
+              <div className="glass rounded-2xl p-4 border border-[#23324C]/60 text-left space-y-3">
+                <h3 className="text-xs font-extrabold text-white uppercase tracking-wider">Driver Status Bar</h3>
+                
+                <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-thin">
+                  {drivers.map((driver) => {
+                    const matchedLoad = loads.find(l => l.driver === driver.name && l.status === 'In Transit');
+                    return (
+                      <div key={driver.id} className="min-w-[200px] p-3 bg-[#111827]/60 border border-[#23324C]/40 rounded-xl flex items-center justify-between gap-3 text-xs">
+                        <div className="space-y-1">
+                          <strong className="text-white block font-bold">{driver.name}</strong>
+                          <span className="text-[10px] text-slate-450 block font-mono">{driver.plate || 'Unassigned'}</span>
+                          <span className="text-[9px] text-brand-400 font-bold block">
+                            {matchedLoad ? `Transit: ${matchedLoad.loadId}` : 'ELD status: Idle'}
+                          </span>
+                        </div>
+                        <div className="flex flex-col gap-1 items-end">
+                          <StatusBadge status={driver.status} />
+                          <div className="flex gap-1 mt-1">
+                            <button onClick={() => triggerToast(`Dialing hotline to: ${driver.name}`)} className="p-1 bg-slate-800 hover:bg-slate-700 rounded text-slate-350" title="Call Driver">
+                              <Phone className="h-3 w-3" />
+                            </button>
+                            <button onClick={() => triggerToast(`Open chat screen with: ${driver.name}`)} className="p-1 bg-slate-800 hover:bg-slate-700 rounded text-slate-350" title="Message Driver">
+                              <MessageSquare className="h-3 w-3" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
+
             </div>
           )}
 
-          {/* Dispatch Calendar Screen */}
-          {activeTab === 'calendar' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-              <h3 className="text-sm font-extrabold text-white">Upcoming Delivery Runs</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {loads.map(load => (
-                  <div key={load.id} className="p-4 bg-[#111827]/40 border border-[#23324C]/60 rounded-xl flex items-start gap-3">
-                    <CalendarIcon className="h-6 w-6 text-brand-400 mt-0.5 flex-shrink-0" />
-                    <div className="space-y-1">
-                      <strong className="text-white text-xs block font-bold truncate">{load.route}</strong>
-                      <span className="text-[10px] text-slate-400 block mt-0.5">Driver: {load.driver} • ETA: {load.eta}</span>
-                      <span className="text-[9px] font-mono text-slate-500">Scheduled: 06/20/2026</span>
-                    </div>
+          {/* 2. 11-STEP CREATE LOAD FLOW */}
+          {activeTab === 'create-load' && (
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6">
+              
+              {/* Stepper Steps Tracker */}
+              <div className="flex flex-wrap items-center gap-1.5 text-[9px] font-black text-slate-500 uppercase border-b border-[#23324C]/45 pb-3">
+                {[
+                  '1. Header', '2. Stops', '3. Items', '4. Stop Links', '5. Customer', 
+                  '6. Driver', '7. Truck', '8. Trailer', '9. Docs', '10. Review', '11. Dispatch'
+                ].map((stepLabel, idx) => (
+                  <div key={idx} className="flex items-center gap-1">
+                    <span className={`px-2 py-0.5 rounded-md ${createStep === idx + 1 ? 'bg-brand-500 text-slate-950 font-black' : createStep > idx + 1 ? 'bg-emerald-500/10 text-emerald-400 font-bold' : ''}`}>
+                      {stepLabel}
+                    </span>
+                    {idx < 10 && <ArrowRight className="h-3 w-3 text-slate-600" />}
                   </div>
                 ))}
               </div>
-            </div>
-          )}
 
-          {/* Live Tracking Screen UI & Chat Console */}
-          {activeTab === 'tracking' && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-              {/* GIS Map tracking */}
-              <div className="lg:col-span-8 glass rounded-2xl p-5 border border-[#23324C]/60 text-left flex flex-col justify-between h-[420px] lg:h-auto min-h-[380px] relative">
-                <div>
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h3 className="text-sm font-extrabold text-white mb-1">Live Fleet GIS Positioning</h3>
-                      <p className="text-[10px] text-slate-500">Google Map overlay coordinates. Click a vehicle pin to view telemetry.</p>
+              {/* Form Steps Panels */}
+              <div className="space-y-4 min-h-[220px]">
+                
+                {/* Step 1: Create Load Header */}
+                {createStep === 1 && (
+                  <div className="space-y-4 animate-fade-in max-w-lg">
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 1: Load Header Details</h4>
+                    <TextInput label="Load ID / Reference" value={newLoadHeader.loadId} onChange={(e) => setNewLoadHeader({ ...newLoadHeader, loadId: e.target.value })} />
+                    
+                    <SelectInput 
+                      label="Niche Type Operations" 
+                      value={newLoadHeader.niche} 
+                      onChange={(e) => {
+                        setNewLoadHeader({ ...newLoadHeader, niche: e.target.value });
+                        setSelectedNiche(e.target.value);
+                      }} 
+                      options={[
+                        { value: 'general_freight', label: 'General Freight (Ambient/Reefer)' },
+                        { value: 'car_carrying', label: 'Car Carrying / Vehicle Logistics' },
+                        { value: 'dangerous_goods', label: 'Dangerous Goods (HAZMAT)' }
+                      ]} 
+                    />
+
+                    <SelectInput 
+                      label="Origin branch dispatch node" 
+                      value={newLoadHeader.branch} 
+                      onChange={(e) => setNewLoadHeader({ ...newLoadHeader, branch: e.target.value })} 
+                      options={[
+                        { value: 'Chicago HQ Terminal', label: 'Chicago HQ Terminal' },
+                        { value: 'Los Angeles Depot', label: 'Los Angeles Depot' },
+                        { value: 'Atlanta Depot', label: 'Atlanta Depot' }
+                      ]} 
+                    />
+
+                    <TextInput label="Required Delivery Date" type="date" value={newLoadHeader.requiredDate} onChange={(e) => setNewLoadHeader({ ...newLoadHeader, requiredDate: e.target.value })} />
+                  </div>
+                )}
+
+                {/* Step 2: Add Stops */}
+                {createStep === 2 && (
+                  <div className="space-y-4 animate-fade-in">
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 2: Stops Timeline Manager</h4>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Left: Add stop form */}
+                      <div className="p-4 bg-[#111827]/40 border border-[#23324C] rounded-xl space-y-3">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase block">Add Sequential Stop</span>
+                        <TextInput label="Stop Location Address" value={stopAddress} onChange={(e) => setStopAddress(e.target.value)} placeholder="e.g. Dallas Yard 5" />
+                        <SelectInput label="Classification Type" value={stopType} onChange={(e) => setStopType(e.target.value)} options={[
+                          { value: 'Pickup', label: 'Pickup Load stop' },
+                          { value: 'Delivery', label: 'Delivery Offload stop' },
+                          { value: 'Layover', label: 'Layover / Rest' },
+                          { value: 'Customs', label: 'Customs Clear check' }
+                        ]} />
+                        <TextInput label="Stop Instruction Notes" value={stopNotes} onChange={(e) => setStopNotes(e.target.value)} placeholder="e.g. Gate code: #1002" />
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm" onClick={handleAddStepperStop} className="w-full">Add Stop</Button>
+                          <Button variant="secondary" size="sm" onClick={handleReorderStops} className="w-full">Reorder Stops</Button>
+                        </div>
+                      </div>
+
+                      {/* Right: Stops list */}
+                      <div className="space-y-2 max-h-[250px] overflow-y-auto">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase block">Stops Sequence list</span>
+                        {newStops.length === 0 ? (
+                          <p className="text-slate-500 text-xs italic py-4 text-center">No stops scheduled. Must define origin and destination stops.</p>
+                        ) : (
+                          newStops.map((stop) => (
+                            <div key={stop.id} className="p-3 bg-slate-900 border border-[#23324C]/40 rounded-xl flex justify-between items-center text-xs">
+                              <div>
+                                <span className="font-bold text-white block">#{stop.sequence}: {stop.address}</span>
+                                <span className="text-[10px] text-brand-400 font-bold uppercase">{stop.type}</span>
+                                <p className="text-[10px] text-slate-450 italic mt-0.5">{stop.notes}</p>
+                              </div>
+                              <button type="button" onClick={() => handleRemoveStepperStop(stop.id)} className="text-red-400 hover:text-red-300">
+                                <Trash2 className="h-4.5 w-4.5" />
+                              </button>
+                            </div>
+                          ))
+                        )}
+                      </div>
                     </div>
-                    {selectedVehicleTelemetry && (
-                      <button 
-                        onClick={() => setSelectedVehicleTelemetry(null)}
-                        className="text-[10px] text-brand-400 hover:text-white font-bold bg-[#161F30] px-2 py-1 rounded border border-[#23324C] cursor-pointer"
-                      >
-                        Clear Selection
-                      </button>
+                  </div>
+                )}
+
+                {/* Step 3: Add Items / Cars */}
+                {createStep === 3 && (
+                  <div className="space-y-4 animate-fade-in">
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 3: Manifest Cargo Items Selection</h4>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Add Item form */}
+                      <div className="p-4 bg-[#111827]/40 border border-[#23324C] rounded-xl space-y-3 text-xs">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase block">Add Load Item details</span>
+                        <TextInput label="Item Description / Cargo Name" value={itemName} onChange={(e) => setItemName(e.target.value)} placeholder="e.g. Engine Block / Ford Mustang" />
+                        <TextInput label="Item Weight" value={itemWeight} onChange={(e) => setItemWeight(e.target.value)} placeholder="e.g. 8000 lbs" />
+
+                        {newLoadHeader.niche === 'car_carrying' && (
+                          <div className="grid grid-cols-2 gap-2 border-t border-[#23324C]/40 pt-2">
+                            <TextInput label="VIN (Car Carrying)" value={itemVin} onChange={(e) => setItemVin(e.target.value)} placeholder="17 digit VIN" />
+                            <TextInput label="Rego Plate" value={itemRego} onChange={(e) => setItemRego(e.target.value)} placeholder="ST-991A" />
+                          </div>
+                        )}
+
+                        {newLoadHeader.niche === 'general_freight' && (
+                          <TextInput label="Pallet count" value={itemPallets} onChange={(e) => setItemPallets(e.target.value)} placeholder="e.g. 24 Pallets" />
+                        )}
+
+                        {newLoadHeader.niche === 'dangerous_goods' && (
+                          <div className="grid grid-cols-2 gap-2 border-t border-[#23324C]/40 pt-2">
+                            <TextInput label="UN Chemical Number" value={itemUnNumber} onChange={(e) => setItemUnNumber(e.target.value)} placeholder="UN 1203" />
+                            <TextInput label="HAZMAT Class Code" value={itemHazmatClass} onChange={(e) => setItemHazmatClass(e.target.value)} placeholder="Class 3 Flammable" />
+                          </div>
+                        )}
+
+                        <Button variant="outline" size="sm" onClick={handleAddStepperItem} className="w-full mt-2">Add Item</Button>
+                      </div>
+
+                      {/* Manifest Items List with Search operations */}
+                      <div className="space-y-2 max-h-[280px] overflow-y-auto">
+                        <div className="flex justify-between items-center">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase block">Added Manifest Items</span>
+                          <div className="flex gap-1 text-[8px]">
+                            <button type="button" onClick={() => triggerToast('Search items by VIN...')} className="bg-slate-800 hover:bg-slate-700 px-2 py-0.5 text-slate-300 rounded font-bold">Search by VIN</button>
+                            <button type="button" onClick={() => triggerToast('Search items by Rego...')} className="bg-slate-800 hover:bg-slate-700 px-2 py-0.5 text-slate-300 rounded font-bold">Search by Rego</button>
+                          </div>
+                        </div>
+
+                        {newItems.length === 0 ? (
+                          <p className="text-slate-500 text-xs italic py-4 text-center">No cargo items listed.</p>
+                        ) : (
+                          newItems.map((item) => (
+                            <div key={item.id} className="p-3 bg-slate-900 border border-[#23324C]/45 rounded-xl flex justify-between items-center text-xs">
+                              <div>
+                                <strong className="text-white block">{item.name} ({item.weight})</strong>
+                                {item.vin && <span className="text-[10px] text-slate-450 block font-mono">VIN: {item.vin} | Plate: {item.rego}</span>}
+                                {item.pallets && <span className="text-[10px] text-slate-450 block">{item.pallets} Pallets</span>}
+                                {item.hazmatClass && <span className="text-[10px] text-red-400 block font-bold">HAZMAT: {item.unNumber} ({item.hazmatClass})</span>}
+                              </div>
+                              <button type="button" onClick={() => handleRemoveStepperItem(item.id)} className="text-red-400 hover:text-red-300">
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 4: Link Items to Stops */}
+                {createStep === 4 && (
+                  <div className="space-y-4 animate-fade-in max-w-xl">
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 4: Link Items to Pickup / Drop Stops</h4>
+                    <p className="text-xs text-slate-400">Map cargo item IDs to their respective loading and offloading terminals.</p>
+                    
+                    {newItems.length === 0 || newStops.length === 0 ? (
+                      <p className="text-slate-500 text-xs italic py-4">Define stops and manifest items in preceding steps first.</p>
+                    ) : (
+                      <div className="space-y-4">
+                        {newItems.map((item) => (
+                          <div key={item.id} className="p-3 bg-[#111827]/60 border border-[#23324C] rounded-xl space-y-2 text-xs">
+                            <strong className="text-white text-xs block">{item.name}</strong>
+                            
+                            <div className="grid grid-cols-2 gap-3 text-[10px]">
+                              <div>
+                                <label className="block text-slate-455 mb-1">Pickup Stop Link</label>
+                                <select 
+                                  value={itemPickupLinks[item.id] || ''} 
+                                  onChange={(e) => setItemPickupLinks({ ...itemPickupLinks, [item.id]: e.target.value })}
+                                  className="w-full bg-[#0B0F19] border border-[#23324C] p-2 rounded text-slate-350 focus:outline-none"
+                                >
+                                  <option value="">Select Stop...</option>
+                                  {newStops.map(s => <option key={s.id} value={s.id}>#{s.sequence}: {s.address}</option>)}
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-slate-455 mb-1">Delivery Drop Stop Link</label>
+                                <select 
+                                  value={itemDeliveryLinks[item.id] || ''} 
+                                  onChange={(e) => setItemDeliveryLinks({ ...itemDeliveryLinks, [item.id]: e.target.value })}
+                                  className="w-full bg-[#0B0F19] border border-[#23324C] p-2 rounded text-slate-355 focus:outline-none"
+                                >
+                                  <option value="">Select Stop...</option>
+                                  {newStops.map(s => <option key={s.id} value={s.id}>#{s.sequence}: {s.address}</option>)}
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </div>
-                </div>
-                <div className="flex-grow bg-[#0B0F19] border border-[#23324C] rounded-xl flex items-center justify-center my-4 relative overflow-hidden min-h-[260px]">
-                  <div className="absolute inset-0 bg-[radial-gradient(#23324c_1px,transparent_1px)] [background-size:16px_16px] opacity-40"></div>
-                  
-                  {/* Interactive pins */}
-                  {[
-                    { id: 'TX-ROAD88', name: 'Truck #TX-ROAD88', state: 'Moving', location: 'Albury', speed: '62 km/h', incidents: '0', load: 'LD-9411', top: '30%', left: '35%', color: 'bg-brand-500' },
-                    { id: 'IL-HAUL42', name: 'Van #IL-HAUL42', state: 'Stopped', location: 'Sydney Depot', speed: '0 km/h', incidents: '0', load: 'LD-1082', top: '65%', left: '60%', color: 'bg-red-500' },
-                    { id: 'VIC-CAR99', name: 'Carrier #VIC-CAR99', state: 'Moving', location: 'Melbourne Terminal', speed: '80 km/h', incidents: '1 (Roadworks)', load: 'LD-4009', top: '45%', left: '48%', color: 'bg-emerald-550' }
-                  ].map((veh) => (
-                    <button
-                      key={veh.id}
-                      type="button"
-                      onClick={() => setSelectedVehicleTelemetry(veh)}
-                      style={{ top: veh.top, left: veh.left }}
-                      className="absolute group transform -translate-x-1/2 -translate-y-1/2 focus:outline-none z-20 cursor-pointer"
-                    >
-                      <span className={`absolute -inset-1 rounded-full ${veh.color} opacity-40 animate-ping`} />
-                      <div className={`w-3.5 h-3.5 rounded-full ${veh.color} border border-[#0B0F19] shadow-lg group-hover:scale-125 transition-transform`} />
-                      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-[#161F30]/90 border border-[#23324C] text-[8px] font-bold text-white px-1.5 py-0.5 rounded whitespace-nowrap opacity-70 group-hover:opacity-100 transition-opacity">
-                        {veh.id}
+                )}
+
+                {/* Step 5: Link Items to Customer */}
+                {createStep === 5 && (
+                  <div className="space-y-4 animate-fade-in max-w-lg text-xs">
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 5: Link Customer Profile</h4>
+                    <p className="text-xs text-slate-450">Assign load items to customer shipper profile database records.</p>
+                    
+                    <TextInput label="Target Customer Profile / Shipper Name" placeholder="e.g. Vance Refrigeration" value={itemCustLink} onChange={(e) => setItemCustLink(e.target.value)} />
+                    <Button variant="primary" size="sm" onClick={() => {
+                      if (!itemCustLink) { triggerToast('Customer name required.', 'warning'); return; }
+                      setNewItems(newItems.map(itm => ({ ...itm, customer: itemCustLink })));
+                      triggerToast(`Customer linked to manifest items.`);
+                    }}>Link Customer</Button>
+                  </div>
+                )}
+
+                {/* Step 6: Assign Driver */}
+                {createStep === 6 && (
+                  <div className="space-y-4 animate-fade-in max-w-md">
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 6: Driver Operator Assignment</h4>
+                    
+                    <SelectInput 
+                      label="Select Active Fleet Driver" 
+                      value={assignedDriver} 
+                      onChange={(e) => setAssignedDriver(e.target.value)} 
+                      options={[
+                        { value: '', label: 'Select Driver...' },
+                        ...drivers.map(d => ({ value: d.name, label: `${d.name} (${d.status})` }))
+                      ]} 
+                    />
+
+                    <div className="flex gap-2">
+                      <Button variant="success" size="xs" onClick={() => {
+                        setAssignedDriver('John D.');
+                        triggerToast('Assigned available driver: John D.');
+                      }}>View Available Drivers</Button>
+                      <Button variant="secondary" size="xs" onClick={() => triggerToast('Unavailable drivers: Marcus A. (Leave), Donald S. (Transit)')}>View Unavailable Drivers</Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 7: Assign Truck */}
+                {createStep === 7 && (
+                  <div className="space-y-4 animate-fade-in max-w-md">
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 7: Assign Fleet Truck</h4>
+                    
+                    <SelectInput 
+                      label="Assign Active Truck Plate" 
+                      value={assignedVehicle} 
+                      onChange={(e) => setAssignedVehicle(e.target.value)} 
+                      options={[
+                        { value: '', label: 'Select Truck...' },
+                        ...fleet.map(v => ({ value: v.plate, label: `${v.plate} (${v.type})` }))
+                      ]} 
+                    />
+                    
+                    <Button variant="primary" size="xs" onClick={() => {
+                      if (fleet[0]) {
+                        setAssignedVehicle(fleet[0].plate);
+                        triggerToast(`Assigned active vehicle: ${fleet[0].plate}`);
+                      }
+                    }}>Assign Truck</Button>
+                  </div>
+                )}
+
+                {/* Step 8: Assign Trailer */}
+                {createStep === 8 && (
+                  <div className="space-y-4 animate-fade-in max-w-md text-xs">
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 8: Assign Cargo Trailer</h4>
+                    
+                    <SelectInput 
+                      label="Trailer Plate Selection" 
+                      value={assignedTrailer} 
+                      onChange={(e) => setAssignedTrailer(e.target.value)} 
+                      options={[
+                        { value: 'TR-4022', label: 'TR-4022 (Dry Van)' },
+                        { value: 'TR-9118', label: 'TR-9118 (Reefer)' },
+                        { value: 'TR-7422', label: 'TR-7422 (Flatbed)' }
+                      ]} 
+                    />
+
+                    <div className="p-3 bg-[#111827]/40 border border-[#23324C]/45 rounded-xl space-y-2">
+                      <span className="text-[10px] text-slate-500 uppercase font-bold block">Trailer Swap Zone</span>
+                      <TextInput label="Swap Trailer Change Reason" value={swapReason} onChange={(e) => setSwapReason(e.target.value)} placeholder="e.g. Route optimization check" />
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="xs" onClick={() => triggerToast(`Trailer plate swapped to ${assignedTrailer}`)}>Swap Trailer</Button>
+                        <Button variant="secondary" size="xs" onClick={() => {
+                          if (!swapReason) { triggerToast('Please insert a change reason.', 'error'); return; }
+                          triggerToast(`Trailer change reason registered: "${swapReason}"`);
+                        }}>Record Trailer Change Reason</Button>
                       </div>
-                    </button>
-                  ))}
+                    </div>
+                  </div>
+                )}
 
-                  {/* SVG Route lines */}
-                  <svg className="absolute inset-0 w-full h-full pointer-events-none">
-                    <path d="M 120 100 Q 200 160 300 210" fill="none" stroke="#23324c" strokeWidth="1.5" strokeDasharray="3,3" opacity="0.6" />
-                  </svg>
+                {/* Step 9: Add Documents / Photos */}
+                {createStep === 9 && (
+                  <div className="space-y-4 animate-fade-in max-w-lg text-xs">
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 9: Upload Documents & Checklist</h4>
+                    
+                    <div className="space-y-2">
+                      <label className="flex items-center justify-between p-3 bg-slate-900/60 border border-[#23324C] rounded-xl cursor-pointer">
+                        <span>Rate Confirmation Contract.pdf</span>
+                        <input type="checkbox" checked={newDocs.rateConf} onChange={(e) => setNewDocs({ ...newDocs, rateConf: e.target.checked })} className="rounded text-brand-500 focus:ring-brand-500 h-4.5 w-4.5" />
+                      </label>
+                      <label className="flex items-center justify-between p-3 bg-slate-900/60 border border-[#23324C] rounded-xl cursor-pointer">
+                        <span>Bill of Lading (BOL) Template.pdf</span>
+                        <input type="checkbox" checked={newDocs.bol} onChange={(e) => setNewDocs({ ...newDocs, bol: e.target.checked })} className="rounded text-brand-500 focus:ring-brand-500 h-4.5 w-4.5" />
+                      </label>
+                      <label className="flex items-center justify-between p-3 bg-slate-900/60 border border-[#23324C] rounded-xl cursor-pointer">
+                        <span>HAZMAT Customs Bond declaration.pdf</span>
+                        <input type="checkbox" checked={newDocs.customs} onChange={(e) => setNewDocs({ ...newDocs, customs: e.target.checked })} className="rounded text-brand-500 focus:ring-brand-500 h-4.5 w-4.5" />
+                      </label>
+                    </div>
 
-                  {/* Telemetry Overlay Panel */}
-                  {selectedVehicleTelemetry && (
-                    <div className="absolute bottom-3 right-3 left-3 sm:left-auto sm:w-72 bg-[#161F30]/95 border border-[#23324C] rounded-xl p-3.5 space-y-2 text-left z-30 animate-fade-in shadow-xl">
-                      <div className="flex justify-between items-center border-b border-[#23324C]/60 pb-1.5">
-                        <strong className="text-white text-xs font-black">{selectedVehicleTelemetry.name}</strong>
-                        <span className={`px-2 py-0.5 rounded-full text-[9px] font-black ${
-                          selectedVehicleTelemetry.state === 'Moving' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'
-                        }`}>
-                          {selectedVehicleTelemetry.state}
+                    <div className="pt-2">
+                      <TextInput label="Internal dispatcher instructions notes" value={newNotes} onChange={(e) => setNewNotes(e.target.value)} placeholder="Add internal load notes..." />
+                      <div className="flex gap-2 mt-2">
+                        <Button variant="outline" size="xs" onClick={() => triggerToast('Custom load file document uploaded successfully.')}>Upload Document</Button>
+                        <Button variant="secondary" size="xs" onClick={() => triggerToast('Internal note saved.')}>Add Internal Note</Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 10: Review */}
+                {createStep === 10 && (
+                  <div className="space-y-4 animate-fade-in text-xs">
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 10: Review Load Manifest Configuration</h4>
+                    
+                    <div className="divide-y divide-[#23324C]/60 bg-slate-900/65 border border-[#23324C] rounded-xl p-4 space-y-2.5">
+                      <div className="flex justify-between py-0.5">
+                        <span className="text-slate-450">Load ID</span>
+                        <strong className="text-white font-mono">{newLoadHeader.loadId}</strong>
+                      </div>
+                      <div className="flex justify-between py-0.5">
+                        <span className="text-slate-450">Niche Category</span>
+                        <strong className="text-brand-400 font-bold">{newLoadHeader.niche.replace('_', ' ').toUpperCase()}</strong>
+                      </div>
+                      <div className="flex justify-between py-0.5">
+                        <span className="text-slate-455">Total scheduled stops</span>
+                        <strong className="text-white font-bold">{newStops.length} Stops</strong>
+                      </div>
+                      <div className="flex justify-between py-0.5">
+                        <span className="text-slate-455">Total Manifest Items</span>
+                        <strong className="text-white font-bold">{newItems.length} items</strong>
+                      </div>
+                      <div className="flex justify-between py-0.5">
+                        <span className="text-slate-455">Assigned Driver & Vehicle</span>
+                        <strong className="text-brand-500 font-bold">{assignedDriver || 'None'} / {assignedVehicle || 'None'}</strong>
+                      </div>
+                      <div className="flex justify-between py-0.5">
+                        <span className="text-slate-450">Documents attached</span>
+                        <span className="text-slate-200">
+                          {Object.keys(newDocs).filter(k => newDocs[k]).join(', ') || 'None'}
                         </span>
                       </div>
-                      <div className="grid grid-cols-2 gap-2 text-[10px]">
-                        <div>
-                          <span className="text-slate-500 block uppercase font-bold text-[8px]">Location</span>
-                          <span className="text-slate-200 font-semibold">{selectedVehicleTelemetry.location}</span>
-                        </div>
-                        <div>
-                          <span className="text-slate-500 block uppercase font-bold text-[8px]">Current Speed</span>
-                          <span className="text-slate-200 font-semibold font-mono">{selectedVehicleTelemetry.speed}</span>
-                        </div>
-                        <div>
-                          <span className="text-slate-500 block uppercase font-bold text-[8px]">Active Load</span>
-                          <span className="text-brand-400 font-bold font-mono">{selectedVehicleTelemetry.load}</span>
-                        </div>
-                        <div>
-                          <span className="text-slate-500 block uppercase font-bold text-[8px]">Incidents</span>
-                          <span className="text-slate-250 font-semibold">{selectedVehicleTelemetry.incidents}</span>
-                        </div>
-                      </div>
                     </div>
+                  </div>
+                )}
+
+                {/* Step 11: Activate / Dispatch */}
+                {createStep === 11 && (
+                  <div className="space-y-5 animate-fade-in text-xs max-w-md">
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 11: Dispatch & Deploy Load</h4>
+                    
+                    <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl space-y-2">
+                      <strong>Manifest Validation check: Pass ✓</strong>
+                      <p className="text-[10px]">The load order details are fully geocoded and compliance checks verified. Deploy shipment now.</p>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <Button variant="secondary" onClick={() => handleSaveDraft()} className="w-full">Save Draft</Button>
+                      <Button variant="outline" onClick={() => handleActivateLoad(false)} className="w-full">Activate Load</Button>
+                      <Button variant="primary" onClick={() => handleActivateLoad(true)} className="w-full">Dispatch Load</Button>
+                    </div>
+                  </div>
+                )}
+
+              </div>
+
+              {/* Stepper Navigation controls */}
+              <div className="flex justify-between border-t border-[#23324C]/40 pt-4 text-xs">
+                <Button variant="secondary" size="sm" onClick={resetStepper}>
+                  Reset Stepper
+                </Button>
+                <div className="flex gap-2">
+                  {createStep > 1 && (
+                    <Button variant="outline" size="sm" icon={ArrowLeft} onClick={() => setCreateStep(createStep - 1)}>
+                      Back
+                    </Button>
+                  )}
+                  {createStep < 11 && (
+                    <Button variant="primary" size="sm" icon={ArrowRight} iconPosition="right" onClick={() => setCreateStep(createStep + 1)}>
+                      Next
+                    </Button>
                   )}
                 </div>
-                <div className="flex flex-wrap gap-2 mt-2 pt-2 border-t border-[#23324C]/40">
-                  <Button size="xs" variant="primary" onClick={() => triggerToast('Real-time driver tracking initiated.')}>Track Driver</Button>
-                  <Button size="xs" variant="secondary" onClick={() => triggerToast('Opening Google Maps route...')}>Open Route</Button>
-                  <Button size="xs" variant="outline" onClick={() => triggerToast('Location coordinates sent to driver.')}>Send Location To Driver</Button>
-                  <Button size="xs" variant="success" onClick={() => triggerToast('GPS coordinates refreshed.')}>Refresh GPS</Button>
-                  <Button size="xs" variant="secondary" onClick={() => triggerToast('Loading vehicle location history...')}>View Location History</Button>
-                  <Button size="xs" variant="danger" onClick={() => triggerToast('Load flagged as delayed. Alert sent to customer.')}>Flag Delay</Button>
-                </div>
               </div>
 
-              {/* Chat console */}
-              <div className="lg:col-span-4 glass rounded-2xl p-5 border border-[#23324C]/60 text-left flex flex-col justify-between h-[380px]">
-                <div>
-                  <h3 className="text-sm font-extrabold text-white mb-1">Driver Inbox Communication</h3>
-                  <p className="text-[10px] text-slate-500">Live chat updates.</p>
-                </div>
-
-                <div className="flex-1 overflow-y-auto space-y-3.5 my-4 pr-1 scrollbar-none flex flex-col-reverse">
-                  {chats.map(chat => (
-                    <div key={chat.id} className="p-3 bg-[#111827]/60 border border-[#23324C]/40 rounded-xl text-[11px] leading-relaxed">
-                      <div className="flex justify-between font-bold text-white mb-0.5">
-                        <span>{chat.sender}</span>
-                        <span className="text-slate-500 font-mono text-[9px]">{chat.time}</span>
-                      </div>
-                      <p className="text-slate-400">"{chat.msg}"</p>
-                    </div>
-                  ))}
-                </div>
-
-                <form onSubmit={handleSendMessage} className="flex gap-2 border-t border-[#23324C]/40 pt-3">
-                  <input
-                    type="text"
-                    required
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Message active drivers..."
-                    className="flex-grow px-3 py-2 bg-[#111827] border border-[#23324C] focus:border-brand-500 rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500 placeholder:text-slate-500"
-                  />
-                  <Button type="submit" variant="primary" className="flex-shrink-0" icon={Send} />
-                </form>
-              </div>
             </div>
           )}
 
-          {/* AI Load Inbox Screen with AI Confirmation Buttons */}
+          {/* 3. LOAD INBOX SECTION (AI INGESTION QUEUE) */}
           {activeTab === 'ai-inbox' && (
             <div className="space-y-6">
               <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-5">
@@ -1170,204 +1309,151 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
             </div>
           )}
 
-          {/* Inter-Company Transfers Screen */}
-          {activeTab === 'transfers' && (
-            <div className="space-y-6">
-              {/* Internal Transfers sub-tab selectors */}
-              <div className="flex border-b border-[#23324C]/40 pb-px text-xs font-bold gap-4 text-left">
-                {['all', 'pending', 'accepted', 'rejected', 'chain'].map(st => (
-                  <button 
-                    key={st}
-                    onClick={() => triggerToast(`Filtering transfers by: ${st}`)}
-                    className="capitalize pb-2 text-slate-450 hover:text-slate-200 cursor-pointer"
-                  >
-                    {st} Transfers
-                  </button>
-                ))}
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                {/* Initiate Transfer Form Panel */}
-                <div className="lg:col-span-5 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-sm font-extrabold text-white">Transfer Logistics Custody</h3>
-                    <p className="text-xs text-slate-400 leading-relaxed">Initiate sub-contracting transfers of loads, items, or delivery sections.</p>
-                  </div>
-
-                  <div className="space-y-4 my-4">
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Transfer Item Type</label>
-                      <select id="tx-type-select" className="w-full px-3.5 py-2.5 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/35">
-                        <option value="Load Transfer">Transfer Load</option>
-                        <option value="Asset/Car Transfer">Transfer Item/Car</option>
-                        <option value="Delivery Section Transfer">Transfer Delivery Section</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Select Target</label>
-                      <select id="tx-target-select" className="w-full px-3.5 py-2.5 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/35">
-                        <option value="LD-9411 (Chicago ➔ Dallas)">LD-9411 (Cargo: Auto Components)</option>
-                        <option value="VIN: 1YV1HP82A81920 (Ford Mustang)">VIN: 1YV1HP82A81920 (Ford Mustang)</option>
-                        <option value="Delivery Section B (Stop 2 ➔ Stop 3)">Delivery Section B (Stop 2 ➔ Stop 3)</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Target Transport Partner</label>
-                      <select id="tx-partner-select" className="w-full px-3.5 py-2.5 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/35">
-                        <option value="Super Freight Carriers">Super Freight Carriers</option>
-                        <option value="Car Transporters Co">Car Transporters Co</option>
-                        <option value="Rapid Logistics SA">Rapid Logistics SA</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2">
-                    <button 
-                      onClick={() => {
-                        const type = document.getElementById('tx-type-select').value;
-                        const target = document.getElementById('tx-target-select').value;
-                        const partner = document.getElementById('tx-partner-select').value;
-                        initiateTransfer(type, target, 'Hero Logistics Ltd', partner);
-                        triggerToast(`Inter-company transfer initiated successfully.`);
-                      }}
-                      className="flex-grow py-2.5 bg-brand-500 hover:bg-brand-600 text-slate-950 text-xs rounded-xl font-black transition-all cursor-pointer shadow-lg shadow-brand-500/10"
-                    >
-                      Create Transfer
-                    </button>
-                    <Button variant="outline" onClick={() => triggerToast('Transfer Item flow loaded...')}>
-                      Transfer Item
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Registry & Custody Timeline */}
-                <div className="lg:col-span-7 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-                  <h3 className="text-sm font-extrabold text-white">Custody & Chain of History</h3>
-                  
-                  <div className="space-y-4 max-h-[380px] overflow-y-auto pr-1">
-                    {transfers.map(tx => (
-                      <div key={tx.id} className="p-4 bg-[#111827]/60 border border-[#23324C] rounded-xl space-y-3.5">
-                        <div className="flex justify-between items-center">
-                          <div>
-                            <span className="text-[10px] text-slate-500 font-mono font-bold block">{tx.type}</span>
-                            <strong className="text-white text-xs block mt-0.5">{tx.target}</strong>
-                          </div>
-                          <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
-                            tx.status === 'pending' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' : 
-                            tx.status === 'accepted' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 
-                            'bg-red-500/10 text-red-400 border border-red-500/20'
-                          }`}>
-                            {tx.status.toUpperCase()}
-                          </span>
-                        </div>
-
-                        {/* Custody Timeline detail zone */}
-                        <div className="text-[11px] text-slate-450 border-t border-[#23324C]/50 pt-2">
-                          <strong className="text-[10px] text-slate-400 block mb-1">Chain of Custody Logs (Priority 3 Timeline)</strong>
-                          <div className="space-y-3 pl-3 border-l border-[#23324C]/80 ml-1.5 py-1">
-                            <div className="relative pl-1">
-                              <span className="absolute left-[-16px] top-1 w-2 h-2 rounded-full bg-emerald-500" />
-                              <div className="flex justify-between items-center text-[10px]">
-                                <span className="font-extrabold text-slate-200">Current Owner: Hero Logistics Ltd</span>
-                                <span className="text-slate-550 font-mono">Active</span>
-                              </div>
-                            </div>
-                            {tx.custodyChain.map((log, idx) => (
-                              <div key={idx} className="relative pl-1">
-                                <span className="absolute left-[-16px] top-1 w-2 h-2 rounded-full bg-slate-600" />
-                                <div className="text-slate-350">
-                                  Party: <strong className="text-slate-200">{log.party}</strong> | Action: {log.action}
-                                </div>
-                                <span className="text-[9px] text-slate-500 font-mono">{log.timestamp}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        {tx.status === 'pending' && (
-                          <div className="flex gap-2 pt-2 border-t border-[#23324C]/45">
-                            <button 
-                              onClick={() => {
-                                acceptTransfer(tx.id, `${user.name} (${user.role})`);
-                                triggerToast('Inter-company transfer accepted!');
-                              }}
-                              className="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-[11px] rounded-xl font-bold transition-all cursor-pointer"
-                            >
-                              Accept Transfer
-                            </button>
-                            <button 
-                              onClick={() => {
-                                rejectTransfer(tx.id, `${user.name} (${user.role})`);
-                                triggerToast('Inter-company transfer rejected.', 'warning');
-                              }}
-                              className="px-3.5 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-[11px] rounded-xl font-bold transition-all cursor-pointer"
-                            >
-                              Reject Transfer
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'create-load' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-              <div className="flex justify-between items-center border-b border-[#23324C]/45 pb-3">
-                <h3 className="text-sm font-extrabold text-white">Create Shipment Load</h3>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="secondary" onClick={handleSaveDraft}>Save Draft</Button>
-                  <Button size="sm" variant="primary" onClick={handleWizardSubmit}>Book & Plan Shipment</Button>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-3">
-                  <TextInput label="Customer / Shipper Name" required placeholder="e.g. Vance Refrigeration" value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
-                  <TextInput label="Contact Billing Email" type="email" required placeholder="billing@vance.com" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} />
-                  <TextInput label="Pickup Location Address" required placeholder="ChicagoHQ Depot" value={pickupAddress} onChange={(e) => setPickupAddress(e.target.value)} />
-                  <TextInput label="Delivery Destination Address" required placeholder="Dallas Terminal" value={deliveryAddress} onChange={(e) => setDeliveryAddress(e.target.value)} />
-                </div>
-                <div className="space-y-3">
-                  <TextInput label="Cargo description" required placeholder="HVAC Industrial Units" value={cargoName} onChange={(e) => setCargoName(e.target.value)} />
-                  <TextInput label="Weight spec (lbs)" required type="number" placeholder="24000" value={cargoWeight} onChange={(e) => setCargoWeight(e.target.value)} />
-                  <SelectInput label="Assign Active Fleet Vehicle" value={assignedVehicle} onChange={(e) => setAssignedVehicle(e.target.value)} options={
-                    (fleet || []).map(v => ({ value: v.plate, label: `${v.plate} (${v.type})` }))
-                  } />
-                  <SelectInput label="Assign Available Driver" value={assignedDriver} onChange={(e) => setAssignedDriver(e.target.value)} options={
-                    (drivers || []).map(d => ({ value: d.name, label: d.name }))
-                  } />
-                </div>
-              </div>
-              <div className="border-t border-[#23324C]/45 pt-3">
-                <label className="block text-[10px] text-slate-500 font-bold uppercase mb-2">Configure Intermediate Stops Sequence</label>
-                <div className="flex gap-2">
-                  <TextInput placeholder="Layover Rest Address..." value={stopAddress} onChange={(e) => setStopAddress(e.target.value)} className="flex-grow" />
-                  <Button variant="outline" size="sm" onClick={handleAddWizardStop}>Add Stop</Button>
-                </div>
-                <div className="mt-3 flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => triggerToast('Stops reordered (multi-stop sequencer optimized).')}>Reorder Stops</Button>
-                </div>
-              </div>
-            </div>
-          )}
-
+          {/* 4. ACTIVE LOADS TAB */}
           {activeTab === 'active-loads' && (
             <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-              <h3 className="text-sm font-extrabold text-white">Active Cargo In-Transit</h3>
-              <DataTable columns={[
-                { key: 'route', label: 'Route Path', render: (row) => <span className="font-extrabold text-white">{row.route}</span> },
-                { key: 'driver', label: 'Driver', render: (row) => <span className="text-slate-350">{row.driver}</span> },
-                { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> }
-              ]} data={loads.filter(l => l.status === 'In Transit' || l.status === 'Transit')} />
+              <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+                <div>
+                  <h3 className="text-sm font-extrabold text-white">Active Cargo Loads</h3>
+                  <div className="flex gap-1.5 mt-2 flex-wrap">
+                    <Button size="xs" variant="success" onClick={() => triggerToast('Optimising active load paths...')}>Optimise Load</Button>
+                    <Button size="xs" variant="outline" onClick={() => triggerToast('Searching active database by VIN...')}>Search by VIN</Button>
+                    <Button size="xs" variant="outline" onClick={() => triggerToast('Searching active database by Rego...')}>Search by Rego</Button>
+                    <Button size="xs" variant="outline" onClick={() => triggerToast('Searching active database by Destination...')}>Search by Destination</Button>
+                  </div>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                  <SearchInput value={search} onChange={(e) => setSearch(e.target.value)} onClear={() => setSearch('')} className="w-full sm:max-w-[200px]" />
+                  <SelectInput value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} options={[
+                    { value: '', label: 'All Statuses' },
+                    { value: 'Draft', label: 'Draft' },
+                    { value: 'Planned', label: 'Planned' },
+                    { value: 'Assigned', label: 'Assigned' },
+                    { value: 'Accepted', label: 'Accepted' },
+                    { value: 'In Transit', label: 'In Transit' },
+                    { value: 'Delivered', label: 'Delivered' }
+                  ]} className="w-full sm:max-w-[150px]" />
+                </div>
+              </div>
+
+              {filteredLoads.length === 0 ? (
+                <EmptyState title="No Shipments matches" description="Search index empty. Setup a load dispatch card wizard." icon={Layers} actionLabel="Create Load" onAction={() => resetStepper()} />
+              ) : (
+                <>
+                  <DataTable 
+                    tableName="dispatch_active_loads"
+                    columns={[
+                      { key: 'route', label: 'Origin/Destination Path', render: (row) => <span className="font-extrabold text-white">{row.route}</span> },
+                      { key: 'driver', label: 'Driver', render: (row) => <span className="text-slate-300 font-semibold">{row.driver}</span> },
+                      { key: 'compliance', label: 'Compliance', render: (row) => (
+                        row.complianceChecked ? (
+                          <span className="text-[10px] text-emerald-400 font-bold">✓ Compliant</span>
+                        ) : (
+                          <span className="text-[10px] text-amber-500 font-bold">⚠️ Pending Check</span>
+                        )
+                      )},
+                      { key: 'weight', label: 'Weight Specs', render: (row) => <span className="font-mono text-[11px]">{row.weight}</span> },
+                      { key: 'status', label: 'Transit Status', render: (row) => <StatusBadge status={row.status} /> },
+                      { key: 'eta', label: 'ETA Timer', render: (row) => <span className="text-brand-400 font-mono font-bold">{row.eta || 'N/A'}</span> },
+                      { key: 'actions', label: 'Actions', render: (row) => <Button size="sm" variant="secondary" onClick={() => handleOpenLoad(row)}>Track GPS</Button> }
+                    ]} data={paginatedLoads} />
+                  
+                  <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+                </>
+              )}
             </div>
           )}
 
+          {/* 5. PLANNING BOARD TAB */}
+          {activeTab === 'planning-board' && (
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <h3 className="text-sm font-extrabold text-white">Active Cargo Timelines</h3>
+              <div className="space-y-4">
+                {loads.map(load => (
+                  <div key={load.id} className="p-4 bg-[#111827]/40 border border-[#23324C]/60 rounded-xl space-y-3.5">
+                    <div className="flex justify-between items-center text-xs">
+                      <div>
+                        <strong className="text-white block font-bold">{load.route}</strong>
+                        <span className="text-[10px] text-slate-400 mt-0.5 block">Driver: {load.driver} • {load.weight}</span>
+                      </div>
+                      <StatusBadge status={load.status} />
+                    </div>
+
+                    <div className="relative">
+                      <div className="w-full bg-slate-800 rounded-full h-1" />
+                      <div className={`h-1.5 rounded-full absolute top-[-1px] ${
+                        load.status === 'Delivered' ? 'bg-emerald-500 w-full' : load.status === 'Transit' ? 'bg-brand-500 w-2/3' : 'bg-slate-500 w-1/3'
+                      }`} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 6. LIVE GPS MAP TAB */}
+          {activeTab === 'tracking' && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch animate-fade-in">
+              <div className="lg:col-span-8 glass rounded-2xl p-5 border border-[#23324C]/60 text-left flex flex-col justify-between h-[420px] lg:h-auto min-h-[380px] relative">
+                <div>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="text-sm font-extrabold text-white mb-1">Live GPS Fleet Positioning</h3>
+                      <p className="text-[10px] text-slate-500">GIS overlay logs. Click coordinates to audit driver.</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex-grow bg-[#0B0F19] border border-[#23324C] rounded-xl flex items-center justify-center my-4 relative overflow-hidden min-h-[260px]">
+                  <div className="absolute inset-0 bg-[radial-gradient(#23324c_1px,transparent_1px)] [background-size:16px_16px] opacity-40"></div>
+                  <div className="absolute top-1/3 left-1/4 w-3 h-3 bg-brand-500 rounded-full border-2 border-[#0B0F19]" />
+                  <div className="absolute top-1/2 right-1/4 w-3 h-3 bg-emerald-500 rounded-full border-2 border-[#0B0F19]" />
+                </div>
+                
+                <div className="flex flex-wrap gap-2 mt-2 pt-2 border-t border-[#23324C]/40">
+                  <Button size="xs" variant="primary" onClick={() => triggerToast('Real-time driver tracking initiated.')}>Track Driver</Button>
+                  <Button size="xs" variant="secondary" onClick={() => triggerToast('Opening Google Maps route...')}>Open Route</Button>
+                  <Button size="xs" variant="outline" onClick={() => triggerToast('Location coordinates sent to driver.')}>Send Location to Driver</Button>
+                  <Button size="xs" variant="success" onClick={() => triggerToast('GPS coordinates refreshed.')}>Refresh GPS</Button>
+                  <Button size="xs" variant="secondary" onClick={() => triggerToast('Loading vehicle location history...')}>View Location History</Button>
+                  <Button size="xs" variant="danger" onClick={() => triggerToast('Load flagged as delayed.')}>Flag Delay</Button>
+                </div>
+              </div>
+
+              <div className="lg:col-span-4 glass rounded-2xl p-5 border border-[#23324C]/60 text-left flex flex-col justify-between h-[380px]">
+                <div>
+                  <h3 className="text-sm font-extrabold text-white mb-1">Dispatcher Communication Chat</h3>
+                  <p className="text-[10px] text-slate-500">Live chat updates.</p>
+                </div>
+
+                <div className="flex-1 overflow-y-auto space-y-3.5 my-4 pr-1 scrollbar-none flex flex-col-reverse">
+                  {chats.map(chat => (
+                    <div key={chat.id} className="p-3 bg-[#111827]/60 border border-[#23324C]/40 rounded-xl text-[11px]">
+                      <div className="flex justify-between font-bold text-white mb-0.5">
+                        <span>{chat.sender}</span>
+                        <span className="text-slate-500 font-mono text-[9px]">{chat.time}</span>
+                      </div>
+                      <p className="text-slate-455">"{chat.msg}"</p>
+                    </div>
+                  ))}
+                </div>
+
+                <form onSubmit={handleSendMessage} className="flex gap-2 border-t border-[#23324C]/40 pt-3">
+                  <input
+                    type="text"
+                    required
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    placeholder="Message active drivers..."
+                    className="flex-grow px-3 py-2 bg-[#111827] border border-[#23324C] focus:border-brand-500 rounded-xl text-slate-200 text-xs focus:outline-none"
+                  />
+                  <Button type="submit" variant="primary" icon={Send} />
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* 7. DRIVERS SECTION */}
           {activeTab === 'drivers' && (
             <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
               <div className="flex justify-between items-center">
@@ -1377,504 +1463,119 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                   <Button size="sm" variant="secondary" onClick={() => triggerToast('Filtering off-duty drivers only')}>View Unavailable Drivers</Button>
                 </div>
               </div>
-              <DataTable columns={[
-                { key: 'name', label: 'Driver Operator', render: (row) => <span className="font-extrabold text-white">{row.name}</span> },
-                { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> }
-              ]} data={drivers} />
+              <DataTable 
+                tableName="dispatch_drivers_list"
+                columns={[
+                  { key: 'name', label: 'Driver Operator', render: (row) => <span className="font-extrabold text-white">{row.name}</span> },
+                  { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> },
+                  { key: 'contact', label: 'Hotline', render: (row) => <span className="font-mono text-slate-400">{row.contact}</span> },
+                  { key: 'license', label: 'License Check', render: (row) => <span className="text-[10px] text-emerald-400 font-bold">{row.license?.status || 'Valid'}</span> }
+                ]} data={drivers} />
             </div>
           )}
 
+          {/* 8. VEHICLES / TRAILERS SECTION */}
           {activeTab === 'vehicles-trailers' && (
             <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-sm font-extrabold text-white">Fleet Trailer Assets Registry</h3>
                 <div className="flex gap-2">
-                  <Button size="sm" variant="primary" onClick={() => triggerToast('Trailer Swapped successfully.')}>Swap Trailer</Button>
-                  <Button size="sm" variant="outline" onClick={() => triggerToast('Trailer change reason logged.')}>Record Trailer Change Reason</Button>
-                  <Button size="sm" variant="success" onClick={() => triggerToast('Add Vehicle modal/form opened.')}>Add Vehicle</Button>
+                  <Button size="sm" variant="primary" onClick={() => triggerToast('Trailer swap wizard triggered.')}>Swap Trailer</Button>
+                  <Button size="sm" variant="outline" onClick={() => triggerToast('Trailer change reason saved.')}>Record Trailer Change Reason</Button>
+                  <Button size="sm" variant="success" onClick={() => triggerToast('Asset Creation form loaded.')}>Add Vehicle</Button>
                 </div>
               </div>
-              <DataTable columns={[
-                { key: 'plate', label: 'Plate', render: (row) => <span className="font-mono text-white">{row.plate}</span> },
-                { key: 'type', label: 'Type', render: (row) => <span>{row.type}</span> },
-                { key: 'compliance', label: 'Safety Compliance', render: (row) => (
-                  row.complianceChecked ? (
-                    <span className="text-[10px] text-emerald-400 font-bold">✓ Compliant ({row.odometer} mi)</span>
-                  ) : (
-                    <span className="text-[10px] text-amber-500 font-bold">⚠️ Pending Inspection</span>
-                  )
-                )},
-                { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status || 'Active'} /> }
-              ]} data={fleet} />
+              <DataTable 
+                tableName="dispatch_vehicles_trailers"
+                columns={[
+                  { key: 'plate', label: 'Plate', render: (row) => <span className="font-mono text-white">{row.plate}</span> },
+                  { key: 'type', label: 'Type', render: (row) => <span>{row.type}</span> },
+                  { key: 'compliance', label: 'Safety Compliance', render: (row) => (
+                    row.complianceChecked ? (
+                      <span className="text-[10px] text-emerald-400 font-bold">✓ Compliant ({row.odometer} mi)</span>
+                    ) : (
+                      <span className="text-[10px] text-amber-500 font-bold">⚠️ Pending Inspection</span>
+                    )
+                  )},
+                  { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status || 'Active'} /> }
+                ]} data={fleet} />
             </div>
           )}
 
+          {/* 9. CUSTOMERS */}
           {activeTab === 'customers' && (
             <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-sm font-extrabold text-white">Shipper Accounts</h3>
                 <Button size="sm" variant="primary" onClick={() => triggerToast('Shipper account linked to dispatch workflow.')}>Link Customer</Button>
               </div>
-              <p className="text-xs text-slate-400 font-medium">Link and configure customer instructions directories.</p>
+              <DataTable
+                tableName="dispatch_customers"
+                columns={[
+                  { key: 'scope', label: 'Scope', render: (row) => <span className="font-extrabold text-white">{row.scope}</span> },
+                  { key: 'type', label: 'Instruction Type', render: (row) => <span className="text-slate-400">{row.type}</span> },
+                  { key: 'text', label: 'Instructions Directive', render: (row) => <span className="italic text-[11px]">"{row.text}"</span> }
+                ]}
+                data={customerInstructions}
+              />
             </div>
           )}
 
+          {/* 10. YARD / WAREHOUSE */}
           {activeTab === 'yard-warehouse' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 animate-fade-in">
               <h3 className="text-sm font-extrabold text-white">Storage Slots Grid</h3>
               <p className="text-xs text-slate-400">Yard capacity layout mapping trailer bays.</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {['Bay 1 (Reefer)', 'Bay 2 (Dry Van)', 'Bay 3 (Flatbed)'].map((bay, idx) => (
+                  <div key={idx} className="p-4 bg-[#111827]/40 border border-[#23324C] rounded-xl text-center space-y-2">
+                    <span className="text-xs font-bold text-slate-200 block">{bay}</span>
+                    <span className="text-[10px] px-2 py-0.5 bg-emerald-500/10 text-emerald-400 rounded-full font-bold">Occupied (TR-4022)</span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
+          {/* 11. WORKFORCE AVAILABILITY */}
           {activeTab === 'workforce-availability' && (
             <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
               <div className="flex justify-between items-center">
                 <h3 className="text-sm font-extrabold text-white">Worker Shift Roster Calendar</h3>
                 <Button size="sm" variant="primary" onClick={() => triggerToast('Shift assigned successfully from Dispatch.')}>Assign Shift</Button>
               </div>
-              <p className="text-xs text-slate-400">Audit available workforce roster days.</p>
+              <p className="text-xs text-slate-400">Roster calendar tracking driver logs.</p>
             </div>
           )}
 
+          {/* 12. MESSAGES */}
           {activeTab === 'messages' && (
             <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
               <h3 className="text-sm font-extrabold text-white">Driver Hotline Chat Console</h3>
               <div className="flex gap-2">
-                <Button size="sm" variant="primary" onClick={() => triggerToast('Sending message packet')}>Message Driver</Button>
+                <Button size="sm" variant="primary" onClick={() => triggerToast('Opening driver text thread...')}>Message Driver</Button>
                 <Button size="sm" variant="secondary" onClick={() => triggerToast('Hotline dialer initiated.')}>Call Driver</Button>
               </div>
             </div>
           )}
 
+          {/* 13. REPORTS */}
           {activeTab === 'reports' && (
             <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
               <h3 className="text-sm font-extrabold text-white">Dispatcher Delivery Performance reports</h3>
               <p className="text-xs text-slate-400">Total shipments dispatched per week metrics.</p>
             </div>
           )}
+
         </>
       )}
 
-      {/* Create Load Multi-Step Wizard Modal */}
-      <Modal isOpen={wizardOpen} onClose={() => setWizardOpen(false)} title="Create Load Wizard Stepper">
-        <div className="space-y-5 text-left max-h-[75vh] overflow-y-auto pr-1">
-          
-          {/* Progress Timeline Stepper */}
-          <div className="flex flex-wrap items-center justify-between gap-1 text-[9px] font-bold text-slate-500 tracking-wide uppercase border-b border-[#23324C]/45 pb-3">
-            {[
-              '1. Customer', '2. Pickup', '3. Delivery', '4. Stops', 
-              '5. Vehicle', '6. Driver', '7. Docs', '8. Review'
-            ].map((stepLabel, idx) => (
-              <span key={idx} className={wizardStep === idx + 1 ? 'text-brand-400 font-black border-b border-brand-500 pb-1' : ''}>
-                {stepLabel}
-              </span>
-            ))}
-          </div>
-
-          <form onSubmit={handleWizardSubmit} className="space-y-4">
-            {wizardStep === 1 && (
-              <div className="space-y-4 animate-fade-in">
-                <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 1: Customer Information</h4>
-                <TextInput label="Customer / Shipper Name" required placeholder="e.g. Vance Refrigeration" value={customerName} onChange={(e) => setCustomerName(e.target.value)} />
-                <TextInput label="Contact Billing Email" type="email" required placeholder="billing@vance.com" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} />
-                <TextInput label="Contact Phone Number" placeholder="555-0912" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} />
-                <TextInput label="Customer Reference / PO#" placeholder="PO-10294" value={customerRef} onChange={(e) => setCustomerRef(e.target.value)} />
-              </div>
-            )}
-
-            {wizardStep === 2 && (
-              <div className="space-y-4 animate-fade-in">
-                <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 2: Pickup details</h4>
-                <TextInput label="Pickup Origin Address" required placeholder="e.g. Chicago HQ Terminal, 100 Logistics Blvd" value={pickupAddress} onChange={(e) => setPickupAddress(e.target.value)} />
-                <TextInput label="Pickup Scheduled Date / Time" required type="datetime-local" value={pickupDate} onChange={(e) => setPickupDate(e.target.value)} />
-                <TextInput label="Site Contact Representative" placeholder="e.g. Bob Evans" value={pickupContact} onChange={(e) => setPickupContact(e.target.value)} />
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Special Loading Instructions</label>
-                  <textarea
-                    placeholder="e.g. Flatbed tarps needed."
-                    value={pickupNotes}
-                    onChange={(e) => setPickupNotes(e.target.value)}
-                    className="w-full min-h-20 px-3.5 py-2.5 bg-[#111827]/80 border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/35 placeholder:text-slate-600"
-                  />
-                </div>
-              </div>
-            )}
-
-            {wizardStep === 3 && (
-              <div className="space-y-4 animate-fade-in">
-                <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 3: Delivery dropoff details</h4>
-                <TextInput label="Delivery Dropoff Address" required placeholder="e.g. Dallas Depot, 400 Freight Rd, Dallas TX" value={deliveryAddress} onChange={(e) => setDeliveryAddress(e.target.value)} />
-                <TextInput label="Delivery Scheduled Date / Time" required type="datetime-local" value={deliveryDate} onChange={(e) => setDeliveryDate(e.target.value)} />
-                <TextInput label="Site Contact Representative" placeholder="e.g. Alice Cooper" value={deliveryContact} onChange={(e) => setDeliveryContact(e.target.value)} />
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Special Offloading Instructions</label>
-                  <textarea
-                    placeholder="e.g. Check trailer seals before offload."
-                    value={deliveryNotes}
-                    onChange={(e) => setDeliveryNotes(e.target.value)}
-                    className="w-full min-h-20 px-3.5 py-2.5 bg-[#111827]/80 border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/35 placeholder:text-slate-600"
-                  />
-                </div>
-              </div>
-            )}
-
-            {wizardStep === 4 && (
-              <div className="space-y-4 animate-fade-in">
-                <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 4: Cargo Items & Stops Manager</h4>
-                
-                {/* Section 1: Define Cargo Items */}
-                <div className="p-4 bg-[#111827]/40 border border-[#23324C] rounded-xl space-y-3">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">Define Cargo Items Manifest</span>
-                  
-                  {wizardItems.length > 0 && (
-                    <div className="space-y-1.5 max-h-32 overflow-y-auto mb-2">
-                      {wizardItems.map(item => (
-                        <div key={item.id} className="flex justify-between items-center p-2 bg-slate-900 border border-[#23324C]/40 rounded-lg text-[10px]">
-                          <span className="text-slate-200 font-bold">{item.name} ({item.weight})</span>
-                          <button
-                            type="button"
-                            onClick={() => setWizardItems(wizardItems.filter(i => i.id !== item.id))}
-                            className="text-red-400 hover:text-red-300 font-mono"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <TextInput placeholder="Item name/desc..." value={newItemName} onChange={(e) => setNewItemName(e.target.value)} />
-                    <TextInput placeholder="Weight (e.g. 10k lbs)..." value={newItemWeight} onChange={(e) => setNewItemWeight(e.target.value)} />
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    onClick={() => {
-                      if (!newItemName.trim()) return;
-                      const itm = {
-                        id: `ITM-${Date.now()}`,
-                        name: newItemName.trim(),
-                        weight: newItemWeight.trim() || '0 lbs'
-                      };
-                      setWizardItems([...wizardItems, itm]);
-                      setNewItemName('');
-                      setNewItemWeight('');
-                      triggerToast('Item added to manifest.');
-                    }}
-                  >
-                    + Add Item to Manifest
-                  </Button>
-                </div>
-
-                {/* Section 2: List of currently added stops */}
-                {wizardStops.length > 0 && (
-                  <div className="space-y-2 max-h-40 overflow-y-auto">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">Intermediate Stops Sequence</span>
-                    {wizardStops.map((stop) => (
-                      <div key={stop.id} className="flex items-center justify-between p-3 bg-slate-900/60 border border-[#23324C]/60 rounded-xl text-xs">
-                        <div>
-                          <strong className="text-white block">#{stop.sequence}: {stop.address}</strong>
-                          <span className="text-[10px] text-slate-450 block">{stop.type} • {stop.notes}</span>
-                          <span className="text-[9px] text-brand-400 font-bold block mt-0.5">
-                            Assigned Items: {stop.itemIds && stop.itemIds.length > 0 
-                              ? wizardItems.filter(i => stop.itemIds.includes(i.id)).map(i => i.name).join(', ')
-                              : 'None'}
-                          </span>
-                        </div>
-                        <button type="button" onClick={() => handleRemoveWizardStop(stop.id)} className="p-1.5 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
-                          <Trash2 className="h-4.5 w-4.5" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Add stop sub-form */}
-                <div className="p-4 bg-[#111827]/40 border border-[#23324C] rounded-xl space-y-3">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">Add Intermediate Stop</span>
-                  <TextInput label="Stop Address" value={stopAddress} onChange={(e) => setStopAddress(e.target.value)} placeholder="e.g. St. Louis Terminal yard, MO" />
-                  <SelectInput label="Stop Classification Type" value={stopType} onChange={(e) => setStopType(e.target.value)} options={[
-                    { value: 'Layover', label: 'Driver Layover / Rest' },
-                    { value: 'Customs', label: 'Customs Clear check' },
-                    { value: 'Border Crossing', label: 'Border Checkpoint' },
-                    { value: 'Split Terminal', label: 'Cargo Splitting node' }
-                  ]} />
-                  
-                  {/* Item linkage checkboxes */}
-                  {wizardItems.length > 0 && (
-                    <div className="space-y-1.5">
-                      <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Assign Items to this Stop</label>
-                      <div className="space-y-1 bg-[#0B0F19] p-2.5 rounded-lg border border-[#23324C]/60 max-h-24 overflow-y-auto">
-                        {wizardItems.map(item => (
-                          <label key={item.id} className="flex items-center gap-2 text-[10px] text-slate-350 cursor-pointer select-none">
-                            <input
-                              type="checkbox"
-                              checked={selectedItemIdsForStop.includes(item.id)}
-                              onChange={(e) => {
-                                if (e.target.checked) {
-                                  setSelectedItemIdsForStop([...selectedItemIdsForStop, item.id]);
-                                } else {
-                                  setSelectedItemIdsForStop(selectedItemIdsForStop.filter(id => id !== item.id));
-                                }
-                              }}
-                              className="rounded border-[#23324C] text-brand-500 focus:ring-brand-500 h-3.5 w-3.5"
-                            />
-                            <span>{item.name}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <TextInput label="Stop Notes / Window Time" value={stopNotes} onChange={(e) => setStopNotes(e.target.value)} placeholder="e.g. 2-hour rest, gate 5" />
-                  <Button type="button" variant="outline" size="sm" className="w-full" onClick={handleAddWizardStop}>
-                    Add Stop Location
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {wizardStep === 5 && (
-              <div className="space-y-4 animate-fade-in">
-                <h4 className="text-xs font-bold text-white uppercase tracking-wider">
-                  Step 5: Cargo Specs & Vehicle ({selectedNiche.replace('_', ' ').toUpperCase()})
-                </h4>
-
-                {/* Dynamic Wording and Fields depending on Niche */}
-                {selectedNiche === 'car_carrying' && (
-                  <div className="space-y-3.5 p-3.5 bg-[#111827]/40 border border-[#23324C] rounded-xl">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">Car Carrying Details</span>
-                    <TextInput label="Vehicle VIN Number" required placeholder="e.g. 1YV1HP82A8..." value={carVin} onChange={(e) => setCarVin(e.target.value)} />
-                    <div className="grid grid-cols-2 gap-2">
-                      <TextInput label="Rego Plate" required placeholder="TX-8820" value={carRego} onChange={(e) => setCarRego(e.target.value)} />
-                      <TextInput label="Stock Number" required placeholder="STK-991" value={carStock} onChange={(e) => setCarStock(e.target.value)} />
-                    </div>
-                    <TextInput label="Make / Model" required placeholder="Ford Mustang Coupe" value={carModel} onChange={(e) => {
-                      setCarModel(e.target.value);
-                      setCargoName(`Car Carrier: ${e.target.value}`);
-                    }} />
-                  </div>
-                )}
-
-                {selectedNiche === 'general_freight' && (
-                  <div className="space-y-3.5 p-3.5 bg-[#111827]/40 border border-[#23324C] rounded-xl">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">General Freight Details</span>
-                    <TextInput label="Item Description" required placeholder="e.g. Dry Grocery Goods" value={cargoName} onChange={(e) => setCargoName(e.target.value)} />
-                    <div className="grid grid-cols-2 gap-2">
-                      <TextInput label="Pallet Count" required type="number" placeholder="24" value={freightPallets} onChange={(e) => setFreightPallets(e.target.value)} />
-                      <TextInput label="Dimensions (LxWxH)" required placeholder="48x40x60 in" value={freightDimensions} onChange={(e) => setFreightDimensions(e.target.value)} />
-                    </div>
-                  </div>
-                )}
-
-                {selectedNiche === 'dangerous_goods' && (
-                  <div className="space-y-3.5 p-3.5 bg-[#111827]/40 border border-[#23324C] rounded-xl">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">Dangerous Goods (HAZMAT) Details</span>
-                    <TextInput label="Chemical / Cargo Name" required placeholder="e.g. Lithium Ion Batteries" value={cargoName} onChange={(e) => setCargoName(e.target.value)} />
-                    <div className="grid grid-cols-2 gap-2">
-                      <TextInput label="UN Number" required placeholder="UN 3480" value={unNumber} onChange={(e) => setUnNumber(e.target.value)} />
-                      <TextInput label="HAZMAT Class" required placeholder="Class 9" value={hazmatCode} onChange={(e) => setHazmatCode(e.target.value)} />
-                    </div>
-                    <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-bold rounded-xl flex items-center gap-1.5">
-                      <ShieldAlert className="h-4 w-4" /> HAZMAT Class requires placard configuration on trailers.
-                    </div>
-                  </div>
-                )}
-
-                <TextInput label="Cargo weight (lbs)" required type="number" placeholder="e.g. 24000" value={cargoWeight} onChange={(e) => setCargoWeight(e.target.value)} />
-                
-                <SelectInput label="Assign Active Fleet Vehicle" value={assignedVehicle} onChange={(e) => setAssignedVehicle(e.target.value)} options={
-                  (fleet || []).map(v => ({ value: v.plate, label: `${v.plate} (${v.type} - Capacity: ${v.capacity})` }))
-                } />
-                
-                <SelectInput label="Trailer specification" value={trailerType} onChange={(e) => setTrailerType(e.target.value)} options={[
-                  { value: 'Semi-Truck', label: 'Standard Semi-Truck Cab' },
-                  { value: 'Flatbed Trailer', label: 'Flatbed trailer configuration' },
-                  { value: 'Dry Van', label: '53ft Dry Van Container' },
-                  { value: 'Reefer', label: 'Reefer Container (Cold)' }
-                ]} />
-              </div>
-            )}
-
-            {wizardStep === 6 && (
-              <div className="space-y-4 animate-fade-in">
-                <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 6: Driver Operator Assignment</h4>
-                
-                <SelectInput label="Assign Available Driver" value={assignedDriver} onChange={(e) => setAssignedDriver(e.target.value)} options={
-                  (drivers || []).map(d => ({ value: d.name, label: `${d.name} (${d.status} - Rating: ★${d.rating})` }))
-                } />
-                
-                <TextInput label="Secondary Dispatch contact phone" placeholder="555-0192" value={driverContactInfo} onChange={(e) => setDriverContactInfo(e.target.value)} />
-              </div>
-            )}
-
-            {wizardStep === 7 && (
-              <div className="space-y-4 animate-fade-in text-xs">
-                <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 7: Documents & Photos Checklist</h4>
-                <p className="text-[11px] text-slate-400">Select files to attach to this load manifest confirmation or upload photos.</p>
-                
-                <div className="space-y-3">
-                  <label className="flex items-center justify-between p-3 bg-slate-900/60 border border-[#23324C] hover:border-brand-500/20 rounded-xl cursor-pointer select-none">
-                    <span className="text-xs font-bold text-slate-200">Rate Confirmation Contract.pdf</span>
-                    <input type="checkbox" checked={docsRateConf} onChange={(e) => setDocsRateConf(e.target.checked)} className="rounded text-brand-500 focus:ring-brand-500 h-4.5 w-4.5" />
-                  </label>
-                  <label className="flex items-center justify-between p-3 bg-slate-900/60 border border-[#23324C] hover:border-brand-500/20 rounded-xl cursor-pointer select-none">
-                    <span className="text-xs font-bold text-slate-200">Bill of Lading (BOL).pdf</span>
-                    <input type="checkbox" checked={docsBOL} onChange={(e) => setDocsBOL(e.target.checked)} className="rounded text-brand-500 focus:ring-brand-500 h-4.5 w-4.5" />
-                  </label>
-                  <label className="flex items-center justify-between p-3 bg-slate-900/60 border border-[#23324C] hover:border-brand-500/20 rounded-xl cursor-pointer select-none">
-                    <span className="text-xs font-bold text-slate-200">Customs manifest bond declaration.pdf</span>
-                    <input type="checkbox" checked={docsCustoms} onChange={(e) => setDocsCustoms(e.target.checked)} className="rounded text-brand-500 focus:ring-brand-500 h-4.5 w-4.5" />
-                  </label>
-                </div>
-
-                {/* Documents & Photos Upload Zone */}
-                <div className="p-4 bg-[#111827]/40 border-2 border-dashed border-[#23324C] rounded-xl text-center space-y-3">
-                  <div className="text-slate-400 text-[11px]">
-                    Drag & drop cargo documents, tickets, or vehicle photos here to attach
-                  </div>
-                  <div className="flex justify-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newFile = { name: `cargo_photo_${Date.now().toString().slice(-4)}.jpg`, type: 'Image', date: 'Just now' };
-                        setUploadedFiles([...uploadedFiles, newFile]);
-                        triggerToast('Mock photo uploaded.');
-                      }}
-                      className="px-3 py-1.5 bg-[#161F30] border border-[#23324C] hover:border-brand-500/40 text-slate-200 text-[11px] rounded-lg cursor-pointer"
-                    >
-                      + Add Mock Photo
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newFile = { name: `extra_doc_${Date.now().toString().slice(-4)}.pdf`, type: 'PDF', date: 'Just now' };
-                        setUploadedFiles([...uploadedFiles, newFile]);
-                        triggerToast('Mock PDF document uploaded.');
-                      }}
-                      className="px-3 py-1.5 bg-[#161F30] border border-[#23324C] hover:border-brand-500/40 text-slate-200 text-[11px] rounded-lg cursor-pointer"
-                    >
-                      + Add Mock PDF
-                    </button>
-                  </div>
-
-                  {uploadedFiles.length > 0 && (
-                    <div className="text-left border-t border-[#23324C]/60 pt-2 space-y-1.5">
-                      <span className="text-[9px] font-bold text-slate-500 uppercase block">Uploaded Files Preview Zone</span>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {uploadedFiles.map((file, fIdx) => (
-                          <div key={fIdx} className="flex justify-between items-center p-2 bg-slate-900 border border-[#23324C]/40 rounded-lg text-[10px]">
-                            <span className="text-slate-350 truncate max-w-[130px] font-mono">{file.name} ({file.type})</span>
-                            <button
-                              type="button"
-                              onClick={() => setUploadedFiles(uploadedFiles.filter((_, idx) => idx !== fIdx))}
-                              className="text-red-400 hover:text-red-300 font-bold"
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {wizardStep === 8 && (
-              <div className="space-y-4 animate-fade-in text-xs">
-                <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 8: Review Shipment Order</h4>
-                
-                <div className="divide-y divide-[#23324C]/60 bg-slate-900/60 border border-[#23324C] rounded-xl p-3.5 space-y-2.5">
-                  <div className="flex justify-between py-1">
-                    <span className="text-slate-400">Customer Name</span>
-                    <strong className="text-white font-bold">{customerName}</strong>
-                  </div>
-                  <div className="flex justify-between py-1">
-                    <span className="text-slate-400">Pickup Location</span>
-                    <span className="text-white truncate max-w-[200px] text-right font-medium">{pickupAddress}</span>
-                  </div>
-                  <div className="flex justify-between py-1">
-                    <span className="text-slate-400">Delivery Dropoff</span>
-                    <span className="text-white truncate max-w-[200px] text-right font-medium">{deliveryAddress}</span>
-                  </div>
-                  <div className="flex justify-between py-1">
-                    <span className="text-slate-400">Stops Scheduled</span>
-                    <strong className="text-white font-bold">{wizardStops.length} stops</strong>
-                  </div>
-                  <div className="flex justify-between py-1">
-                    <span className="text-slate-400">Cargo description</span>
-                    <strong className="text-white font-bold">{cargoName} ({parseFloat(cargoWeight || 0).toLocaleString()} lbs)</strong>
-                  </div>
-                  <div className="flex justify-between py-1">
-                    <span className="text-slate-400">Assigned Driver & Vehicle</span>
-                    <strong className="text-brand-400 font-bold">{assignedDriver} / {assignedVehicle}</strong>
-                  </div>
-                  <div className="flex justify-between py-1">
-                    <span className="text-slate-400">Documents attached</span>
-                    <span className="text-white font-bold">
-                      {[
-                        docsRateConf && 'RateConf',
-                        docsBOL && 'BOL',
-                        docsCustoms && 'Customs',
-                        ...uploadedFiles.map(f => f.name.slice(0, 10) + '..')
-                      ].filter(Boolean).join(', ') || 'None'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Special Dispatch Notes Field */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Special Dispatch Notes</label>
-                  <textarea
-                    placeholder="Enter final dispatcher instructions or special routing alerts..."
-                    value={specialDispatchNotes}
-                    onChange={(e) => setSpecialDispatchNotes(e.target.value)}
-                    className="w-full min-h-20 px-3.5 py-2.5 bg-[#111827]/80 border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500/35 placeholder:text-slate-600"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Stepper Navigation Buttons */}
-            <div className="flex gap-2 justify-between border-t border-[#23324C]/40 pt-4">
-              <div>
-                <Button type="button" variant="secondary" size="sm" onClick={handleSaveDraft}>
-                  Save Draft
-                </Button>
-              </div>
-
-              <div className="flex gap-2">
-                {wizardStep > 1 && (
-                  <Button type="button" variant="secondary" size="sm" icon={ArrowLeft} onClick={() => setWizardStep(wizardStep - 1)}>
-                    Back
-                  </Button>
-                )}
-                {wizardStep < 8 ? (
-                  <Button type="button" variant="primary" size="sm" icon={ArrowRight} iconPosition="right" onClick={handleWizardNext}>
-                    Next
-                  </Button>
-                ) : (
-                  <Button type="submit" variant="primary" size="sm" icon={Check}>
-                    Book & Plan Shipment
-                  </Button>
-                )}
-              </div>
-            </div>
-          </form>
-
-        </div>
-      </Modal>
-
-      {/* Load inspect details drawer */}
+      {/* Active Load Detail Inspect Drawer */}
       <Drawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} title="Active Route Inspector">
         {selectedLoadDetail && (
-          <div className="space-y-6 text-left text-slate-300 text-xs sm:text-sm flex flex-col h-full">
-            <div className="border-b border-slate-200 dark:border-[#23324C]/60 pb-4">
-              <h4 className="text-base font-extrabold text-slate-800 dark:text-white mb-1">{selectedLoadDetail.route}</h4>
+          <div className="space-y-6 text-left text-slate-350 text-xs sm:text-sm flex flex-col h-full">
+            <div className="border-b border-[#23324C]/60 pb-4">
+              <h4 className="text-base font-extrabold text-white mb-1">{selectedLoadDetail.route}</h4>
               <div className="flex justify-between items-center mt-2">
                 <StatusBadge status={selectedLoadDetail.status} />
                 <span className="text-[10px] font-bold font-mono text-slate-400">{selectedLoadDetail.loadId}</span>
@@ -1892,175 +1593,60 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
               ]} 
               activeTab={drawerTab} 
               onChange={setDrawerTab} 
-              className="border-slate-200 dark:border-slate-800"
+              className="border-slate-800"
             />
 
             <div className="flex-1 overflow-y-auto py-2">
               {drawerTab === 'details' && (
                 <div className="space-y-4 animate-fade-in">
-                  {/* Linked Customer Directives */}
-                  {(() => {
-                    const matching = (customerInstructions || []).filter(ins => {
-                      if (!selectedLoadDetail) return false;
-                      const scopeLower = ins.scope.toLowerCase();
-                      
-                      if (selectedLoadDetail.customerName && scopeLower.includes(selectedLoadDetail.customerName.toLowerCase())) {
-                        return true;
-                      }
-                      if (selectedLoadDetail.loadId && scopeLower.includes(selectedLoadDetail.loadId.toLowerCase())) {
-                        return true;
-                      }
-                      if (selectedLoadDetail.pickupAddress && scopeLower.includes(selectedLoadDetail.pickupAddress.toLowerCase())) {
-                        return true;
-                      }
-                      if (selectedLoadDetail.deliveryAddress && scopeLower.includes(selectedLoadDetail.deliveryAddress.toLowerCase())) {
-                        return true;
-                      }
-                      if (selectedLoadDetail.stops && selectedLoadDetail.stops.some(stop => stop.address && scopeLower.includes(stop.address.toLowerCase()))) {
-                        return true;
-                      }
-                      
-                      const match = ins.scope.match(/\(([^)]+)\)/);
-                      if (match && match[1]) {
-                        const scopeVal = match[1].toLowerCase();
-                        if (selectedLoadDetail.pickupAddress && selectedLoadDetail.pickupAddress.toLowerCase().includes(scopeVal)) return true;
-                        if (selectedLoadDetail.deliveryAddress && selectedLoadDetail.deliveryAddress.toLowerCase().includes(scopeVal)) return true;
-                        if (selectedLoadDetail.stops && selectedLoadDetail.stops.some(stop => stop.address && stop.address.toLowerCase().includes(scopeVal))) return true;
-                      }
-                      return false;
-                    });
-
-                    if (matching.length === 0) return null;
-
-                    return (
-                      <div className="p-3 bg-brand-500/10 border border-brand-500/25 rounded-xl space-y-2 text-left">
-                        <span className="text-[10px] font-bold text-brand-400 uppercase tracking-wide block">Linked Special Instructions</span>
-                        <div className="space-y-2">
-                          {matching.map((ins) => (
-                            <div key={ins.id} className={`text-xs pb-1.5 border-b border-[#23324C]/30 last:border-0 last:pb-0 ${
-                              ins.isCritical ? 'p-2.5 bg-red-500/15 border border-red-500/30 rounded-lg' : ''
-                            }`}>
-                              <div className="flex justify-between items-center text-[9px] text-slate-400 mb-1">
-                                <span className={`font-bold uppercase ${ins.isCritical ? 'text-red-400' : ''}`}>
-                                  {ins.isCritical ? '🚨 CRITICAL WARNING' : ins.type}
-                                </span>
-                                <span className="font-mono text-slate-500">{ins.scope}</span>
-                              </div>
-                              <p className={`italic ${ins.isCritical ? 'text-red-200 font-bold' : 'text-slate-200'}`}>"{ins.text}"</p>
-                              <div className="text-[8px] text-slate-500 mt-1 flex justify-between">
-                                <span>By: {ins.createdBy || 'System'}</span>
-                                <span>Updated: {ins.updatedAt ? new Date(ins.updatedAt).toLocaleDateString() : 'N/A'}</span>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })()}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="p-3 bg-slate-50 dark:bg-slate-800/10 border border-slate-200 dark:border-slate-800/40 rounded-xl">
+                  <div className="grid grid-cols-2 gap-4 text-xs">
+                    <div className="p-3 bg-slate-800/10 border border-slate-800/40 rounded-xl">
                       <span className="text-[9px] text-slate-500 font-bold uppercase block">Driver</span>
-                      <strong className="text-slate-800 dark:text-white text-xs block mt-1">{selectedLoadDetail.driver}</strong>
+                      <strong className="text-white text-xs block mt-1">{selectedLoadDetail.driver}</strong>
                       <span className="text-[9px] text-slate-400 block mt-0.5">{selectedLoadDetail.contact}</span>
                     </div>
-                    <div className="p-3 bg-slate-50 dark:bg-slate-800/10 border border-slate-200 dark:border-slate-800/40 rounded-xl">
+                    <div className="p-3 bg-slate-800/10 border border-slate-800/40 rounded-xl">
                       <span className="text-[9px] text-slate-500 font-bold uppercase block">Vehicle / Weight</span>
-                      <strong className="text-slate-800 dark:text-white text-xs block mt-1">{selectedLoadDetail.vehicle || 'TX-ROAD88'}</strong>
+                      <strong className="text-white text-xs block mt-1">{selectedLoadDetail.vehicle || 'TX-ROAD88'}</strong>
                       <span className="text-[9px] text-slate-400 block mt-0.5">{selectedLoadDetail.weight}</span>
-                    </div>
-                    <div className="p-3 bg-slate-50 dark:bg-slate-800/10 border border-slate-200 dark:border-slate-800/40 rounded-xl">
-                      <span className="text-[9px] text-slate-500 font-bold uppercase block">ETA</span>
-                      <strong className="text-brand-500 text-xs block mt-1">{selectedLoadDetail.eta || 'Calculating'}</strong>
-                    </div>
-                    <div className="p-3 bg-slate-50 dark:bg-slate-800/10 border border-slate-200 dark:border-slate-800/40 rounded-xl">
-                      <span className="text-[9px] text-slate-500 font-bold uppercase block">Rate / Valuation</span>
-                      <strong className="text-emerald-500 text-xs block mt-1">{selectedLoadDetail.cost}</strong>
                     </div>
                   </div>
 
-                  {selectedLoadDetail.acceptedBy && (
-                    <div className="mt-4 p-3 bg-slate-50 dark:bg-[#0b0f19]/30 border border-slate-200 dark:border-[#23324C]/60 rounded-xl space-y-1">
-                      <span className="text-[10px] font-bold text-slate-455 uppercase tracking-wide block">Job Acceptance Audit</span>
-                      <div className="text-[11px] text-slate-400">
-                        Accepted By: <strong className="text-slate-200">{selectedLoadDetail.acceptedBy}</strong>
-                      </div>
-                      <div className="text-[11px] text-slate-400">
-                        Accepted At: <strong className="text-slate-200">{new Date(selectedLoadDetail.acceptedAt).toLocaleString()}</strong>
-                      </div>
+                  <div className="p-3 bg-[#0b0f19]/30 border border-[#23324C]/60 rounded-xl space-y-2">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">Operations Actions</span>
+                    <div className="flex gap-2">
+                      <Button size="xs" variant="primary" onClick={() => triggerToast('Coordinates sent to driver GPS.')}>Send Location to Driver</Button>
+                      <Button size="xs" variant="secondary" onClick={() => triggerToast('Loading vehicle coordinates history...')}>View GPS History</Button>
                     </div>
-                  )}
+                  </div>
 
-                  {selectedLoadDetail.complianceChecked && (
-                    <div className="mt-4 p-3 bg-slate-50 dark:bg-[#0b0f19]/30 border border-slate-200 dark:border-[#23324C]/60 rounded-xl space-y-1.5">
-                      <span className="text-[10px] font-bold text-slate-455 uppercase tracking-wide block">Pre-Trip Safety Compliance Audit</span>
-                      <div className="text-[11px] text-slate-400">
-                        Odometer: <strong className="text-slate-200">{selectedLoadDetail.odometerReading} miles</strong>
-                      </div>
-                      {selectedLoadDetail.odometerPhoto && (
-                        <div className="text-[11px] text-slate-400">
-                          Odometer Proof: <a href={selectedLoadDetail.odometerPhoto} target="_blank" rel="noreferrer" className="text-brand-400 font-bold hover:underline">View Photo</a>
-                        </div>
-                      )}
-                      <div className="text-[11px] text-slate-400 flex flex-wrap gap-x-2 gap-y-1 mt-1">
-                        <span>Checklist: </span>
-                        {Object.entries(selectedLoadDetail.complianceChecklist || {}).map(([chk, val]) => (
-                          <span key={chk} className={`px-1 rounded text-[9px] ${val ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
-                            {chk.replace(/([A-Z])/g, ' $1')}: {val ? 'Pass' : 'Fail'}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="text-[11px] text-slate-450 font-mono mt-1 text-[9px]">
-                        Checked At: {new Date(selectedLoadDetail.complianceCompletedAt).toLocaleString()}
-                      </div>
+                  <div className="mt-4 p-3 bg-[#0b0f19]/30 border border-[#23324C]/60 rounded-xl space-y-2">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">Advance Lifecycle Status</span>
+                    <div className="flex gap-2">
+                      <Button size="xs" variant="outline" onClick={() => handleStatusTransition('Planned')}>Review Load</Button>
+                      <Button size="xs" variant="primary" onClick={() => handleStatusTransition('Accepted')}>Activate Load</Button>
+                      <Button size="xs" variant="success" onClick={() => handleStatusTransition('In Transit')}>Dispatch Load</Button>
                     </div>
-                  )}
-
-                  <div className="mt-4 p-3 bg-slate-50 dark:bg-[#0b0f19]/30 border border-slate-200 dark:border-[#23324C]/60 rounded-xl space-y-2">
-                    <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide block">Advance Lifecycle Status</span>
-                    <select 
-                      value={selectedLoadDetail.status}
-                      onChange={(e) => handleStatusTransition(e.target.value)}
-                      className="w-full px-3 py-2 bg-white dark:bg-[#111827] border border-slate-200 dark:border-[#23324C] rounded-lg text-slate-800 dark:text-slate-200 text-xs focus:outline-none cursor-pointer"
-                    >
-                      {['Draft', 'Planned', 'Assigned', 'Accepted', 'In Transit', 'Delivered', 'Invoiced', 'Closed'].map(st => (
-                        <option key={st} value={st}>{st}</option>
-                      ))}
-                    </select>
                   </div>
                 </div>
               )}
 
               {drawerTab === 'timeline' && (
                 <div className="space-y-4 py-1 animate-fade-in">
-                  {['Draft', 'Planned', 'Assigned', 'Accepted', 'In Transit', 'Delivered', 'Invoiced', 'Closed'].map((step, idx, arr) => {
-                    const historyList = selectedLoadDetail.statusHistory || [];
-                    const isCompleted = historyList.some(sh => sh.status === step) || step === selectedLoadDetail.status;
+                  {['Draft', 'Planned', 'Assigned', 'Accepted', 'In Transit', 'Delivered', 'Closed'].map((step, idx, arr) => {
                     const isCurrent = step === selectedLoadDetail.status;
-                    const stepHistory = historyList.find(sh => sh.status === step);
-
                     return (
                       <div key={step} className="flex gap-3 relative">
                         {idx < arr.length - 1 && (
-                          <div className={`absolute left-3 top-6 bottom-[-20px] w-0.5 ${
-                            isCompleted ? 'bg-brand-500' : 'bg-slate-200 dark:bg-[#23324C]'
-                          }`} />
+                          <div className={`absolute left-3 top-6 bottom-[-20px] w-0.5 bg-slate-800`} />
                         )}
                         <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold border flex-shrink-0 z-10 ${
-                          isCurrent 
-                            ? 'bg-brand-500 border-brand-500 text-slate-950 animate-pulse-slow' 
-                            : isCompleted
-                            ? 'bg-brand-500/10 border-brand-500/30 text-brand-400'
-                            : 'bg-slate-100 dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-600'
+                          isCurrent ? 'bg-brand-500 border-brand-500 text-slate-950' : 'bg-slate-900 border-slate-800 text-slate-650'
                         }`}>
                           {idx + 1}
                         </div>
                         <div className="text-left">
-                          <h5 className={`text-xs font-bold ${isCurrent ? 'text-brand-500' : isCompleted ? 'text-slate-850 dark:text-slate-200' : 'text-slate-400'}`}>
-                            {step}
-                          </h5>
-                          {stepHistory && (
-                            <p className="text-[10px] text-slate-500 dark:text-slate-500 mt-0.5">{stepHistory.note} • {stepHistory.time}</p>
-                          )}
+                          <h5 className={`text-xs font-bold ${isCurrent ? 'text-brand-500' : 'text-slate-400'}`}>{step}</h5>
                         </div>
                       </div>
                     );
@@ -2069,44 +1655,23 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
               )}
 
               {drawerTab === 'docs' && (
-                <div className="space-y-4 animate-fade-in">
+                <div className="space-y-4 animate-fade-in text-xs">
                   <div className="space-y-2">
                     {(selectedLoadDetail.documents || []).length === 0 ? (
                       <p className="text-xs text-slate-500 py-4 text-center">No documents uploaded.</p>
                     ) : (
                       (selectedLoadDetail.documents || []).map((doc, dIdx) => (
-                        <div key={dIdx} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/10 border border-slate-200 dark:border-slate-800/40 rounded-xl">
+                        <div key={dIdx} className="flex items-center justify-between p-3 bg-slate-800/10 border border-slate-800/40 rounded-xl">
                           <div className="flex items-center gap-2">
                             <FileText className="h-4.5 w-4.5 text-brand-400" />
-                            <div className="text-left">
-                              <span className="font-extrabold text-slate-800 dark:text-slate-200 block leading-tight">{doc.name}</span>
-                              <span className="text-[9px] text-slate-400 font-mono">{doc.date} • {doc.type}</span>
-                            </div>
+                            <span>{doc.name}</span>
                           </div>
-                          <a href="#" onClick={(e) => { e.preventDefault(); alert(`Downloading mock file: ${doc.name}`); }} className="text-[10px] text-brand-500 dark:text-brand-400 font-bold hover:underline">
-                            Download
-                          </a>
+                          <button onClick={() => triggerToast(`Downloading ${doc.name}...`)} className="text-[10px] text-brand-400 font-bold hover:underline">Download</button>
                         </div>
                       ))
                     )}
                   </div>
-                  <div className="border-t border-slate-100 dark:border-slate-800/40 pt-3">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="w-full"
-                      onClick={() => {
-                        const updatedDocs = [
-                          ...(selectedLoadDetail.documents || []),
-                          { name: 'Weight Ticket.pdf', type: 'PDF', date: 'Just now', url: '#' }
-                        ];
-                        dispatch(updateLoadStatus({ id: selectedLoadDetail.id, documents: updatedDocs, statusNote: 'Attached Weight Ticket' }));
-                        triggerToast('Weight Ticket.pdf attached successfully.');
-                      }}
-                    >
-                      Attach Mock Weight Ticket
-                    </Button>
-                  </div>
+                  <Button variant="outline" size="sm" className="w-full" onClick={() => triggerToast('Document uploaded.')}>Upload Document</Button>
                 </div>
               )}
 
@@ -2117,82 +1682,30 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                       <p className="text-xs text-slate-500 text-center py-4">No notes on record.</p>
                     ) : (
                       (selectedLoadDetail.notes || []).map((note, nIdx) => (
-                        <div key={nIdx} className="p-3 bg-slate-50 dark:bg-slate-800/10 border border-slate-200 dark:border-[#23324C]/40 rounded-xl text-left">
-                          <p className="text-slate-700 dark:text-slate-350 font-semibold">{note}</p>
+                        <div key={nIdx} className="p-3 bg-slate-800/10 border border-[#23324C]/40 rounded-xl text-left">
+                          <p className="text-slate-350 font-semibold">{note}</p>
                         </div>
                       ))
                     )}
                   </div>
                   <form onSubmit={handleAddNote} className="flex gap-2">
-                    <TextInput 
-                      placeholder="Add shipment note..." 
-                      value={newNoteText}
-                      onChange={(e) => setNewNoteText(e.target.value)}
-                      className="flex-grow !py-2"
-                    />
-                    <Button type="submit" variant="primary" className="h-10 mt-auto">Add</Button>
+                    <TextInput placeholder="Add internal note..." value={newNoteText} onChange={(e) => setNewNoteText(e.target.value)} className="flex-grow !py-2" />
+                    <Button type="submit" variant="primary" className="h-10 mt-auto">Add Internal Note</Button>
                   </form>
                 </div>
               )}
 
               {drawerTab === 'swap' && (
-                <div className="space-y-4 animate-fade-in text-left">
-                  <div className="p-3 bg-slate-50 dark:bg-slate-800/10 border border-slate-200 dark:border-slate-800/40 rounded-xl space-y-1">
-                    <span className="text-[10px] text-slate-500 font-bold uppercase block">Current Assigned Trailer</span>
+                <div className="space-y-4 animate-fade-in text-left text-xs">
+                  <div className="p-3 bg-slate-800/10 border border-slate-800/40 rounded-xl">
+                    <span className="text-[10px] text-slate-500 font-bold block">Current Trailer</span>
                     <strong className="text-white text-sm font-mono block">{selectedLoadDetail.trailer || 'TR-4022'}</strong>
                   </div>
-
+                  
                   <div className="bg-[#111827]/40 border border-[#23324C]/60 rounded-xl p-4 space-y-3">
-                    <strong className="text-xs text-slate-200 block">Initiate Trailer Swap</strong>
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-slate-450 mb-1 font-bold uppercase text-[9px]">Select New Trailer</label>
-                        <select 
-                          value={newTrailerPlate} 
-                          onChange={(e) => setNewTrailerPlate(e.target.value)} 
-                          className="w-full px-3 py-2 bg-[#111827] border border-[#23324C] rounded-lg text-slate-200 text-xs focus:outline-none cursor-pointer"
-                        >
-                          {['TR-4022', 'TR-9118', 'TR-7422'].map(tr => (
-                            <option key={tr} value={tr}>{tr}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-slate-455 mb-1 font-bold uppercase text-[9px]">Swap Reason / Logistics Exception</label>
-                        <TextInput 
-                          placeholder="e.g. Maintenance required on original trailer / Route switch" 
-                          value={swapReason} 
-                          onChange={(e) => setSwapReason(e.target.value)}
-                        />
-                      </div>
-                      <Button variant="primary" className="w-full text-xs font-black" onClick={handleTrailerSwap}>
-                        Execute Trailer Swap
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <strong className="text-xs text-slate-200 block">Trailer Swap Audit History</strong>
-                    {(selectedLoadDetail.trailerSwapHistory || []).length === 0 ? (
-                      <p className="text-xs text-slate-500 text-center py-2">No trailer swaps recorded for this load.</p>
-                    ) : (
-                      <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
-                        {(selectedLoadDetail.trailerSwapHistory || []).map((log, idx) => (
-                          <div key={idx} className="p-3 bg-slate-900/60 border border-[#23324C]/65 rounded-lg text-xs space-y-1">
-                            <div className="flex justify-between items-center text-[10px] text-slate-400 font-mono">
-                              <span>Swap Run #{idx + 1}</span>
-                              <span>{new Date(log.timestamp).toLocaleString()}</span>
-                            </div>
-                            <div className="text-slate-300">
-                              Swapped: <strong className="text-slate-100 font-mono">{log.from}</strong> ➔ <strong className="text-brand-400 font-mono">{log.to}</strong>
-                            </div>
-                            <div className="text-[11px] text-slate-450 italic">
-                              Reason: {log.reason}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    <SelectInput label="Select Trailer Swap Plate" value={newTrailerPlate} onChange={(e) => setNewTrailerPlate(e.target.value)} options={['TR-4022', 'TR-9118', 'TR-7422'].map(tr => ({ value: tr, label: tr }))} />
+                    <TextInput label="Trailer Change Reason" value={swapReason} onChange={(e) => setSwapReason(e.target.value)} placeholder="Record reason..." />
+                    <Button variant="primary" className="w-full text-xs font-black" onClick={handleTrailerSwap}>Swap Trailer</Button>
                   </div>
                 </div>
               )}
@@ -2211,7 +1724,7 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
               )}
             </div>
 
-            <div className="flex gap-2 border-t border-slate-200 dark:border-[#23324C]/60 pt-4 mt-auto">
+            <div className="flex gap-2 border-t border-[#23324C]/60 pt-4 mt-auto">
               <Button variant="secondary" size="sm" onClick={() => setDrawerOpen(false)} className="w-full">
                 Close Tracking Inspector
               </Button>

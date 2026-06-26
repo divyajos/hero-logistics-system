@@ -17,7 +17,7 @@ import StatusBadge from '../common/StatusBadge';
 import MiniChart from '../common/MiniChart';
 import { 
   Navigation, FileText, CheckCircle, Compass, MapPin, Award, 
-  DollarSign, ShieldAlert, Plus, Upload, Heart, Lock
+  DollarSign, ShieldAlert, Plus, Upload, Heart, Lock, Phone, MessageSquare, Mic, PenTool, Check, Truck, X
 } from 'lucide-react';
 
 export default function DriverDashboard({ activeTab = 'overview' }) {
@@ -28,37 +28,58 @@ export default function DriverDashboard({ activeTab = 'overview' }) {
   const { customerInstructions } = useSelector((state) => state.customers);
   const { permissions, aiQueue, resolveAiItem } = useLogistics();
 
-  // Form states
-  const [expenseAmount, setExpenseAmount] = useState('');
-  const [expenseCategory, setExpenseCategory] = useState('Fuel');
-  const [expenseReceiptUrl, setExpenseReceiptUrl] = useState('');
+  // Guided Workflow Step (1 to 17)
+  const [workflowStep, setWorkflowStep] = useState(1);
+  const [shiftStarted, setShiftStarted] = useState(false);
+  const [truckConfirmed, setTruckConfirmed] = useState(false);
+  const [trailerConfirmed, setTrailerConfirmed] = useState(false);
+  
+  // Compliance & Odometer states
   const [odometerReading, setOdometerReading] = useState('124,500');
   const [odometerPhotoUrl, setOdometerPhotoUrl] = useState('');
-
-  // Local DB lists states
-  const [expenses, setExpenses] = useState([
-    { id: 1, category: 'Fuel', amount: '$320.00', status: 'Approved', date: '06/18/2026' },
-    { id: 2, category: 'Tolls', amount: '$42.50', status: 'Pending', date: '06/19/2026' }
-  ]);
-
   const [complianceChecks, setComplianceChecks] = useState({
     brakeInspection: true,
     tirePressure: true,
     loadStrapsSecured: false,
     hazardKitVerified: true
   });
-
-  // Active Job & Stop-wise States
+  
+  // Job execution states
+  const [jobAccepted, setJobAccepted] = useState(false);
+  const [navigating, setNavigating] = useState(false);
   const [stopArrived, setStopArrived] = useState(false);
-  const [verifiedItems, setVerifiedItems] = useState({});
+  const [pickupStarted, setPickupStarted] = useState(false);
+  const [scannedItems, setScannedItems] = useState({});
   const [stopPhotoUploaded, setStopPhotoUploaded] = useState(false);
-  const [stopSignature, setStopSignature] = useState('');
-  const [podUploaded, setPodUploaded] = useState(false);
-  const [acknowledgedIns, setAcknowledgedIns] = useState({});
+  const [damageMarked, setDamageMarked] = useState(false);
+  const [damageNotes, setDamageNotes] = useState('');
+  const [damagePhoto, setDamagePhoto] = useState('');
+  const [receiverName, setReceiverName] = useState('');
+  const [signatureCaptured, setSignatureCaptured] = useState(false);
+  const [stopCompleted, setStopCompleted] = useState(false);
+  const [deliveryStarted, setDeliveryStarted] = useState(false);
+
+  // Expense states
+  const [expenseAmount, setExpenseAmount] = useState('');
+  const [expenseCategory, setExpenseCategory] = useState('Fuel');
+  const [expenseReceiptUrl, setExpenseReceiptUrl] = useState('');
+  const [expenses, setExpenses] = useState([
+    { id: 1, category: 'Fuel', amount: '$320.00', status: 'Approved', date: '06/18/2026' },
+    { id: 2, category: 'Tolls', amount: '$42.50', status: 'Pending', date: '06/19/2026' }
+  ]);
+
+  // Draft load states
+  const [draftCustomer, setDraftCustomer] = useState('');
+  const [draftRoute, setDraftRoute] = useState('');
+
+  // Floating Action Button State
+  const [fabOpen, setFabOpen] = useState(false);
+  const [voiceRecording, setVoiceRecording] = useState(false);
+  const [voiceText, setVoiceText] = useState('');
 
   // Toasts
   const [toastMessage, setToastMessage] = useState('');
-  const [toastType, setToastType] = useState('info');
+  const [toastType, setToastType] = useState('success');
 
   useEffect(() => {
     dispatch(fetchLoads());
@@ -72,15 +93,25 @@ export default function DriverDashboard({ activeTab = 'overview' }) {
   };
 
   // Find active driver load
-  const activeLoad = loads.find(l => l.status === 'Assigned' || l.status === 'Accepted' || l.status === 'Transit' || l.status === 'Scheduled') || loads[0] || {
+  const activeLoad = loads.find(l => l.driver === 'John D.' || l.driver === user?.name) || loads[0] || {
     id: 1,
     loadId: 'LD-9411',
     cargo: 'Automotive Components (Flatbed)',
     route: 'Chicago IL ➔ Dallas TX',
     driver: 'John D.',
     weight: '42,000 lbs',
-    status: 'Transit',
-    eta: '3 hours'
+    status: 'Assigned',
+    eta: '3 hours',
+    vehicle: 'TX-ROAD88',
+    trailer: 'TR-4022',
+    items: [
+      { id: 'ITM-1', name: 'Automotive Components Gearbox', weight: '22,000 lbs' },
+      { id: 'ITM-2', name: 'Chassis Frame Rails', weight: '20,000 lbs' }
+    ],
+    stops: [
+      { id: 'STP-1', address: 'Chicago HQ Terminal', type: 'Pickup', itemIds: ['ITM-1', 'ITM-2'], status: 'Pending', sequence: 1, notes: 'Gate 4 cargo.' },
+      { id: 'STP-2', address: 'Dallas Depot Terminal', type: 'Delivery', itemIds: ['ITM-1', 'ITM-2'], status: 'Pending', sequence: 2, notes: 'Offload.' }
+    ]
   };
 
   const stops = activeLoad.stops && activeLoad.stops.length > 0 ? activeLoad.stops : [
@@ -89,65 +120,117 @@ export default function DriverDashboard({ activeTab = 'overview' }) {
   ];
 
   const currentStopIndex = stops.findIndex(s => s.status !== 'Completed');
-  const currentStop = currentStopIndex !== -1 ? stops[currentStopIndex] : null;
+  const currentStop = currentStopIndex !== -1 ? stops[currentStopIndex] : stops[stops.length - 1];
 
+  // Isolated items for this stop
+  const currentStopItems = (activeLoad.items || []).filter(item => (currentStop?.itemIds || []).includes(item.id));
+
+  // Sync activeTab with workflow steps
   useEffect(() => {
-    setStopArrived(false);
-    setVerifiedItems({});
-    setStopPhotoUploaded(false);
-    setStopSignature('');
-    setAcknowledgedIns({});
-  }, [currentStopIndex]);
+    if (activeTab === 'start-finish') {
+      setWorkflowStep(shiftStarted ? 17 : 1);
+    }
+  }, [activeTab]);
 
-  // Triggers
-  const handleConfirmPickup = () => {
-    setPickupConfirmed(true);
-    triggerToast('Pickup departure logged to dispatcher.');
+  const handleStartWork = () => {
+    setShiftStarted(true);
+    setWorkflowStep(2);
+    triggerToast('Clock-in shift started. Duty logs active.');
   };
 
-  const handleConfirmDelivery = () => {
-    setDeliveryConfirmed(true);
-    dispatch(updateLoadStatus({ id: activeLoad.id, status: 'Delivered' }));
-    triggerToast('Delivery cargo dropped off.');
-  };
-
-  const handlePodUploadSuccess = (url) => {
-    setPodUploaded(true);
-    dispatch(updateLoadStatus({ id: activeLoad.id, status: 'Delivered' }));
-    triggerToast('POD Document uploaded. Cargo status closed.');
+  const handleFinishWork = () => {
+    setShiftStarted(false);
+    setWorkflowStep(1);
+    triggerToast('Shift completed. Duty logs closed.');
   };
 
   const handleComplianceSubmit = () => {
-    if (!odometerReading.trim()) {
-      triggerToast('Please provide an odometer reading.', 'error');
-      return;
-    }
-    dispatch(updateLoadStatus({
-      id: activeLoad.id,
-      complianceChecked: true,
-      complianceCompletedAt: new Date().toISOString(),
-      complianceChecklist: complianceChecks,
-      odometerReading,
-      odometerPhoto: odometerPhotoUrl || 'https://hero-mock-storage.s3.amazonaws.com/uploads/default_odometer.jpg',
-      statusNote: 'Pre-trip compliance checks completed by driver.'
-    }));
-
-    const vehicleObj = fleet.find(v => v.plate === activeLoad.vehicle);
-    if (vehicleObj) {
-      dispatch(updateVehicle({
-        id: vehicleObj.id,
-        odometer: odometerReading,
-        odometerPhoto: odometerPhotoUrl || 'https://hero-mock-storage.s3.amazonaws.com/uploads/default_odometer.jpg',
-        complianceChecked: true,
-        complianceCompletedAt: new Date().toISOString(),
-        complianceChecklist: complianceChecks
-      }));
-    }
-    triggerToast('Compliance logs submitted and synced successfully.');
+    triggerToast('Pre-trip safety checklist submitted.');
+    setWorkflowStep(5);
   };
 
-  const handleAddExpense = (e) => {
-    e.preventDefault();
+  const handleAcceptJob = () => {
+    setJobAccepted(true);
+    dispatch(updateLoadStatus({ id: activeLoad.id, status: 'Accepted' }));
+    triggerToast('Load accepted successfully.');
+    setWorkflowStep(6);
+  };
+
+  const handleNavigate = () => {
+    setNavigating(true);
+    triggerToast('Google Maps routing initiated. GPS synced.');
+    setWorkflowStep(7);
+  };
+
+  const handleArrived = () => {
+    setStopArrived(true);
+    triggerToast(`Arrived at stop: ${currentStop.address}`);
+    setWorkflowStep(currentStop.type === 'Pickup' ? 8 : 14);
+  };
+
+  const handleStartPickup = () => {
+    setPickupStarted(true);
+    triggerToast('Loading sequence active.');
+    setWorkflowStep(9);
+  };
+
+  const handleScanItem = (itemId) => {
+    setScannedItems({ ...scannedItems, [itemId]: !scannedItems[itemId] });
+    triggerToast('Item barcode scanned successfully.');
+  };
+
+  const handleAddPhoto = () => {
+    setStopPhotoUploaded(true);
+    triggerToast('Verification photo uploaded.');
+  };
+
+  const handleMarkDamage = () => {
+    setDamageMarked(true);
+    setDamageNotes('Dent verified on cargo trailer rails.');
+    setDamagePhoto('https://hero-mock-storage.s3.amazonaws.com/damage_proof.jpg');
+    triggerToast('Damage exception flagged on shipment item.', 'warning');
+  };
+
+  const handleCaptureSignature = () => {
+    if (!receiverName.trim()) {
+      triggerToast('Receiver name required.', 'error');
+      return;
+    }
+    setSignatureCaptured(true);
+    triggerToast('Digital signature captured successfully.');
+    setWorkflowStep(13);
+  };
+
+  const handleCompleteStop = () => {
+    const updatedStops = stops.map(s => s.id === currentStop.id ? { ...s, status: 'Completed' } : s);
+    const allCompleted = updatedStops.every(s => s.status === 'Completed');
+    
+    if (allCompleted) {
+      dispatch(updateLoadStatus({
+        id: activeLoad.id,
+        status: 'Delivered',
+        stops: updatedStops
+      }));
+      triggerToast('All stops completed. Close shipment.');
+      setWorkflowStep(16);
+    } else {
+      dispatch(updateLoadStatus({
+        id: activeLoad.id,
+        stops: updatedStops
+      }));
+      // Loop back to navigation step for next stop
+      setStopArrived(false);
+      setPickupStarted(false);
+      setStopPhotoUploaded(false);
+      setSignatureCaptured(false);
+      setScannedItems({});
+      triggerToast(`Stop #${currentStop.sequence} completed.`);
+      setWorkflowStep(6);
+    }
+  };
+
+  const handleAddExpenseSubmit = (e) => {
+    if (e) e.preventDefault();
     if (!expenseAmount) return;
     const newE = {
       id: Date.now(),
@@ -158,20 +241,33 @@ export default function DriverDashboard({ activeTab = 'overview' }) {
     };
     setExpenses([newE, ...expenses]);
     setExpenseAmount('');
-    triggerToast('Expense receipt uploaded for approval.');
+    triggerToast('Expense logged successfully.');
+  };
+
+  const handleCreateDraftLoad = () => {
+    if (!draftCustomer || !draftRoute) {
+      triggerToast('Shipper and Route are required.', 'error');
+      return;
+    }
+    triggerToast('Draft shipment created.');
+  };
+
+  const handleSubmitDraftReview = () => {
+    triggerToast('Draft shipment submitted for dispatcher review.');
+    setDraftCustomer('');
+    setDraftRoute('');
   };
 
   return (
-    <div className="space-y-6 max-w-md mx-auto text-left pb-12">
+    <div className="space-y-6 max-w-md mx-auto text-left pb-16 relative bg-[#0B0F19] text-slate-200 min-h-screen p-4">
       
-      {/* Toast notifications */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 animate-slide-in">
           <Toast message={toastMessage} type={toastType} onClose={() => setToastMessage('')} />
         </div>
       )}
 
-      {/* Driver Title */}
+      {/* Driver Title Header */}
       <div className="flex items-center justify-between border-b border-[#23324C]/60 pb-4">
         <div>
           <h2 className="text-lg font-black text-white">Driver Portal • {activeTab.replace('-', ' ')}</h2>
@@ -182,111 +278,378 @@ export default function DriverDashboard({ activeTab = 'overview' }) {
         </div>
       </div>
 
+      {/* MOBILE HOME LAYOUT (Overview tab) */}
       {activeTab === 'overview' && (
-        <div className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <StatCard title="Completed Trips" value="48 Runs" description="Monthly target" progress={80} />
-            <StatCard title="Active Duty ELD" value="6.5 hrs" description="Drive time limit" progress={65} />
-          </div>
-
-          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold text-slate-500 uppercase">My Active Job Target</span>
+        <div className="space-y-5 animate-fade-in">
+          
+          {/* Top card */}
+          <div className="p-4 bg-gradient-to-br from-[#161F30] to-[#111827] border border-brand-500/20 rounded-2xl space-y-3.5 shadow-xl">
+            <div className="flex justify-between items-center text-[10px] font-bold text-slate-400">
+              <span>CURRENT JOB: <span className="text-white font-mono font-black">{activeLoad.loadId}</span></span>
               <StatusBadge status={activeLoad.status} />
             </div>
 
-            <div>
-              <h3 className="text-base font-extrabold text-white">
-                {activeLoad.loadId || `LD-${activeLoad.id}`} • {activeLoad.cargo}
-              </h3>
-              <p className="text-slate-400 text-xs mt-1">Route Path: {activeLoad.route} • {activeLoad.weight}</p>
+            <div className="border-t border-[#23324C]/50 pt-2.5">
+              <strong className="text-white text-sm block font-black leading-snug">{activeLoad.cargo}</strong>
+              <p className="text-[11px] text-slate-400 mt-1 flex items-center gap-1">
+                <MapPin className="h-3 w-3 text-brand-500" />
+                Route: {activeLoad.route}
+              </p>
             </div>
-            
-            <div className="border-t border-[#23324C]/60 pt-3 flex gap-2">
-              <MapPin className="h-4.5 w-4.5 text-brand-400 mt-0.5 flex-shrink-0" />
+
+            <div className="grid grid-cols-2 gap-2 text-[10px] bg-[#0B0F19]/40 p-2.5 rounded-xl border border-[#23324C]/35">
               <div>
-                <span className="text-[10px] text-slate-500 block">Deliver to Terminal Dropoff</span>
-                <span className="text-slate-300 font-semibold text-xs">{activeLoad.route.split('➔')[1] || 'Dallas Terminal'}</span>
+                <span className="text-slate-500 block uppercase font-bold text-[8px]">Next Destination</span>
+                <span className="text-slate-200 truncate block font-bold">{currentStop?.address || 'Dallas'}</span>
               </div>
+              <div>
+                <span className="text-slate-500 block uppercase font-bold text-[8px]">Next Required Action</span>
+                <span className="text-brand-400 font-bold block">
+                  {workflowStep === 1 && 'Start Work Shift'}
+                  {workflowStep === 2 && 'Confirm Truck/Trailer'}
+                  {workflowStep === 3 && 'Upload Odometer'}
+                  {workflowStep === 4 && 'Complete Compliance'}
+                  {workflowStep === 5 && 'Accept Job'}
+                  {workflowStep === 6 && 'Navigate to Stop'}
+                  {workflowStep === 7 && 'Check-in (Arrived)'}
+                  {workflowStep === 8 && 'Start Pickup'}
+                  {workflowStep === 9 && 'Scan Cargo Items'}
+                  {workflowStep === 10 && 'Upload Photo proof'}
+                  {workflowStep === 11 && 'Log Damage/Exceptions'}
+                  {workflowStep === 12 && 'Collect Signature'}
+                  {workflowStep === 13 && 'Complete Stop'}
+                  {workflowStep === 14 && 'Start Delivery'}
+                  {workflowStep === 15 && 'Final Payout & POD'}
+                  {workflowStep === 16 && 'Complete Load'}
+                  {workflowStep === 17 && 'Finish Shift'}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center text-[10px] text-slate-450 pt-1 border-t border-[#23324C]/45">
+              <span>Next Job: <span className="text-slate-200 font-bold">LD-1102 (Grocery Pallets)</span></span>
+              <span className="font-mono text-brand-500 font-bold">ETA: {activeLoad.eta}</span>
             </div>
           </div>
 
-          {/* Create Draft Load Button - Permission-based */}
-          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-center space-y-3">
-            <h4 className="text-xs font-bold text-white uppercase tracking-wider">Driver Dispatch Submission</h4>
-            {permissions.driverCreateDraftLoad ? (
-              <button 
-                onClick={() => triggerToast('Draft load creation form opened (Simulated).')}
-                className="w-full py-2.5 bg-brand-500 hover:bg-brand-600 text-slate-950 font-black text-xs rounded-xl shadow-lg transition-colors cursor-pointer"
-              >
-                Create Draft Load
-              </button>
-            ) : (
-              <button 
-                disabled 
-                className="w-full py-2.5 bg-slate-800 text-slate-500 font-bold text-xs rounded-xl cursor-not-allowed flex items-center justify-center gap-1.5"
-              >
-                <Lock className="h-3.5 w-3.5" /> Create Draft Load (Permission Blocked)
-              </button>
-            )}
+          {/* Chronological 17-Step Guided Workflow Timeline Panel */}
+          <div className="glass rounded-2xl p-4 border border-[#23324C]/60 text-left space-y-4">
+            <div className="flex justify-between items-center border-b border-[#23324C]/50 pb-2">
+              <h3 className="text-xs font-black text-white uppercase tracking-wider">Guided Stepper Workflow</h3>
+              <span className="text-[10px] text-brand-400 font-bold">Step {workflowStep} of 17</span>
+            </div>
+
+            <div className="space-y-4">
+              
+              {/* Step 1: Start Work */}
+              {workflowStep === 1 && (
+                <div className="space-y-2 animate-fade-in">
+                  <p className="text-xs text-slate-400">Clock into shift to start operations logging.</p>
+                  <Button variant="success" className="w-full font-bold" onClick={handleStartWork}>Start Work</Button>
+                </div>
+              )}
+
+              {/* Step 2: Confirm Truck & Trailer */}
+              {workflowStep === 2 && (
+                <div className="space-y-3.5 animate-fade-in text-xs">
+                  <div className="p-3 bg-[#111827]/60 border border-[#23324C] rounded-xl flex justify-between items-center">
+                    <div>
+                      <span className="text-[9px] text-slate-500 block uppercase font-bold">Truck Assigned</span>
+                      <strong className="text-white block font-mono">{activeLoad.vehicle}</strong>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <Button size="xs" variant="primary" onClick={() => { setTruckConfirmed(true); triggerToast('Truck confirmed.'); }}>Confirm Truck</Button>
+                      <Button size="xs" variant="outline" onClick={() => triggerToast('Truck change requested.')}>Change Truck</Button>
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-[#111827]/60 border border-[#23324C] rounded-xl flex justify-between items-center">
+                    <div>
+                      <span className="text-[9px] text-slate-500 block uppercase font-bold">Trailer Assigned</span>
+                      <strong className="text-white block font-mono">{activeLoad.trailer}</strong>
+                    </div>
+                    <div className="flex gap-1.5">
+                      <Button size="xs" variant="primary" onClick={() => { setTrailerConfirmed(true); triggerToast('Trailer confirmed.'); }}>Confirm Trailer</Button>
+                      <Button size="xs" variant="outline" onClick={() => triggerToast('Trailer change requested.')}>Change Trailer</Button>
+                    </div>
+                  </div>
+
+                  <Button variant="primary" className="w-full font-bold mt-2" disabled={!truckConfirmed || !trailerConfirmed} onClick={() => setWorkflowStep(3)}>
+                    Continue
+                  </Button>
+                </div>
+              )}
+
+              {/* Step 3: Upload Odometer Photo */}
+              {workflowStep === 3 && (
+                <div className="space-y-3.5 animate-fade-in text-xs">
+                  <p className="text-slate-400">Upload odometer proof photo. AI model will auto-read values.</p>
+                  
+                  <div className="flex gap-2">
+                    <TextInput label="Odometer mileage value" value={odometerReading} onChange={(e) => setOdometerReading(e.target.value)} className="flex-1" />
+                    <div className="pt-5">
+                      <Button size="sm" variant="outline" onClick={() => {
+                        setOdometerPhotoUrl('https://hero-mock-storage.s3.amazonaws.com/odometer_run_1.jpg');
+                        triggerToast('Odometer photo uploaded.');
+                      }}>
+                        {odometerPhotoUrl ? 'Photo Uploaded ✓' : 'Upload Odometer Photo'}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {odometerPhotoUrl && (
+                    <div className="p-3 bg-[#111827] border border-[#23324C]/60 rounded-xl space-y-2">
+                      <span className="text-[9px] text-brand-400 font-bold block uppercase">AI Reader Match Result</span>
+                      <p className="font-mono text-white text-xs">Extracted value: 124,500 mi (99% confidence)</p>
+                      <Button size="xs" variant="success" className="w-full" onClick={() => {
+                        triggerToast('AI odometer reading confirmed.');
+                        setWorkflowStep(4);
+                      }}>Confirm AI Odometer Reading</Button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Step 4: Complete Compliance */}
+              {workflowStep === 4 && (
+                <div className="space-y-3.5 animate-fade-in text-xs">
+                  <p className="text-slate-450">Select safety checkpoints pre-trip checklist.</p>
+                  <div className="space-y-2">
+                    {Object.entries(complianceChecks).map(([k, v]) => (
+                      <label key={k} className="flex justify-between items-center p-2.5 bg-[#111827] border border-[#23324C] rounded-xl cursor-pointer">
+                        <span className="capitalize">{k.replace(/([A-Z])/g, ' $1')}</span>
+                        <input type="checkbox" checked={v} onChange={(e) => setComplianceChecks({ ...complianceChecks, [k]: e.target.checked })} className="rounded text-brand-500 focus:ring-brand-500 h-4.5 w-4.5" />
+                      </label>
+                    ))}
+                  </div>
+                  <div className="flex gap-2 pt-2">
+                    <Button variant="outline" size="sm" className="w-full" onClick={() => triggerToast('Compliance checks validated.')}>Complete Compliance</Button>
+                    <Button variant="primary" size="sm" className="w-full" onClick={handleComplianceSubmit}>Submit Compliance</Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 5: Accept Job */}
+              {workflowStep === 5 && (
+                <div className="space-y-3 animate-fade-in text-xs">
+                  <p className="text-slate-400">Review load manifest details and confirm accept.</p>
+                  <div className="p-3 bg-[#0B0F19] border border-[#23324C] rounded-xl space-y-1">
+                    <span className="block text-white font-bold">{activeLoad.cargo}</span>
+                    <span className="block text-slate-400">{activeLoad.route} | {activeLoad.weight}</span>
+                  </div>
+                  <Button variant="primary" className="w-full font-black" onClick={handleAcceptJob}>Accept Job</Button>
+                </div>
+              )}
+
+              {/* Step 6: Navigate */}
+              {workflowStep === 6 && (
+                <div className="space-y-2 animate-fade-in">
+                  <p className="text-xs text-slate-400">Launch Google Maps route for Stop #{currentStop.sequence}.</p>
+                  <Button variant="primary" icon={Navigation} className="w-full font-bold" onClick={handleNavigate}>Navigate</Button>
+                </div>
+              )}
+
+              {/* Step 7: Arrive at Stop */}
+              {workflowStep === 7 && (
+                <div className="space-y-3.5 animate-fade-in text-xs">
+                  <div className="p-3 bg-slate-900 border border-[#23324C] rounded-xl">
+                    <span className="text-[9px] text-brand-400 font-bold block uppercase mb-1">Target Stop #{currentStop.sequence}</span>
+                    <strong className="text-white block">{currentStop.address}</strong>
+                    <span className="text-slate-450 block mt-1">{currentStop.notes}</span>
+                  </div>
+                  
+                  {/* Customer Instructions Checklist acknowledgment */}
+                  {(() => {
+                    const matching = (customerInstructions || []).filter(ins => {
+                      const scope = ins.scope.toLowerCase();
+                      return scope.includes(activeLoad.customerName?.toLowerCase() || '') || scope.includes(currentStop.address.toLowerCase());
+                    });
+                    if (matching.length === 0) return null;
+                    return (
+                      <div className="p-3 bg-brand-500/10 border border-brand-500/20 rounded-xl space-y-1.5">
+                        <span className="text-[9px] text-brand-400 font-bold uppercase block">Special Stop Directions</span>
+                        {matching.map((ins, idx) => (
+                          <p key={idx} className="italic text-[10px] text-slate-200">"{ins.text}"</p>
+                        ))}
+                      </div>
+                    );
+                  })()}
+
+                  <Button variant="success" className="w-full font-bold" onClick={handleArrived}>Arrived</Button>
+                </div>
+              )}
+
+              {/* Step 8: Start Pickup */}
+              {workflowStep === 8 && (
+                <div className="space-y-2 animate-fade-in">
+                  <p className="text-xs text-slate-400">Verify cargo loading list manifest at pickup stop.</p>
+                  <Button variant="primary" className="w-full font-bold" onClick={handleStartPickup}>Start Pickup</Button>
+                </div>
+              )}
+
+              {/* Step 9: Scan Cargo Items (Per-Stop Item Isolation) */}
+              {workflowStep === 9 && (
+                <div className="space-y-3.5 animate-fade-in text-xs">
+                  <span className="text-[10px] font-bold text-slate-400 block uppercase">Scan Stop Items ({currentStopItems.length} listed)</span>
+                  
+                  <div className="space-y-2">
+                    {currentStopItems.map(item => (
+                      <div key={item.id} className="p-3 bg-[#111827] border border-[#23324C]/60 rounded-xl flex justify-between items-center">
+                        <div>
+                          <strong className="text-white block">{item.name}</strong>
+                          <span className="text-[9px] text-slate-500">{item.weight}</span>
+                        </div>
+                        <Button 
+                          size="xs" 
+                          variant={scannedItems[item.id] ? 'success' : 'primary'} 
+                          onClick={() => handleScanItem(item.id)}
+                        >
+                          {scannedItems[item.id] ? 'Scanned ✓' : 'Scan Item'}
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+
+                  <Button 
+                    variant="primary" 
+                    className="w-full font-bold mt-2" 
+                    disabled={currentStopItems.some(i => !scannedItems[i.id])} 
+                    onClick={() => setWorkflowStep(10)}
+                  >
+                    Continue
+                  </Button>
+                </div>
+              )}
+
+              {/* Step 10: Add Photo */}
+              {workflowStep === 10 && (
+                <div className="space-y-3 animate-fade-in text-xs">
+                  <p className="text-slate-400">Capture stop offload status photo or POD proof.</p>
+                  <div className="flex gap-2">
+                    <Button variant="outline" className="w-full" onClick={handleAddPhoto}>Add Photo</Button>
+                    <Button variant="secondary" className="w-full" disabled={!stopPhotoUploaded} onClick={() => setWorkflowStep(11)}>Continue</Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Step 11: Mark Damage */}
+              {workflowStep === 11 && (
+                <div className="space-y-3.5 animate-fade-in text-xs">
+                  <p className="text-slate-400">Report cargo damage exceptions if detected.</p>
+                  
+                  {damageMarked ? (
+                    <div className="p-3 bg-amber-500/10 border border-amber-500/20 text-amber-400 rounded-xl space-y-1">
+                      <strong>Exception Flagged</strong>
+                      <p className="text-[10px]">{damageNotes}</p>
+                    </div>
+                  ) : (
+                    <Button variant="outline" className="w-full" onClick={handleMarkDamage}>Mark Damage</Button>
+                  )}
+                  
+                  <Button variant="primary" className="w-full" onClick={() => setWorkflowStep(12)}>Continue</Button>
+                </div>
+              )}
+
+              {/* Step 12: Capture Signature */}
+              {workflowStep === 12 && (
+                <div className="space-y-3.5 animate-fade-in text-xs">
+                  <p className="text-slate-400">Obtain receiver name and signature.</p>
+                  <TextInput label="Receiver Name" value={receiverName} onChange={(e) => setReceiverName(e.target.value)} placeholder="Type name..." />
+                  
+                  <div className="h-28 bg-[#111827] border border-dashed border-[#23324C] rounded-xl flex items-center justify-center relative cursor-pointer" onClick={() => setSignatureCaptured(true)}>
+                    <PenTool className="h-5 w-5 text-slate-500" />
+                    <span className="text-[10px] text-slate-500 absolute bottom-2">Draw Signature Here</span>
+                    {signatureCaptured && <div className="absolute inset-0 bg-brand-500/5 flex items-center justify-center text-brand-400 font-bold font-mono">Signature Saved ✓</div>}
+                  </div>
+
+                  <Button variant="primary" className="w-full font-bold" disabled={!receiverName || !signatureCaptured} onClick={handleCaptureSignature}>
+                    Capture Signature
+                  </Button>
+                </div>
+              )}
+
+              {/* Step 13: Complete Stop */}
+              {workflowStep === 13 && (
+                <div className="space-y-2.5 animate-fade-in text-xs">
+                  <p className="text-slate-400">Mark Stop #{currentStop.sequence} completed and depart.</p>
+                  <Button variant="success" className="w-full font-black" onClick={handleCompleteStop}>Complete Stop</Button>
+                </div>
+              )}
+
+              {/* Step 14: Start Delivery */}
+              {workflowStep === 14 && (
+                <div className="space-y-2 animate-fade-in">
+                  <p className="text-xs text-slate-400">Verify cargo unloading checklist manifest at dropoff stop.</p>
+                  <Button variant="primary" className="w-full font-bold" onClick={() => {
+                    setDeliveryStarted(true);
+                    triggerToast('Unloading active.');
+                    setWorkflowStep(9);
+                  }}>Start Delivery</Button>
+                </div>
+              )}
+
+              {/* Step 15: Final photos / signature */}
+              {workflowStep === 15 && (
+                <div className="space-y-3 animate-fade-in text-xs">
+                  <p className="text-slate-400">Confirm payment cashout receipt or tap validation.</p>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" onClick={() => triggerToast('Tap payment completed successfully.')}>Take Tap Payment</Button>
+                    <Button variant="secondary" size="sm" onClick={() => triggerToast('PDF Receipt sent to customer.')}>Send Receipt</Button>
+                  </div>
+                  <Button variant="primary" className="w-full mt-2 font-bold" onClick={() => setWorkflowStep(16)}>Continue</Button>
+                </div>
+              )}
+
+              {/* Step 16: Complete Load */}
+              {workflowStep === 16 && (
+                <div className="space-y-3 animate-fade-in text-xs">
+                  <p className="text-slate-400">Close load manifest docket. Logs will sync to dispatch overview.</p>
+                  <Button variant="success" className="w-full font-black" onClick={() => {
+                    dispatch(updateLoadStatus({ id: activeLoad.id, status: 'Closed' }));
+                    triggerToast('Shipment closed.');
+                    setWorkflowStep(17);
+                  }}>Complete Load</Button>
+                </div>
+              )}
+
+              {/* Step 17: Finish Work */}
+              {workflowStep === 17 && (
+                <div className="space-y-2 animate-fade-in">
+                  <p className="text-xs text-slate-400">Clock out shift. Sync hours logged report.</p>
+                  <Button variant="danger" className="w-full font-bold" onClick={handleFinishWork}>Finish Work</Button>
+                </div>
+              )}
+
+            </div>
           </div>
+
+          {/* Mobile navigation quick access grid */}
+          <div className="grid grid-cols-3 gap-3">
+            <Button size="xs" variant="secondary" onClick={() => setWorkflowStep(5)}>Jobs</Button>
+            <Button size="xs" variant="outline" onClick={() => setWorkflowStep(3)}>Upload Odometer Photo</Button>
+            <Button size="xs" variant="outline" onClick={() => setWorkflowStep(4)}>Submit Compliance</Button>
+            <Button size="xs" variant="secondary" onClick={() => triggerToast('Expense module opened.')}>Add Expense</Button>
+            <Button size="xs" variant="outline" onClick={() => triggerToast('Tap transaction loaded.')}>Take Tap Payment</Button>
+            <Button size="xs" variant="outline" onClick={() => triggerToast('Job chat window active.')}>Open Job Chat</Button>
+          </div>
+
         </div>
       )}
 
-      {activeTab === 'start-finish' && (
-        <div className="space-y-6">
-          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-center space-y-4">
-            <h3 className="text-sm font-extrabold text-white">Start / Finish Work Shift</h3>
-            <p className="text-xs text-slate-400">Clock in/out of active duty shift to sync with company payroll sheets.</p>
-            <div className="flex gap-2">
-              <Button variant="success" className="w-full font-bold" onClick={() => triggerToast('Clock-in shift registered.')}>
-                Start Work
-              </Button>
-              <Button variant="danger" className="w-full font-bold" onClick={() => triggerToast('Clock-out shift registered.')}>
-                Finish Work
-              </Button>
-            </div>
-          </div>
-
-          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-            <h3 className="text-sm font-extrabold text-white">Truck & Trailer Pre-Trip Verification</h3>
-            <div className="space-y-3">
-              <div className="p-3 bg-[#111827]/40 border border-[#23324C] rounded-xl flex justify-between items-center">
-                <div>
-                  <span className="text-[10px] text-slate-500 block uppercase font-bold">Assigned Truck</span>
-                  <strong className="text-white text-xs">TX-ROAD88 (Semi-Truck)</strong>
-                </div>
-                <div className="flex gap-2">
-                  <Button size="xs" variant="primary" onClick={() => triggerToast('Truck TX-ROAD88 confirmed.')}>Confirm Truck</Button>
-                  <Button size="xs" variant="outline" onClick={() => triggerToast('Change Truck requested.')}>Change Truck</Button>
-                </div>
-              </div>
-              <div className="p-3 bg-[#111827]/40 border border-[#23324C] rounded-xl flex justify-between items-center">
-                <div>
-                  <span className="text-[10px] text-slate-500 block uppercase font-bold">Assigned Trailer</span>
-                  <strong className="text-white text-xs">TR-4022 (Dry Van)</strong>
-                </div>
-                <div className="flex gap-2">
-                  <Button size="xs" variant="primary" onClick={() => triggerToast('Trailer TR-4022 confirmed.')}>Confirm Trailer</Button>
-                  <Button size="xs" variant="outline" onClick={() => triggerToast('Change Trailer requested.')}>Change Trailer</Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
+      {/* CREATE DRAFT LOAD TAB */}
       {activeTab === 'create-draft-load' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 animate-fade-in">
           <h3 className="text-sm font-extrabold text-white">Create Draft Shipment</h3>
-          <div className="space-y-3">
-            <TextInput label="Shipper Name" required placeholder="Vance Refrigeration" id="dr-draft-cust" />
-            <TextInput label="Route Path Details" required placeholder="Chicago ➔ Dallas" id="dr-draft-route" />
+          <p className="text-xs text-slate-400">Submit a cargo draft to dispatcher registry for review and assignment.</p>
+          <div className="space-y-3 text-xs">
+            <TextInput label="Shipper Customer Name" value={draftCustomer} onChange={(e) => setDraftCustomer(e.target.value)} placeholder="e.g. Vance Refrigeration" />
+            <TextInput label="Route Details (Origin ➔ Destination)" value={draftRoute} onChange={(e) => setDraftRoute(e.target.value)} placeholder="e.g. Chicago ➔ Boston" />
+            
             <div className="flex gap-2 pt-2">
-              <Button variant="primary" className="w-full" onClick={() => triggerToast('Draft shipment registered.')}>
+              <Button variant="primary" className="w-full font-bold" onClick={handleCreateDraftLoad}>
                 Create Draft Load
               </Button>
-              <Button variant="success" className="w-full" onClick={() => triggerToast('Draft load submitted to dispatcher review.')}>
+              <Button variant="success" className="w-full font-bold" onClick={handleSubmitDraftReview}>
                 Submit Draft for Review
               </Button>
             </div>
@@ -294,522 +657,110 @@ export default function DriverDashboard({ activeTab = 'overview' }) {
         </div>
       )}
 
+      {/* ADD EXPENSE TAB */}
       {activeTab === 'add-expense' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-          <h3 className="text-sm font-extrabold text-white">Add Toll / Fuel Expense</h3>
-          <form onSubmit={handleAddExpense} className="space-y-4">
-            <TextInput label="Amount Spent (USD)" required type="number" placeholder="150" value={expenseAmount} onChange={(e) => setExpenseAmount(e.target.value)} />
+        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 animate-fade-in">
+          <h3 className="text-sm font-extrabold text-white">Log Trip Expense</h3>
+          <form onSubmit={handleAddExpenseSubmit} className="space-y-4 text-xs">
+            <TextInput label="Expense Amount spent (USD)" type="number" step="0.01" required value={expenseAmount} onChange={(e) => setExpenseAmount(e.target.value)} placeholder="150" />
+            
             <SelectInput label="Expense Category" value={expenseCategory} onChange={(e) => setExpenseCategory(e.target.value)} options={[
-              { value: 'Fuel', label: 'Fuel Purchase' },
-              { value: 'Tolls', label: 'Tolls/Highway charges' },
-              { value: 'Meals', label: 'Meals / Layovers' }
+              { value: 'Fuel', label: 'Diesel Fuel purchase' },
+              { value: 'Tolls', label: 'Highway Toll pass' },
+              { value: 'Meals', label: 'Meals / Layovers rest' }
             ]} />
-            <div className="p-4 bg-slate-900 border border-dashed border-[#23324C] rounded-xl text-center cursor-pointer" onClick={() => triggerToast('Mock Receipt file uploaded.')}>
+
+            <div className="p-4 bg-slate-900 border border-dashed border-[#23324C] rounded-xl text-center cursor-pointer" onClick={() => {
+              setExpenseReceiptUrl('https://hero-mock-storage.s3.amazonaws.com/receipt.jpg');
+              triggerToast('Receipt file uploaded.');
+            }}>
               <Upload className="h-5 w-5 mx-auto text-slate-400 mb-1" />
-              <span className="text-[10px] text-slate-400 font-bold block">Upload Receipt Image</span>
+              <span className="text-[10px] text-slate-400 font-bold block">
+                {expenseReceiptUrl ? 'Receipt Uploaded ✓' : 'Upload Receipt Image'}
+              </span>
             </div>
-            <Button type="submit" variant="primary" className="w-full">
-              Add Expense
-            </Button>
+
+            <div className="flex gap-2">
+              <Button type="submit" variant="primary" className="w-full font-bold">Add Expense</Button>
+              <Button type="button" variant="outline" className="w-full font-bold" onClick={() => triggerToast('Receipt photo attached.')}>Upload Receipt</Button>
+            </div>
           </form>
-        </div>
-      )}
 
-      {activeTab === 'pickup-delivery' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-5">
-          <div className="flex justify-between items-center">
-            <h3 className="text-sm font-extrabold text-white">Sequential Stops Route</h3>
-            <span className="text-[10px] text-slate-450 font-bold font-mono">
-              Stop {currentStopIndex !== -1 ? currentStopIndex + 1 : stops.length} of {stops.length}
-            </span>
-          </div>
-
-          <div className="flex flex-wrap gap-2 pb-4 border-b border-[#23324C]/40">
-            {activeLoad.status === 'Assigned' ? (
-              <Button size="xs" variant="success" onClick={() => {
-                dispatch(updateLoadStatus({
-                  id: activeLoad.id,
-                  status: 'Accepted',
-                  acceptedBy: user?.name || activeLoad.driver || 'John D.',
-                  acceptedAt: new Date().toISOString(),
-                  statusNote: 'Driver accepted job.'
-                }));
-                triggerToast('Job accepted. Status set to Accepted.');
-              }}>Accept Job</Button>
-            ) : activeLoad.status === 'Accepted' ? (
-              <Button size="xs" variant="success" disabled>Job Accepted</Button>
-            ) : null}
-            <Button size="xs" variant="primary" onClick={() => triggerToast('Navigation instructions loaded...')}>Navigate</Button>
-            <Button size="xs" variant="secondary" onClick={() => triggerToast('Pickup sequence started.')}>Start Pickup</Button>
-            <Button size="xs" variant="danger" onClick={() => triggerToast('Damage exception form loaded.')}>Mark Damage</Button>
-            <Button size="xs" variant="secondary" onClick={() => triggerToast('Delivery leg started.')}>Start Delivery</Button>
-            <Button size="xs" variant="outline" onClick={() => triggerToast('Job chat console opened.')}>Open Job Chat</Button>
-            <Button size="xs" variant="outline" onClick={() => triggerToast('Message driver flow opened.')}>Message Driver</Button>
-          </div>
-          
-          {currentStop ? (
-            <div className="space-y-4">
-              <div className="p-4 bg-[#111827]/60 border border-[#23324C] rounded-xl space-y-3.5">
-                <div className="flex justify-between items-center">
-                  <span className="px-2 py-0.5 rounded bg-brand-500/10 text-brand-400 text-[10px] font-black uppercase tracking-wide">
-                    Stop #{currentStop.sequence} • {currentStop.type}
-                  </span>
-                  <span className="text-[10px] text-amber-400 font-bold">In Progress</span>
-                </div>
-                
-                <div>
-                  <strong className="text-white text-xs block font-bold">{currentStop.address}</strong>
-                  {currentStop.notes && <p className="text-[10px] text-slate-450 mt-1">{currentStop.notes}</p>}
-                </div>
-
-                {/* Linked Customer Instructions Alert */}
-                {(() => {
-                  const matching = (customerInstructions || []).filter(ins => {
-                    if (!currentStop) return false;
-                    const scopeLower = ins.scope.toLowerCase();
-                    
-                    if (activeLoad.customerName && scopeLower.includes(activeLoad.customerName.toLowerCase())) {
-                      return true;
-                    }
-                    if (activeLoad.loadId && scopeLower.includes(activeLoad.loadId.toLowerCase())) {
-                      return true;
-                    }
-                    if (currentStop.address && scopeLower.includes(currentStop.address.toLowerCase())) {
-                      return true;
-                    }
-                    
-                    const match = ins.scope.match(/\(([^)]+)\)/);
-                    if (match && match[1]) {
-                      const scopeVal = match[1].toLowerCase();
-                      if (currentStop.address && currentStop.address.toLowerCase().includes(scopeVal)) return true;
-                    }
-                    return false;
-                  });
-
-                  if (matching.length === 0) return null;
-
-                  return (
-                    <div className="mt-3 p-3 bg-brand-500/10 border border-brand-500/20 rounded-xl space-y-2.5">
-                      <span className="text-[9px] font-black text-brand-400 uppercase tracking-wider block">Special Stop Instructions</span>
-                      <div className="space-y-2 text-xs">
-                        {matching.map((ins) => (
-                          <div key={ins.id} className={`border-b border-[#23324C]/25 pb-2 last:border-0 last:pb-0 ${
-                            ins.isCritical ? 'p-2 bg-red-500/10 border border-red-500/25 rounded-lg' : ''
-                          }`}>
-                            <div className="flex justify-between items-center text-[8px] text-slate-450 font-bold mb-0.5">
-                              <span className={ins.isCritical ? 'text-red-400 font-extrabold' : 'text-slate-400'}>
-                                {ins.isCritical ? '⚠️ CRITICAL ACTION REQUIRED' : ins.type}
-                              </span>
-                              <span className="font-mono text-slate-500">{ins.scope}</span>
-                            </div>
-                            <p className={`text-[11px] leading-relaxed ${ins.isCritical ? 'text-red-200 font-black' : 'text-slate-200'}`}>"{ins.text}"</p>
-                            
-                            {ins.isCritical && (
-                              <label className="flex items-center gap-2 mt-2 p-1.5 bg-[#0b0f19]/80 border border-red-500/20 rounded-md cursor-pointer select-none text-[9px] font-bold text-red-455 transition-colors hover:bg-[#111827]">
-                                <input
-                                  type="checkbox"
-                                  checked={!!acknowledgedIns[ins.id]}
-                                  onChange={(e) => setAcknowledgedIns({ ...acknowledgedIns, [ins.id]: e.target.checked })}
-                                  className="rounded border-red-500/40 text-red-500 focus:ring-red-500 h-3.5 w-3.5 cursor-pointer"
-                                />
-                                <span>I have read and acknowledge this critical instruction.</span>
-                              </label>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })()}
-
-                {/* 1. Stop Arrival Check-in */}
-                <div className="border-t border-[#23324C]/45 pt-3.5">
-                  {(() => {
-                    const unacknowledgedCritical = (customerInstructions || []).some(ins => {
-                      if (!currentStop) return false;
-                      const scopeLower = ins.scope.toLowerCase();
-                      
-                      let isMatch = false;
-                      if (activeLoad.customerName && scopeLower.includes(activeLoad.customerName.toLowerCase())) isMatch = true;
-                      if (activeLoad.loadId && scopeLower.includes(activeLoad.loadId.toLowerCase())) isMatch = true;
-                      if (currentStop.address && scopeLower.includes(currentStop.address.toLowerCase())) isMatch = true;
-                      
-                      const match = ins.scope.match(/\(([^)]+)\)/);
-                      if (match && match[1]) {
-                        const scopeVal = match[1].toLowerCase();
-                        if (currentStop.address && currentStop.address.toLowerCase().includes(scopeVal)) isMatch = true;
-                      }
-                      
-                      return isMatch && ins.isCritical && !acknowledgedIns[ins.id];
-                    });
-
-                    return (
-                      <>
-                        <label className={`flex items-center justify-between p-2.5 bg-[#161F30]/40 border border-[#23324C]/60 hover:border-brand-500/15 rounded-xl cursor-pointer select-none text-xs font-semibold text-slate-300 transition-all ${unacknowledgedCritical ? 'opacity-40 pointer-events-none' : ''}`}>
-                          <span>Arrived & Checked-in at Stop</span>
-                          <input
-                            type="checkbox"
-                            checked={stopArrived}
-                            disabled={unacknowledgedCritical}
-                            onChange={(e) => setStopArrived(e.target.checked)}
-                            className="rounded border-[#23324C] text-brand-500 focus:ring-brand-500 h-4.5 w-4.5 cursor-pointer"
-                          />
-                        </label>
-                        {unacknowledgedCritical && (
-                          <p className="text-[9px] text-red-400 font-bold mt-1 text-center">
-                            ⚠️ Acknowledge all critical instructions above to check in.
-                          </p>
-                        )}
-                      </>
-                    );
-                  })()}
-                </div>
-
-                {/* 2. Stop Items checklist */}
-                <div className="border-t border-[#23324C]/45 pt-3 space-y-2">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block">Verify Cargo Items / Assets</span>
-                  
-                  {/* Filter items for current stop */}
-                  {(activeLoad.items || []).filter(item => (currentStop.itemIds || []).includes(item.id)).length === 0 ? (
-                    <p className="text-[10px] text-slate-500 italic py-1 pl-1">No items to verify at this stop.</p>
-                  ) : (
-                    (activeLoad.items || []).filter(item => (currentStop.itemIds || []).includes(item.id)).map(item => (
-                      <label key={item.id} className={`flex items-center justify-between p-2.5 bg-slate-900 border border-[#23324C]/40 hover:border-brand-500/10 rounded-xl cursor-pointer select-none text-[11px] font-semibold text-slate-200 transition-all ${!stopArrived ? 'opacity-40 pointer-events-none' : ''}`}>
-                        <span>{item.name} ({item.weight || 'N/A'})</span>
-                        <input
-                          type="checkbox"
-                          checked={!!verifiedItems[item.id]}
-                          disabled={!stopArrived}
-                          onChange={(e) => setVerifiedItems({ ...verifiedItems, [item.id]: e.target.checked })}
-                          className="rounded border-[#23324C] text-brand-500 focus:ring-brand-500 h-4 w-4 cursor-pointer"
-                        />
-                      </label>
-                    ))
-                  )}
-                </div>
-
-                {/* 3. Damage Photo Capture */}
-                <div className={`border-t border-[#23324C]/45 pt-3 space-y-1.5 ${!stopArrived ? 'opacity-40 pointer-events-none' : ''}`}>
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block">Stop Photo Verification (POD / Exception)</span>
-                  <Button
-                    type="button"
-                    variant={stopPhotoUploaded ? 'outline' : 'primary'}
-                    size="sm"
-                    className="w-full text-[11px] font-bold"
-                    disabled={!stopArrived}
-                    onClick={() => {
-                      setStopPhotoUploaded(true);
-                      triggerToast('Stop cargo photo uploaded.');
-                    }}
-                  >
-                    {stopPhotoUploaded ? 'Photo Uploaded ✓' : 'Upload Stop Photo'}
-                  </Button>
-                </div>
-
-                {/* 4. Signature Capture */}
-                <div className={`border-t border-[#23324C]/45 pt-3 space-y-1.5 ${!stopArrived ? 'opacity-40 pointer-events-none' : ''}`}>
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wide block">Stop Digital Signature Sign-off</span>
-                  <TextInput
-                    placeholder="Type receiver's name..."
-                    value={stopSignature}
-                    disabled={!stopArrived}
-                    onChange={(e) => setStopSignature(e.target.value)}
-                    className="!py-2 text-xs"
-                  />
-                </div>
-
-                {/* Complete Stop Button */}
-                <Button
-                  type="button"
-                  variant="primary"
-                  className="w-full py-2.5 text-xs font-black capitalize mt-2 shadow-lg cursor-pointer"
-                  disabled={
-                    !stopArrived || 
-                    (activeLoad.items || []).filter(item => (currentStop.itemIds || []).includes(item.id)).some(item => !verifiedItems[item.id]) ||
-                    !stopSignature.trim()
-                  }
-                  onClick={() => {
-                    const updatedStops = stops.map(s => s.id === currentStop.id ? { ...s, status: 'Completed' } : s);
-                    const allCompleted = updatedStops.every(s => s.status === 'Completed');
-                    
-                    if (allCompleted) {
-                      dispatch(updateLoadStatus({
-                        id: activeLoad.id,
-                        status: 'Delivered',
-                        stops: updatedStops,
-                        statusNote: `All stops completed sequentially. Signature collected from ${stopSignature}.`
-                      }));
-                      setPodUploaded(true);
-                      triggerToast('Load completed and Delivered successfully!');
-                    } else {
-                      dispatch(updateLoadStatus({
-                        id: activeLoad.id,
-                        stops: updatedStops,
-                        statusNote: `Stop #${currentStop.sequence} completed. Signed by: ${stopSignature}.`
-                      }));
-                      triggerToast(`Stop #${currentStop.sequence} completed.`);
-                    }
-                  }}
-                >
-                  Complete Stop #{currentStop.sequence}
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="p-6 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold rounded-2xl text-center space-y-4">
-              <CheckCircle className="h-6 w-6 mx-auto mb-1" />
-              <p>All stops have been completed sequentially.</p>
-              <p className="text-[10px] text-slate-500 font-semibold font-mono">Load Status: {activeLoad.status}</p>
-              <div className="flex gap-2 pt-2">
-                <Button size="sm" variant="primary" className="w-full" onClick={() => triggerToast('Tap-to-pay transaction successful.')}>
-                  Take Tap Payment
-                </Button>
-                <Button size="sm" variant="secondary" className="w-full" onClick={() => triggerToast('Receipt successfully sent to customer.')}>
-                  Send Receipt
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {activeTab === 'pod' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-          <h3 className="text-sm font-extrabold text-white">Proof of Delivery (POD)</h3>
-          <p className="text-xs text-slate-400 leading-relaxed">Upload signed BOL or delivery receipts to close this load manifest.</p>
-          
-          {podUploaded ? (
-            <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold rounded-xl text-center flex items-center justify-center gap-2">
-              <CheckCircle className="h-4.5 w-4.5" /> POD Document uploaded successfully.
-            </div>
-          ) : (
-            <FileUploader onUploadSuccess={handlePodUploadSuccess} label="Upload Receipts / signed BOLs" />
-          )}
-        </div>
-      )}
-
-      {activeTab === 'expenses' && (
-        <div className="space-y-6">
-          {/* Uploader Form */}
-          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-            <h3 className="text-sm font-extrabold text-white">Log Trip Expense</h3>
-            <form onSubmit={handleAddExpense} className="space-y-4">
-              <TextInput label="Expense Amount (USD)" required type="number" step="0.01" value={expenseAmount} onChange={(e) => setExpenseAmount(e.target.value)} />
-              <SelectInput label="Expense Category" value={expenseCategory} onChange={(e) => setExpenseCategory(e.target.value)} options={[
-                { value: 'Fuel', label: 'Diesel Fuel Payout' },
-                { value: 'Tolls', label: 'Interstate Tolls' },
-                { value: 'Meals', label: 'Meals & Food' }
-              ]} />
-              <FileUploader label="Expense Receipt Attachment" onUploadSuccess={(url) => setExpenseReceiptUrl(url)} />
-              <Button type="submit" variant="primary" className="w-full">
-                Upload Expense File
-              </Button>
-            </form>
-          </div>
-
-          {/* AI Receipt confirmation widget */}
+          {/* AI Ingestion confirmation check */}
           {aiQueue.receipts.filter(item => item.status === 'pending').map((item) => (
-            <div key={item.id} className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3.5">
+            <div key={item.id} className="p-4 bg-[#111827] border border-[#23324C] rounded-xl space-y-3">
               <div>
-                <span className="text-[10px] text-brand-400 font-extrabold uppercase tracking-wide block">AI Receipt Reader Results</span>
-                <strong className="text-white text-xs block mt-1">Detected Expense: {item.data.amount} ({item.data.gallons})</strong>
-                <span className="text-[9px] text-slate-500">Source: {item.source}</span>
+                <span className="text-[9px] text-brand-400 font-bold uppercase block">AI Receipt Reader Extract</span>
+                <strong className="text-white text-xs block mt-0.5">Expense detected: {item.data.amount}</strong>
+                <span className="text-[9px] text-slate-500 font-mono block">Source: {item.source}</span>
               </div>
-
-              <div className="flex flex-wrap gap-2 text-[10px]">
-                <button 
-                  type="button"
-                  onClick={() => triggerToast('Displaying raw fuel receipt image.')}
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-350 rounded-lg font-bold transition-all cursor-pointer"
-                >
-                  Review AI Result
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => {
-                    resolveAiItem('receipts', item.id, 'confirmed');
-                    setExpenses([{ id: Date.now(), category: 'Fuel', amount: item.data.amount, status: 'Approved', date: new Date().toLocaleDateString() }, ...expenses]);
-                    triggerToast('AI Receipt Confirmed & Approved.');
-                  }}
-                  className="px-3 py-1.5 bg-brand-500 hover:bg-brand-600 text-slate-950 rounded-lg font-black transition-all cursor-pointer"
-                >
-                  Confirm
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => triggerToast('Editing receipt values.')}
-                  className="px-3 py-1.5 bg-slate-700 hover:bg-slate-650 text-slate-300 rounded-lg font-bold transition-all cursor-pointer"
-                >
-                  Edit
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => {
-                    resolveAiItem('receipts', item.id, 'rejected');
-                    triggerToast('AI Receipt Rejected.', 'warning');
-                  }}
-                  className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-lg font-bold transition-all cursor-pointer"
-                >
-                  Reject
-                </button>
+              <div className="flex gap-1.5 text-[9px] font-bold">
+                <button type="button" onClick={() => triggerToast('Showing raw receipt...')} className="bg-slate-800 hover:bg-slate-700 px-3 py-1 rounded">Review AI Result</button>
+                <button type="button" onClick={() => {
+                  resolveAiItem('receipts', item.id, 'confirmed');
+                  setExpenses([{ id: Date.now(), category: 'Fuel', amount: item.data.amount, status: 'Approved', date: new Date().toLocaleDateString() }, ...expenses]);
+                  triggerToast('Expense confirmed and saved.');
+                }} className="bg-brand-500 text-slate-950 px-3 py-1 rounded">Confirm</button>
+                <button type="button" onClick={() => triggerToast('Opening invoice editor...')} className="bg-slate-800 hover:bg-slate-700 px-3 py-1 rounded">Edit</button>
+                <button type="button" onClick={() => {
+                  resolveAiItem('receipts', item.id, 'rejected');
+                  triggerToast('AI Receipt rejected.');
+                }} className="bg-red-500/10 text-red-400 border border-red-500/20 px-3 py-1 rounded">Reject</button>
               </div>
             </div>
           ))}
 
-          {/* Expense Log list */}
-          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left">
-            <h3 className="text-sm font-extrabold text-white mb-3">Expense Log history</h3>
-            <DataTable columns={[
-              { key: 'category', label: 'Category', render: (row) => <span className="font-extrabold text-white">{row.category}</span> },
-              { key: 'amount', label: 'Amount', render: (row) => <span className="font-mono text-xs">{row.amount}</span> },
-              { key: 'status', label: 'State', render: (row) => <StatusBadge status={row.status} /> }
-            ]} data={expenses} />
+          {/* Expense registry logs */}
+          <div className="border-t border-[#23324C]/60 pt-4">
+            <span className="text-[10px] font-bold text-slate-400 uppercase block mb-2">Logged Expenses history</span>
+            <DataTable 
+              tableName="driver_expenses_history"
+              columns={[
+                { key: 'category', label: 'Category', render: (row) => <span className="text-white">{row.category}</span> },
+                { key: 'amount', label: 'Amount', render: (row) => <span className="font-mono text-slate-350">{row.amount}</span> },
+                { key: 'status', label: 'State', render: (row) => <StatusBadge status={row.status} /> }
+              ]} data={expenses} />
           </div>
         </div>
       )}
 
-      {activeTab === 'compliance' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-          <h3 className="text-sm font-extrabold text-white">ELD Safety Inspection Checklist</h3>
-          <p className="text-xs text-slate-400 leading-relaxed">Complete daily vehicle inspection checklist before interstate logging runs.</p>
-          <div className="p-4 bg-[#111827]/40 border border-[#23324C] rounded-xl space-y-3">
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wide block">Odometer Reading Capture</span>
-            <div className="flex gap-2 items-center">
-              <TextInput 
-                label="Odometer Mileage Reading" 
-                placeholder="e.g. 124,500" 
-                value={odometerReading} 
-                onChange={(e) => setOdometerReading(e.target.value)} 
-                className="flex-1"
-              />
-              <div className="pt-5">
-                <Button size="sm" variant="outline" onClick={() => {
-                  setOdometerPhotoUrl('https://hero-mock-storage.s3.amazonaws.com/uploads/odometer_upload_' + Date.now() + '.jpg');
-                  triggerToast('Odometer photo uploaded successfully.');
-                }}>
-                  {odometerPhotoUrl ? 'Photo Uploaded ✓' : 'Upload Photo'}
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-3 pt-2">
-            {Object.entries(complianceChecks).map(([key, value]) => (
-              <label key={key} className="flex items-center justify-between p-3 bg-[#111827]/60 border border-[#23324C] hover:border-brand-500/20 rounded-xl cursor-pointer transition-colors text-xs font-semibold text-slate-200">
-                <span className="capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
-                <input
-                  type="checkbox"
-                  checked={value}
-                  onChange={(e) => {
-                    setComplianceChecks({ ...complianceChecks, [key]: e.target.checked });
-                    triggerToast(`Checklist flag ${key} updated.`);
-                  }}
-                  className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 focus:ring-brand-500 h-4.5 w-4.5 cursor-pointer"
-                />
-              </label>
-            ))}
-          </div>
-
-          <div className="flex gap-2 border-t border-[#23324C]/45 pt-3.5">
-            <Button variant="success" className="w-full font-bold text-xs" onClick={handleComplianceSubmit}>
-              Complete Compliance
-            </Button>
-            <Button variant="primary" className="w-full font-bold text-xs" onClick={handleComplianceSubmit}>
-              Submit Compliance
-            </Button>
-          </div>
-
-          {/* AI Odometer confirmation widget */}
-          {aiQueue.odometer.filter(item => item.status === 'pending').map((item) => (
-            <div key={item.id} className="mt-4 p-4 bg-[#111827]/40 border border-[#23324C] rounded-xl space-y-3">
-              <div>
-                <span className="text-[10px] text-brand-400 font-extrabold uppercase tracking-wide block">AI Odometer Reading</span>
-                <strong className="text-white text-xs block mt-1">Detected Reading: {item.data.detectedValue}</strong>
-                <span className="text-[9px] text-slate-500">Source: {item.source}</span>
-              </div>
-
-              <div className="flex flex-wrap gap-2 text-[10px]">
-                <button 
-                  type="button"
-                  onClick={() => triggerToast(`Reviewing odometer photo: ${item.data.detectedValue}`)}
-                  className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-350 rounded-lg font-bold transition-all cursor-pointer"
-                >
-                  Review AI Result
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => {
-                    resolveAiItem('odometer', item.id, 'confirmed');
-                    triggerToast('Odometer reading Confirmed & Saved.');
-                  }}
-                  className="px-3 py-1.5 bg-brand-500 hover:bg-brand-600 text-slate-950 rounded-lg font-black transition-all cursor-pointer"
-                >
-                  Confirm
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => triggerToast('Editing detected value.')}
-                  className="px-3 py-1.5 bg-slate-700 hover:bg-slate-650 text-slate-300 rounded-lg font-bold transition-all cursor-pointer"
-                >
-                  Edit
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => {
-                    resolveAiItem('odometer', item.id, 'rejected');
-                    triggerToast('Odometer reading Rejected.', 'warning');
-                  }}
-                  className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded-lg font-bold transition-all cursor-pointer"
-                >
-                  Reject
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Earnings & Settlement History (Priority 2) */}
+      {/* MY PAY TAB */}
       {activeTab === 'earnings' && (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <StatCard title="This Month Earnings" value="$4,820" description="Completed runs payouts" progress={92} />
-            <StatCard title="Awaiting Payroll Cashout" value="$1,420" description="Awaiting billing run" progress={100} />
+        <div className="space-y-6 animate-fade-in text-xs">
+          <div className="grid grid-cols-2 gap-4">
+            <StatCard title="This Month Payout" value="$4,820" description="Completed runs pay" progress={92} />
+            <StatCard title="Awaiting Payroll" value="$1,420" description="Awaiting billing run" progress={100} />
           </div>
           
           <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
             <h3 className="text-sm font-extrabold text-white">Settlement History & Payments Log</h3>
-            <DataTable columns={[
-              { key: 'period', label: 'Pay Period', render: (row) => <span className="font-extrabold text-white">{row.period}</span> },
-              { key: 'hours', label: 'Logged Hours', render: (row) => <span className="font-mono">{row.hours} hrs</span> },
-              { key: 'amount', label: 'Settled Payout', render: (row) => <span className="font-mono font-bold text-brand-400">{row.amount}</span> },
-              { key: 'date', label: 'Payment Date', render: (row) => <span className="text-slate-400 font-mono text-xs">{row.date}</span> },
-              { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> }
-            ]} data={[
-              { period: 'Jun 01 - Jun 15, 2026', hours: 82, amount: '$3,690.00', date: '06/15/2026', status: 'Paid' },
-              { period: 'May 16 - May 31, 2026', hours: 78, amount: '$3,510.00', date: '05/31/2026', status: 'Paid' }
-            ]} />
-          </div>
-
-          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left">
-            <h3 className="text-sm font-extrabold text-white mb-3">Weekly Hours Logged timeline</h3>
-            <MiniChart type="line" data={[32, 40, 38, 42, 45, 40]} labels={['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4', 'Wk 5', 'Wk 6']} />
+            <DataTable 
+              tableName="driver_payouts_log"
+              columns={[
+                { key: 'period', label: 'Pay Period', render: (row) => <span className="font-extrabold text-white">{row.period}</span> },
+                { key: 'hours', label: 'Logged Hours', render: (row) => <span className="font-mono">{row.hours} hrs</span> },
+                { key: 'amount', label: 'Payout', render: (row) => <span className="font-mono text-brand-400 font-black">{row.amount}</span> },
+                { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> }
+              ]} data={[
+                { period: 'Jun 01 - Jun 15, 2026', hours: 82, amount: '$3,690.00', status: 'Paid' },
+                { period: 'May 16 - May 31, 2026', hours: 78, amount: '$3,510.00', status: 'Paid' }
+              ]} />
           </div>
         </div>
       )}
 
-      {/* Driver Dispatch Chat Screen (Priority 2) */}
+      {/* CONTACT DISPATCH TAB */}
       {activeTab === 'chat' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left flex flex-col justify-between h-[450px]">
+        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left flex flex-col justify-between h-[450px] animate-fade-in">
           <div>
             <h3 className="text-sm font-extrabold text-white mb-1">Dispatch Communication Chat</h3>
             <p className="text-[10px] text-slate-500">Live chat thread connected directly to dispatch team.</p>
           </div>
 
-          <div className="flex-1 overflow-y-auto my-4 space-y-3.5 pr-1">
+          <div className="flex-1 overflow-y-auto my-4 space-y-3.5 pr-1 scrollbar-none">
             <div className="p-3 bg-[#111827]/80 border border-[#23324C]/50 rounded-xl text-xs max-w-[85%] text-slate-350">
               <span className="text-[9px] text-slate-500 font-bold block mb-1">Dispatcher (Ops Desk)</span>
-              Sarah, please confirm trailer change at Chicago Gate 4. LD-9411 is scheduled for immediate departure.
+              John, please confirm trailer change at Chicago Gate 4. LD-9411 is scheduled for immediate departure.
             </div>
             <div className="p-3 bg-brand-500 text-slate-950 rounded-xl text-xs max-w-[85%] ml-auto font-semibold">
               <span className="text-[9px] text-slate-800 font-extrabold block mb-1">You</span>
@@ -839,68 +790,57 @@ export default function DriverDashboard({ activeTab = 'overview' }) {
         </div>
       )}
 
-      {/* Driver Compliance Documents Vault (Priority 2) */}
-      {activeTab === 'documents' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-5">
-          <div>
-            <h3 className="text-sm font-extrabold text-white">Driver Document Vault</h3>
-            <p className="text-xs text-slate-400">Keep standard licenses, medical clearances, and certificates up to date.</p>
-          </div>
+      {/* FLOATING ACTION COMMUNICATION BUTTON (FAB) */}
+      <div className="fixed bottom-4 right-4 z-40 flex flex-col items-end gap-2 text-xs">
+        {fabOpen && (
+          <div className="bg-[#161F30] border border-[#23324C] p-3 rounded-2xl shadow-xl space-y-2 flex flex-col min-w-[150px] text-left">
+            <span className="text-[9px] font-bold text-slate-500 uppercase block mb-1">Hotline Shortcuts</span>
+            <button onClick={() => { setFabOpen(false); triggerToast('Dialing hotline: Call Dispatch...'); }} className="flex items-center gap-2 text-slate-350 hover:text-white py-1">
+              <Phone className="h-3.5 w-3.5" /> Call Dispatch
+            </button>
+            <button onClick={() => { setFabOpen(false); triggerToast('Message dispatch thread opened.'); }} className="flex items-center gap-2 text-slate-350 hover:text-white py-1">
+              <MessageSquare className="h-3.5 w-3.5" /> Message Dispatch
+            </button>
+            
+            <button 
+              onClick={() => {
+                setVoiceRecording(!voiceRecording);
+                if (!voiceRecording) {
+                  triggerToast('Simulating recording voice note... Tap again to stop.');
+                } else {
+                  triggerToast('Voice note recorded. Dispatch alerted.');
+                }
+              }}
+              className={`flex items-center gap-2 py-1 ${voiceRecording ? 'text-red-400 font-bold animate-pulse' : 'text-slate-355 hover:text-white'}`}
+            >
+              <Mic className="h-3.5 w-3.5" /> {voiceRecording ? 'Recording...' : 'Voice Note'}
+            </button>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Upload form */}
-            <div className="bg-[#111827]/60 border border-[#23324C] p-4.5 rounded-2xl space-y-4">
-              <strong className="text-xs text-slate-200 block">Upload Verification Document</strong>
-              <div className="space-y-3">
-                <div>
-                  <label className="block text-[10px] text-slate-450 uppercase mb-1 font-semibold">Document Category</label>
-                  <select id="doc-type-sel" className="w-full px-3 py-2 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none">
-                    <option value="CDL License">Commercial Driver License (CDL)</option>
-                    <option value="Medical Certificate">Medical Assessment Clearance</option>
-                    <option value="Dangerous Goods Cert">Dangerous Goods Permit Badge</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-[10px] text-slate-450 uppercase mb-1 font-semibold">Expiry Date</label>
-                  <input type="date" id="doc-exp-date" className="w-full px-3 py-2 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none" />
-                </div>
-                <FileUploader onUploadSuccess={() => triggerToast('License document uploaded.')} />
+            <button 
+              onClick={() => {
+                setVoiceText('Driver en route to stop sequence 2.');
+                triggerToast('Transcribed: "Driver en route to stop sequence 2."');
+              }}
+              className="flex items-center gap-2 text-slate-355 hover:text-white py-1 border-t border-[#23324C]/40 pt-1.5"
+            >
+              <PenTool className="h-3.5 w-3.5" /> Voice-to-Text
+            </button>
+
+            {voiceText && (
+              <div className="p-2 bg-slate-900 border border-[#23324C] rounded text-[10px] text-brand-400 italic">
+                {voiceText}
               </div>
-              <button 
-                onClick={() => {
-                  const t = document.getElementById('doc-type-sel').value;
-                  const e = document.getElementById('doc-exp-date').value;
-                  if (!e) { triggerToast('Please select expiry date.', 'error'); return; }
-                  triggerToast(`Uploaded: ${t}. Expiration registered: ${e}`);
-                }}
-                className="w-full py-2 bg-brand-500 hover:bg-brand-600 text-slate-950 text-xs rounded-xl font-black cursor-pointer"
-              >
-                Register Document
-              </button>
-            </div>
-
-            {/* List of uploaded documents */}
-            <div className="space-y-3">
-              <strong className="text-xs text-slate-200 block">Active Verified Credentials</strong>
-              {[
-                { name: 'Commercial CDL Class A', exp: '2027-12-30', state: 'Valid' },
-                { name: 'FAA Medical Certificate', exp: '2026-09-18', state: 'Valid' },
-                { name: 'HAZMAT Endorsement Badge', exp: '2026-07-02', state: 'Expiring Soon' }
-              ].map((doc, idx) => (
-                <div key={idx} className="p-3 bg-slate-900/60 border border-[#23324C]/45 rounded-xl flex justify-between items-center text-xs">
-                  <div>
-                    <strong className="text-white block font-bold">{doc.name}</strong>
-                    <span className="text-[10px] text-slate-500 font-mono">Expires: {doc.exp}</span>
-                  </div>
-                  <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
-                    doc.state === 'Valid' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400 animate-pulse'
-                  }`}>{doc.state}</span>
-                </div>
-              ))}
-            </div>
+            )}
           </div>
-        </div>
-      )}
+        )}
+
+        <button 
+          onClick={() => setFabOpen(!fabOpen)}
+          className="w-12 h-12 bg-brand-500 hover:bg-brand-600 text-slate-950 rounded-full flex items-center justify-center shadow-lg transition-transform focus:outline-none z-50 cursor-pointer"
+        >
+          {fabOpen ? <X className="h-5 w-5" /> : <MessageSquare className="h-5 w-5" />}
+        </button>
+      </div>
 
     </div>
   );
