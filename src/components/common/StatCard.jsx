@@ -16,7 +16,7 @@ export default function StatCard({
   };
 
   return (
-    <div className={`glass rounded-2xl p-5 border border-[#23324C]/60 text-left relative overflow-hidden flex flex-col justify-between ${className}`}>
+    <div className={`glass card-3d hover-lift rounded-2xl p-5 border border-[#23324C]/60 text-left relative overflow-hidden flex flex-col justify-between ${className}`}>
       <div className="space-y-1.5">
         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
           {title}

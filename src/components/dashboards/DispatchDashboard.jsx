@@ -434,11 +434,6 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
           <p className="text-xs text-slate-400">Match loads, track route geofences, and audit driver logs.</p>
         </div>
         <div className="flex gap-2">
-          {activeTab !== 'create-load' && (
-            <Button variant="primary" icon={Plus} onClick={() => { resetStepper(); triggerToast('Stepper loaded. Complete 11 steps.'); }}>
-              Create Load
-            </Button>
-          )}
         </div>
       </div>
 
@@ -746,419 +741,191 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
 
           {/* 2. 11-STEP CREATE LOAD FLOW */}
           {activeTab === 'create-load' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6">
-              
-              {/* Stepper Steps Tracker */}
-              <div className="flex flex-wrap items-center gap-1.5 text-[9px] font-black text-slate-500 uppercase border-b border-[#23324C]/45 pb-3">
-                {[
-                  '1. Header', '2. Stops', '3. Items', '4. Stop Links', '5. Customer', 
-                  '6. Driver', '7. Truck', '8. Trailer', '9. Docs', '10. Review', '11. Dispatch'
-                ].map((stepLabel, idx) => (
-                  <div key={idx} className="flex items-center gap-1">
-                    <span className={`px-2 py-0.5 rounded-md ${createStep === idx + 1 ? 'bg-brand-500 text-slate-950 font-black' : createStep > idx + 1 ? 'bg-emerald-500/10 text-emerald-400 font-bold' : ''}`}>
-                      {stepLabel}
-                    </span>
-                    {idx < 10 && <ArrowRight className="h-3 w-3 text-slate-600" />}
-                  </div>
-                ))}
-              </div>
-
-              {/* Form Steps Panels */}
-              <div className="space-y-4 min-h-[220px]">
-                
-                {/* Step 1: Create Load Header */}
-                {createStep === 1 && (
-                  <div className="space-y-4 animate-fade-in max-w-lg">
-                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 1: Load Header Details</h4>
-                    <TextInput label="Load ID / Reference" value={newLoadHeader.loadId} onChange={(e) => setNewLoadHeader({ ...newLoadHeader, loadId: e.target.value })} />
-                    
-                    <SelectInput 
-                      label="Niche Type Operations" 
-                      value={newLoadHeader.niche} 
-                      onChange={(e) => {
-                        setNewLoadHeader({ ...newLoadHeader, niche: e.target.value });
-                        setSelectedNiche(e.target.value);
-                      }} 
-                      options={[
-                        { value: 'general_freight', label: 'General Freight (Ambient/Reefer)' },
-                        { value: 'car_carrying', label: 'Car Carrying / Vehicle Logistics' },
-                        { value: 'dangerous_goods', label: 'Dangerous Goods (HAZMAT)' }
-                      ]} 
-                    />
-
-                    <SelectInput 
-                      label="Origin branch dispatch node" 
-                      value={newLoadHeader.branch} 
-                      onChange={(e) => setNewLoadHeader({ ...newLoadHeader, branch: e.target.value })} 
-                      options={[
-                        { value: 'Chicago HQ Terminal', label: 'Chicago HQ Terminal' },
-                        { value: 'Los Angeles Depot', label: 'Los Angeles Depot' },
-                        { value: 'Atlanta Depot', label: 'Atlanta Depot' }
-                      ]} 
-                    />
-
-                    <TextInput label="Required Delivery Date" type="date" value={newLoadHeader.requiredDate} onChange={(e) => setNewLoadHeader({ ...newLoadHeader, requiredDate: e.target.value })} />
-                  </div>
-                )}
-
-                {/* Step 2: Add Stops */}
-                {createStep === 2 && (
-                  <div className="space-y-4 animate-fade-in">
-                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 2: Stops Timeline Manager</h4>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Left: Add stop form */}
-                      <div className="p-4 bg-[#111827]/40 border border-[#23324C] rounded-xl space-y-3">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase block">Add Sequential Stop</span>
-                        <TextInput label="Stop Location Address" value={stopAddress} onChange={(e) => setStopAddress(e.target.value)} placeholder="e.g. Dallas Yard 5" />
-                        <SelectInput label="Classification Type" value={stopType} onChange={(e) => setStopType(e.target.value)} options={[
-                          { value: 'Pickup', label: 'Pickup Load stop' },
-                          { value: 'Delivery', label: 'Delivery Offload stop' },
-                          { value: 'Layover', label: 'Layover / Rest' },
-                          { value: 'Customs', label: 'Customs Clear check' }
-                        ]} />
-                        <TextInput label="Stop Instruction Notes" value={stopNotes} onChange={(e) => setStopNotes(e.target.value)} placeholder="e.g. Gate code: #1002" />
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm" onClick={handleAddStepperStop} className="w-full">Add Stop</Button>
-                          <Button variant="secondary" size="sm" onClick={handleReorderStops} className="w-full">Reorder Stops</Button>
-                        </div>
-                      </div>
-
-                      {/* Right: Stops list */}
-                      <div className="space-y-2 max-h-[250px] overflow-y-auto">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase block">Stops Sequence list</span>
-                        {newStops.length === 0 ? (
-                          <p className="text-slate-500 text-xs italic py-4 text-center">No stops scheduled. Must define origin and destination stops.</p>
-                        ) : (
-                          newStops.map((stop) => (
-                            <div key={stop.id} className="p-3 bg-slate-900 border border-[#23324C]/40 rounded-xl flex justify-between items-center text-xs">
-                              <div>
-                                <span className="font-bold text-white block">#{stop.sequence}: {stop.address}</span>
-                                <span className="text-[10px] text-brand-400 font-bold uppercase">{stop.type}</span>
-                                <p className="text-[10px] text-slate-450 italic mt-0.5">{stop.notes}</p>
-                              </div>
-                              <button type="button" onClick={() => handleRemoveStepperStop(stop.id)} className="text-red-400 hover:text-red-300">
-                                <Trash2 className="h-4.5 w-4.5" />
-                              </button>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 3: Add Items / Cars */}
-                {createStep === 3 && (
-                  <div className="space-y-4 animate-fade-in">
-                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 3: Manifest Cargo Items Selection</h4>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Add Item form */}
-                      <div className="p-4 bg-[#111827]/40 border border-[#23324C] rounded-xl space-y-3 text-xs">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase block">Add Load Item details</span>
-                        <TextInput label="Item Description / Cargo Name" value={itemName} onChange={(e) => setItemName(e.target.value)} placeholder="e.g. Engine Block / Ford Mustang" />
-                        <TextInput label="Item Weight" value={itemWeight} onChange={(e) => setItemWeight(e.target.value)} placeholder="e.g. 8000 lbs" />
-
-                        {newLoadHeader.niche === 'car_carrying' && (
-                          <div className="grid grid-cols-2 gap-2 border-t border-[#23324C]/40 pt-2">
-                            <TextInput label="VIN (Car Carrying)" value={itemVin} onChange={(e) => setItemVin(e.target.value)} placeholder="17 digit VIN" />
-                            <TextInput label="Rego Plate" value={itemRego} onChange={(e) => setItemRego(e.target.value)} placeholder="ST-991A" />
-                          </div>
-                        )}
-
-                        {newLoadHeader.niche === 'general_freight' && (
-                          <TextInput label="Pallet count" value={itemPallets} onChange={(e) => setItemPallets(e.target.value)} placeholder="e.g. 24 Pallets" />
-                        )}
-
-                        {newLoadHeader.niche === 'dangerous_goods' && (
-                          <div className="grid grid-cols-2 gap-2 border-t border-[#23324C]/40 pt-2">
-                            <TextInput label="UN Chemical Number" value={itemUnNumber} onChange={(e) => setItemUnNumber(e.target.value)} placeholder="UN 1203" />
-                            <TextInput label="HAZMAT Class Code" value={itemHazmatClass} onChange={(e) => setItemHazmatClass(e.target.value)} placeholder="Class 3 Flammable" />
-                          </div>
-                        )}
-
-                        <Button variant="outline" size="sm" onClick={handleAddStepperItem} className="w-full mt-2">Add Item</Button>
-                      </div>
-
-                      {/* Manifest Items List with Search operations */}
-                      <div className="space-y-2 max-h-[280px] overflow-y-auto">
-                        <div className="flex justify-between items-center">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase block">Added Manifest Items</span>
-                          <div className="flex gap-1 text-[8px]">
-                            <button type="button" onClick={() => triggerToast('Search items by VIN...')} className="bg-slate-800 hover:bg-slate-700 px-2 py-0.5 text-slate-300 rounded font-bold">Search by VIN</button>
-                            <button type="button" onClick={() => triggerToast('Search items by Rego...')} className="bg-slate-800 hover:bg-slate-700 px-2 py-0.5 text-slate-300 rounded font-bold">Search by Rego</button>
-                          </div>
-                        </div>
-
-                        {newItems.length === 0 ? (
-                          <p className="text-slate-500 text-xs italic py-4 text-center">No cargo items listed.</p>
-                        ) : (
-                          newItems.map((item) => (
-                            <div key={item.id} className="p-3 bg-slate-900 border border-[#23324C]/45 rounded-xl flex justify-between items-center text-xs">
-                              <div>
-                                <strong className="text-white block">{item.name} ({item.weight})</strong>
-                                {item.vin && <span className="text-[10px] text-slate-450 block font-mono">VIN: {item.vin} | Plate: {item.rego}</span>}
-                                {item.pallets && <span className="text-[10px] text-slate-450 block">{item.pallets} Pallets</span>}
-                                {item.hazmatClass && <span className="text-[10px] text-red-400 block font-bold">HAZMAT: {item.unNumber} ({item.hazmatClass})</span>}
-                              </div>
-                              <button type="button" onClick={() => handleRemoveStepperItem(item.id)} className="text-red-400 hover:text-red-300">
-                                <Trash2 className="h-4 w-4" />
-                              </button>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 4: Link Items to Stops */}
-                {createStep === 4 && (
-                  <div className="space-y-4 animate-fade-in max-w-xl">
-                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 4: Link Items to Pickup / Drop Stops</h4>
-                    <p className="text-xs text-slate-400">Map cargo item IDs to their respective loading and offloading terminals.</p>
-                    
-                    {newItems.length === 0 || newStops.length === 0 ? (
-                      <p className="text-slate-500 text-xs italic py-4">Define stops and manifest items in preceding steps first.</p>
-                    ) : (
-                      <div className="space-y-4">
-                        {newItems.map((item) => (
-                          <div key={item.id} className="p-3 bg-[#111827]/60 border border-[#23324C] rounded-xl space-y-2 text-xs">
-                            <strong className="text-white text-xs block">{item.name}</strong>
-                            
-                            <div className="grid grid-cols-2 gap-3 text-[10px]">
-                              <div>
-                                <label className="block text-slate-455 mb-1">Pickup Stop Link</label>
-                                <select 
-                                  value={itemPickupLinks[item.id] || ''} 
-                                  onChange={(e) => setItemPickupLinks({ ...itemPickupLinks, [item.id]: e.target.value })}
-                                  className="w-full bg-[#0B0F19] border border-[#23324C] p-2 rounded text-slate-350 focus:outline-none"
-                                >
-                                  <option value="">Select Stop...</option>
-                                  {newStops.map(s => <option key={s.id} value={s.id}>#{s.sequence}: {s.address}</option>)}
-                                </select>
-                              </div>
-                              <div>
-                                <label className="block text-slate-455 mb-1">Delivery Drop Stop Link</label>
-                                <select 
-                                  value={itemDeliveryLinks[item.id] || ''} 
-                                  onChange={(e) => setItemDeliveryLinks({ ...itemDeliveryLinks, [item.id]: e.target.value })}
-                                  className="w-full bg-[#0B0F19] border border-[#23324C] p-2 rounded text-slate-355 focus:outline-none"
-                                >
-                                  <option value="">Select Stop...</option>
-                                  {newStops.map(s => <option key={s.id} value={s.id}>#{s.sequence}: {s.address}</option>)}
-                                </select>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Step 5: Link Items to Customer */}
-                {createStep === 5 && (
-                  <div className="space-y-4 animate-fade-in max-w-lg text-xs">
-                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 5: Link Customer Profile</h4>
-                    <p className="text-xs text-slate-450">Assign load items to customer shipper profile database records.</p>
-                    
-                    <TextInput label="Target Customer Profile / Shipper Name" placeholder="e.g. Vance Refrigeration" value={itemCustLink} onChange={(e) => setItemCustLink(e.target.value)} />
-                    <Button variant="primary" size="sm" onClick={() => {
-                      if (!itemCustLink) { triggerToast('Customer name required.', 'warning'); return; }
-                      setNewItems(newItems.map(itm => ({ ...itm, customer: itemCustLink })));
-                      triggerToast(`Customer linked to manifest items.`);
-                    }}>Link Customer</Button>
-                  </div>
-                )}
-
-                {/* Step 6: Assign Driver */}
-                {createStep === 6 && (
-                  <div className="space-y-4 animate-fade-in max-w-md">
-                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 6: Driver Operator Assignment</h4>
-                    
-                    <SelectInput 
-                      label="Select Active Fleet Driver" 
-                      value={assignedDriver} 
-                      onChange={(e) => setAssignedDriver(e.target.value)} 
-                      options={[
-                        { value: '', label: 'Select Driver...' },
-                        ...drivers.map(d => ({ value: d.name, label: `${d.name} (${d.status})` }))
-                      ]} 
-                    />
-
-                    <div className="flex gap-2">
-                      <Button variant="success" size="xs" onClick={() => {
-                        setAssignedDriver('John D.');
-                        triggerToast('Assigned available driver: John D.');
-                      }}>View Available Drivers</Button>
-                      <Button variant="secondary" size="xs" onClick={() => triggerToast('Unavailable drivers: Marcus A. (Leave), Donald S. (Transit)')}>View Unavailable Drivers</Button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 7: Assign Truck */}
-                {createStep === 7 && (
-                  <div className="space-y-4 animate-fade-in max-w-md">
-                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 7: Assign Fleet Truck</h4>
-                    
-                    <SelectInput 
-                      label="Assign Active Truck Plate" 
-                      value={assignedVehicle} 
-                      onChange={(e) => setAssignedVehicle(e.target.value)} 
-                      options={[
-                        { value: '', label: 'Select Truck...' },
-                        ...fleet.map(v => ({ value: v.plate, label: `${v.plate} (${v.type})` }))
-                      ]} 
-                    />
-                    
-                    <Button variant="primary" size="xs" onClick={() => {
-                      if (fleet[0]) {
-                        setAssignedVehicle(fleet[0].plate);
-                        triggerToast(`Assigned active vehicle: ${fleet[0].plate}`);
-                      }
-                    }}>Assign Truck</Button>
-                  </div>
-                )}
-
-                {/* Step 8: Assign Trailer */}
-                {createStep === 8 && (
-                  <div className="space-y-4 animate-fade-in max-w-md text-xs">
-                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 8: Assign Cargo Trailer</h4>
-                    
-                    <SelectInput 
-                      label="Trailer Plate Selection" 
-                      value={assignedTrailer} 
-                      onChange={(e) => setAssignedTrailer(e.target.value)} 
-                      options={[
-                        { value: 'TR-4022', label: 'TR-4022 (Dry Van)' },
-                        { value: 'TR-9118', label: 'TR-9118 (Reefer)' },
-                        { value: 'TR-7422', label: 'TR-7422 (Flatbed)' }
-                      ]} 
-                    />
-
-                    <div className="p-3 bg-[#111827]/40 border border-[#23324C]/45 rounded-xl space-y-2">
-                      <span className="text-[10px] text-slate-500 uppercase font-bold block">Trailer Swap Zone</span>
-                      <TextInput label="Swap Trailer Change Reason" value={swapReason} onChange={(e) => setSwapReason(e.target.value)} placeholder="e.g. Route optimization check" />
-                      <div className="flex gap-2">
-                        <Button variant="outline" size="xs" onClick={() => triggerToast(`Trailer plate swapped to ${assignedTrailer}`)}>Swap Trailer</Button>
-                        <Button variant="secondary" size="xs" onClick={() => {
-                          if (!swapReason) { triggerToast('Please insert a change reason.', 'error'); return; }
-                          triggerToast(`Trailer change reason registered: "${swapReason}"`);
-                        }}>Record Trailer Change Reason</Button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 9: Add Documents / Photos */}
-                {createStep === 9 && (
-                  <div className="space-y-4 animate-fade-in max-w-lg text-xs">
-                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 9: Upload Documents & Checklist</h4>
-                    
-                    <div className="space-y-2">
-                      <label className="flex items-center justify-between p-3 bg-slate-900/60 border border-[#23324C] rounded-xl cursor-pointer">
-                        <span>Rate Confirmation Contract.pdf</span>
-                        <input type="checkbox" checked={newDocs.rateConf} onChange={(e) => setNewDocs({ ...newDocs, rateConf: e.target.checked })} className="rounded text-brand-500 focus:ring-brand-500 h-4.5 w-4.5" />
-                      </label>
-                      <label className="flex items-center justify-between p-3 bg-slate-900/60 border border-[#23324C] rounded-xl cursor-pointer">
-                        <span>Bill of Lading (BOL) Template.pdf</span>
-                        <input type="checkbox" checked={newDocs.bol} onChange={(e) => setNewDocs({ ...newDocs, bol: e.target.checked })} className="rounded text-brand-500 focus:ring-brand-500 h-4.5 w-4.5" />
-                      </label>
-                      <label className="flex items-center justify-between p-3 bg-slate-900/60 border border-[#23324C] rounded-xl cursor-pointer">
-                        <span>HAZMAT Customs Bond declaration.pdf</span>
-                        <input type="checkbox" checked={newDocs.customs} onChange={(e) => setNewDocs({ ...newDocs, customs: e.target.checked })} className="rounded text-brand-500 focus:ring-brand-500 h-4.5 w-4.5" />
-                      </label>
-                    </div>
-
-                    <div className="pt-2">
-                      <TextInput label="Internal dispatcher instructions notes" value={newNotes} onChange={(e) => setNewNotes(e.target.value)} placeholder="Add internal load notes..." />
-                      <div className="flex gap-2 mt-2">
-                        <Button variant="outline" size="xs" onClick={() => triggerToast('Custom load file document uploaded successfully.')}>Upload Document</Button>
-                        <Button variant="secondary" size="xs" onClick={() => triggerToast('Internal note saved.')}>Add Internal Note</Button>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 10: Review */}
-                {createStep === 10 && (
-                  <div className="space-y-4 animate-fade-in text-xs">
-                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 10: Review Load Manifest Configuration</h4>
-                    
-                    <div className="divide-y divide-[#23324C]/60 bg-slate-900/65 border border-[#23324C] rounded-xl p-4 space-y-2.5">
-                      <div className="flex justify-between py-0.5">
-                        <span className="text-slate-450">Load ID</span>
-                        <strong className="text-white font-mono">{newLoadHeader.loadId}</strong>
-                      </div>
-                      <div className="flex justify-between py-0.5">
-                        <span className="text-slate-450">Niche Category</span>
-                        <strong className="text-brand-400 font-bold">{newLoadHeader.niche.replace('_', ' ').toUpperCase()}</strong>
-                      </div>
-                      <div className="flex justify-between py-0.5">
-                        <span className="text-slate-455">Total scheduled stops</span>
-                        <strong className="text-white font-bold">{newStops.length} Stops</strong>
-                      </div>
-                      <div className="flex justify-between py-0.5">
-                        <span className="text-slate-455">Total Manifest Items</span>
-                        <strong className="text-white font-bold">{newItems.length} items</strong>
-                      </div>
-                      <div className="flex justify-between py-0.5">
-                        <span className="text-slate-455">Assigned Driver & Vehicle</span>
-                        <strong className="text-brand-500 font-bold">{assignedDriver || 'None'} / {assignedVehicle || 'None'}</strong>
-                      </div>
-                      <div className="flex justify-between py-0.5">
-                        <span className="text-slate-450">Documents attached</span>
-                        <span className="text-slate-200">
-                          {Object.keys(newDocs).filter(k => newDocs[k]).join(', ') || 'None'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Step 11: Activate / Dispatch */}
-                {createStep === 11 && (
-                  <div className="space-y-5 animate-fade-in text-xs max-w-md">
-                    <h4 className="text-xs font-bold text-white uppercase tracking-wider">Step 11: Dispatch & Deploy Load</h4>
-                    
-                    <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl space-y-2">
-                      <strong>Manifest Validation check: Pass ✓</strong>
-                      <p className="text-[10px]">The load order details are fully geocoded and compliance checks verified. Deploy shipment now.</p>
-                    </div>
-
-                    <div className="flex gap-2">
-                      <Button variant="secondary" onClick={() => handleSaveDraft()} className="w-full">Save Draft</Button>
-                      <Button variant="outline" onClick={() => handleActivateLoad(false)} className="w-full">Activate Load</Button>
-                      <Button variant="primary" onClick={() => handleActivateLoad(true)} className="w-full">Dispatch Load</Button>
-                    </div>
-                  </div>
-                )}
-
-              </div>
-
-              {/* Stepper Navigation controls */}
-              <div className="flex justify-between border-t border-[#23324C]/40 pt-4 text-xs">
-                <Button variant="secondary" size="sm" onClick={resetStepper}>
-                  Reset Stepper
-                </Button>
-                <div className="flex gap-2">
-                  {createStep > 1 && (
-                    <Button variant="outline" size="sm" icon={ArrowLeft} onClick={() => setCreateStep(createStep - 1)}>
-                      Back
-                    </Button>
-                  )}
-                  {createStep < 11 && (
-                    <Button variant="primary" size="sm" icon={ArrowRight} iconPosition="right" onClick={() => setCreateStep(createStep + 1)}>
-                      Next
-                    </Button>
-                  )}
+            <div className="flex flex-col space-y-6">
+              {/* Header */}
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[#0B0F19] border border-[#23324C]/60 rounded-2xl p-5 shadow-lg">
+                <div>
+                  <h3 className="text-xl font-black text-white tracking-tight uppercase">Create Load Console</h3>
+                  <p className="text-[10px] text-brand-400 font-bold tracking-widest mt-1">OPERATIONAL PRINCIPLE: LOAD ➔ STOPS ➔ ITEMS</p>
+                </div>
+                <div className="flex gap-3 w-full sm:w-auto">
+                  <Button variant="outline" className="flex-1 sm:flex-none border-[#23324C] text-slate-300 hover:bg-slate-800">
+                    SAVE DRAFT
+                  </Button>
+                  <Button variant="primary" className="flex-1 sm:flex-none bg-brand-500 text-slate-950 font-black hover:bg-brand-400">
+                    ACTIVATE LOAD
+                  </Button>
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                {/* Left Column (Steps 1 & 2) */}
+                <div className="lg:col-span-7 space-y-6">
+                  {/* Step 1: Config Route Stops */}
+                  <div className="glass rounded-2xl p-6 border border-[#23324C]/60 shadow-xl relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>
+                    
+                    <div className="flex justify-between items-center mb-5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-blue-500/20 border border-blue-500/30 flex items-center justify-center">
+                          <MapPin className="h-4 w-4 text-blue-400" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-white uppercase tracking-wider">Step 1: Configure Route Stops</h4>
+                          <p className="text-[10px] text-slate-400">Define pickup, layover, and delivery locations.</p>
+                        </div>
+                      </div>
+                      <Button variant="outline" size="sm" icon={Plus} className="text-[10px] border-[#23324C] hover:border-blue-500/50 hover:text-blue-400 transition-colors">
+                        ADD STOP
+                      </Button>
+                    </div>
+
+                    <div className="space-y-4">
+                      {/* Default Stop 1 */}
+                      <div className="p-4 bg-[#0B0F19]/50 border border-[#23324C]/40 rounded-xl space-y-4">
+                        <div className="flex justify-between items-center border-b border-[#23324C]/40 pb-2">
+                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Stop 1</span>
+                          <button className="text-slate-500 hover:text-red-400 transition-colors"><Trash2 className="h-3.5 w-3.5" /></button>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          <div className="sm:col-span-1">
+                            <SelectInput label="Stop Type" value="pickup" options={[{value:'pickup', label:'Pickup'},{value:'delivery', label:'Delivery'}]} />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <TextInput label="Address / Location" placeholder="Enter full address..." />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          <TextInput label="Contact Name" placeholder="Warehouse Manager" />
+                          <TextInput label="Phone Number" placeholder="+1 (555) 000-0000" />
+                          <TextInput label="Required Time" type="datetime-local" />
+                        </div>
+                      </div>
+                      {/* Default Stop 2 */}
+                      <div className="p-4 bg-[#0B0F19]/50 border border-[#23324C]/40 rounded-xl space-y-4">
+                        <div className="flex justify-between items-center border-b border-[#23324C]/40 pb-2">
+                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Stop 2</span>
+                          <button className="text-slate-500 hover:text-red-400 transition-colors"><Trash2 className="h-3.5 w-3.5" /></button>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          <div className="sm:col-span-1">
+                            <SelectInput label="Stop Type" value="delivery" options={[{value:'pickup', label:'Pickup'},{value:'delivery', label:'Delivery'}]} />
+                          </div>
+                          <div className="sm:col-span-2">
+                            <TextInput label="Address / Location" placeholder="Enter full address..." />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          <TextInput label="Contact Name" placeholder="Receiver Contact" />
+                          <TextInput label="Phone Number" placeholder="+1 (555) 000-0000" />
+                          <TextInput label="Required Time" type="datetime-local" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Step 2: Declare Items */}
+                  <div className="glass rounded-2xl p-6 border border-[#23324C]/60 shadow-xl relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-1.5 h-full bg-brand-500"></div>
+                    
+                    <div className="flex justify-between items-center mb-5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-brand-500/20 border border-brand-500/30 flex items-center justify-center">
+                          <Layers className="h-4 w-4 text-brand-400" />
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-bold text-white uppercase tracking-wider">Step 2: Declare Items / Cars</h4>
+                          <p className="text-[10px] text-slate-400">Map cargo items to specific stops.</p>
+                        </div>
+                      </div>
+                      <Button variant="outline" size="sm" icon={Plus} className="text-[10px] border-[#23324C] hover:border-brand-500/50 hover:text-brand-400 transition-colors">
+                        ADD ITEM
+                      </Button>
+                    </div>
+
+                    <div className="space-y-4">
+                      {/* Default Item 1 */}
+                      <div className="p-4 bg-[#0B0F19]/50 border border-[#23324C]/40 rounded-xl space-y-4">
+                        <div className="flex justify-between items-center border-b border-[#23324C]/40 pb-2">
+                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Item 1</span>
+                          <button className="text-slate-500 hover:text-red-400 transition-colors"><Trash2 className="h-3.5 w-3.5" /></button>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          <TextInput label="Customer / Owner" placeholder="Select Customer Profile" />
+                          <SelectInput label="Link Pickup Stop" options={[{value:'stop1', label:'Stop 1'}]} />
+                          <SelectInput label="Link Drop-off Stop" options={[{value:'stop2', label:'Stop 2'}]} />
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          <div className="sm:col-span-1">
+                            <SelectInput label="Niche Type" value="freight" options={[{value:'freight', label:'General Freight'},{value:'car', label:'Car / Vehicle'},{value:'dg', label:'Dangerous Goods'}]} />
+                          </div>
+                          <div className="sm:col-span-1">
+                            <TextInput label="Item Description / VIN" placeholder="Description or VIN" />
+                          </div>
+                          <div className="sm:col-span-1">
+                            <TextInput label="Weight (Lbs/Kg)" placeholder="e.g. 4500" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Column (Specs & Docs) */}
+                <div className="lg:col-span-5 space-y-6">
+                  {/* Load Specifications */}
+                  <div className="bg-[#0B0F19] rounded-2xl p-6 border border-[#23324C]/60 shadow-xl">
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider border-b border-[#23324C]/40 pb-3 mb-4 flex items-center gap-2">
+                      <Check className="h-4 w-4 text-emerald-400" /> Load Specifications
+                    </h4>
+                    <div className="space-y-4">
+                      <TextInput label="Customer Reference #" placeholder="e.g. PO-99238" />
+                      <div>
+                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Priority Tier</label>
+                        <div className="grid grid-cols-3 gap-2">
+                          <button className="py-2 px-3 text-[10px] font-bold rounded-lg bg-[#111827] border border-[#23324C] text-slate-400 hover:text-white transition-colors">Normal</button>
+                          <button className="py-2 px-3 text-[10px] font-bold rounded-lg bg-brand-500/10 border border-brand-500/50 text-brand-400">Express</button>
+                          <button className="py-2 px-3 text-[10px] font-bold rounded-lg bg-[#111827] border border-[#23324C] text-slate-400 hover:text-red-400 transition-colors">Urgent</button>
+                        </div>
+                      </div>
+                      <TextInput label="Global Deadline" type="datetime-local" />
+                    </div>
+                  </div>
+
+                  {/* Documents & Photos */}
+                  <div className="glass rounded-2xl p-6 border border-[#23324C]/60 shadow-xl">
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider border-b border-[#23324C]/40 pb-3 mb-4 flex items-center gap-2">
+                      <FileText className="h-4 w-4 text-slate-300" /> Documents & Photos
+                    </h4>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="border border-dashed border-[#23324C] bg-[#0B0F19]/50 rounded-xl p-4 flex flex-col items-center justify-center text-center hover:border-brand-500/50 hover:bg-brand-500/5 transition-colors cursor-pointer min-h-[120px]">
+                        <FileText className="h-6 w-6 text-slate-500 mb-2" />
+                        <span className="text-[10px] font-bold text-slate-300">Upload Manifest / BOL</span>
+                        <span className="text-[8px] text-slate-500 mt-1">PDF, DOCX</span>
+                      </div>
+                      <div className="border border-dashed border-[#23324C] bg-[#0B0F19]/50 rounded-xl p-4 flex flex-col items-center justify-center text-center hover:border-brand-500/50 hover:bg-brand-500/5 transition-colors cursor-pointer min-h-[120px]">
+                        <Layers className="h-6 w-6 text-slate-500 mb-2" />
+                        <span className="text-[10px] font-bold text-slate-300">Upload Photos</span>
+                        <span className="text-[8px] text-slate-500 mt-1">JPG, PNG</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Internal Dispatch Notes */}
+                  <div className="glass rounded-2xl p-6 border border-[#23324C]/60 shadow-xl">
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider border-b border-[#23324C]/40 pb-3 mb-4 flex items-center gap-2">
+                      <MessageSquare className="h-4 w-4 text-slate-300" /> Internal Dispatch Notes
+                    </h4>
+                    <textarea 
+                      className="w-full bg-[#0B0F19] border border-[#23324C] rounded-xl p-4 text-xs text-slate-300 focus:outline-none focus:border-brand-500 resize-none min-h-[120px]"
+                      placeholder="Add any internal routing or dispatcher notes here..."
+                    ></textarea>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
+
 
           {/* 3. LOAD INBOX SECTION (AI INGESTION QUEUE) */}
           {activeTab === 'ai-inbox' && (
