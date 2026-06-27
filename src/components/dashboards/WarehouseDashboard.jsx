@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { 
-  fetchWarehouseData, 
-  addWarehouseInventory, 
-  updateWarehouseInventory, 
-  fetchInventoryMovements, 
-  fetchWarehouseAssets 
+import {
+  fetchWarehouseData,
+  addWarehouseInventory,
+  updateWarehouseInventory,
+  fetchInventoryMovements,
+  fetchWarehouseAssets
 } from '../../store/slices/warehouseSlice';
 import Button from '../common/Button';
 import TextInput from '../common/TextInput';
@@ -21,8 +21,8 @@ import Modal from '../common/Modal';
 import Drawer from '../common/Drawer';
 import { PieChartWidget } from '../common/DashboardCharts';
 import { TableSkeleton } from '../common/Skeletons';
-import { 
-  Plus, Check, Trash2, Edit2, QrCode, Move, CheckSquare, 
+import {
+  Plus, Check, Trash2, Edit2, QrCode, Move, CheckSquare,
   AlertTriangle, Activity, List, Download, MapPin, Printer, RefreshCw
 } from 'lucide-react';
 
@@ -83,7 +83,7 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
   // Form states
   const [newLocName, setNewLocName] = useState('');
   const [newLocType, setNewLocType] = useState('Bay');
-  
+
   // Manual Entry States
   const [manualVin, setManualVin] = useState('');
   const [manualRego, setManualRego] = useState('');
@@ -176,7 +176,7 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
       };
       setCarStock([newCar, ...carStock]);
       setSelectedCarId(newCar.id);
-      
+
       // Log movement history
       const newLog = {
         id: `H-${Date.now()}`,
@@ -186,7 +186,7 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
         time: new Date().toLocaleString()
       };
       setAssetHistory([newLog, ...assetHistory]);
-      
+
       triggerToast(`Vehicle ${manualModel} registered as independent asset.`);
     } else {
       if (!manualItemNo || !manualBarcode) {
@@ -246,16 +246,16 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
       time: new Date().toLocaleString()
     };
     setAssetHistory([newLog, ...assetHistory]);
-    
+
     setRelocateModalOpen(false);
     triggerToast(`Asset ${asset.id} relocated to ${relocationTarget}.`);
   };
 
-  const handleDirectMoveToHolding = () => {
-    const asset = getSelectedAsset();
+  const handleDirectMoveToHolding = (item = null) => {
+    const asset = item || getSelectedAsset();
     if (!asset) return;
     const targetHolding = logisticsMode === 'car_carrying' ? 'Holding Area A' : 'Zone A (Dry)';
-    
+
     if (logisticsMode === 'car_carrying') {
       setCarStock(carStock.map(c => c.id === asset.id ? { ...c, location: targetHolding } : c));
     } else {
@@ -273,11 +273,11 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
     triggerToast(`Asset moved to holding area: ${targetHolding}.`);
   };
 
-  const handleDirectMoveToLane = () => {
-    const asset = getSelectedAsset();
+  const handleDirectMoveToLane = (item = null) => {
+    const asset = item || getSelectedAsset();
     if (!asset) return;
     const targetLane = 'Lane A1';
-    
+
     if (logisticsMode === 'car_carrying') {
       setCarStock(carStock.map(c => c.id === asset.id ? { ...c, location: targetLane, lane: targetLane } : c));
     } else {
@@ -295,8 +295,8 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
     triggerToast(`Asset spotted to load lane: ${targetLane}.`);
   };
 
-  const handleAssignToLane = () => {
-    const asset = getSelectedAsset();
+  const handleAssignToLane = (item = null) => {
+    const asset = item || getSelectedAsset();
     if (!asset) return;
     const targetLane = 'Lane C3';
 
@@ -317,15 +317,18 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
     triggerToast(`Asset assigned to load lane ${targetLane} queue.`);
   };
 
-  const handlePrintLabel = (reprint = false) => {
-    const asset = getSelectedAsset();
-    if (!asset) return;
-    const labelCode = logisticsMode === 'car_carrying' ? asset.vin : asset.barcode;
+  const handlePrintLabel = (reprint = false, item = null) => {
+    const asset = item || getSelectedAsset();
+    if (!asset) {
+      triggerToast('No asset selected to print label for.', 'error');
+      return;
+    }
+    const labelCode = asset.vin || asset.barcode || asset.id;
     triggerToast(`${reprint ? 'Reprinted' : 'Printed'} Zebra barcode tag: ${labelCode}`);
   };
 
-  const handleReportMissing = () => {
-    const asset = getSelectedAsset();
+  const handleReportMissing = (item = null) => {
+    const asset = item || getSelectedAsset();
     if (!asset) return;
 
     if (logisticsMode === 'car_carrying') {
@@ -356,7 +359,7 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
       if (match) {
         matchFound = true;
         setSelectedCarId(match.id);
-        
+
         let newStatus = match.status;
         let newLoc = match.location;
         if (scannerAction === 'Scan In') {
@@ -416,11 +419,11 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
 
   const handleExportStock = () => {
     const list = logisticsMode === 'car_carrying' ? carStock : freightStock;
-    const csvContent = "data:text/csv;charset=utf-8," 
-      + (logisticsMode === 'car_carrying' 
+    const csvContent = "data:text/csv;charset=utf-8,"
+      + (logisticsMode === 'car_carrying'
         ? "VIN,Rego,Stock Number,Model,Location,Lane,Status\n" + list.map(e => `"${e.vin}","${e.rego}","${e.stockNo}","${e.model}","${e.location}","${e.lane}","${e.status}"`).join("\n")
         : "Item No,Pallet Count,Weight,Dimensions,Barcode,Aisle/Bin,Status\n" + list.map(e => `"${e.itemNo}","${e.palletCount}","${e.weight}","${e.dimensions}","${e.barcode}","${e.aisleBin}","${e.status}"`).join("\n"));
-    
+
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -434,14 +437,15 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
   // Filter lists based on search
   const getFilteredList = () => {
     if (logisticsMode === 'car_carrying') {
-      return carStock.filter(c => 
+      return carStock.filter(c =>
         c.vin.toLowerCase().includes(searchQuery.toLowerCase()) ||
         c.rego.toLowerCase().includes(searchQuery.toLowerCase()) ||
         c.model.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.stockNo.toLowerCase().includes(searchQuery.toLowerCase())
+        c.stockNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.customer.toLowerCase().includes(searchQuery.toLowerCase())
       );
     } else {
-      return freightStock.filter(f => 
+      return freightStock.filter(f =>
         f.itemNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
         f.barcode.toLowerCase().includes(searchQuery.toLowerCase()) ||
         f.aisleBin.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -452,6 +456,33 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
 
   const filteredAssets = getFilteredList();
   const selectedAsset = getSelectedAsset();
+
+  const mockLabels = (logisticsMode === 'car_carrying' ? carStock : freightStock).map((item, index) => {
+    const printStatusOptions = ['Printed', 'Pending', 'Failed', 'Reprinted'];
+    const printStatus = printStatusOptions[index % printStatusOptions.length];
+    return {
+      labelId: `LBL-${(index + 100).toString()}`,
+      barcode: item.barcode || item.vin,
+      vinItem: item.vin || item.itemNo,
+      stockNo: item.stockNo || item.palletCount,
+      customer: item.customer,
+      assetType: logisticsMode === 'car_carrying' ? 'Vehicle' : 'Freight',
+      location: item.location || item.aisleBin,
+      destination: item.destination,
+      generatedDate: new Date().toLocaleDateString(),
+      printedBy: 'System Auto',
+      printStatus: printStatus,
+      printerStatus: printStatus === 'Failed' ? 'Offline' : 'Online',
+      originalItem: item
+    };
+  });
+
+  const filteredLabels = mockLabels.filter(l => 
+    l.vinItem.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    String(l.stockNo).toLowerCase().includes(searchQuery.toLowerCase()) ||
+    l.barcode.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    l.customer.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="space-y-6">
@@ -533,24 +564,123 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
             </div>
             <div className="flex flex-col items-center">
               <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Capacity Allocation</h4>
-              <PieChartWidget 
+              <PieChartWidget
                 data={[
                   { name: 'Lane A', value: 92 },
                   { name: 'Lane B', value: 84 },
                   { name: 'Holding', value: 45 },
                   { name: 'Bunker', value: 15 }
-                ]} 
-                height={150} 
+                ]}
+                height={150}
               />
             </div>
           </div>
         </div>
       )}
 
-      {/* Main Split Layout Workspace (for Current Stock & Yard map tabs) */}
-      {(activeTab === 'stock' || activeTab === 'yard-map' || activeTab === 'holding-areas' || activeTab === 'load-lanes') && (
+      {/* Current Stock Tab */}
+      {activeTab === 'stock' && (
+        <div className="space-y-6 animate-fade-in">
+          {/* Summary Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+             <StatCard title="Total Stock" value={logisticsMode === 'car_carrying' ? carStock.length : freightStock.length} description="Total units tracked" />
+             <StatCard title="Available Stock" value={(logisticsMode === 'car_carrying' ? carStock : freightStock).filter(x => x.status === 'Ready' || x.status === 'Stowed' || x.status === 'Inwarded').length} description="Unassigned units" />
+             <StatCard title="In Holding Area" value={(logisticsMode === 'car_carrying' ? carStock : freightStock).filter(x => x.location?.includes('Holding') || x.aisleBin?.includes('Holding') || x.aisleBin?.includes('Zone')).length} description="Units staged" />
+             <StatCard title="Load Lanes" value={(logisticsMode === 'car_carrying' ? carStock : freightStock).filter(x => x.lane && x.lane !== 'Unassigned' || x.aisleBin?.includes('Lane')).length} description="Units queued" />
+             <StatCard title="Ready to Dispatch" value={(logisticsMode === 'car_carrying' ? carStock : freightStock).filter(x => x.status === 'Ready' || x.status === 'Staged').length} description="Cleared to load" />
+             <StatCard title="Missing Items" value={(logisticsMode === 'car_carrying' ? carStock : freightStock).filter(x => x.status === 'Missing').length} description="Flagged incidents" />
+          </div>
+
+          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+               <div>
+                 <h3 className="text-sm font-extrabold text-white">Current Stock Inventory</h3>
+                 <p className="text-xs text-slate-450 mt-1">Comprehensive view of all independent assets and staging cargo.</p>
+               </div>
+               <div className="flex flex-wrap gap-2 items-center w-full md:w-auto">
+                 <SearchInput
+                   value={searchQuery}
+                   onChange={(e) => setSearchQuery(e.target.value)}
+                   onClear={() => setSearchQuery('')}
+                   placeholder={logisticsMode === 'car_carrying' ? "Search VIN, Rego, Customer..." : "Search Item No, Customer..."}
+                   className="w-full md:w-64"
+                 />
+                 <Button size="sm" variant="primary" icon={Download} onClick={handleExportStock}>
+                   Export Stock List
+                 </Button>
+               </div>
+             </div>
+
+             <div className="overflow-x-auto w-full">
+               <DataTable 
+                 columns={logisticsMode === 'car_carrying' ? [
+                   { key: 'id', label: 'VIN', render: (row) => <span className="font-mono text-white font-semibold">{row.vin}</span> },
+                   { key: 'desc', label: 'Rego / Make', render: (row) => <span className="text-slate-300 text-[10px]">{row.rego} | {row.model}</span> },
+                   { key: 'stockNo', label: 'Stock No', render: (row) => <span className="text-slate-400">{row.stockNo}</span> },
+                   { key: 'customer', label: 'Customer', render: (row) => <span className="text-brand-300 font-bold">{row.customer}</span> },
+                   { key: 'loc', label: 'Location / Bay', render: (row) => <span className="text-emerald-400 font-mono text-[10px] bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">{row.location}</span> },
+                   { key: 'lane', label: 'Load Lane', render: (row) => <span className="text-slate-400">{row.lane}</span> },
+                   { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> },
+                   { key: 'actions', label: 'Actions', render: (row) => (
+                     <div className="flex gap-1.5 flex-wrap min-w-[280px]">
+                       <Button size="sm" variant="secondary" onClick={() => {
+                          setSelectedCarId(row.id);
+                          triggerToast(`Viewing details for ${row.vin}`);
+                       }}>View</Button>
+                       <Button size="sm" variant="outline" onClick={() => {
+                          setSelectedCarId(row.id);
+                          setRelocateModalOpen(true);
+                       }}>Move</Button>
+                       <Button size="sm" variant="outline" onClick={() => handleDirectMoveToHolding(row)}>To Holding</Button>
+                       <Button size="sm" variant="outline" onClick={() => handleAssignToLane(row)}>To Lane</Button>
+                       <Button size="sm" variant="outline" onClick={() => {
+                          setSelectedCarId(row.id);
+                          setHistoryDrawerOpen(true);
+                       }}>Hist</Button>
+                       <Button size="sm" variant="outline" onClick={() => handlePrintLabel(false, row)}>Label</Button>
+                       <Button size="sm" variant="outline" className="text-rose-400 border-rose-500/30 hover:bg-rose-500/10" onClick={() => handleReportMissing(row)}>Missing</Button>
+                     </div>
+                   )}
+                 ] : [
+                   { key: 'id', label: 'Item Number', render: (row) => <span className="font-mono text-white font-semibold">{row.itemNo}</span> },
+                   { key: 'barcode', label: 'Barcode', render: (row) => <span className="text-slate-300 font-mono text-xs">{row.barcode}</span> },
+                   { key: 'palletCount', label: 'Pallet / Dim', render: (row) => <span className="text-slate-400 text-[10px]">{row.palletCount} Plts | {row.dimensions}</span> },
+                   { key: 'customer', label: 'Customer', render: (row) => <span className="text-brand-300 font-bold">{row.customer}</span> },
+                   { key: 'zone', label: 'Zone', render: (row) => <span className="text-slate-400">{row.zone}</span> },
+                   { key: 'loc', label: 'Holding Area / Bin', render: (row) => <span className="text-emerald-400 font-mono text-[10px] bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">{row.aisleBin}</span> },
+                   { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> },
+                   { key: 'actions', label: 'Actions', render: (row) => (
+                     <div className="flex gap-1.5 flex-wrap min-w-[280px]">
+                       <Button size="sm" variant="secondary" onClick={() => {
+                          setSelectedFreightId(row.id);
+                          triggerToast(`Viewing details for ${row.itemNo}`);
+                       }}>View</Button>
+                       <Button size="sm" variant="outline" onClick={() => {
+                          setSelectedFreightId(row.id);
+                          setRelocateModalOpen(true);
+                       }}>Move</Button>
+                       <Button size="sm" variant="outline" onClick={() => handleDirectMoveToHolding(row)}>To Holding</Button>
+                       <Button size="sm" variant="outline" onClick={() => handleAssignToLane(row)}>To Lane</Button>
+                       <Button size="sm" variant="outline" onClick={() => {
+                          setSelectedFreightId(row.id);
+                          setHistoryDrawerOpen(true);
+                       }}>Hist</Button>
+                       <Button size="sm" variant="outline" onClick={() => handlePrintLabel(false, row)}>Label</Button>
+                       <Button size="sm" variant="outline" className="text-rose-400 border-rose-500/30 hover:bg-rose-500/10" onClick={() => handleReportMissing(row)}>Missing</Button>
+                     </div>
+                   )}
+                 ]}
+                 data={filteredAssets}
+               />
+             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Main Split Layout Workspace (for Yard map tab) */}
+      {activeTab === 'yard-map' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-          
+
           {/* LEFT COLUMN: Stock list table (3/12) */}
           <div className="lg:col-span-4 glass rounded-2xl p-4 border border-[#23324C]/60 text-left space-y-4 flex flex-col justify-between">
             <div className="space-y-4">
@@ -560,11 +690,11 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
                   {filteredAssets.length} Units
                 </span>
               </div>
-              <SearchInput 
-                value={searchQuery} 
-                onChange={(e) => setSearchQuery(e.target.value)} 
+              <SearchInput
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 onClear={() => setSearchQuery('')}
-                placeholder={logisticsMode === 'car_carrying' ? "Search VIN, Rego, Model..." : "Search Item No, Barcode..."} 
+                placeholder={logisticsMode === 'car_carrying' ? "Search VIN, Rego, Model..." : "Search Item No, Barcode..."}
                 className="w-full"
               />
 
@@ -577,17 +707,16 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
                   filteredAssets.map((item) => {
                     const isSelected = logisticsMode === 'car_carrying' ? item.id === selectedCarId : item.id === selectedFreightId;
                     return (
-                      <div 
+                      <div
                         key={item.id}
                         onClick={() => {
                           if (logisticsMode === 'car_carrying') setSelectedCarId(item.id);
                           else setSelectedFreightId(item.id);
                         }}
-                        className={`p-3 rounded-xl border transition-all cursor-pointer text-xs space-y-1.5 ${
-                          isSelected 
-                            ? 'bg-[#161F30] border-brand-500 shadow-md shadow-brand-500/10' 
+                        className={`p-3 rounded-xl border transition-all cursor-pointer text-xs space-y-1.5 ${isSelected
+                            ? 'bg-[#161F30] border-brand-500 shadow-md shadow-brand-500/10'
                             : 'bg-[#111827]/40 border-[#23324C] hover:border-[#23324C]/80'
-                        }`}
+                          }`}
                       >
                         <div className="flex justify-between items-center">
                           <strong className="text-white font-mono uppercase">
@@ -621,19 +750,19 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
               <div className="flex justify-between items-center mb-3">
                 <h3 className="text-xs font-bold text-white uppercase tracking-wider">Yard / Warehouse Allocation Map</h3>
                 <div className="flex gap-2">
-                  <button 
+                  <button
                     onClick={() => { setAddLocationModalOpen(true); setNewLocType('Bay'); }}
                     className="text-[10px] font-black text-brand-400 hover:text-brand-500 hover:underline cursor-pointer"
                   >
                     + Add Location
                   </button>
-                  <button 
+                  <button
                     onClick={() => { setAddHoldingAreaModalOpen(true); setNewLocType('Holding Area'); }}
                     className="text-[10px] font-black text-brand-400 hover:text-brand-500 hover:underline cursor-pointer"
                   >
                     + Add Holding
                   </button>
-                  <button 
+                  <button
                     onClick={() => { setAddLoadLaneModalOpen(true); setNewLocType('Load Lane'); }}
                     className="text-[10px] font-black text-brand-400 hover:text-brand-500 hover:underline cursor-pointer"
                   >
@@ -645,32 +774,31 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
               {/* Grid map overlay */}
               <div className="bg-[#0B0F19] border border-[#23324C] rounded-2xl p-4 min-h-[380px] grid grid-cols-2 sm:grid-cols-3 gap-3 relative overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(#23324c_1px,transparent_1px)] [background-size:16px_16px] opacity-40"></div>
-                
-                {locations.filter(l => 
-                  logisticsMode === 'car_carrying' 
+
+                {locations.filter(l =>
+                  logisticsMode === 'car_carrying'
                     ? l.category === 'Car Yard' || l.category === 'Both'
                     : l.category === 'Freight' || l.category === 'Both'
                 ).map(loc => {
                   const isItemHere = selectedAsset && (
-                    logisticsMode === 'car_carrying' 
+                    logisticsMode === 'car_carrying'
                       ? selectedAsset.location === loc.name
                       : selectedAsset.aisleBin === loc.name
                   );
-                  
+
                   return (
-                    <div 
-                      key={loc.id} 
+                    <div
+                      key={loc.id}
                       onClick={() => {
                         setRelocationTarget(loc.name);
                         triggerToast(`Target location set to ${loc.name}. Click 'Move Item' to execute.`);
                       }}
-                      className={`p-3 rounded-xl border flex flex-col justify-between min-h-[90px] cursor-pointer transition-all ${
-                        isItemHere 
+                      className={`p-3 rounded-xl border flex flex-col justify-between min-h-[90px] cursor-pointer transition-all ${isItemHere
                           ? 'bg-brand-500/10 border-brand-500 shadow-lg shadow-brand-500/10 animate-pulse'
                           : relocationTarget === loc.name
                             ? 'bg-slate-800/60 border-[#23324C]/90 text-white'
                             : 'bg-[#111827]/40 border-[#23324C]/60 hover:border-slate-800'
-                      }`}
+                        }`}
                     >
                       <div className="flex justify-between items-center">
                         <span className="text-[9px] text-slate-500 font-bold block uppercase tracking-wide">{loc.type}</span>
@@ -678,8 +806,8 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
                       </div>
                       <strong className="text-white text-xs block truncate">{loc.name}</strong>
                       <span className="text-[8px] text-slate-400 truncate">
-                        {isItemHere 
-                          ? (logisticsMode === 'car_carrying' ? selectedAsset.model : selectedAsset.itemNo) 
+                        {isItemHere
+                          ? (logisticsMode === 'car_carrying' ? selectedAsset.model : selectedAsset.itemNo)
                           : 'Empty Spot'}
                       </span>
                     </div>
@@ -790,7 +918,7 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
                   <Button size="sm" variant="secondary" className="w-full justify-start" icon={Move} onClick={handleAssignToLane}>
                     Assign to Load Lane
                   </Button>
-                  
+
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={() => handlePrintLabel(false)}
@@ -840,26 +968,141 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
         </div>
       )}
 
+      {/* Holding Areas Tab */}
+      {activeTab === 'holding-areas' && (
+        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6 animate-fade-in">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+             <div>
+               <h3 className="text-sm font-extrabold text-white">Holding Area Management</h3>
+               <p className="text-xs text-slate-450 mt-1">Manage intermediate holding zones and assigned staging assets.</p>
+             </div>
+             <div className="flex gap-2">
+               <Button size="sm" variant="outline" icon={Plus} onClick={() => { setAddHoldingAreaModalOpen(true); setNewLocType('Holding Area'); }}>Add Holding Area</Button>
+             </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <h4 className="text-xs font-bold text-white uppercase tracking-wider">Holding Zones Status</h4>
+              <DataTable 
+                columns={[
+                  { key: 'name', label: 'Holding Area', render: (row) => <span className="font-bold text-white">{row.name}</span> },
+                  { key: 'capacity', label: 'Capacity', render: (row) => <span className="text-slate-300">{row.assetsCount} / 50</span> },
+                  { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.assetsCount >= 50 ? 'Full' : 'Available'} /> }
+                ]}
+                data={locations.filter(l => l.type === 'Holding Area').map(loc => {
+                   const assetsInLoc = logisticsMode === 'car_carrying' 
+                     ? carStock.filter(c => c.location === loc.name)
+                     : freightStock.filter(f => f.aisleBin === loc.name);
+                   return { ...loc, assetsCount: assetsInLoc.length };
+                })}
+              />
+            </div>
+
+            <div className="space-y-4">
+              <h4 className="text-xs font-bold text-white uppercase tracking-wider">Assets in Holding</h4>
+              <DataTable 
+                columns={[
+                  { key: 'id', label: 'Asset Code', render: (row) => <span className="font-mono text-white font-semibold">{logisticsMode === 'car_carrying' ? row.vin : row.itemNo}</span> },
+                  { key: 'loc', label: 'Holding Area', render: (row) => <span className="text-brand-400 font-mono">{logisticsMode === 'car_carrying' ? row.location : row.aisleBin}</span> },
+                  { key: 'actions', label: 'Actions', render: (row) => (
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="secondary" onClick={() => {
+                        if(logisticsMode === 'car_carrying') setSelectedCarId(row.id);
+                        else setSelectedFreightId(row.id);
+                        setRelocateModalOpen(true);
+                      }}>Move Item</Button>
+                      <Button size="sm" variant="outline" onClick={() => triggerToast(`Asset ${row.id} flagged for removal from holding.`)}>Remove Item</Button>
+                    </div>
+                  )}
+                ]}
+                data={(logisticsMode === 'car_carrying' ? carStock : freightStock).filter(asset => {
+                  const loc = logisticsMode === 'car_carrying' ? asset.location : asset.aisleBin;
+                  return locations.find(l => l.name === loc && l.type === 'Holding Area');
+                })}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Load Lanes Tab */}
+      {activeTab === 'load-lanes' && (
+        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6 animate-fade-in">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+             <div>
+               <h3 className="text-sm font-extrabold text-white">Load Lane Management</h3>
+               <p className="text-xs text-slate-450 mt-1">Manage outbound dispatch loading queues and lane spotting.</p>
+             </div>
+             <div className="flex gap-2">
+               <Button size="sm" variant="outline" icon={Plus} onClick={() => { setAddLoadLaneModalOpen(true); setNewLocType('Load Lane'); }}>Add Load Lane</Button>
+             </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <h4 className="text-xs font-bold text-white uppercase tracking-wider">Active Load Lanes</h4>
+              <DataTable 
+                columns={[
+                  { key: 'name', label: 'Load Lane', render: (row) => <span className="font-bold text-white">{row.name}</span> },
+                  { key: 'assigned', label: 'Assigned Assets', render: (row) => <span className="text-brand-400 font-mono">{row.assetsCount} Units</span> },
+                  { key: 'status', label: 'Lane Status', render: (row) => <StatusBadge status={row.assetsCount > 0 ? 'Loading' : 'Ready To Load'} /> }
+                ]}
+                data={locations.filter(l => l.type === 'Load Lane').map(loc => {
+                   const assetsInLane = logisticsMode === 'car_carrying' 
+                     ? carStock.filter(c => c.lane === loc.name || c.location === loc.name)
+                     : freightStock.filter(f => f.aisleBin === loc.name);
+                   return { ...loc, assetsCount: assetsInLane.length };
+                })}
+              />
+            </div>
+
+            <div className="space-y-4">
+              <h4 className="text-xs font-bold text-white uppercase tracking-wider">Queueing Assets</h4>
+              <DataTable 
+                columns={[
+                  { key: 'id', label: 'Asset Code', render: (row) => <span className="font-mono text-white font-semibold">{logisticsMode === 'car_carrying' ? row.vin : row.itemNo}</span> },
+                  { key: 'lane', label: 'Assigned Lane', render: (row) => <span className="text-brand-400 font-mono">{logisticsMode === 'car_carrying' ? (row.lane === 'Unassigned' ? row.location : row.lane) : row.aisleBin}</span> },
+                  { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> },
+                  { key: 'actions', label: 'Actions', render: (row) => (
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="secondary" onClick={() => handleAssignToLane(row)}>Assign to Load Lane</Button>
+                      <Button size="sm" variant="outline" onClick={() => triggerToast(`Asset ${row.id} removed from load lane.`)}>Remove from Load Lane</Button>
+                    </div>
+                  )}
+                ]}
+                data={(logisticsMode === 'car_carrying' ? carStock : freightStock).filter(asset => {
+                  const loc = logisticsMode === 'car_carrying' ? (asset.lane === 'Unassigned' ? asset.location : asset.lane) : asset.aisleBin;
+                  return locations.find(l => l.name === loc && l.type === 'Load Lane');
+                })}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Inbound Screen */}
       {activeTab === 'inbound' && (
         <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 animate-fade-in">
           <h3 className="text-sm font-extrabold text-white">Inbound Staging Queue</h3>
-          <DataTable 
+          <DataTable
             columns={[
               { key: 'id', label: 'Receipt ID', render: (row) => <span className="font-mono font-extrabold text-white">{row.id}</span> },
               { key: 'carrier', label: 'Carrier Partner', render: (row) => <span className="text-slate-300 font-semibold">{row.carrier}</span> },
               { key: 'cargo', label: 'Inbound Cargo Specs', render: (row) => <span className="text-slate-400">{row.cargo}</span> },
               { key: 'lane', label: 'Spotted Lane', render: (row) => <span className="text-brand-400 font-bold font-mono">{row.lane}</span> },
-              { key: 'actions', label: 'Staged Actions', render: (row) => (
-                <div className="flex gap-2">
-                  <Button size="sm" variant="secondary" onClick={() => triggerToast(`Offload log confirmed for carrier ${row.carrier}`)}>
-                    Scan In
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => triggerToast("Zebra labels spooled to printer.")}>
-                    Print Label
-                  </Button>
-                </div>
-              )}
+              {
+                key: 'actions', label: 'Staged Actions', render: (row) => (
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="secondary" onClick={() => { setScannerAction('Scan In'); setScannerModalOpen(true); }}>
+                      Scan In
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => handlePrintLabel(false, row)}>
+                      Print Label
+                    </Button>
+                  </div>
+                )
+              }
             ]}
             data={[
               { id: 'INB-9022', carrier: 'Toll Express', cargo: '12 Pallets Retail Goods', lane: 'Lane A1' },
@@ -873,22 +1116,24 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
       {activeTab === 'outbound' && (
         <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 animate-fade-in">
           <h3 className="text-sm font-extrabold text-white">Outbound Loading Queue</h3>
-          <DataTable 
+          <DataTable
             columns={[
               { key: 'id', label: 'Outbound ID', render: (row) => <span className="font-mono font-extrabold text-white">{row.id}</span> },
               { key: 'carrier', label: 'Transport Carrier', render: (row) => <span className="text-slate-300 font-semibold">{row.carrier}</span> },
               { key: 'cargo', label: 'Outbound Cargo Specs', render: (row) => <span className="text-slate-400">{row.cargo}</span> },
               { key: 'lane', label: 'Dock Gate Lane', render: (row) => <span className="text-brand-400 font-bold font-mono">{row.lane}</span> },
-              { key: 'actions', label: 'Loading Actions', render: (row) => (
-                <div className="flex gap-2">
-                  <Button size="sm" variant="secondary" onClick={() => triggerToast(`Outbound load checked out successfully.`)}>
-                    Scan Out
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => triggerToast("Outbound manifest label spooled.")}>
-                    Reprint Label
-                  </Button>
-                </div>
-              )}
+              {
+                key: 'actions', label: 'Loading Actions', render: (row) => (
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="secondary" onClick={() => { setScannerAction('Scan Out'); setScannerModalOpen(true); }}>
+                      Scan Out
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => handlePrintLabel(true, row)}>
+                      Reprint Label
+                    </Button>
+                  </div>
+                )
+              }
             ]}
             data={[
               { id: 'OUT-4011', carrier: 'K&N Hauliers', cargo: '8 Pallets Reefers', lane: 'Lane C3' }
@@ -909,21 +1154,21 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
             <div className="p-5 bg-[#111827]/60 border border-[#23324C] rounded-2xl space-y-4">
               <strong className="text-xs text-slate-200 block">Scan Action Simulator</strong>
               <TextInput label="Barcode Input Tag" placeholder="Enter barcode or QR code..." />
-              
+
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                <Button variant="primary" size="sm" onClick={() => triggerToast("Barcode scanned: Item marked IN-STOCK.")}>
+                <Button variant="primary" size="sm" onClick={() => { setScannerAction('Scan In'); setScannerModalOpen(true); }}>
                   Scan In
                 </Button>
-                <Button variant="danger" size="sm" onClick={() => triggerToast("Barcode scanned: Item marked OUTBOUND.")}>
+                <Button variant="danger" size="sm" onClick={() => { setScannerAction('Scan Out'); setScannerModalOpen(true); }}>
                   Scan Out
                 </Button>
-                <Button variant="secondary" size="sm" onClick={() => triggerToast("Decoding 1D Barcode...")}>
+                <Button variant="secondary" size="sm" onClick={() => { setScannerAction('Barcode'); setScannerModalOpen(true); }}>
                   Scan by Barcode
                 </Button>
-                <Button variant="secondary" size="sm" onClick={() => triggerToast("Decoding 2D QR Code...")}>
+                <Button variant="secondary" size="sm" onClick={() => { setScannerAction('QR'); setScannerModalOpen(true); }}>
                   Scan by QR
                 </Button>
-                <Button variant="outline" size="sm" className="col-span-2 sm:col-span-1" onClick={() => triggerToast("Manual catalog code registered.")}>
+                <Button variant="outline" size="sm" className="col-span-2 sm:col-span-1" onClick={() => setManualEntryModalOpen(true)}>
                   Manual Entry
                 </Button>
               </div>
@@ -945,11 +1190,73 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
         </div>
       )}
 
+      {/* Labels Management View */}
+      {activeTab === 'labels' && (
+        <div className="space-y-6 animate-fade-in">
+          {/* Summary Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+             <StatCard title="Total Labels" value={mockLabels.length} description="Generated tags" />
+             <StatCard title="Printed Labels" value={mockLabels.filter(l => l.printStatus === 'Printed').length} description="Successfully spooled" />
+             <StatCard title="Pending Labels" value={mockLabels.filter(l => l.printStatus === 'Pending').length} description="In print queue" />
+             <StatCard title="Failed Labels" value={mockLabels.filter(l => l.printStatus === 'Failed').length} description="Printer errors" />
+             <StatCard title="Reprinted Labels" value={mockLabels.filter(l => l.printStatus === 'Reprinted').length} description="Duplicate tags" />
+          </div>
+
+          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+               <div>
+                 <h3 className="text-sm font-extrabold text-white">Label Management</h3>
+                 <p className="text-xs text-slate-450 mt-1">Manage and track generated asset barcode tags.</p>
+               </div>
+               <div className="flex flex-wrap gap-2 items-center w-full md:w-auto">
+                 <SearchInput
+                   value={searchQuery}
+                   onChange={(e) => setSearchQuery(e.target.value)}
+                   onClear={() => setSearchQuery('')}
+                   placeholder="Search VIN, Item No, Barcode, Customer..."
+                   className="w-full md:w-64"
+                 />
+                 <Button size="sm" variant="primary" icon={QrCode} onClick={() => triggerToast("All pending labels sent to printer spool.")}>
+                   Print All Pending
+                 </Button>
+               </div>
+             </div>
+
+             <div className="overflow-x-auto w-full">
+               <DataTable 
+                 columns={[
+                   { key: 'labelId', label: 'Label ID', render: (row) => <span className="font-mono text-white font-bold">{row.labelId}</span> },
+                   { key: 'barcode', label: 'Barcode / QR', render: (row) => <span className="text-slate-300 font-mono text-xs">{row.barcode}</span> },
+                   { key: 'vinItem', label: 'VIN / Item No', render: (row) => <span className="text-brand-300 font-semibold">{row.vinItem}</span> },
+                   { key: 'stockNo', label: 'Stock No', render: (row) => <span className="text-slate-400">{row.stockNo}</span> },
+                   { key: 'customer', label: 'Customer', render: (row) => <span className="text-slate-200">{row.customer}</span> },
+                   { key: 'type', label: 'Asset Type', render: (row) => <span className="text-slate-400">{row.assetType}</span> },
+                   { key: 'location', label: 'Location', render: (row) => <span className="text-emerald-400 font-mono text-[10px] bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">{row.location}</span> },
+                   { key: 'generated', label: 'Generated', render: (row) => <span className="text-slate-400 text-xs">{row.generatedDate}</span> },
+                   { key: 'printStatus', label: 'Print Status', render: (row) => <StatusBadge status={row.printStatus} /> },
+                   { key: 'actions', label: 'Actions', render: (row) => (
+                     <div className="flex gap-1.5 flex-wrap min-w-[280px]">
+                       <Button size="sm" variant="secondary" onClick={() => handlePrintLabel(false, row.originalItem)}>Print</Button>
+                       <Button size="sm" variant="outline" onClick={() => handlePrintLabel(true, row.originalItem)}>Reprint</Button>
+                       <Button size="sm" variant="outline" onClick={() => triggerToast(`Previewing label ${row.labelId}`)}>Preview</Button>
+                       <Button size="sm" variant="outline" icon={Download} onClick={() => triggerToast(`Downloading PDF for ${row.labelId}`)}>PDF</Button>
+                       <Button size="sm" variant="outline" onClick={() => triggerToast(`Viewing details for ${row.labelId}`)}>Details</Button>
+                       <Button size="sm" variant="outline" onClick={() => setHistoryDrawerOpen(true)}>History</Button>
+                     </div>
+                   )}
+                 ]}
+                 data={filteredLabels}
+               />
+             </div>
+          </div>
+        </div>
+      )}
+
       {/* Movements Log View */}
       {activeTab === 'movements' && (
         <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 animate-fade-in">
           <h3 className="text-sm font-extrabold text-white">Inventory Movements & Custody Ledger</h3>
-          <DataTable 
+          <DataTable
             columns={[
               { key: 'id', label: 'ID', render: (row) => <span className="font-mono text-white font-bold">{row.id}</span> },
               { key: 'action', label: 'Activity Logged', render: (row) => <span className="text-slate-300 font-semibold">{row.action}</span> },
@@ -990,14 +1297,14 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
       {/* Add Location Modal */}
       <Modal isOpen={addLocationModalOpen} onClose={() => setAddLocationModalOpen(false)} title={`Add New ${newLocType}`}>
         <form onSubmit={handleAddLocationSubmit} className="space-y-4">
-          <TextInput 
-            label="Location Name" 
-            required 
-            placeholder={newLocType === 'Bay' ? "e.g. Bay 4" : newLocType === 'Holding Area' ? "e.g. Holding Area C" : "e.g. Lane A3"} 
-            value={newLocName} 
-            onChange={(e) => setNewLocName(e.target.value)} 
+          <TextInput
+            label="Location Name"
+            required
+            placeholder={newLocType === 'Bay' ? "e.g. Bay 4" : newLocType === 'Holding Area' ? "e.g. Holding Area C" : "e.g. Lane A3"}
+            value={newLocName}
+            onChange={(e) => setNewLocName(e.target.value)}
           />
-          <SelectInput 
+          <SelectInput
             label="Location classification"
             value={newLocType}
             onChange={(e) => setNewLocType(e.target.value)}
@@ -1016,12 +1323,12 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
       {/* Add Holding Area Modal */}
       <Modal isOpen={addHoldingAreaModalOpen} onClose={() => setAddHoldingAreaModalOpen(false)} title="Add Holding Area Zone">
         <form onSubmit={handleAddLocationSubmit} className="space-y-4">
-          <TextInput 
-            label="Holding Zone Name" 
-            required 
-            placeholder="e.g. Holding Area C" 
-            value={newLocName} 
-            onChange={(e) => { setNewLocName(e.target.value); setNewLocType('Holding Area'); }} 
+          <TextInput
+            label="Holding Zone Name"
+            required
+            placeholder="e.g. Holding Area C"
+            value={newLocName}
+            onChange={(e) => { setNewLocName(e.target.value); setNewLocType('Holding Area'); }}
           />
           <Button type="submit" variant="primary" className="w-full">
             Create Holding Area
@@ -1032,12 +1339,12 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
       {/* Add Load Lane Modal */}
       <Modal isOpen={addLoadLaneModalOpen} onClose={() => setAddLoadLaneModalOpen(false)} title="Add Load Lane Spot">
         <form onSubmit={handleAddLocationSubmit} className="space-y-4">
-          <TextInput 
-            label="Load Lane Name" 
-            required 
-            placeholder="e.g. Lane B1" 
-            value={newLocName} 
-            onChange={(e) => { setNewLocName(e.target.value); setNewLocType('Load Lane'); }} 
+          <TextInput
+            label="Load Lane Name"
+            required
+            placeholder="e.g. Lane B1"
+            value={newLocName}
+            onChange={(e) => { setNewLocName(e.target.value); setNewLocType('Load Lane'); }}
           />
           <Button type="submit" variant="primary" className="w-full">
             Create Load Lane
@@ -1048,7 +1355,7 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
       {/* Relocate Asset Modal */}
       <Modal isOpen={relocateModalOpen} onClose={() => setRelocateModalOpen(false)} title="Relocate Asset Location">
         <form onSubmit={handleMoveAsset} className="space-y-4">
-          <SelectInput 
+          <SelectInput
             label="Select Target Location Spot"
             value={relocationTarget}
             onChange={(e) => setRelocationTarget(e.target.value)}
@@ -1106,7 +1413,7 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
       {/* Barcode Simulator Modal */}
       <Modal isOpen={scannerModalOpen} onClose={() => setScannerModalOpen(false)} title="Barcode/QR Scanner Simulator">
         <form onSubmit={handleScannerSimulation} className="space-y-4">
-          <SelectInput 
+          <SelectInput
             label="Scanner Mode Action"
             value={scannerAction}
             onChange={(e) => setScannerAction(e.target.value)}
@@ -1117,12 +1424,12 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
               { value: 'QR', label: 'Scan by 2D QR Code tag' }
             ]}
           />
-          <TextInput 
-            label="Scan Decoder Input" 
-            required 
-            placeholder={logisticsMode === 'car_carrying' ? "Scan Rego/VIN (e.g. QLD-88A or VIN-7YV1HP82A81920)" : "Scan Barcode (e.g. BAR-9011283)"} 
-            value={scannerInput} 
-            onChange={(e) => setScannerInput(e.target.value)} 
+          <TextInput
+            label="Scan Decoder Input"
+            required
+            placeholder={logisticsMode === 'car_carrying' ? "Scan Rego/VIN (e.g. QLD-88A or VIN-7YV1HP82A81920)" : "Scan Barcode (e.g. BAR-9011283)"}
+            value={scannerInput}
+            onChange={(e) => setScannerInput(e.target.value)}
           />
           <Button type="submit" variant="primary" className="w-full">
             Simulate Scan Decoder Trigger
@@ -1160,7 +1467,7 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
       {/* Movement Ledger Drawer */}
       <Drawer isOpen={movementDrawerOpen} onClose={() => setMovementDrawerOpen(false)} title="Full Warehouse Movement Register">
         <div className="space-y-4 text-left text-xs">
-          <DataTable 
+          <DataTable
             columns={[
               { key: 'itemId', label: 'Asset Code', render: (row) => <span className="font-mono text-white font-semibold">{row.itemId}</span> },
               { key: 'action', label: 'Action Logged', render: (row) => <span className="text-slate-350">{row.action}</span> },
