@@ -71,8 +71,18 @@ const companyService = {
     return response.data;
   },
 
+  createSupportTicket: async (ticketData) => {
+    const response = await apiClient.post('support/tickets', ticketData);
+    return response.data;
+  },
+
   replySupportTicket: async (id, msg) => {
     const response = await apiClient.post(`support/tickets/${id}/reply`, { msg });
+    return response.data;
+  },
+
+  updateSupportTicket: async (id, updateData) => {
+    const response = await apiClient.put(`support/tickets/${id}`, updateData);
     return response.data;
   },
 

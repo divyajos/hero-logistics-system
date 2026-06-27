@@ -86,6 +86,17 @@ export const fetchSupportTickets = createAsyncThunk(
   }
 );
 
+export const createSupportTicket = createAsyncThunk(
+  'company/createSupportTicket',
+  async (ticketData, { rejectWithValue }) => {
+    try {
+      return await companyService.createSupportTicket(ticketData);
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to create support ticket');
+    }
+  }
+);
+
 export const replySupportTicket = createAsyncThunk(
   'company/replySupportTicket',
   async ({ id, msg }, { rejectWithValue }) => {
@@ -93,6 +104,17 @@ export const replySupportTicket = createAsyncThunk(
       return await companyService.replySupportTicket(id, msg);
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to reply to support ticket');
+    }
+  }
+);
+
+export const updateSupportTicket = createAsyncThunk(
+  'company/updateSupportTicket',
+  async ({ id, updateData }, { rejectWithValue }) => {
+    try {
+      return await companyService.updateSupportTicket(id, updateData);
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to update support ticket');
     }
   }
 );
@@ -317,12 +339,23 @@ const companySlice = createSlice({
       .addCase(fetchSupportTickets.fulfilled, (state, action) => {
         state.tickets = action.payload || [];
       })
+      // Create Support Ticket
+      .addCase(createSupportTicket.fulfilled, (state, action) => {
+        state.tickets.unshift(action.payload);
+      })
       // Reply Support Ticket
       .addCase(replySupportTicket.fulfilled, (state, action) => {
         const ticket = state.tickets.find(t => t.id === action.payload.id);
         if (ticket) {
           ticket.status = action.payload.status;
           ticket.replies = action.payload.replies;
+        }
+      })
+      // Update Support Ticket
+      .addCase(updateSupportTicket.fulfilled, (state, action) => {
+        const ticket = state.tickets.find(t => t.id === action.payload.id);
+        if (ticket) {
+          Object.assign(ticket, action.payload);
         }
       })
       // Fetch Audit Logs

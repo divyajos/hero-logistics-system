@@ -17,8 +17,10 @@ import StatusBadge from '../common/StatusBadge';
 import MiniChart from '../common/MiniChart';
 import { 
   Navigation, FileText, CheckCircle, Compass, MapPin, Award, 
-  DollarSign, ShieldAlert, Plus, Upload, Heart, Lock, Phone, MessageSquare, Mic, PenTool, Check, Truck, X
+  DollarSign, ShieldAlert, Plus, Upload, Heart, Lock, Phone, MessageSquare, Mic, PenTool, Check, Truck, X, Clock,
+  Bell, Calendar, AlertTriangle
 } from 'lucide-react';
+import Modal from '../common/Modal';
 
 export default function DriverDashboard({ activeTab = 'overview' }) {
   const dispatch = useDispatch();
@@ -80,6 +82,305 @@ export default function DriverDashboard({ activeTab = 'overview' }) {
   // Toasts
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
+
+  // SOS State
+  const [sosModalOpen, setSosModalOpen] = useState(false);
+  const [sosActive, setSosActive] = useState(false);
+  const [sosType, setSosType] = useState('');
+  const [shareGps, setShareGps] = useState(true);
+  const [notifyDispatcherState, setNotifyDispatcherState] = useState(true);
+
+  // Offline Mode States
+  const [isOffline, setIsOffline] = useState(false);
+  const [pendingSyncList, setPendingSyncList] = useState([]);
+
+  // Stateful Chat Messages
+  const [chatMessages, setChatMessages] = useState([
+    { id: 1, sender: 'dispatcher', text: 'John, please confirm trailer change at Chicago Gate 4. LD-9411 is scheduled for immediate departure.', time: '10:30 AM', status: 'read' },
+    { id: 2, sender: 'driver', text: 'Copy that, logs updated and trailer verified. Rolling out now.', time: '10:32 AM', status: 'read' }
+  ]);
+  const [chatInput, setChatInput] = useState('');
+
+  // Notifications Page States
+  const [notificationsList, setNotificationsList] = useState([
+    { id: 1, title: 'New Load Assigned', body: 'LD-9411: Chicago HQ Terminal ➔ Dallas Depot Terminal', time: '1 hour ago', read: false },
+    { id: 2, title: 'Route Updated detour', body: 'Traffic alert: Detour on I-35 Southbound due to construction.', time: '3 hours ago', read: false },
+    { id: 3, title: 'Compliance Reminder', body: 'Submit your signed DOT monthly logs before Friday.', time: '1 day ago', read: false },
+    { id: 4, title: 'Expense Approved', body: 'Your diesel fuel receipt ($320.00) has been approved.', time: '2 days ago', read: true }
+  ]);
+
+  // Documents States
+  const [driverDocuments, setDriverDocuments] = useState([
+    { id: 1, name: 'Commercial Driver License (CDL)', status: 'Valid', expiry: '12/15/2028', type: 'CDL' },
+    { id: 2, name: 'DOT Medical Certificate', status: 'Valid', expiry: '09/01/2027', type: 'Medical' },
+    { id: 3, name: 'Hazmat Training Endorsement', status: 'Expiring Soon', expiry: '07/15/2026', type: 'Training' }
+  ]);
+  const [docModalOpen, setDocModalOpen] = useState(false);
+  const [selectedDocType, setSelectedDocType] = useState('CDL');
+  const [newDocExpiry, setNewDocExpiry] = useState('');
+
+  // Leave Management States
+  const [leaveRequests, setLeaveRequests] = useState([
+    { id: 1, type: 'Annual Leave', start: '07/04/2026', end: '07/06/2026', status: 'Approved', reason: 'Family vacation' },
+    { id: 2, type: 'Sick Leave', start: '06/05/2026', end: '06/06/2026', status: 'Approved', reason: 'Dental appointment' }
+  ]);
+  const [leaveType, setLeaveType] = useState('Annual Leave');
+  const [leaveStart, setLeaveStart] = useState('');
+  const [leaveEnd, setLeaveEnd] = useState('');
+  const [leaveReason, setLeaveReason] = useState('');
+
+  // Incidents Reporting States
+  const [incidentsList, setIncidentsList] = useState([
+    { id: 1, type: 'Cargo Damage', date: '06/12/2026', status: 'Under Review', desc: 'Slight tear in flatbed protective tarps.' }
+  ]);
+  const [incidentType, setIncidentType] = useState('Accident');
+  const [incidentDesc, setIncidentDesc] = useState('');
+  const [incidentPhoto, setIncidentPhoto] = useState('');
+
+  // Maintenance States
+  const [maintenanceList, setMaintenanceList] = useState([
+    { id: 1, issue: 'Slight brake squeal on front axles.', severity: 'Minor', date: '06/20/2026', status: 'Scheduled' }
+  ]);
+  const [maintenanceDesc, setMaintenanceDesc] = useState('');
+  const [maintenanceSeverity, setMaintenanceSeverity] = useState('Minor');
+  const [maintenancePhoto, setMaintenancePhoto] = useState('');
+
+  // --- START SHIFT STATES ---
+  const [startShiftActive, setStartShiftActive] = useState(false);
+  const [startVehicle, setStartVehicle] = useState('TX-ROAD88');
+  const [startTrailer, setStartTrailer] = useState('TR-4022');
+  const [dvirPreTripChecked, setDvirPreTripChecked] = useState(false);
+  const [startOdometer, setStartOdometer] = useState('124500');
+  const [startFuelLevel, setStartFuelLevel] = useState('85');
+  const [eldConfirmed, setEldConfirmed] = useState(false);
+  const [gpsVerified, setGpsVerified] = useState(false);
+
+  // --- ACTIVE SHIFT STATES ---
+  const [dutyStatus, setDutyStatus] = useState('Off Duty');
+  const [shiftStartTime, setShiftStartTime] = useState(null);
+  const [shiftDuration, setShiftDuration] = useState(0); // in seconds
+  const [remainingDrivingHours, setRemainingDrivingHours] = useState(11.0);
+  const [remainingOnDutyHours, setRemainingOnDutyHours] = useState(14.0);
+  const [remainingCycleHours, setRemainingCycleHours] = useState(70.0);
+  const [breakTimer, setBreakTimer] = useState(8.0 * 3600); // 8 hours in seconds
+  const [onBreak, setOnBreak] = useState(false);
+
+  // --- ROUTE PROGRESS ---
+  const [routeStep, setRouteStep] = useState('Idle');
+  const [podUploaded, setPodUploaded] = useState(false);
+  const [podFileAttached, setPodFileAttached] = useState('');
+
+  // --- FINISH SHIFT STATES ---
+  const [finishShiftModalOpen, setFinishShiftModalOpen] = useState(false);
+  const [finishOdometer, setFinishOdometer] = useState('124750');
+  const [finishFuel, setFinishFuel] = useState('45');
+  const [dvirPostTripChecked, setDvirPostTripChecked] = useState(false);
+  const [finishDefects, setFinishDefects] = useState('');
+
+  // Audit Logs inside DriverDashboard
+  const [driverAuditLogs, setDriverAuditLogs] = useState([
+    { id: 1, action: 'Duty Status Change', detail: 'Status set to Off Duty on login.', time: new Date().toLocaleTimeString() }
+  ]);
+
+  const addDriverAuditLog = (action, detail) => {
+    setDriverAuditLogs(prev => [
+      { id: Date.now(), action, detail, time: new Date().toLocaleTimeString() },
+      ...prev
+    ]);
+  };
+
+  useEffect(() => {
+    let interval = null;
+    if (startShiftActive && !onBreak) {
+      interval = setInterval(() => {
+        setShiftDuration(prev => prev + 1);
+        if (dutyStatus === 'Driving') {
+          setRemainingDrivingHours(prev => Math.max(0, parseFloat((prev - 1/3600).toFixed(4))));
+        }
+        if (dutyStatus === 'On Duty' || dutyStatus === 'Driving') {
+          setRemainingOnDutyHours(prev => Math.max(0, parseFloat((prev - 1/3600).toFixed(4))));
+          setRemainingCycleHours(prev => Math.max(0, parseFloat((prev - 1/3600).toFixed(4))));
+          setBreakTimer(prev => Math.max(0, prev - 1));
+        }
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [startShiftActive, dutyStatus, onBreak]);
+
+  const queueOrSync = (actionObject) => {
+    if (isOffline) {
+      setPendingSyncList(prev => [...prev, actionObject]);
+      triggerToast('Offline mode active. Operation queued for sync.', 'warning');
+    } else {
+      actionObject.execute();
+      triggerToast(actionObject.successMsg);
+    }
+  };
+
+  const handleManualSync = () => {
+    if (isOffline) {
+      triggerToast('Cannot sync while offline. Please connect first.', 'error');
+      return;
+    }
+    triggerToast('Synchronizing offline logs with fleet center...', 'info');
+    setTimeout(() => {
+      pendingSyncList.forEach(item => {
+        item.execute();
+      });
+      setPendingSyncList([]);
+      triggerToast('Synchronization complete! All logs uploaded.', 'success');
+    }, 1000);
+  };
+
+  const handleSendChatMessage = (e) => {
+    if (e) e.preventDefault();
+    if (!chatInput.trim()) return;
+    
+    const newMsg = {
+      id: Date.now(),
+      sender: 'driver',
+      text: chatInput,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      status: 'read'
+    };
+    
+    setChatMessages(prev => [...prev, newMsg]);
+    const typedMsg = chatInput;
+    setChatInput('');
+    
+    setTimeout(() => {
+      setChatMessages(prev => [...prev, {
+        id: Date.now() + 1,
+        sender: 'dispatcher',
+        text: `Roger that John, dispatcher copied: "${typedMsg}". Operations monitoring.`,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        status: 'read'
+      }]);
+      triggerToast('New dispatcher message received.');
+    }, 2000);
+  };
+
+  const handleShareImageInChat = () => {
+    triggerToast('Simulating image capture/attachment upload...');
+    setTimeout(() => {
+      const newMsg = {
+        id: Date.now(),
+        sender: 'driver',
+        text: 'Cargo Loading Status Image Attached 📷',
+        imageUrl: 'https://hero-mock-storage.s3.amazonaws.com/cargo_loading.jpg',
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        status: 'read'
+      };
+      setChatMessages(prev => [...prev, newMsg]);
+      triggerToast('Image sent to dispatcher.');
+    }, 1000);
+  };
+
+  const handleShareVoiceInChat = () => {
+    triggerToast('Simulating voice note recording (0:12)...');
+    setTimeout(() => {
+      const newMsg = {
+        id: Date.now(),
+        sender: 'driver',
+        text: 'Voice Note (0:12) 🎤 ⏺',
+        isVoice: true,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        status: 'read'
+      };
+      setChatMessages(prev => [...prev, newMsg]);
+      triggerToast('Voice note uploaded to dispatch.');
+    }, 1200);
+  };
+
+  const handleTriggerSOS = (type) => {
+    setSosType(type);
+    setSosActive(true);
+    setSosModalOpen(false);
+    triggerToast(`🚨 EMERGENCY DISPATCH ALERT: ${type} triggered!`, 'error');
+  };
+
+  const handleApplyLeave = (e) => {
+    if (e) e.preventDefault();
+    if (!leaveStart || !leaveEnd) {
+      triggerToast('Please select dates.', 'error');
+      return;
+    }
+    const newLeave = {
+      id: Date.now(),
+      type: leaveType,
+      start: leaveStart,
+      end: leaveEnd,
+      status: 'Pending',
+      reason: leaveReason || 'No reason provided'
+    };
+
+    queueOrSync({
+      type: 'Apply Leave',
+      successMsg: 'Leave request submitted successfully.',
+      execute: () => {
+        setLeaveRequests(prev => [newLeave, ...prev]);
+      },
+      data: newLeave
+    });
+
+    setLeaveStart('');
+    setLeaveEnd('');
+    setLeaveReason('');
+  };
+
+  const handleReportIncident = (e) => {
+    if (e) e.preventDefault();
+    if (!incidentDesc.trim()) {
+      triggerToast('Please provide a description.', 'error');
+      return;
+    }
+    const newIncident = {
+      id: Date.now(),
+      type: incidentType,
+      date: new Date().toLocaleDateString(),
+      status: 'Pending',
+      desc: incidentDesc
+    };
+
+    queueOrSync({
+      type: 'Incident Report',
+      successMsg: 'Incident report filed successfully.',
+      execute: () => {
+        setIncidentsList(prev => [newIncident, ...prev]);
+      },
+      data: newIncident
+    });
+
+    setIncidentDesc('');
+    setIncidentPhoto('');
+  };
+
+  const handleReportMaintenance = (e) => {
+    if (e) e.preventDefault();
+    if (!maintenanceDesc.trim()) {
+      triggerToast('Please provide issue details.', 'error');
+      return;
+    }
+    const newReq = {
+      id: Date.now(),
+      issue: maintenanceDesc,
+      severity: maintenanceSeverity,
+      date: new Date().toLocaleDateString(),
+      status: 'Pending'
+    };
+
+    queueOrSync({
+      type: 'Maintenance Request',
+      successMsg: 'Vehicle maintenance issue logged.',
+      execute: () => {
+        setMaintenanceList(prev => [newReq, ...prev]);
+      },
+      data: newReq
+    });
+
+    setMaintenanceDesc('');
+    setMaintenancePhoto('');
+  };
 
   useEffect(() => {
     dispatch(fetchLoads());
@@ -232,16 +533,24 @@ export default function DriverDashboard({ activeTab = 'overview' }) {
   const handleAddExpenseSubmit = (e) => {
     if (e) e.preventDefault();
     if (!expenseAmount) return;
+    const amountVal = `$${parseFloat(expenseAmount).toFixed(2)}`;
     const newE = {
       id: Date.now(),
       category: expenseCategory,
-      amount: `$${parseFloat(expenseAmount).toFixed(2)}`,
+      amount: amountVal,
       status: 'Pending',
       date: new Date().toLocaleDateString()
     };
-    setExpenses([newE, ...expenses]);
+
+    queueOrSync({
+      type: 'Add Expense',
+      successMsg: 'Expense logged successfully.',
+      execute: () => {
+        setExpenses(prev => [newE, ...prev]);
+      },
+      data: newE
+    });
     setExpenseAmount('');
-    triggerToast('Expense logged successfully.');
   };
 
   const handleCreateDraftLoad = () => {
@@ -267,6 +576,57 @@ export default function DriverDashboard({ activeTab = 'overview' }) {
         </div>
       )}
 
+      {/* Connectivity Simulator Widget */}
+      <div className="flex justify-between items-center bg-[#161F30] border border-[#23324C] p-2.5 rounded-xl text-xs">
+        <span className="font-bold text-slate-350 flex items-center gap-1.5">
+          <Compass className="h-3.5 w-3.5 text-brand-500" />
+          Connection Status:
+        </span>
+        <button 
+          onClick={() => {
+            const next = !isOffline;
+            setIsOffline(next);
+            triggerToast(next ? 'Offline Mode Active. Operations will queue.' : 'Online Mode Restored. Sync available.', next ? 'warning' : 'success');
+          }}
+          className={`px-3 py-1 rounded-lg font-black transition-all ${isOffline ? 'bg-amber-500/20 border border-amber-500/40 text-amber-400' : 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-400'}`}
+        >
+          {isOffline ? 'Offline Mode ⛔' : 'Online Mode 🌐'}
+        </button>
+      </div>
+
+      {/* SOS Blinking Alert Banner */}
+      {sosActive && (
+        <div className="bg-red-500/20 border border-red-500/45 p-3 rounded-2xl flex justify-between items-center text-xs text-red-400 animate-pulse font-extrabold">
+          <div className="flex items-center gap-2">
+            <ShieldAlert className="h-4 w-4 text-red-500 animate-bounce" />
+            <span>🚨 SOS ACTIVE: {sosType} Alert dispatched!</span>
+          </div>
+          <Button size="xs" variant="danger" onClick={() => { setSosActive(false); triggerToast('SOS emergency cleared.', 'success'); }}>Clear</Button>
+        </div>
+      )}
+
+      {/* Offline Pending Sync Banner */}
+      {isOffline && (
+        <div className="bg-amber-500/10 border border-amber-500/20 p-3 rounded-2xl flex justify-between items-center text-xs text-amber-400">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 text-amber-500" />
+            <span>Offline Active | <strong>{pendingSyncList.length} items queued</strong></span>
+          </div>
+          {pendingSyncList.length > 0 && (
+            <Button size="xs" variant="primary" onClick={() => triggerToast('Please go online to synchronize queued actions.', 'error')}>Sync Now</Button>
+          )}
+        </div>
+      )}
+      {!isOffline && pendingSyncList.length > 0 && (
+        <div className="bg-[#161F30] border border-brand-500/20 p-3 rounded-2xl flex justify-between items-center text-xs text-brand-400">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 text-brand-400 animate-bounce" />
+            <span>Pending Sync | <strong>{pendingSyncList.length} items to upload</strong></span>
+          </div>
+          <Button size="xs" variant="success" onClick={handleManualSync}>Sync Now</Button>
+        </div>
+      )}
+
       {/* Driver Title Header */}
       <div className="flex items-center justify-between border-b border-[#23324C]/60 pb-4">
         <div>
@@ -278,12 +638,505 @@ export default function DriverDashboard({ activeTab = 'overview' }) {
         </div>
       </div>
 
+      {/* START WORK / FINISH WORK SHIFT MANAGER TAB */}
+      {activeTab === 'start-finish' && (
+        <div className="space-y-5 animate-fade-in text-xs">
+          
+          {/* Shift state indicator banner */}
+          <div className={`p-4 rounded-2xl border text-left flex justify-between items-center ${
+            startShiftActive 
+              ? 'bg-emerald-950/20 border-emerald-500/30 text-emerald-400' 
+              : 'bg-[#161F30] border-[#23324C]/60 text-slate-350'
+          }`}>
+            <div>
+              <span className="text-[10px] uppercase font-bold block opacity-70">Shift Logging System</span>
+              <strong className="text-sm font-black text-white block mt-1">
+                {startShiftActive ? '🟢 Shift Active (On Duty)' : '⚪ Shift Inactive (Off Duty)'}
+              </strong>
+              {startShiftActive && (
+                <span className="text-[10px] font-mono mt-0.5 block">
+                  Duration: {Math.floor(shiftDuration / 3600)}h {Math.floor((shiftDuration % 3600) / 60)}m {shiftDuration % 60}s
+                </span>
+              )}
+            </div>
+            <div className="p-2.5 bg-[#0B0F19] rounded-xl border border-[#23324C]/60">
+              <Clock className={`h-5 w-5 ${startShiftActive ? 'text-emerald-400 animate-pulse' : 'text-slate-500'}`} />
+            </div>
+          </div>
+
+          {/* Today's Assigned Loads */}
+          <div className="glass rounded-2xl p-4 border border-[#23324C]/60 text-left space-y-3">
+            <h3 className="text-xs font-black text-white uppercase tracking-wider">Today's Assigned Manifest</h3>
+            <div className="p-3 bg-[#111827] border border-[#23324C]/60 rounded-xl space-y-2">
+              <div className="flex justify-between items-center text-[10px] font-bold">
+                <span className="text-slate-400">LOAD ID: <span className="text-white font-mono font-black">{activeLoad.loadId}</span></span>
+                <StatusBadge status={activeLoad.status} />
+              </div>
+              <div className="border-t border-[#23324C]/50 pt-2">
+                <strong className="text-white text-xs block font-black">{activeLoad.cargo}</strong>
+                <p className="text-[10px] text-slate-400 mt-1">Route: {activeLoad.route}</p>
+                <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-[#23324C]/35 text-[9px] text-slate-400">
+                  <div><strong>Customer:</strong> {activeLoad.customerName || 'Apex Logistics'}</div>
+                  <div><strong>Trailer:</strong> {activeLoad.trailer}</div>
+                  <div><strong>Appt:</strong> 16:00 PM (Priority: High)</div>
+                  <div><strong>Status:</strong> {activeLoad.status}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* BEFORE START SHIFT: CONFIGURATION SCREEN */}
+          {!startShiftActive ? (
+            <div className="glass rounded-2xl p-4 border border-[#23324C]/60 text-left space-y-4">
+              <h3 className="text-xs font-black text-white uppercase tracking-wider pb-2 border-b border-[#23324C]/50">Start Shift Checklist</h3>
+              
+              <div className="space-y-3">
+                <SelectInput 
+                  label="Select Tractor / Power Unit" 
+                  value={startVehicle} 
+                  onChange={(e) => setStartVehicle(e.target.value)} 
+                  options={[
+                    { value: 'TX-ROAD88', label: 'TX-ROAD88 (Freightliner Cascadia)' },
+                    { value: 'TX-CAB002', label: 'TX-CAB002 (Kenworth T680)' },
+                    { value: 'TX-HAUL77', label: 'TX-HAUL77 (Volvo VNL)' }
+                  ]}
+                />
+
+                <SelectInput 
+                  label="Select Trailer Unit" 
+                  value={startTrailer} 
+                  onChange={(e) => setStartTrailer(e.target.value)} 
+                  options={[
+                    { value: 'TR-4022', label: 'TR-4022 (Flatbed 48ft)' },
+                    { value: 'TR-5088', label: 'TR-5088 (Dry Van 53ft)' },
+                    { value: 'TR-6022', label: 'TR-6022 (Reefer 53ft)' }
+                  ]}
+                />
+
+                <TextInput 
+                  label="Initial Odometer Reading (miles)" 
+                  type="number"
+                  value={startOdometer} 
+                  onChange={(e) => setStartOdometer(e.target.value)}
+                />
+
+                <TextInput 
+                  label="Initial Fuel Level (%)" 
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={startFuelLevel} 
+                  onChange={(e) => setStartFuelLevel(e.target.value)}
+                />
+
+                <div className="space-y-2">
+                  <label className="flex items-center justify-between p-2.5 bg-[#111827] border border-[#23324C] rounded-xl cursor-pointer">
+                    <span className="font-bold">Verify Pre-Trip DVIR completed</span>
+                    <input 
+                      type="checkbox" 
+                      checked={dvirPreTripChecked} 
+                      onChange={(e) => setDvirPreTripChecked(e.target.checked)} 
+                      className="rounded text-brand-500 h-4.5 w-4.5"
+                    />
+                  </label>
+
+                  <label className="flex items-center justify-between p-2.5 bg-[#111827] border border-[#23324C] rounded-xl cursor-pointer">
+                    <span className="font-bold">Confirm Regulatory ELD connection</span>
+                    <input 
+                      type="checkbox" 
+                      checked={eldConfirmed} 
+                      onChange={(e) => setEldConfirmed(e.target.checked)} 
+                      className="rounded text-brand-500 h-4.5 w-4.5"
+                    />
+                  </label>
+                </div>
+
+                {/* GPS Verification Action */}
+                <div className="p-3 bg-[#111827] border border-[#23324C] rounded-xl flex justify-between items-center">
+                  <div>
+                    <span className="text-[9px] text-slate-500 block uppercase font-bold">Live GPS Telemetry</span>
+                    <strong className="text-white block font-mono text-[10px]">
+                      {gpsVerified ? 'Verified ✓ (41.8781° N, 87.6298° W)' : 'Signal Unverified'}
+                    </strong>
+                  </div>
+                  <Button 
+                    size="xs" 
+                    variant={gpsVerified ? 'success' : 'primary'} 
+                    onClick={() => {
+                      setGpsVerified(true);
+                      triggerToast('GPS coordinates locked. Signal strength: Strong.');
+                      addDriverAuditLog('GPS Verify', 'GPS telemetry coordinates successfully locked.');
+                    }}
+                  >
+                    {gpsVerified ? 'Lock Reset' : 'Verify GPS'}
+                  </Button>
+                </div>
+
+                <Button 
+                  variant="success" 
+                  className="w-full font-black mt-3 py-3"
+                  disabled={!dvirPreTripChecked || !eldConfirmed || !gpsVerified || !startOdometer || !startFuelLevel}
+                  onClick={() => {
+                    setStartShiftActive(true);
+                    setShiftStartTime(new Date().toLocaleTimeString());
+                    setDutyStatus('On Duty');
+                    addDriverAuditLog('Shift Start', `Shift started using Tractor ${startVehicle} & Trailer ${startTrailer}. Odometer: ${startOdometer} mi.`);
+                    triggerToast('Clock-in shift started. Duty logs active.');
+                  }}
+                >
+                  Confirm & Start Work Shift
+                </Button>
+              </div>
+            </div>
+          ) : (
+            
+            /* AFTER START SHIFT: ACTIVE DASHBOARD CONTROLS */
+            <div className="space-y-4">
+              
+              {/* 8-Grid Live Metrics Dashboard */}
+              <div className="grid grid-cols-2 gap-3 text-left">
+                <div className="p-3 bg-[#111827] border border-[#23324C]/60 rounded-xl">
+                  <span className="text-[8px] text-slate-500 block uppercase font-bold">Current Active Job</span>
+                  <strong className="text-white font-mono text-xs mt-1 block">{activeLoad.loadId}</strong>
+                </div>
+                <div className="p-3 bg-[#111827] border border-[#23324C]/60 rounded-xl">
+                  <span className="text-[8px] text-slate-500 block uppercase font-bold">Current Position</span>
+                  <strong className="text-white text-xs mt-1 block truncate">
+                    {routeStep === 'Idle' ? 'Origin Depot' : (routeStep.includes('Pickup') ? 'Chicago IL' : 'In Transit (I-55)')}
+                  </strong>
+                </div>
+                <div className="p-3 bg-[#111827] border border-[#23324C]/60 rounded-xl">
+                  <span className="text-[8px] text-slate-500 block uppercase font-bold">Distance Remaining</span>
+                  <strong className="text-white font-mono text-xs mt-1 block">
+                    {routeStep === 'Delivered' ? '0 mi' : (routeStep === 'In Transit' ? '410 mi' : '960 mi')}
+                  </strong>
+                </div>
+                <div className="p-3 bg-[#111827] border border-[#23324C]/60 rounded-xl">
+                  <span className="text-[8px] text-slate-500 block uppercase font-bold">Calculated ETA</span>
+                  <strong className="text-brand-400 font-mono text-xs mt-1 block">
+                    {routeStep === 'Delivered' ? 'Completed' : (routeStep === 'Idle' ? 'Pending' : '3.5 Hours')}
+                  </strong>
+                </div>
+                <div className="p-3 bg-[#111827] border border-[#23324C]/60 rounded-xl">
+                  <span className="text-[8px] text-slate-500 block uppercase font-bold">ELD Driving Hours left</span>
+                  <strong className="text-emerald-400 font-mono text-xs mt-1 block">{remainingDrivingHours} hrs</strong>
+                </div>
+                <div className="p-3 bg-[#111827] border border-[#23324C]/60 rounded-xl">
+                  <span className="text-[8px] text-slate-500 block uppercase font-bold">Next Break Required in</span>
+                  <strong className="text-amber-400 font-mono text-xs mt-1 block">
+                    {Math.floor(breakTimer / 3600)}h {Math.floor((breakTimer % 3600) / 60)}m
+                  </strong>
+                </div>
+                <div className="p-3 bg-[#111827] border border-[#23324C]/60 rounded-xl">
+                  <span className="text-[8px] text-slate-500 block uppercase font-bold">Tractor Fuel Level</span>
+                  <strong className="text-white font-mono text-xs mt-1 block">{startFuelLevel}%</strong>
+                </div>
+                <div className="p-3 bg-[#111827] border border-[#23324C]/60 rounded-xl">
+                  <span className="text-[8px] text-slate-500 block uppercase font-bold">Active ELD Status</span>
+                  <strong className="text-white font-bold text-xs mt-1 block flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 block animate-pulse" />
+                    {dutyStatus}
+                  </strong>
+                </div>
+              </div>
+
+              {/* FMCSA Regulatory Duty Status Toggles */}
+              <div className="p-4 bg-[#111827] border border-[#23324C] rounded-2xl text-left space-y-3">
+                <span className="text-[10px] font-bold text-slate-450 uppercase tracking-wide block border-b border-[#23324C]/45 pb-1.5">FMCSA ELD Duty Status Control</span>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  {[
+                    { statusName: 'Off Duty', color: 'variant="outline"' },
+                    { statusName: 'Sleeper Berth', color: 'variant="outline"' },
+                    { statusName: 'On Duty', color: 'variant="primary"' },
+                    { statusName: 'Driving', color: 'variant="success"' }
+                  ].map(s => (
+                    <button
+                      key={s.statusName}
+                      onClick={() => {
+                        if (onBreak && s.statusName !== 'Off Duty') {
+                          triggerToast('Please resume work shift from break first.', 'error');
+                          return;
+                        }
+                        setDutyStatus(s.statusName);
+                        addDriverAuditLog('Duty Status Change', `Duty status changed to: ${s.statusName}`);
+                        triggerToast(`Duty status updated to ${s.statusName}`);
+                      }}
+                      className={`py-2 px-3 rounded-xl font-bold transition-all border ${
+                        dutyStatus === s.statusName
+                          ? 'bg-brand-500 border-brand-500 text-slate-950 shadow-md font-black'
+                          : 'bg-[#161F30]/60 border-[#23324C]/50 text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      {s.statusName}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Mandatory Break Management */}
+              <div className="p-4 bg-[#111827] border border-[#23324C] rounded-2xl text-left space-y-3">
+                <span className="text-[10px] font-bold text-slate-450 uppercase tracking-wide block">Rest Break Coordinator</span>
+                <div className="flex justify-between items-center text-xs">
+                  <div>
+                    <strong className="text-white block font-black">{onBreak ? 'Break in progress...' : 'Active duty shift'}</strong>
+                    <span className="text-slate-455 text-[10px] block mt-0.5">ELD rest break policy 30-min reset.</span>
+                  </div>
+                  {!onBreak ? (
+                    <Button 
+                      size="sm" 
+                      variant="warning" 
+                      onClick={() => {
+                        setOnBreak(true);
+                        setDutyStatus('Off Duty');
+                        addDriverAuditLog('Break Started', '30-minute DOT rest break sequence initiated.');
+                        triggerToast('Rest break activated. Duty timers suspended.');
+                      }}
+                    >
+                      Start Break
+                    </Button>
+                  ) : (
+                    <Button 
+                      size="sm" 
+                      variant="success" 
+                      onClick={() => {
+                        setOnBreak(false);
+                        setDutyStatus('On Duty');
+                        setBreakTimer(8.0 * 3600);
+                        addDriverAuditLog('Break Ended', 'Rest break finished. Timer reset.');
+                        triggerToast('Work shift resumed. Timers active.');
+                      }}
+                    >
+                      Resume Work
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* Route Progress timeline checkpoints */}
+              <div className="p-4 bg-[#111827] border border-[#23324C] rounded-2xl text-left space-y-4">
+                <span className="text-[10px] font-bold text-slate-450 uppercase tracking-wide block border-b border-[#23324C]/45 pb-1.5">Load Journey Milestones</span>
+                
+                <div className="space-y-3 text-xs">
+                  {routeStep === 'Idle' && (
+                    <Button variant="primary" className="w-full font-bold" onClick={() => {
+                      setRouteStep('Navigate to Pickup');
+                      addDriverAuditLog('Route Milestone', 'Initiated navigation path to pickup terminal.');
+                      triggerToast('Routing loaded. Dispatcher notified.');
+                    }}>Navigate to Pickup Stop</Button>
+                  )}
+                  {routeStep === 'Navigate to Pickup' && (
+                    <Button variant="success" className="w-full font-bold" onClick={() => {
+                      setRouteStep('Arrived at Pickup');
+                      addDriverAuditLog('Route Milestone', 'Arrived at Chicago HQ Origin Terminal.');
+                      triggerToast('Checkpoint reached: Arrived at Pickup.');
+                    }}>Confirm Arrival at Pickup Terminal</Button>
+                  )}
+                  {routeStep === 'Arrived at Pickup' && (
+                    <Button variant="primary" className="w-full font-bold" onClick={() => {
+                      setRouteStep('Loaded');
+                      addDriverAuditLog('Route Milestone', 'Cargo securely loaded. Seals confirmed.');
+                      triggerToast('Cargo manifest loaded.');
+                    }}>Confirm Cargo Loaded & Strapped</Button>
+                  )}
+                  {routeStep === 'Loaded' && (
+                    <Button variant="success" className="w-full font-bold" onClick={() => {
+                      setRouteStep('In Transit');
+                      setDutyStatus('Driving');
+                      addDriverAuditLog('Route Milestone', 'Departed origin depot terminal. In transit to destination.');
+                      triggerToast('In transit state active. ELD set to Driving.');
+                    }}>Depart Terminal (In Transit)</Button>
+                  )}
+                  {routeStep === 'In Transit' && (
+                    <Button variant="primary" className="w-full font-bold" onClick={() => {
+                      setRouteStep('Arrived at Delivery');
+                      setDutyStatus('On Duty');
+                      addDriverAuditLog('Route Milestone', 'Arrived at Dallas depot destination.');
+                      triggerToast('Checkpoint reached: Arrived at Destination.');
+                    }}>Confirm Arrival at Delivery Site</Button>
+                  )}
+                  {routeStep === 'Arrived at Delivery' && (
+                    <div className="space-y-3">
+                      <div className="p-4 bg-slate-900 border border-dashed border-[#23324C] rounded-xl text-center cursor-pointer" onClick={() => {
+                        setPodUploaded(true);
+                        setPodFileAttached('pod_seal_confirm.pdf');
+                        triggerToast('Proof of Delivery (POD) image attached successfully.');
+                      }}>
+                        <Upload className="h-5 w-5 mx-auto text-slate-400 mb-1" />
+                        <span className="text-[10px] text-slate-400 font-bold block">
+                          {podUploaded ? 'POD Document Attached ✓' : 'Upload Signed POD Credentials'}
+                        </span>
+                      </div>
+                      
+                      <Button 
+                        variant="success" 
+                        className="w-full font-black"
+                        disabled={!podUploaded}
+                        onClick={() => {
+                          setRouteStep('Delivered');
+                          addDriverAuditLog('Route Milestone', 'Shipment successfully delivered and closed with POD.');
+                          triggerToast('Job successfully delivered!');
+                        }}
+                      >
+                        Finalize & Submit Delivery
+                      </Button>
+                    </div>
+                  )}
+
+                  {routeStep === 'Delivered' && (
+                    <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl font-bold text-center">
+                      ✓ Shipment Delivery Completed & Transmitted
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Regulatory ELD Information Table */}
+              <div className="p-4 bg-[#111827] border border-[#23324C] rounded-2xl text-left space-y-3">
+                <span className="text-[10px] font-bold text-slate-450 uppercase tracking-wide block">Federal Regulatory ELD Logbook</span>
+                <div className="space-y-2 text-[11px] text-slate-355">
+                  <div className="flex justify-between border-b border-[#23324C]/45 pb-1">
+                    <span>Driving Limit (11-hr Rule)</span>
+                    <span className="font-mono font-bold text-white">{remainingDrivingHours} Hours Remaining</span>
+                  </div>
+                  <div className="flex justify-between border-b border-[#23324C]/45 pb-1">
+                    <span>On-Duty Shift Limit (14-hr Rule)</span>
+                    <span className="font-mono font-bold text-white">{remainingOnDutyHours} Hours Remaining</span>
+                  </div>
+                  <div className="flex justify-between border-b border-[#23324C]/45 pb-1">
+                    <span>Cycle Duration Limit (70-hr Rule)</span>
+                    <span className="font-mono font-bold text-white">{remainingCycleHours} Hours Remaining</span>
+                  </div>
+                  <div className="flex justify-between border-b border-[#23324C]/45 pb-1">
+                    <span>ELD Policy Violations</span>
+                    <span className="font-mono font-bold text-emerald-400">No violations flagged</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Rest Break Alert Warning</span>
+                    <span className="font-mono font-bold text-white">None (Duty hours compliant)</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Post Trip Defect Inspection Section */}
+              <div className="p-4 bg-[#111827] border border-[#23324C] rounded-2xl text-left space-y-3">
+                <span className="text-[10px] font-bold text-slate-450 uppercase tracking-wide block">Safety Defects Inspections (DVIR)</span>
+                <div className="flex justify-between items-center text-xs">
+                  <span>Pre/Post-Trip Defect Reporting</span>
+                  <Button 
+                    size="xs" 
+                    variant="outline" 
+                    onClick={() => {
+                      triggerToast('Defect reporting checklist active.');
+                      setActiveTab('maintenance');
+                    }}
+                  >
+                    Report Defect
+                  </Button>
+                </div>
+              </div>
+
+              {/* Emergency SOS Shortcuts */}
+              <div className="p-4 bg-[#111827] border border-red-500/20 rounded-2xl text-left space-y-3">
+                <span className="text-[10px] font-bold text-red-400 uppercase tracking-wide block">Emergency Roadside Response</span>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button 
+                    size="sm" 
+                    variant="danger" 
+                    onClick={() => {
+                      setSosType('Panic');
+                      setSosActive(true);
+                      triggerToast('🚨 EMERGENCY DISPATCH ALERT: Panic Alert triggered!', 'error');
+                      addDriverAuditLog('SOS Trigger', 'SOS Panic Button manually engaged.');
+                    }}
+                  >
+                    Panic Button
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="warning" 
+                    onClick={() => {
+                      setSosType('Breakdown');
+                      setSosActive(true);
+                      triggerToast('🚨 EMERGENCY DISPATCH ALERT: Mechanical breakdown triggered!', 'error');
+                      addDriverAuditLog('SOS Trigger', 'Vehicle breakdown reported.');
+                    }}
+                  >
+                    Report Breakdown
+                  </Button>
+                </div>
+              </div>
+
+              {/* Delay Notification Communication */}
+              <div className="p-4 bg-[#111827] border border-[#23324C] rounded-2xl text-left space-y-3">
+                <span className="text-[10px] font-bold text-slate-455 uppercase tracking-wide block">Alert Dispatcher of Route Delay</span>
+                <div className="flex gap-2">
+                  <select 
+                    id="delay-reason-select"
+                    className="flex-grow bg-[#0B0F19] border border-[#23324C] rounded-xl px-3 py-2 text-xs text-slate-355 outline-none font-semibold"
+                  >
+                    <option value="Traffic Congestion">Traffic Congestion Detour</option>
+                    <option value="Terminal Queue Wait">Shipper Terminal Wait Time</option>
+                    <option value="Mechanical Issue Check">Mechanical Equipment Check</option>
+                    <option value="Severe Weather Delay">Adverse Weather Hold</option>
+                  </select>
+                  <Button 
+                    size="sm" 
+                    variant="primary" 
+                    onClick={() => {
+                      const reason = document.getElementById('delay-reason-select').value;
+                      addDriverAuditLog('Delay Alert', `Dispatcher alerted of route delay: ${reason}`);
+                      triggerToast(`Delay alert transmitted to ops desk: ${reason}`);
+                    }}
+                  >
+                    Send Delay
+                  </Button>
+                </div>
+              </div>
+
+              {/* Active Audit Logs Table */}
+              <div className="p-4 bg-[#111827] border border-[#23324C] rounded-2xl text-left space-y-3">
+                <span className="text-[10px] font-bold text-slate-455 uppercase tracking-wide block">Shift Operational Logs</span>
+                <DataTable 
+                  tableName="driver_shift_audit_logs"
+                  columns={[
+                    { key: 'action', label: 'Action', render: (row) => <span className="font-bold text-white">{row.action}</span> },
+                    { key: 'detail', label: 'Details', render: (row) => <span className="text-slate-400">{row.detail}</span> },
+                    { key: 'time', label: 'Time', render: (row) => <span className="font-mono text-slate-500">{row.time}</span> }
+                  ]} 
+                  data={driverAuditLogs} 
+                />
+              </div>
+
+              {/* Finish Shift Trigger Panel */}
+              <div className="p-4 bg-gradient-to-br from-[#1E1B4B]/20 to-[#111827] border border-[#23324C]/60 rounded-2xl text-left space-y-3">
+                <div>
+                  <h4 className="text-xs font-black text-white uppercase">Complete Active Work Shift</h4>
+                  <p className="text-[10px] text-slate-400 mt-0.5">Submit DVIR checklist inspection logs and clock out.</p>
+                </div>
+                <Button 
+                  variant="danger" 
+                  className="w-full font-black py-2.5" 
+                  onClick={() => {
+                    setFinishOdometer(String(parseInt(startOdometer) + 250));
+                    setFinishShiftModalOpen(true);
+                  }}
+                >
+                  Review & Finish Work Shift
+                </Button>
+              </div>
+
+            </div>
+          )}
+
+        </div>
+      )}
+
       {/* MOBILE HOME LAYOUT (Overview tab) */}
       {activeTab === 'overview' && (
         <div className="space-y-5 animate-fade-in">
           
           {/* Top card */}
-          <div className="p-4 bg-gradient-to-br from-[#161F30] to-[#111827] border border-brand-500/20 rounded-2xl space-y-3.5 shadow-xl">
+          <div className="p-4 bg-[#161F30] border border-brand-500/30 rounded-2xl space-y-3.5 shadow-xl">
             <div className="flex justify-between items-center text-[10px] font-bold text-slate-400">
               <span>CURRENT JOB: <span className="text-white font-mono font-black">{activeLoad.loadId}</span></span>
               <StatusBadge status={activeLoad.status} />
@@ -727,9 +1580,25 @@ export default function DriverDashboard({ activeTab = 'overview' }) {
       {/* MY PAY TAB */}
       {activeTab === 'earnings' && (
         <div className="space-y-6 animate-fade-in text-xs">
-          <div className="grid grid-cols-2 gap-4">
-            <StatCard title="This Month Payout" value="$4,820" description="Completed runs pay" progress={92} />
-            <StatCard title="Awaiting Payroll" value="$1,420" description="Awaiting billing run" progress={100} />
+          <div className="grid grid-cols-2 gap-3">
+            <StatCard title="Daily Payout" value="$245.00" description="Completed runs today" progress={100} />
+            <StatCard title="Weekly Payout" value="$1,250.00" description="Weekly accumulated pay" progress={80} />
+            <StatCard title="Monthly Payout" value="$4,820.00" description="Monthly baseline earnings" progress={92} />
+            <StatCard title="Awaiting Payroll" value="$1,420.00" description="Awaiting billing run" progress={100} />
+          </div>
+          
+          <div className="p-4 bg-[#111827] border border-[#23324C] rounded-xl text-left space-y-2">
+            <span className="text-[10px] font-bold text-brand-400 uppercase tracking-wide block">Bonus Summary Overview</span>
+            <div className="grid grid-cols-2 gap-2 text-[10px]">
+              <div className="p-2 bg-slate-900 border border-[#23324C]/45 rounded-lg">
+                <span className="text-slate-500 block">Safety Performance Bonus</span>
+                <span className="text-emerald-400 font-extrabold font-mono text-xs mt-0.5">+$150.00</span>
+              </div>
+              <div className="p-2 bg-slate-900 border border-[#23324C]/45 rounded-lg">
+                <span className="text-slate-500 block">On-Time Dispatch Bonus</span>
+                <span className="text-emerald-400 font-extrabold font-mono text-xs mt-0.5">+$200.00</span>
+              </div>
+            </div>
           </div>
           
           <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
@@ -751,47 +1620,340 @@ export default function DriverDashboard({ activeTab = 'overview' }) {
 
       {/* CONTACT DISPATCH TAB */}
       {activeTab === 'chat' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left flex flex-col justify-between h-[450px] animate-fade-in">
+        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left flex flex-col justify-between h-[480px] animate-fade-in text-xs">
           <div>
             <h3 className="text-sm font-extrabold text-white mb-1">Dispatch Communication Chat</h3>
             <p className="text-[10px] text-slate-500">Live chat thread connected directly to dispatch team.</p>
           </div>
 
-          <div className="flex-1 overflow-y-auto my-4 space-y-3.5 pr-1 scrollbar-none">
-            <div className="p-3 bg-[#111827]/80 border border-[#23324C]/50 rounded-xl text-xs max-w-[85%] text-slate-350">
-              <span className="text-[9px] text-slate-500 font-bold block mb-1">Dispatcher (Ops Desk)</span>
-              John, please confirm trailer change at Chicago Gate 4. LD-9411 is scheduled for immediate departure.
-            </div>
-            <div className="p-3 bg-brand-500 text-slate-950 rounded-xl text-xs max-w-[85%] ml-auto font-semibold">
-              <span className="text-[9px] text-slate-800 font-extrabold block mb-1">You</span>
-              Copy that, logs updated and trailer verified. Rolling out now.
-            </div>
+          <div className="flex-1 overflow-y-auto my-4 space-y-3 pr-1 scrollbar-none">
+            {chatMessages.map(msg => (
+              <div key={msg.id} className={`p-2.5 border rounded-xl text-xs max-w-[85%] ${
+                msg.sender === 'driver' 
+                  ? 'bg-brand-500 text-slate-950 ml-auto font-semibold border-brand-600' 
+                  : 'bg-[#111827]/80 border-[#23324C]/50 text-slate-350 mr-auto'
+              }`}>
+                <div className="flex justify-between items-center mb-1 text-[8px] font-extrabold uppercase opacity-80">
+                  <span>{msg.sender === 'driver' ? 'You' : 'Dispatcher'}</span>
+                  <span>{msg.time}</span>
+                </div>
+                <div>{msg.text}</div>
+                {msg.imageUrl && (
+                  <div className="mt-2 rounded-lg overflow-hidden border border-[#23324C]/65 max-h-36">
+                    <img src={msg.imageUrl} alt="Shared attachment" className="w-full h-auto object-cover" />
+                  </div>
+                )}
+                {msg.sender === 'driver' && (
+                  <div className="text-right text-[8px] mt-0.5 opacity-90">
+                    Read ✓✓
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
 
-          <div className="flex gap-2 border-t border-[#23324C]/45 pt-3">
-            <input 
-              type="text" 
-              placeholder="Type dispatch update..." 
-              id="driver-chat-msg"
-              className="flex-grow px-3 py-2 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none"
-            />
-            <button 
-              onClick={() => {
-                const val = document.getElementById('driver-chat-msg').value;
-                if (!val) return;
-                triggerToast('Message sent to dispatch desk.');
-                document.getElementById('driver-chat-msg').value = '';
-              }}
-              className="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-slate-950 text-xs rounded-xl font-black cursor-pointer"
-            >
-              Send
-            </button>
+          <form onSubmit={handleSendChatMessage} className="flex flex-col gap-2 border-t border-[#23324C]/45 pt-3">
+            <div className="flex gap-2">
+              <input 
+                type="text" 
+                placeholder="Type dispatch update..." 
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                className="flex-grow px-3 py-2 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none"
+              />
+              <button 
+                type="submit"
+                className="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-slate-950 text-xs rounded-xl font-black cursor-pointer"
+              >
+                Send
+              </button>
+            </div>
+            
+            <div className="flex gap-2 text-[10px]">
+              <button 
+                type="button" 
+                onClick={handleShareImageInChat}
+                className="flex items-center gap-1 bg-[#161F30] border border-[#23324C] px-2.5 py-1.5 rounded-lg text-slate-300 hover:text-white"
+              >
+                <Plus className="h-3 w-3" /> Share Image
+              </button>
+              <button 
+                type="button" 
+                onClick={handleShareVoiceInChat}
+                className="flex items-center gap-1 bg-[#161F30] border border-[#23324C] px-2.5 py-1.5 rounded-lg text-slate-300 hover:text-white"
+              >
+                <Mic className="h-3 w-3" /> Voice Note
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* NEARBY SERVICES TAB */}
+      {activeTab === 'nearby-services' && (
+        <div className="space-y-4 animate-fade-in text-xs">
+          <div className="p-4 bg-[#161F30] border border-brand-500/30 rounded-2xl text-left">
+            <h3 className="text-sm font-extrabold text-white flex items-center gap-1.5 mb-1">
+              <MapPin className="h-4 w-4 text-brand-500" /> Nearby Services
+            </h3>
+            <p className="text-[10px] text-slate-400">Locate crucial driver amenities along your active route.</p>
+          </div>
+
+          <div className="space-y-3">
+            {[
+              { type: 'Fuel Station', name: 'Loves Travel Stop #342', desc: 'Diesel lanes, scale, showers, parking', dist: '1.2 miles away', status: 'Open' },
+              { type: 'Workshop', name: 'TA Truck Service Garage', desc: 'Brake repair, trailer mechanics, tire swap', dist: '3.5 miles away', status: 'Open' },
+              { type: 'Parking', name: 'Public Truck Parking Area', desc: '15 overnight spaces remaining', dist: '4.8 miles away', status: 'Open' },
+              { type: 'Rest Area', name: 'Illinois State Rest Stop', desc: 'Restrooms, picnic tables, vending', dist: '7.1 miles away', status: 'Open' }
+            ].map((service, index) => (
+              <div key={index} className="p-3 bg-[#111827] border border-[#23324C] rounded-xl flex justify-between items-center text-left">
+                <div>
+                  <span className="text-[8px] font-bold text-brand-400 uppercase tracking-wide px-1.5 py-0.5 rounded bg-brand-500/10 border border-brand-500/20">{service.type}</span>
+                  <h4 className="text-xs font-black text-white mt-1.5">{service.name}</h4>
+                  <p className="text-[10px] text-slate-400 mt-0.5">{service.desc}</p>
+                  <span className="text-[10px] font-mono text-slate-500 mt-1 block">{service.dist} · {service.status}</span>
+                </div>
+                <Button size="xs" variant="primary" icon={Navigation} onClick={() => triggerToast(`Routing path to ${service.name} loaded.`)}>Route</Button>
+              </div>
+            ))}
           </div>
         </div>
       )}
 
-      {/* FLOATING ACTION COMMUNICATION BUTTON (FAB) */}
+      {/* DRIVER NOTIFICATIONS TAB */}
+      {activeTab === 'notifications' && (
+        <div className="space-y-4 animate-fade-in text-xs">
+          <div className="p-4 bg-[#161F30] border border-brand-500/30 rounded-2xl text-left flex justify-between items-center">
+            <div>
+              <h3 className="text-sm font-extrabold text-white flex items-center gap-1.5 mb-1">
+                <Bell className="h-4 w-4 text-brand-500" /> Dispatch Alerts
+              </h3>
+              <p className="text-[10px] text-slate-400">Driver logs and assignments notifications queue.</p>
+            </div>
+            {notificationsList.some(n => !n.read) && (
+              <Button size="xs" variant="outline" onClick={() => {
+                setNotificationsList(prev => prev.map(n => ({ ...n, read: true })));
+                triggerToast('All notifications marked as read.');
+              }}>Mark All Read</Button>
+            )}
+          </div>
+
+          <div className="space-y-2.5">
+            {notificationsList.map(n => (
+              <div key={n.id} className={`p-3 border rounded-xl flex justify-between items-start text-left transition-all ${
+                n.read ? 'bg-[#111827]/40 border-[#23324C]/40 text-slate-400' : 'bg-[#111827] border-brand-500/20 text-slate-200'
+              }`}>
+                <div className="flex-1 pr-3">
+                  <div className="flex items-center gap-2">
+                    {!n.read && <span className="w-2 h-2 rounded-full bg-brand-500 block" />}
+                    <h4 className="text-xs font-black text-white">{n.title}</h4>
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-1">{n.body}</p>
+                  <span className="text-[9px] text-slate-500 mt-1 block font-mono">{n.time}</span>
+                </div>
+                <div className="flex gap-1.5 text-[10px]">
+                  {!n.read && (
+                    <button onClick={() => {
+                      setNotificationsList(prev => prev.map(item => item.id === n.id ? { ...item, read: true } : item));
+                      triggerToast('Notification marked read.');
+                    }} className="text-brand-400 hover:text-brand-300 font-bold text-[10px]">Read</button>
+                  )}
+                  <button onClick={() => {
+                    setNotificationsList(prev => prev.filter(item => item.id !== n.id));
+                    triggerToast('Notification cleared.');
+                  }} className="text-red-400 hover:text-red-300 font-bold text-[10px] ml-1">Dismiss</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* DRIVER DOCUMENTS TAB */}
+      {activeTab === 'documents' && (
+        <div className="space-y-4 animate-fade-in text-xs">
+          <div className="p-4 bg-[#161F30] border border-brand-500/30 rounded-2xl text-left">
+            <h3 className="text-sm font-extrabold text-white flex items-center gap-1.5 mb-1">
+              <FileText className="h-4 w-4 text-brand-500" /> Driver Credentials
+            </h3>
+            <p className="text-[10px] text-slate-400">Keep FMCSA & DOT compliance documents updated.</p>
+          </div>
+
+          <div className="space-y-3">
+            {driverDocuments.map(doc => (
+              <div key={doc.id} className="p-3 bg-[#111827] border border-[#23324C] rounded-xl space-y-2.5 text-left">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h4 className="text-xs font-black text-white">{doc.name}</h4>
+                    <span className="text-[10px] text-slate-500 font-mono block mt-0.5">Expires: {doc.expiry}</span>
+                  </div>
+                  <span className={`px-2 py-0.5 rounded text-[8px] font-bold ${
+                    doc.status === 'Valid' ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400' : 'bg-amber-500/10 border border-amber-500/20 text-amber-400'
+                  }`}>{doc.status}</span>
+                </div>
+                <div className="flex justify-between items-center pt-1.5 border-t border-[#23324C]/50">
+                  <span className="text-[9px] text-slate-450 italic">
+                    {doc.status === 'Valid' ? '✅ Document compliant' : '⚠️ Action required soon'}
+                  </span>
+                  <Button size="xs" variant="primary" onClick={() => {
+                    setSelectedDocType(doc.type);
+                    setNewDocExpiry('');
+                    setDocModalOpen(true);
+                  }}>Renew / Upload</Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* LEAVE MANAGEMENT TAB */}
+      {activeTab === 'leave-management' && (
+        <div className="space-y-4 animate-fade-in text-xs">
+          <div className="p-4 bg-[#161F30] border border-brand-500/30 rounded-2xl text-left">
+            <h3 className="text-sm font-extrabold text-white flex items-center gap-1.5 mb-1">
+              <Calendar className="h-4 w-4 text-brand-500" /> Leave Management
+            </h3>
+            <p className="text-[10px] text-slate-400">Request vacation or medical rest logs.</p>
+          </div>
+
+          <form onSubmit={handleApplyLeave} className="p-4 bg-[#111827] border border-[#23324C] rounded-2xl text-left space-y-4">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block mb-1">Request Time Off</span>
+            
+            <SelectInput label="Leave Category Type" value={leaveType} onChange={(e) => setLeaveType(e.target.value)} options={[
+              { value: 'Annual Leave', label: 'Annual / Vacation Leave' },
+              { value: 'Sick Leave', label: 'Medical / Sick Leave' },
+              { value: 'Emergency Leave', label: 'Emergency Leave' }
+            ]} />
+
+            <div className="grid grid-cols-2 gap-3">
+              <TextInput label="Start Date" type="date" required value={leaveStart} onChange={(e) => setLeaveStart(e.target.value)} />
+              <TextInput label="End Date" type="date" required value={leaveEnd} onChange={(e) => setLeaveEnd(e.target.value)} />
+            </div>
+
+            <TextInput label="Reason Details" placeholder="Describe leave justification..." value={leaveReason} onChange={(e) => setLeaveReason(e.target.value)} />
+
+            <Button type="submit" variant="primary" className="w-full font-black">Submit Leave Request</Button>
+          </form>
+
+          <div className="space-y-2">
+            <span className="text-[10px] font-bold text-slate-400 uppercase block text-left">Leave Request History</span>
+            <DataTable 
+              tableName="driver_leave_history"
+              columns={[
+                { key: 'type', label: 'Type', render: (row) => <span className="text-white font-bold">{row.type}</span> },
+                { key: 'dates', label: 'Dates', render: (row) => <span className="font-mono">{row.start} - {row.end}</span> },
+                { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> }
+              ]} data={leaveRequests} />
+          </div>
+        </div>
+      )}
+
+      {/* INCIDENT REPORTING TAB */}
+      {activeTab === 'incidents' && (
+        <div className="space-y-4 animate-fade-in text-xs">
+          <div className="p-4 bg-[#161F30] border border-brand-500/30 rounded-2xl text-left">
+            <h3 className="text-sm font-extrabold text-white flex items-center gap-1.5 mb-1">
+              <ShieldAlert className="h-4 w-4 text-brand-500" /> Incident Logger
+            </h3>
+            <p className="text-[10px] text-slate-400">File digital accident reports and cargo/trailer defect logs.</p>
+          </div>
+
+          <form onSubmit={handleReportIncident} className="p-4 bg-[#111827] border border-[#23324C] rounded-2xl text-left space-y-4">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block mb-1">Log New Incident Report</span>
+
+            <SelectInput label="Incident Category Type" value={incidentType} onChange={(e) => setIncidentType(e.target.value)} options={[
+              { value: 'Accident', label: 'Highway Road Accident' },
+              { value: 'Vehicle Damage', label: 'Truck / Trailer Defects' },
+              { value: 'Cargo Damage', label: 'Cargo Damage Exception' }
+            ]} />
+
+            <TextInput label="Incident Description" required placeholder="Type incident crash/exception details..." value={incidentDesc} onChange={(e) => setIncidentDesc(e.target.value)} />
+
+            <div className="p-4 bg-slate-900 border border-dashed border-[#23324C] rounded-xl text-center cursor-pointer" onClick={() => {
+              setIncidentPhoto('https://hero-mock-storage.s3.amazonaws.com/incident_crash_1.jpg');
+              triggerToast('Incident proof photo attached.');
+            }}>
+              <Upload className="h-5 w-5 mx-auto text-slate-400 mb-1" />
+              <span className="text-[10px] text-slate-400 font-bold block">
+                {incidentPhoto ? 'Photo Attached ✓' : 'Attach Incident Photos'}
+              </span>
+            </div>
+
+            <Button type="submit" variant="danger" className="w-full font-black">Submit Incident Report</Button>
+          </form>
+
+          <div className="space-y-2">
+            <span className="text-[10px] font-bold text-slate-450 uppercase block text-left">Incident Log Registry</span>
+            <DataTable 
+              tableName="driver_incidents_history"
+              columns={[
+                { key: 'type', label: 'Category', render: (row) => <span className="text-white font-bold">{row.type}</span> },
+                { key: 'date', label: 'Logged Date', render: (row) => <span className="font-mono">{row.date}</span> },
+                { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> }
+              ]} data={incidentsList} />
+          </div>
+        </div>
+      )}
+
+      {/* MAINTENANCE REQUEST TAB */}
+      {activeTab === 'maintenance' && (
+        <div className="space-y-4 animate-fade-in text-xs">
+          <div className="p-4 bg-[#161F30] border border-brand-500/30 rounded-2xl text-left">
+            <h3 className="text-sm font-extrabold text-white flex items-center gap-1.5 mb-1">
+              <Truck className="h-4 w-4 text-brand-500" /> Maintenance Request
+            </h3>
+            <p className="text-[10px] text-slate-400">Report vehicle malfunctions directly to fleet garage desks.</p>
+          </div>
+
+          <form onSubmit={handleReportMaintenance} className="p-4 bg-[#111827] border border-[#23324C] rounded-2xl text-left space-y-4">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block mb-1">Report Vehicle Defect</span>
+
+            <TextInput label="Issue / Malfunction details" required placeholder="e.g. Engine oil leak or brake noise..." value={maintenanceDesc} onChange={(e) => setMaintenanceDesc(e.target.value)} />
+
+            <SelectInput label="Safety Severity Priority" value={maintenanceSeverity} onChange={(e) => setMaintenanceSeverity(e.target.value)} options={[
+              { value: 'Minor', label: 'Minor - Driveable issue' },
+              { value: 'Moderate', label: 'Moderate - Needs repair soon' },
+              { value: 'Critical', label: 'Critical - Out of Service (Red tag)' }
+            ]} />
+
+            <div className="p-4 bg-slate-900 border border-dashed border-[#23324C] rounded-xl text-center cursor-pointer" onClick={() => {
+              setMaintenancePhoto('https://hero-mock-storage.s3.amazonaws.com/maint_leak.jpg');
+              triggerToast('Defect photo attached.');
+            }}>
+              <Upload className="h-5 w-5 mx-auto text-slate-400 mb-1" />
+              <span className="text-[10px] text-slate-400 font-bold block">
+                {maintenancePhoto ? 'Photo Attached ✓' : 'Attach Malfunction Photos'}
+              </span>
+            </div>
+
+            <Button type="submit" variant="primary" className="w-full font-black">Submit Maintenance Log</Button>
+          </form>
+
+          <div className="space-y-2">
+            <span className="text-[10px] font-bold text-slate-450 uppercase block text-left">Defect Logs History</span>
+            <DataTable 
+              tableName="driver_maintenance_history"
+              columns={[
+                { key: 'issue', label: 'Reported Issue', render: (row) => <span className="text-white font-bold">{row.issue}</span> },
+                { key: 'severity', label: 'Severity', render: (row) => <span className={`px-2 py-0.5 rounded text-[8px] font-bold ${
+                  row.severity === 'Critical' ? 'bg-red-500/10 border border-red-500/20 text-red-400' : (row.severity === 'Moderate' ? 'bg-amber-500/10 border border-amber-500/20 text-amber-400' : 'bg-slate-500/10 border border-slate-500/20 text-slate-350')
+                }`}>{row.severity}</span> },
+                { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> }
+              ]} data={maintenanceList} />
+          </div>
+        </div>
+      )}
+
+      {/* FLOATING ACTION COMMUNICATION BUTTON (FAB) & EMERGENCY SOS TRIGGER */}
       <div className="fixed bottom-4 right-4 z-40 flex flex-col items-end gap-2 text-xs">
+        <button 
+          onClick={() => setSosModalOpen(true)}
+          className="w-12 h-12 bg-red-650 hover:bg-red-700 text-white rounded-full flex items-center justify-center shadow-lg transition-transform focus:outline-none z-50 cursor-pointer animate-pulse font-extrabold text-[10px] border border-red-500/30"
+        >
+          SOS
+        </button>
+
         {fabOpen && (
           <div className="bg-[#161F30] border border-[#23324C] p-3 rounded-2xl shadow-xl space-y-2 flex flex-col min-w-[150px] text-left">
             <span className="text-[9px] font-bold text-slate-500 uppercase block mb-1">Hotline Shortcuts</span>
@@ -842,6 +2004,133 @@ export default function DriverDashboard({ activeTab = 'overview' }) {
         </button>
       </div>
 
+      {/* SOS Panel Modal */}
+      <Modal isOpen={sosModalOpen} onClose={() => setSosModalOpen(false)} title="Emergency Dispatch SOS Panel">
+        <div className="space-y-4 text-xs text-left">
+          <p className="text-slate-400">Triggering an emergency alerts the dispatch operations center immediately and logs active tracking.</p>
+          
+          <div className="grid grid-cols-2 gap-3">
+            <button onClick={() => handleTriggerSOS('Panic Button Alert')} className="p-4 bg-red-950/40 hover:bg-red-900/50 border border-red-500/30 rounded-xl text-center cursor-pointer group flex flex-col items-center justify-center gap-2">
+              <ShieldAlert className="h-6 w-6 text-red-500 group-hover:scale-110 transition-transform" />
+              <strong className="text-white font-extrabold text-xs">Panic Button</strong>
+            </button>
+            <button onClick={() => handleTriggerSOS('Vehicle Breakdown')} className="p-4 bg-amber-950/40 hover:bg-amber-900/50 border border-amber-500/30 rounded-xl text-center cursor-pointer group flex flex-col items-center justify-center gap-2">
+              <Truck className="h-6 w-6 text-amber-500 group-hover:scale-110 transition-transform" />
+              <strong className="text-white font-extrabold text-xs">Breakdown</strong>
+            </button>
+            <button onClick={() => handleTriggerSOS('Road Accident')} className="p-4 bg-red-950/40 hover:bg-red-900/50 border border-red-500/30 rounded-xl text-center cursor-pointer group flex flex-col items-center justify-center gap-2">
+              <AlertTriangle className="h-6 w-6 text-red-500 group-hover:scale-110 transition-transform" />
+              <strong className="text-white font-extrabold text-xs">Accident</strong>
+            </button>
+            <button onClick={() => handleTriggerSOS('Medical Emergency')} className="p-4 bg-red-950/40 hover:bg-red-900/50 border border-red-500/30 rounded-xl text-center cursor-pointer group flex flex-col items-center justify-center gap-2">
+              <Heart className="h-6 w-6 text-red-400 group-hover:scale-110 transition-transform" />
+              <strong className="text-white font-extrabold text-xs">Medical</strong>
+            </button>
+          </div>
+
+          <div className="space-y-3.5 border-t border-[#23324C]/60 pt-4">
+            <label className="flex justify-between items-center cursor-pointer">
+              <span>Share Live GPS Tracking</span>
+              <input type="checkbox" checked={shareGps} onChange={(e) => setShareGps(e.target.checked)} className="rounded text-brand-500" />
+            </label>
+            <label className="flex justify-between items-center cursor-pointer">
+              <span>Auto-Notify Dispatch Center</span>
+              <input type="checkbox" checked={notifyDispatcherState} onChange={(e) => setNotifyDispatcherState(e.target.checked)} className="rounded text-brand-500" />
+            </label>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Renew Document Modal */}
+      <Modal isOpen={docModalOpen} onClose={() => setDocModalOpen(false)} title={`Renew Driver ${selectedDocType} Document`}>
+        <div className="space-y-4 text-xs text-left">
+          <TextInput label="New Expiration Date" type="date" required value={newDocExpiry} onChange={(e) => setNewDocExpiry(e.target.value)} />
+          
+          <div className="p-6 bg-slate-900 border border-dashed border-[#23324C] rounded-xl text-center cursor-pointer" onClick={() => triggerToast('Scanned document copy attached.')}>
+            <Upload className="h-6 w-6 mx-auto text-slate-400 mb-1.5" />
+            <strong className="text-white block">Upload Credentials Scan</strong>
+            <span className="text-[10px] text-slate-500 block">PDF or JPEG file format</span>
+          </div>
+
+          <Button variant="primary" className="w-full font-black" onClick={() => {
+            if (!newDocExpiry) {
+              triggerToast('Please select expiration date.', 'error');
+              return;
+            }
+            setDriverDocuments(prev => prev.map(d => d.type === selectedDocType ? { ...d, expiry: newDocExpiry, status: 'Valid' } : d));
+            setDocModalOpen(false);
+            triggerToast(`${selectedDocType} credentials updated successfully.`);
+          }}>Update Document</Button>
+        </div>
+      </Modal>
+
+      {/* Finish Shift Modal */}
+      <Modal isOpen={finishShiftModalOpen} onClose={() => setFinishShiftModalOpen(false)} title="Finalize Shift & Clock-Out">
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          if (!dvirPostTripChecked) {
+            triggerToast('Please verify post-trip DVIR checklist.', 'error');
+            return;
+          }
+          if (routeStep !== 'Delivered' && !confirm('Shipment delivery is not finalized. Are you sure you want to finish shift?')) {
+            return;
+          }
+          setStartShiftActive(false);
+          setDutyStatus('Off Duty');
+          setRouteStep('Idle');
+          setOnBreak(false);
+          setShiftDuration(0);
+          setFinishShiftModalOpen(false);
+          addDriverAuditLog('Shift End', `Shift closed. Final Odometer: ${finishOdometer} mi. Fuel: ${finishFuel}%. Defects logged: ${finishDefects || 'None'}.`);
+          triggerToast('Shift completed successfully. Logs offloaded to dispatch.');
+        }} className="space-y-4 text-xs text-left">
+          
+          <TextInput 
+            label="Final Odometer Reading (miles)" 
+            type="number"
+            required
+            value={finishOdometer} 
+            onChange={(e) => setFinishOdometer(e.target.value)}
+          />
+
+          <TextInput 
+            label="Final Fuel Level (%)" 
+            type="number"
+            min="0"
+            max="100"
+            required
+            value={finishFuel} 
+            onChange={(e) => setFinishFuel(e.target.value)}
+          />
+
+          <TextInput 
+            label="Post-Trip Vehicle Defects Notes" 
+            placeholder="Describe any vehicle issues noticed..."
+            value={finishDefects} 
+            onChange={(e) => setFinishDefects(e.target.value)}
+          />
+
+          <label className="flex items-center justify-between p-2.5 bg-[#111827] border border-[#23324C] rounded-xl cursor-pointer">
+            <span className="font-bold text-slate-350">Confirm Post-Trip DVIR completed</span>
+            <input 
+              type="checkbox" 
+              checked={dvirPostTripChecked} 
+              onChange={(e) => setDvirPostTripChecked(e.target.checked)} 
+              className="rounded text-brand-500 h-4.5 w-4.5"
+            />
+          </label>
+
+          {routeStep !== 'Delivered' && (
+            <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-[10px] font-bold">
+              ⚠️ Warning: Active shipment delivery has not been finalized yet.
+            </div>
+          )}
+
+          <Button type="submit" variant="danger" className="w-full font-black">
+            Submit DVIR & Clock-Out
+          </Button>
+        </form>
+      </Modal>
     </div>
   );
 }

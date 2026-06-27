@@ -89,10 +89,16 @@ export default function Sidebar({ activeTab, setActiveTab, mobileOpen, setMobile
         return [
           { id: 'start-finish', label: 'Start Work / Finish Work', icon: Clock },
           { id: 'overview', label: 'Jobs', icon: LayoutDashboard },
+          { id: 'nearby-services', label: 'Nearby Services', icon: MapPin },
+          { id: 'notifications', label: 'Notifications', icon: Bell },
+          { id: 'documents', label: 'Documents', icon: FileText },
           { id: 'create-draft-load', label: 'Create Draft Load', icon: Plus },
           { id: 'add-expense', label: 'Add Expense', icon: DollarSign },
           { id: 'earnings', label: 'My Pay', icon: BarChart3 },
-          { id: 'chat', label: 'Contact Dispatch', icon: MessageSquare }
+          { id: 'chat', label: 'Contact Dispatch', icon: MessageSquare },
+          { id: 'leave-management', label: 'Leave Management', icon: Calendar },
+          { id: 'incidents', label: 'Incident Reporting', icon: ShieldAlert },
+          { id: 'maintenance', label: 'Maintenance Request', icon: Truck }
         ];
       case 'Warehouse Manager':
         return [
