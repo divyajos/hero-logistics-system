@@ -339,8 +339,8 @@ export const crmStore = {
       console.error('Failed to parse database from localStorage', e);
     }
     
-    // Auto seed if normalized lists don't exist
-    if (!mockDb.leads) {
+    // Auto seed if normalized lists don't exist or are incomplete
+    if (!mockDb.leads || mockDb.leads.length <= 4 || !mockDb.crmDemos || mockDb.crmDemos.length === 0) {
       seedNormalizedCrmData(mockDb);
       localStorage.setItem(DB_KEY, JSON.stringify(mockDb));
     } else {

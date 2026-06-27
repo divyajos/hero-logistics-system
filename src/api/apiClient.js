@@ -1169,8 +1169,8 @@ if (isMockMode) {
       { id: 3, sender: 'System Node', msg: 'Dispatch Load LD-9411 geofence breached Dallas.', time: '2 hours ago' }
     ],
     supportTickets: [
-      { id: 1, tenantName: 'Falcon Logistics LLC', title: 'Invoice Factoring Delay', msg: 'Cannot sync payroll with factoring payment rules.', status: 'Open', category: 'Accounts', priority: 'High', replies: [{ sender: 'Alexander Wright', msg: 'Checking billing logs.', date: '1 day ago' }] },
-      { id: 2, tenantName: 'Swift Cargo Express', title: 'GPS Geofencing Issues', msg: 'Carrier coordinates not updating on interstate tracking map.', status: 'Open', category: 'Dispatch', priority: 'Medium', replies: [] }
+      { id: 1, tenantName: 'Falcon Logistics LLC', company: 'Falcon Logistics LLC', title: 'Invoice Factoring Delay', subject: 'Invoice Factoring Delay', msg: 'Cannot sync payroll with factoring payment rules.', message: 'Cannot sync payroll with factoring payment rules.', status: 'Open', category: 'Accounts', priority: 'High', replies: [{ sender: 'Alexander Wright', msg: 'Checking billing logs.', message: 'Checking billing logs.', date: '1 day ago' }] },
+      { id: 2, tenantName: 'Swift Cargo Express', company: 'Swift Cargo Express', title: 'GPS Geofencing Issues', subject: 'GPS Geofencing Issues', msg: 'Carrier coordinates not updating on interstate tracking map.', message: 'Carrier coordinates not updating on interstate tracking map.', status: 'Open', category: 'Dispatch', priority: 'Medium', replies: [] }
     ],
     customerInstructions: [
       { id: 1, scope: 'Customer (Vance Refrigeration)', type: 'Special Handling Instructions', text: 'Do not stack HVAC pallets; keep upright and secure.' },
@@ -2836,13 +2836,18 @@ if (isMockMode) {
         if (url === 'support/tickets' && method === 'POST') {
           const newTicket = {
             id: Date.now(),
-            tenantName: body.tenantName || 'Apex Logistics LLC',
-            title: body.title,
-            msg: body.msg,
+            tenantName: body.tenantName || body.company || 'Apex Logistics LLC',
+            company: body.company || body.tenantName || 'Apex Logistics LLC',
+            title: body.title || body.subject,
+            subject: body.subject || body.title,
+            msg: body.msg || body.message,
+            message: body.message || body.msg,
             status: 'Open',
             category: body.category || 'General',
-            priority: body.priority || 'Low',
-            replies: []
+            priority: body.priority || 'Medium',
+            replies: [],
+            assignedAgent: 'Unassigned',
+            createdAt: new Date().toISOString().split('T')[0]
           };
           mockDb.supportTickets.unshift(newTicket);
           saveDb();
@@ -2854,9 +2859,23 @@ if (isMockMode) {
           if (ticketIdx !== -1) {
             mockDb.supportTickets[ticketIdx].replies.push({
               sender: body.sender || 'Staff',
-              msg: body.msg,
+              msg: body.msg || body.message,
+              message: body.message || body.msg,
               date: 'Just now'
             });
+            mockDb.supportTickets[ticketIdx].status = 'Resolved';
+            saveDb();
+            return resolve({ status: 200, data: mockDb.supportTickets[ticketIdx] });
+          }
+        }
+        if (url.startsWith('support/tickets/') && method === 'PUT') {
+          const id = parseInt(url.split('/')[2]);
+          const ticketIdx = mockDb.supportTickets.findIndex(t => t.id === id);
+          if (ticketIdx !== -1) {
+            mockDb.supportTickets[ticketIdx] = { 
+              ...mockDb.supportTickets[ticketIdx], 
+              ...body 
+            };
             saveDb();
             return resolve({ status: 200, data: mockDb.supportTickets[ticketIdx] });
           }
@@ -2887,7 +2906,8 @@ if (isMockMode) {
             lastLogin: 'Today, ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             trialExpiry: body.plan === 'Starter' ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString() : 'N/A',
             joined: body.joined || new Date().toLocaleDateString(),
-            manager: 'Alex W.',
+            manager: body.email || 'Alex W.',
+            password: body.password || '',
             country: 'USA'
           };
           mockDb.tenants.unshift(newT);

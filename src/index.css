@@ -22,13 +22,16 @@ body {
     width: 6px;
     height: 6px;
   }
+
   ::-webkit-scrollbar-track {
     @apply bg-slate-100 dark:bg-[#0B0B0B];
   }
+
   ::-webkit-scrollbar-thumb {
     @apply bg-slate-300 dark:bg-[#2E2E2E];
     border-radius: 9999px;
   }
+
   ::-webkit-scrollbar-thumb:hover {
     background: #FFD400;
   }
@@ -107,15 +110,19 @@ body {
 .animate-delay-100 {
   animation-delay: 100ms;
 }
+
 .animate-delay-200 {
   animation-delay: 200ms;
 }
+
 .animate-delay-300 {
   animation-delay: 300ms;
 }
+
 .animate-delay-400 {
   animation-delay: 400ms;
 }
+
 .animate-delay-500 {
   animation-delay: 500ms;
 }
@@ -126,6 +133,7 @@ input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
 input[type=number] {
   -moz-appearance: textfield;
 }
@@ -169,7 +177,8 @@ input[type=number] {
 }
 
 .light .opacity-50 {
-  opacity: 0.7 !important; /* Increase opacity slightly in light mode for crisp text visibility */
+  opacity: 0.7 !important;
+  /* Increase opacity slightly in light mode for crisp text visibility */
 }
 
 
@@ -239,55 +248,73 @@ input[type=number] {
 }
 
 /* Color Palette Override for Premium Hero Logistics (Dark Mode Compiled Classes Overrides) */
-.dark .bg-\[\#0B0F19\], 
+.dark .bg-\[\#0B0F19\],
 .dark.bg-\[\#0B0F19\] {
   background-color: #0B0B0B !important;
 }
+
 .dark .bg-\[\#0B0F19\]\/60 {
   background-color: rgba(11, 11, 11, 0.6) !important;
 }
+
 .dark .bg-\[\#0B0F19\]\/80 {
   background-color: rgba(11, 11, 11, 0.8) !important;
 }
+
 .dark .bg-\[\#0B0F19\]\/30 {
   background-color: rgba(11, 11, 11, 0.3) !important;
 }
 
-.dark .bg-\[\#161F30\], 
+.dark .bg-\[\#161F30\],
 .dark.bg-\[\#161F30\],
-.dark .bg-\[\#161f30\], 
+.dark .bg-\[\#161f30\],
 .dark.bg-\[\#161f30\] {
   background-color: #1F1F1F !important;
 }
-.dark .bg-\[\#161F30\]\/20, .dark .bg-\[\#161f30\]\/20 {
+
+.dark .bg-\[\#161F30\]\/20,
+.dark .bg-\[\#161f30\]\/20 {
   background-color: rgba(31, 31, 31, 0.2) !important;
 }
-.dark .bg-\[\#161F30\]\/30, .dark .bg-\[\#161f30\]\/30 {
+
+.dark .bg-\[\#161F30\]\/30,
+.dark .bg-\[\#161f30\]\/30 {
   background-color: rgba(31, 31, 31, 0.3) !important;
 }
-.dark .bg-\[\#161F30\]\/40, .dark .bg-\[\#161f30\]\/40 {
+
+.dark .bg-\[\#161F30\]\/40,
+.dark .bg-\[\#161f30\]\/40 {
   background-color: rgba(31, 31, 31, 0.4) !important;
 }
-.dark .bg-\[\#161F30\]\/50, .dark .bg-\[\#161f30\]\/50 {
+
+.dark .bg-\[\#161F30\]\/50,
+.dark .bg-\[\#161f30\]\/50 {
   background-color: rgba(31, 31, 31, 0.5) !important;
 }
-.dark .bg-\[\#161F30\]\/60, .dark .bg-\[\#161f30\]\/60 {
+
+.dark .bg-\[\#161F30\]\/60,
+.dark .bg-\[\#161f30\]\/60 {
   background-color: rgba(31, 31, 31, 0.6) !important;
 }
-.dark .bg-\[\#161F30\]\/80, .dark .bg-\[\#161f30\]\/80 {
+
+.dark .bg-\[\#161F30\]\/80,
+.dark .bg-\[\#161f30\]\/80 {
   background-color: rgba(31, 31, 31, 0.8) !important;
 }
 
-.dark .bg-\[\#111827\], 
+.dark .bg-\[\#111827\],
 .dark.bg-\[\#111827\] {
   background-color: #141414 !important;
 }
+
 .dark .bg-\[\#111827\]\/40 {
   background-color: rgba(20, 20, 20, 0.4) !important;
 }
+
 .dark .bg-\[\#111827\]\/60 {
   background-color: rgba(20, 20, 20, 0.6) !important;
 }
+
 .dark .bg-\[\#111827\]\/95 {
   background-color: rgba(20, 20, 20, 0.95) !important;
 }
@@ -295,36 +322,47 @@ input[type=number] {
 .dark .bg-\[\#0f1624\]\/40 {
   background-color: rgba(15, 22, 36, 0.4) !important;
 }
+
 .dark .bg-\[\#0f1624\]\/60 {
   background-color: rgba(15, 22, 36, 0.6) !important;
 }
+
 .dark .bg-\[\#0f1624\]\/80 {
   background-color: rgba(15, 22, 36, 0.8) !important;
 }
 
-.dark .border-\[\#23324C\], 
+.dark .border-\[\#23324C\],
 .dark.border-\[\#23324C\] {
   border-color: #2E2E2E !important;
 }
+
 .dark .border-\[\#23324C\]\/30 {
   border-color: rgba(46, 46, 46, 0.3) !important;
 }
+
 .dark .border-\[\#23324C\]\/40 {
   border-color: rgba(46, 46, 46, 0.4) !important;
 }
+
 .dark .border-\[\#23324C\]\/50 {
   border-color: rgba(46, 46, 46, 0.5) !important;
 }
+
 .dark .border-\[\#23324C\]\/60 {
   border-color: rgba(46, 46, 46, 0.6) !important;
 }
+
 .dark .border-\[\#23324C\]\/80 {
   border-color: rgba(46, 46, 46, 0.8) !important;
 }
-.dark .divide-\[\#23324C\], .dark.divide-\[\#23324C\] > * + * {
+
+.dark .divide-\[\#23324C\],
+.dark.divide-\[\#23324C\]>*+* {
   border-color: #2E2E2E !important;
 }
-.dark .divide-\[\#23324C\]\/40, .dark.divide-\[\#23324C\]\/40 > * + * {
+
+.dark .divide-\[\#23324C\]\/40,
+.dark.divide-\[\#23324C\]\/40>*+* {
   border-color: rgba(46, 46, 46, 0.4) !important;
 }
 
@@ -336,15 +374,19 @@ input[type=number] {
 .dark .shadow-brand-500\/20 {
   box-shadow: 0 4px 14px 0 rgba(255, 212, 0, 0.15) !important;
 }
+
 .dark .shadow-brand-500\/25 {
   box-shadow: 0 4px 16px 0 rgba(255, 212, 0, 0.2) !important;
 }
+
 .dark .shadow-brand-500\/30 {
   box-shadow: 0 4px 18px 0 rgba(255, 212, 0, 0.25) !important;
 }
+
 .dark .shadow-brand-500\/35 {
   box-shadow: 0 6px 20px 0 rgba(255, 212, 0, 0.3) !important;
 }
+
 .dark .shadow-brand-500\/40 {
   box-shadow: 0 8px 24px 0 rgba(255, 212, 0, 0.35) !important;
 }
@@ -353,40 +395,44 @@ input[type=number] {
 .dark .text-slate-100 {
   color: #f8fafc !important;
 }
+
 .dark .text-slate-200 {
   color: #e2e8f0 !important;
 }
+
 .dark .text-slate-300 {
   color: #cbd5e1 !important;
 }
+
 .dark .text-slate-400 {
   color: #94a3b8 !important;
 }
+
 .dark .text-slate-500 {
   color: #64748b !important;
 }
 
 /* Mobile-Specific Clarity: scale text size up slightly for legibility */
 @media (max-width: 640px) {
-  .dark p, 
-  .dark span, 
+
+  .dark p,
+  .dark span,
   .dark label,
   .dark .text-xs,
   .dark .text-\[10px\] {
     letter-spacing: 0.03em !important;
   }
-  
+
   .dark .text-xs {
-    font-size: 13px !important; /* Scale up slightly on mobile from 12px to 13px */
+    font-size: 13px !important;
+    /* Scale up slightly on mobile from 12px to 13px */
     line-height: 1.4 !important;
   }
-  
+
   .dark .text-\[10px\],
   .dark .text-\[9px\] {
-    font-size: 11px !important; /* Scale up slightly on mobile from 9/10px to 11px */
+    font-size: 11px !important;
+    /* Scale up slightly on mobile from 9/10px to 11px */
     line-height: 1.4 !important;
   }
 }
-
-
-

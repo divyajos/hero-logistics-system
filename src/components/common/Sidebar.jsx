@@ -11,6 +11,8 @@ import heroLogo from '../../assets/hero.png';
 
 export default function Sidebar({ activeTab, setActiveTab, mobileOpen, setMobileOpen }) {
   const { user, logout } = useAuth();
+  // Placeholder for pending alerts count (replace with real count from store/context)
+  const alertCount = 5;
   const [collapsed, setCollapsed] = useState(false);
 
   if (!user) return null;
@@ -62,6 +64,7 @@ export default function Sidebar({ activeTab, setActiveTab, mobileOpen, setMobile
           { id: 'accounts', label: 'Accounts', icon: DollarSign },
           { id: 'payroll', label: 'Payroll', icon: Users },
           { id: 'expenses', label: 'Expenses', icon: DollarSign },
+          { id: 'alerts', label: 'Alerts & Reminders', icon: Bell },
           { id: 'assets', label: 'Asset Register', icon: Shield },
           { id: 'instructions', label: 'Customer Instructions', icon: FileText },
           { id: 'transfers', label: 'Inter-Company Transfers', icon: AlertTriangle },
@@ -89,10 +92,16 @@ export default function Sidebar({ activeTab, setActiveTab, mobileOpen, setMobile
         return [
           { id: 'start-finish', label: 'Start Work / Finish Work', icon: Clock },
           { id: 'overview', label: 'Jobs', icon: LayoutDashboard },
+          { id: 'nearby-services', label: 'Nearby Services', icon: MapPin },
+          { id: 'notifications', label: 'Notifications', icon: Bell },
+          { id: 'documents', label: 'Documents', icon: FileText },
           { id: 'create-draft-load', label: 'Create Draft Load', icon: Plus },
           { id: 'add-expense', label: 'Add Expense', icon: DollarSign },
           { id: 'earnings', label: 'My Pay', icon: BarChart3 },
-          { id: 'chat', label: 'Contact Dispatch', icon: MessageSquare }
+          { id: 'chat', label: 'Contact Dispatch', icon: MessageSquare },
+          { id: 'leave-management', label: 'Leave Management', icon: Calendar },
+          { id: 'incidents', label: 'Incident Reporting', icon: ShieldAlert },
+          { id: 'maintenance', label: 'Maintenance Request', icon: Truck }
         ];
       case 'Warehouse Manager':
         return [
@@ -143,7 +152,9 @@ export default function Sidebar({ activeTab, setActiveTab, mobileOpen, setMobile
           { id: 'invoices', label: 'Invoices', icon: DollarSign },
           { id: 'payments', label: 'Payments', icon: DollarSign },
           { id: 'load-requests', label: 'Load Requests', icon: Plus },
-          { id: 'support', label: 'Support', icon: FileText },
+          { id: 'notifications', label: 'Notifications', icon: Bell },
+          { id: 'chat', label: 'Dispatcher Chat', icon: MessageSquare },
+          { id: 'support', label: 'Support', icon: HelpCircle },
           { id: 'settings', label: 'Settings', icon: Settings }
         ];
       default:

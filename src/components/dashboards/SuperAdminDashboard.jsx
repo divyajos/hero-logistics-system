@@ -19,7 +19,9 @@ import {
   sendReminder,
   updateSubscriptionSettings,
   fetchSupportTickets,
+  createSupportTicket,
   replySupportTicket,
+  updateSupportTicket,
   fetchAuditLogs,
   createAuditLog
 } from '../../store/slices/companySlice';
@@ -145,6 +147,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
   const [companyName, setCompanyName] = useState('');
   const [companyPlan, setCompanyPlan] = useState('Professional');
   const [companyEmail, setCompanyEmail] = useState('');
+  const [companyPassword, setCompanyPassword] = useState('');
   
   // Search & Filter
   const [searchQuery, setSearchQuery] = useState('');
@@ -221,6 +224,31 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
   // ---- NEW: Support Tickets Filters ----
   const [supportPriorityFilter, setSupportPriorityFilter] = useState('');
   const [supportStatusFilter, setSupportStatusFilter] = useState('');
+
+  // ---- Support Tickets Modals ----
+  const [openTicketModalOpen, setOpenTicketModalOpen] = useState(false);
+  const [assignTicketModalOpen, setAssignTicketModalOpen] = useState(false);
+  const [resolveTicketModalOpen, setResolveTicketModalOpen] = useState(false);
+
+  // ---- Support Tickets Form States ----
+  const [newTicketCompany, setNewTicketCompany] = useState('');
+  const [newTicketCategory, setNewTicketCategory] = useState('General');
+  const [newTicketPriority, setNewTicketPriority] = useState('Medium');
+  const [newTicketSubject, setNewTicketSubject] = useState('');
+  const [newTicketMessage, setNewTicketMessage] = useState('');
+
+  const [assignTicketId, setAssignTicketId] = useState('');
+  const [assignTicketAgent, setAssignTicketAgent] = useState('L2 Support');
+
+  const [resolveTicketId, setResolveTicketId] = useState('');
+  const [resolveResolution, setResolveResolution] = useState('');
+
+  // ---- Subscription Modals & Form States ----
+  const [renewSubModalOpen, setRenewSubModalOpen] = useState(false);
+  const [upgradeSubModalOpen, setUpgradeSubModalOpen] = useState(false);
+  const [renewSubCompanyId, setRenewSubCompanyId] = useState('');
+  const [upgradeSubCompanyId, setUpgradeSubCompanyId] = useState('');
+  const [upgradeSubPlan, setUpgradeSubPlan] = useState('Professional');
 
   // ---- NEW: Billing Sub-Tab ----
   const [billingSubTab, setBillingSubTab] = useState('Invoices');
@@ -382,6 +410,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
     try {
       const amountNum = parseFloat(invoiceAmount);
       await dispatch(generateInvoice({ id: tempCompany.id, amount: amountNum, period: invoicePeriod })).unwrap();
+      dispatch(fetchTenants());
       logAuditAction('Invoice Generation', `Generated invoice ${invoicePeriod} for $${amountNum}.`, tempCompany.id, tempCompany.name);
       triggerToast(`Generated invoice of $${amountNum} for ${tempCompany.name}`, 'success');
       setInvoiceModalOpen(false);
@@ -640,7 +669,143 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
   const handleExportReportSubmit = (e) => {
     e.preventDefault();
     triggerToast(`Exporting ${reportType} report in ${reportFormat} format...`, 'success');
+
+    let content = '';
+    let filename = '';
+    let mimeType = 'text/csv;charset=utf-8;';
+
+    const downloadFile = (fileContent, downloadName, fileMime) => {
+      const blob = new Blob([fileContent], { type: fileMime });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = downloadName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    };
+
+    if (reportType === 'Global Platform') {
+      if (reportFormat === 'CSV' || reportFormat === 'Excel') {
+        filename = `global_platform_overview_${Date.now()}.csv`;
+        content = 'Company ID,Company Name,License Plan,Status,Manager Email,Joined Date,MRR\n';
+        tenants.forEach(t => {
+          const mrrVal = t.plan === 'Starter' ? 199 : (t.plan === 'Professional' ? 499 : 1299);
+          content += `${t.id},"${(t.name || '').replace(/"/g, '""')}",${t.plan},${t.status},${t.manager || ''},${t.joined || ''},$${mrrVal}\n`;
+        });
+      } else {
+        filename = `global_platform_overview_${Date.now()}.txt`;
+        mimeType = 'text/plain;charset=utf-8;';
+        content = 'GLOBAL PLATFORM OVERVIEW REPORT\n';
+        content += '===============================\n\n';
+        content += `Generated on: ${new Date().toLocaleString()}\n`;
+        content += `Active Plans: ${tenants.filter(t => t.status === 'Active').length}\n`;
+        content += `On Hold Plans: ${tenants.filter(t => t.status === 'Hold').length}\n\n`;
+        content += 'Company List:\n';
+        tenants.forEach(t => {
+          content += `- ${t.name} (Plan: ${t.plan}, Status: ${t.status}, Joined: ${t.joined || 'N/A'})\n`;
+        });
+      }
+    } else if (reportType === 'Financial Statement') {
+      if (reportFormat === 'CSV' || reportFormat === 'Excel') {
+        filename = `financial_statement_${Date.now()}.csv`;
+        content = 'Company,Invoice ID,Invoice Period,Amount,Status\n';
+        tenants.forEach(t => {
+          if (t.invoices) {
+            t.invoices.forEach(inv => {
+              content += `"${(t.name || '').replace(/"/g, '""')}",${inv.id},${inv.period || inv.date},${inv.amount},${inv.status}\n`;
+            });
+          }
+        });
+      } else {
+        filename = `financial_statement_${Date.now()}.txt`;
+        mimeType = 'text/plain;charset=utf-8;';
+        content = 'FINANCIAL STATEMENT LEDGER\n';
+        content += '==========================\n\n';
+        tenants.forEach(t => {
+          content += `Company: ${t.name}\n`;
+          if (t.invoices && t.invoices.length > 0) {
+            t.invoices.forEach(inv => {
+              content += `  - Invoice #${inv.id}: ${inv.period || inv.date} | $${inv.amount} | Status: ${inv.status}\n`;
+            });
+          } else {
+            content += '  - No invoice records found\n';
+          }
+          content += '\n';
+        });
+      }
+    } else if (reportType === 'Audit Log Archive') {
+      if (reportFormat === 'CSV' || reportFormat === 'Excel') {
+        filename = `audit_logs_${Date.now()}.csv`;
+        content = 'Log ID,Action,Details,Company Name,Timestamp\n';
+        auditLogs.forEach(log => {
+          content += `${log.id},"${(log.action || '').replace(/"/g, '""')}","${(log.detail || '').replace(/"/g, '""')}","${(log.companyName || '').replace(/"/g, '""')}",${log.time}\n`;
+        });
+      } else {
+        filename = `audit_logs_${Date.now()}.txt`;
+        mimeType = 'text/plain;charset=utf-8;';
+        content = 'AUDIT LOG ARCHIVE REPORT\n';
+        content += '========================\n\n';
+        auditLogs.forEach(log => {
+          content += `[${log.time}] Action: ${log.action} | Detail: ${log.detail} ${log.companyName ? `(${log.companyName})` : ''}\n`;
+        });
+      }
+    } else if (reportType === 'Support Ticket Summary') {
+      if (reportFormat === 'CSV' || reportFormat === 'Excel') {
+        filename = `support_tickets_${Date.now()}.csv`;
+        content = 'Ticket ID,Company Name,Subject,Category,Priority,Status,Agent,Created Date\n';
+        tickets.forEach(t => {
+          content += `${t.id},"${(t.company || t.tenantName || '').replace(/"/g, '""')}","${(t.subject || t.title || '').replace(/"/g, '""')}",${t.category || 'General'},${t.priority || 'Medium'},${t.status},${t.assignedAgent || 'Unassigned'},${t.createdAt || ''}\n`;
+        });
+      } else {
+        filename = `support_tickets_${Date.now()}.txt`;
+        mimeType = 'text/plain;charset=utf-8;';
+        content = 'SUPPORT TICKET SUMMARY\n';
+        content += '======================\n\n';
+        tickets.forEach(t => {
+          content += `Ticket #${t.id} - ${t.subject || t.title}\n`;
+          content += `  Company: ${t.company || t.tenantName}\n`;
+          content += `  Category: ${t.category || 'General'} | Priority: ${t.priority || 'Medium'} | Status: ${t.status}\n`;
+          content += `  Message: ${t.message || t.msg}\n`;
+          content += `  Assigned Agent: ${t.assignedAgent || 'Unassigned'}\n`;
+          if (t.replies && t.replies.length > 0) {
+            content += '  Replies:\n';
+            t.replies.forEach(r => {
+              content += `    * [${r.sender}]: ${r.msg || r.message}\n`;
+            });
+          }
+          content += '\n';
+        });
+      }
+    }
+
+    if (filename && content) {
+      downloadFile(content, filename, mimeType);
+    }
+    
     setExportReportModalOpen(false);
+  };
+
+  const handleDirectExport = () => {
+    triggerToast('Generating and exporting global platform report...', 'success');
+    
+    const filename = `global_platform_overview_${Date.now()}.csv`;
+    let content = 'Company ID,Company Name,License Plan,Status,Manager Email,Joined Date,MRR\n';
+    tenants.forEach(t => {
+      const mrrVal = t.plan === 'Starter' ? 199 : (t.plan === 'Professional' ? 499 : 1299);
+      content += `${t.id},"${(t.name || '').replace(/"/g, '""')}",${t.plan},${t.status},${t.manager || ''},${t.joined || ''},$${mrrVal}\n`;
+    });
+
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   // Bulk actions handlers
@@ -842,10 +1007,174 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
     setToastType(type);
   };
 
+  const handleOpenTicketModal = () => {
+    setNewTicketCompany(tenants[0]?.name || '');
+    setNewTicketCategory('General');
+    setNewTicketPriority('Medium');
+    setNewTicketSubject('');
+    setNewTicketMessage('');
+    setOpenTicketModalOpen(true);
+  };
+
+  const handleOpenAssignModal = () => {
+    const openTickets = tickets.filter(t => t.status === 'Open');
+    setAssignTicketId(openTickets[0]?.id || '');
+    setAssignTicketAgent('L2 Support');
+    setAssignTicketModalOpen(true);
+  };
+
+  const handleOpenResolveModal = () => {
+    const openTickets = tickets.filter(t => t.status === 'Open');
+    setResolveTicketId(openTickets[0]?.id || '');
+    setResolveResolution('');
+    setResolveTicketModalOpen(true);
+  };
+
+  const handleCreateTicketSubmit = async (e) => {
+    e.preventDefault();
+    if (!newTicketSubject.trim() || !newTicketMessage.trim()) {
+      triggerToast('Please complete all ticket credentials.', 'error');
+      return;
+    }
+    try {
+      await dispatch(createSupportTicket({
+        tenantName: newTicketCompany,
+        company: newTicketCompany,
+        title: newTicketSubject,
+        subject: newTicketSubject,
+        msg: newTicketMessage,
+        message: newTicketMessage,
+        category: newTicketCategory,
+        priority: newTicketPriority
+      })).unwrap();
+      dispatch(fetchSupportTickets());
+      setOpenTicketModalOpen(false);
+      triggerToast('Support ticket created successfully!');
+      logAuditAction('Ticket Created', `New support ticket "${newTicketSubject}" created for ${newTicketCompany}.`);
+      if (setActiveTab) {
+        setActiveTab('overview');
+      }
+    } catch (err) {
+      triggerToast(err || 'Failed to create support ticket', 'error');
+    }
+  };
+
+  const handleAssignTicketSubmit = async (e) => {
+    e.preventDefault();
+    if (!assignTicketId) {
+      triggerToast('No ticket selected.', 'error');
+      return;
+    }
+    try {
+      await dispatch(updateSupportTicket({
+        id: Number(assignTicketId),
+        updateData: {
+          assignedAgent: assignTicketAgent
+        }
+      })).unwrap();
+      dispatch(fetchSupportTickets());
+      setAssignTicketModalOpen(false);
+      triggerToast(`Ticket #${assignTicketId} assigned to ${assignTicketAgent}.`);
+      logAuditAction('Ticket Assigned', `Ticket #${assignTicketId} assigned to ${assignTicketAgent}.`);
+    } catch (err) {
+      triggerToast(err || 'Failed to assign ticket', 'error');
+    }
+  };
+
+  const handleResolveTicketSubmit = async (e) => {
+    e.preventDefault();
+    if (!resolveTicketId) {
+      triggerToast('No ticket selected.', 'error');
+      return;
+    }
+    try {
+      if (resolveResolution.trim()) {
+        await dispatch(replySupportTicket({
+          id: Number(resolveTicketId),
+          msg: resolveResolution
+        })).unwrap();
+      } else {
+        await dispatch(updateSupportTicket({
+          id: Number(resolveTicketId),
+          updateData: { status: 'Resolved' }
+        })).unwrap();
+      }
+      dispatch(fetchSupportTickets());
+      setResolveTicketModalOpen(false);
+      triggerToast(`Ticket #${resolveTicketId} marked as Resolved.`);
+      logAuditAction('Ticket Resolved', `Ticket #${resolveTicketId} resolved.`);
+    } catch (err) {
+      triggerToast(err || 'Failed to resolve ticket', 'error');
+    }
+  };
+
+  const handleOpenRenewSubModal = () => {
+    setRenewSubCompanyId(tenants[0]?.id ? String(tenants[0].id) : '');
+    setRenewSubModalOpen(true);
+  };
+
+  const handleOpenUpgradeSubModal = () => {
+    setUpgradeSubCompanyId(tenants[0]?.id ? String(tenants[0].id) : '');
+    setUpgradeSubPlan('Enterprise');
+    setUpgradeSubModalOpen(true);
+  };
+
+  const handleRenewSubSubmit = async (e) => {
+    e.preventDefault();
+    if (!renewSubCompanyId) {
+      triggerToast('Please select a company to renew subscription.', 'error');
+      return;
+    }
+    const company = tenants.find(t => t.id === Number(renewSubCompanyId));
+    if (company) {
+      try {
+        await dispatch(renewSubscription(company.id)).unwrap();
+        // Update local DB for client side
+        updateLocalDb(db => {
+          const t = db.tenants.find(x => x.id === company.id);
+          if (t) {
+            const current = new Date(t.nextRenewalDate || '2026-07-24');
+            current.setMonth(current.getMonth() + 1);
+            t.nextRenewalDate = current.toLocaleDateString();
+          }
+        });
+        dispatch(fetchTenants());
+        logAuditAction('Renew', `Subscription manually extended.`, company.id, company.name);
+        triggerToast(`Renewed subscription for ${company.name}`, 'success');
+        setRenewSubModalOpen(false);
+      } catch (err) {
+        triggerToast(err || 'Failed to renew subscription', 'error');
+      }
+    }
+  };
+
+  const handleUpgradeSubSubmit = async (e) => {
+    e.preventDefault();
+    if (!upgradeSubCompanyId) {
+      triggerToast('Please select a company to upgrade subscription.', 'error');
+      return;
+    }
+    const company = tenants.find(t => t.id === Number(upgradeSubCompanyId));
+    if (company) {
+      try {
+        dispatch(editCompanyRedux({ id: company.id, name: company.name, plan: upgradeSubPlan, email: company.manager || 'admin@hero.com' }));
+        updateLocalDb(db => {
+          const t = db.tenants.find(x => x.id === company.id);
+          if (t) t.plan = upgradeSubPlan;
+        });
+        logAuditAction('Plan Changed', `Changed plan of ${company.name} to ${upgradeSubPlan}.`, company.id, company.name);
+        triggerToast(`Upgraded subscription of ${company.name} to ${upgradeSubPlan}.`);
+        setUpgradeSubModalOpen(false);
+      } catch (err) {
+        triggerToast(err || 'Failed to upgrade subscription', 'error');
+      }
+    }
+  };
+
   // CRUD handlers
   const handleProvisionCompany = (e) => {
     e.preventDefault();
-    if (!companyName || !companyEmail) {
+    if (!companyName || !companyEmail || !companyPassword) {
       triggerToast('Please complete all form credentials.', 'error');
       return;
     }
@@ -854,11 +1183,13 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
       name: companyName,
       plan: companyPlan,
       email: companyEmail,
+      password: companyPassword,
       joined: new Date().toLocaleDateString()
     }));
     logAuditAction('Company Created', `${companyName} provisioned on ${companyPlan} Plan.`, tempId, companyName);
     setCompanyName('');
     setCompanyEmail('');
+    setCompanyPassword('');
     setProvisionModalOpen(false);
     triggerToast(`Tenant ${companyName} provisioned successfully!`);
   };
@@ -995,6 +1326,20 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
     }
   ];
 
+  const allInvoices = tenants.reduce((acc, tenant) => {
+    const invs = tenant.invoices || [];
+    invs.forEach(inv => {
+      acc.push({
+        ...inv,
+        tenantId: tenant.id,
+        tenantName: tenant.name,
+        tenantPlan: tenant.plan,
+        originalTenant: tenant
+      });
+    });
+    return acc;
+  }, []);
+
   return (
     <div className="space-y-6">
       
@@ -1013,7 +1358,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => triggerToast('Exporting global platform report...')}>
+          <Button variant="outline" onClick={handleDirectExport}>
             Export Report
           </Button>
           {activeTab === 'companies' && (
@@ -1072,11 +1417,11 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                         <div className="flex flex-wrap gap-1.5">
                           <Button size="sm" variant="secondary" onClick={() => { setSelectedCompany(row); setCompanyDetailsTab('overview'); setDetailsDrawerOpen(true); }}>View</Button>
                           {row.status !== 'Hold' ? (
-                            <Button size="sm" variant="danger" onClick={() => handleSuspendCompany(row.id, row.name)}>Suspend</Button>
+                            <Button size="sm" variant="danger" onClick={() => { setSelectedCompanyIdToSuspend(String(row.id)); setSuspendModalOpen(true); }}>Suspend</Button>
                           ) : (
-                            <Button size="sm" variant="success" onClick={() => handleReactivateCompany(row.id, row.name)}>Reactivate</Button>
+                            <Button size="sm" variant="success" onClick={() => { setSelectedCompanyIdToReactivate(String(row.id)); setReactivateModalOpen(true); }}>Reactivate</Button>
                           )}
-                          <Button size="sm" variant="outline" onClick={() => handleLoginAs(row.id, row.name)}>Login As</Button>
+                          <Button size="sm" variant="outline" onClick={() => { setSelectedCompanyIdToLoginAs(String(row.id)); setLoginAsModalOpen(true); }}>Login As</Button>
                           <Button size="sm" variant="secondary" onClick={() => handleViewBilling(row)}>Billing</Button>
                         </div>
                       )}
@@ -1209,9 +1554,9 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                       </div>
                     </div>
                     <div className="flex gap-2 text-xs">
-                      <Button size="sm" className="flex-1" variant="primary" onClick={() => triggerToast('Support query setup modal loaded.')}>Open Ticket</Button>
-                      <Button size="sm" className="flex-1" variant="secondary" onClick={() => triggerToast('Assigning oldest ticket to developers.')}>Assign Ticket</Button>
-                      <Button size="sm" className="flex-1" variant="success" onClick={() => triggerToast('Resolving ticket thread #101.')}>Resolve Ticket</Button>
+                      <Button size="sm" className="flex-1" variant="primary" onClick={handleOpenTicketModal}>Open Ticket</Button>
+                      <Button size="sm" className="flex-1" variant="secondary" onClick={handleOpenAssignModal}>Assign Ticket</Button>
+                      <Button size="sm" className="flex-1" variant="success" onClick={handleOpenResolveModal}>Resolve Ticket</Button>
                     </div>
                   </div>
 
@@ -1240,9 +1585,15 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <Button size="sm" className="flex-1" variant="primary" onClick={() => triggerToast('Subscription plan update loaded.')}>Change Sub</Button>
-                      <Button size="sm" className="flex-1" variant="secondary" onClick={() => triggerToast('Renewed Swift Cargo Express license.')}>Renew</Button>
-                      <Button size="sm" className="flex-1" variant="success" onClick={() => triggerToast('Upgraded Apex Logistics to Enterprise.')}>Upgrade</Button>
+                      <Button size="sm" className="flex-1" variant="primary" onClick={() => {
+                        if (tenants.length > 0) {
+                          setSelectedCompanyIdToChangeSub(String(tenants[0].id));
+                          setNewSubPlan(tenants[0].plan);
+                        }
+                        setChangeSubGeneralModalOpen(true);
+                      }}>Change Sub</Button>
+                      <Button size="sm" className="flex-1" variant="secondary" onClick={handleOpenRenewSubModal}>Renew</Button>
+                      <Button size="sm" className="flex-1" variant="success" onClick={handleOpenUpgradeSubModal}>Upgrade</Button>
                     </div>
                   </div>
 
@@ -1514,11 +1865,11 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                                   <button onClick={() => { setActiveActionsRowId(null); setSelectedCompany(row); setCompanyDetailsTab('overview'); setDetailsDrawerOpen(true); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-slate-355 hover:text-white font-semibold">View Company</button>
                                   <button onClick={() => { setActiveActionsRowId(null); handleOpenEdit(row); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-slate-355 hover:text-white font-semibold">Edit Company</button>
                                   {row.status !== 'Hold' ? (
-                                    <button onClick={() => { setActiveActionsRowId(null); handleSuspendCompany(row.id, row.name); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-red-400 hover:text-red-300 font-semibold">Suspend Company</button>
+                                    <button onClick={() => { setActiveActionsRowId(null); setSelectedCompanyIdToSuspend(String(row.id)); setSuspendModalOpen(true); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-red-400 hover:text-red-300 font-semibold">Suspend Company</button>
                                   ) : (
-                                    <button onClick={() => { setActiveActionsRowId(null); handleReactivateCompany(row.id, row.name); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-emerald-400 hover:text-emerald-300 font-semibold">Reactivate Company</button>
+                                    <button onClick={() => { setActiveActionsRowId(null); setSelectedCompanyIdToReactivate(String(row.id)); setReactivateModalOpen(true); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-emerald-400 hover:text-emerald-300 font-semibold">Reactivate Company</button>
                                   )}
-                                  <button onClick={() => { setActiveActionsRowId(null); handleLoginAs(row.id, row.name); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-slate-355 hover:text-white font-semibold">Login as Company Admin</button>
+                                  <button onClick={() => { setActiveActionsRowId(null); setSelectedCompanyIdToLoginAs(String(row.id)); setLoginAsModalOpen(true); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-slate-355 hover:text-white font-semibold">Login as Company Admin</button>
                                   <button onClick={() => { setActiveActionsRowId(null); handleChangeSubscription(row); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-slate-355 hover:text-white font-semibold">Change Subscription</button>
                                   <button onClick={() => { setActiveActionsRowId(null); handleManageFeatures(row); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-slate-355 hover:text-white font-semibold">Manage Features</button>
                                   <button onClick={() => { setActiveActionsRowId(null); handleViewBilling(row); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-slate-355 hover:text-white font-semibold">View Billing</button>
@@ -1924,26 +2275,32 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-[#23324C]/30">
-                          {tenants.map((row, idx) => (
-                            <tr key={row.id} className="hover:bg-slate-800/20">
-                              <td className="p-3 font-mono font-bold text-slate-400">#INV-{1000 + idx + 1}</td>
-                              <td className="p-3 font-bold text-white">{row.name}</td>
-                              <td className="p-3 text-slate-300">{row.plan}</td>
-                              <td className="p-3 text-right font-bold text-emerald-400">{row.plan === 'Starter' ? '$199.00' : row.plan === 'Professional' ? '$499.00' : '$1,299.00'}</td>
-                              <td className="p-3 text-center">
-                                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
-                                  row.status === 'Active' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                                }`}>{row.status === 'Active' ? 'Paid' : 'Unpaid'}</span>
-                              </td>
-                              <td className="p-3 text-slate-400 font-mono text-[10px]">07/01/2026</td>
-                              <td className="p-3 text-center">
-                                <div className="flex gap-1 justify-center">
-                                  <Button size="sm" variant="secondary" onClick={() => triggerToast(`Invoice #INV-${1000 + idx + 1} PDF generated.`)}>Download</Button>
-                                  <Button size="sm" variant="outline" onClick={() => { setTempCompany(row); setInvoiceAmount(String(row.plan === 'Starter' ? 199 : row.plan === 'Professional' ? 499 : 1299)); setInvoicePeriod('June 2026'); setInvoiceModalOpen(true); }}>Regenerate</Button>
-                                </div>
-                              </td>
+                          {allInvoices.length === 0 ? (
+                            <tr>
+                              <td colSpan="7" className="p-8 text-center text-slate-500 italic">No invoices found.</td>
                             </tr>
-                          ))}
+                          ) : (
+                            allInvoices.map((inv) => (
+                              <tr key={inv.id} className="hover:bg-slate-800/20">
+                                <td className="p-3 font-mono font-bold text-slate-400">#{inv.id}</td>
+                                <td className="p-3 font-bold text-white">{inv.tenantName}</td>
+                                <td className="p-3 text-slate-300">{inv.tenantPlan}</td>
+                                <td className="p-3 text-right font-bold text-emerald-400">${parseFloat(inv.amount || 0).toFixed(2)}</td>
+                                <td className="p-3 text-center">
+                                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
+                                    inv.status === 'Paid' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                                  }`}>{inv.status}</span>
+                                </td>
+                                <td className="p-3 text-slate-400 font-mono text-[10px]">{inv.date}</td>
+                                <td className="p-3 text-center">
+                                  <div className="flex gap-1 justify-center">
+                                    <Button size="sm" variant="secondary" onClick={() => triggerToast(`Invoice #${inv.id} PDF generated.`)}>Download</Button>
+                                    <Button size="sm" variant="outline" onClick={() => { setTempCompany(inv.originalTenant); setInvoiceAmount(String(inv.amount)); setInvoicePeriod(inv.period || 'Custom Invoice'); setInvoiceModalOpen(true); }}>Regenerate</Button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))
+                          )}
                         </tbody>
                       </table>
                     </div>
@@ -2771,7 +3128,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                       <option value="Open">Open</option>
                       <option value="Resolved">Resolved</option>
                     </select>
-                    <Button variant="primary" size="sm" icon={Plus} onClick={() => triggerToast('New support ticket creation form loaded.')}>New Ticket</Button>
+                    <Button variant="primary" size="sm" icon={Plus} onClick={handleOpenTicketModal}>New Ticket</Button>
                   </div>
                 </div>
 
@@ -2814,8 +3171,8 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                           <td className="p-3">
                             <div className="flex gap-1 justify-center flex-wrap">
                               <Button size="sm" variant="secondary" onClick={() => { setSelectedTicket(t); setTicketDrawerOpen(true); }}>View</Button>
-                              <Button size="sm" variant="outline" onClick={() => { logAuditAction('Ticket Assigned', `Ticket #${t.id} assigned to support team.`); triggerToast(`Ticket #${t.id} assigned to L2 support.`); }}>Assign</Button>
-                              <Button size="sm" variant="success" onClick={() => { logAuditAction('Ticket Resolved', `Ticket #${t.id} closed.`); triggerToast(`Ticket #${t.id} marked resolved.`); }}>Resolve</Button>
+                              <Button size="sm" variant="outline" onClick={() => { setSelectedTicket(t); setAssignTicketId(t.id); setAssignTicketAgent('L2 Support'); setAssignTicketModalOpen(true); }}>Assign</Button>
+                              <Button size="sm" variant="success" onClick={() => { setSelectedTicket(t); setResolveTicketId(t.id); setResolveResolution(''); setResolveTicketModalOpen(true); }}>Resolve</Button>
                             </div>
                           </td>
                         </tr>
@@ -2855,6 +3212,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
         <form onSubmit={handleProvisionCompany} className="space-y-4">
           <TextInput label="Tenant Company Name" required placeholder="e.g. Titan Freightlines LLC" value={companyName} onChange={(e) => setCompanyName(e.target.value)} />
           <TextInput label="Workspace Manager Email" required type="email" placeholder="e.g. admin@titan.com" value={companyEmail} onChange={(e) => setCompanyEmail(e.target.value)} />
+          <TextInput label="Workspace Manager Password" required type="password" placeholder="••••••••" value={companyPassword} onChange={(e) => setCompanyPassword(e.target.value)} />
           <SelectInput label="License Plan Tier" value={companyPlan} onChange={(e) => setCompanyPlan(e.target.value)} options={[
             { value: 'Starter', label: 'Starter Tier' },
             { value: 'Professional', label: 'Professional Tier' },
@@ -3746,6 +4104,171 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
           />
           <Button type="submit" variant="primary" className="w-full">
             Generate & Export Report
+          </Button>
+        </form>
+      </Modal>
+
+      {/* Support - Open Ticket Modal */}
+      <Modal isOpen={openTicketModalOpen} onClose={() => setOpenTicketModalOpen(false)} title="Open Support Ticket">
+        <form onSubmit={handleCreateTicketSubmit} className="space-y-4">
+          <SelectInput
+            label="Tenant Company"
+            value={newTicketCompany}
+            onChange={(e) => setNewTicketCompany(e.target.value)}
+            options={tenants.map(t => ({ value: t.name, label: t.name }))}
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <SelectInput
+              label="Category"
+              value={newTicketCategory}
+              onChange={(e) => setNewTicketCategory(e.target.value)}
+              options={[
+                { value: 'General', label: 'General / Platform' },
+                { value: 'Accounts', label: 'Accounts & Billing' },
+                { value: 'Dispatch', label: 'Dispatch & Routing' },
+                { value: 'Fleet', label: 'Fleet & Safety' },
+                { value: 'Technical', label: 'Technical Bug' }
+              ]}
+            />
+            <SelectInput
+              label="Priority"
+              value={newTicketPriority}
+              onChange={(e) => setNewTicketPriority(e.target.value)}
+              options={[
+                { value: 'Low', label: 'Low' },
+                { value: 'Medium', label: 'Medium' },
+                { value: 'High', label: 'High' }
+              ]}
+            />
+          </div>
+          <TextInput
+            label="Subject heading"
+            required
+            placeholder="e.g. GPS Geofencing synchronization error"
+            value={newTicketSubject}
+            onChange={(e) => setNewTicketSubject(e.target.value)}
+          />
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Detailed Message Payload</label>
+            <textarea
+              required
+              rows={4}
+              value={newTicketMessage}
+              onChange={(e) => setNewTicketMessage(e.target.value)}
+              placeholder="Describe the issue or request in detail..."
+              className="block w-full px-4 py-3 bg-[#111827] border border-[#23324C] focus:border-brand-500 rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500"
+            />
+          </div>
+          <Button type="submit" variant="primary" className="w-full">
+            <Check className="h-4 w-4 mr-1" /> Open Ticket
+          </Button>
+        </form>
+      </Modal>
+
+      {/* Support - Assign Ticket Modal */}
+      <Modal isOpen={assignTicketModalOpen} onClose={() => setAssignTicketModalOpen(false)} title="Assign Support Ticket">
+        <form onSubmit={handleAssignTicketSubmit} className="space-y-4">
+          <SelectInput
+            label="Select Open Ticket"
+            value={assignTicketId}
+            onChange={(e) => setAssignTicketId(e.target.value)}
+            options={
+              tickets.filter(t => t.status === 'Open').length > 0 
+                ? tickets.filter(t => t.status === 'Open').map(t => ({
+                    value: t.id,
+                    label: `#${t.id} - ${t.subject || t.title} (${t.company || t.tenantName})`
+                  }))
+                : [{ value: '', label: 'No open tickets available' }]
+            }
+          />
+          <SelectInput
+            label="Support Assignee Tier"
+            value={assignTicketAgent}
+            onChange={(e) => setAssignTicketAgent(e.target.value)}
+            options={[
+              { value: 'L1 Support', label: 'L1 General Support' },
+              { value: 'L2 Support', label: 'L2 Senior Specialist' },
+              { value: 'Engineering Team', label: 'L3 Engineering & Devs' },
+              { value: 'QA Team', label: 'QA Verification' },
+              { value: 'Billing Admin', label: 'Billing & Account Executive' }
+            ]}
+          />
+          <Button type="submit" variant="primary" className="w-full">
+            <Check className="h-4 w-4 mr-1" /> Save Assignment
+          </Button>
+        </form>
+      </Modal>
+
+      {/* Support - Resolve Ticket Modal */}
+      <Modal isOpen={resolveTicketModalOpen} onClose={() => setResolveTicketModalOpen(false)} title="Resolve Support Ticket">
+        <form onSubmit={handleResolveTicketSubmit} className="space-y-4">
+          <SelectInput
+            label="Select Ticket to Resolve"
+            value={resolveTicketId}
+            onChange={(e) => setResolveTicketId(e.target.value)}
+            options={
+              tickets.filter(t => t.status === 'Open').length > 0 
+                ? tickets.filter(t => t.status === 'Open').map(t => ({
+                    value: t.id,
+                    label: `#${t.id} - ${t.subject || t.title} (${t.company || t.tenantName})`
+                  }))
+                : [{ value: '', label: 'No open tickets available' }]
+            }
+          />
+          <div>
+            <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Resolution Note (Optional)</label>
+            <textarea
+              rows={3}
+              value={resolveResolution}
+              onChange={(e) => setResolveResolution(e.target.value)}
+              placeholder="Provide summary of resolution or notes for the customer..."
+              className="block w-full px-4 py-3 bg-[#111827] border border-[#23324C] focus:border-brand-500 rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500"
+            />
+          </div>
+          <Button type="submit" variant="success" className="w-full">
+            <Check className="h-4 w-4 mr-1" /> Mark Ticket Resolved
+          </Button>
+        </form>
+      </Modal>
+
+      {/* Subscription - Renew Subscription Modal */}
+      <Modal isOpen={renewSubModalOpen} onClose={() => setRenewSubModalOpen(false)} title="Renew Subscription Plan">
+        <form onSubmit={handleRenewSubSubmit} className="space-y-4">
+          <SelectInput
+            label="Select Tenant Company"
+            value={renewSubCompanyId}
+            onChange={(e) => setRenewSubCompanyId(e.target.value)}
+            options={tenants.map(t => ({ value: String(t.id), label: t.name }))}
+            placeholder="-- Select Company --"
+          />
+          <Button type="submit" variant="primary" className="w-full">
+            <Check className="h-4 w-4 mr-1" /> Renew License Subscription
+          </Button>
+        </form>
+      </Modal>
+
+      {/* Subscription - Upgrade Subscription Modal */}
+      <Modal isOpen={upgradeSubModalOpen} onClose={() => setUpgradeSubModalOpen(false)} title="Upgrade Subscription Plan">
+        <form onSubmit={handleUpgradeSubSubmit} className="space-y-4">
+          <SelectInput
+            label="Select Tenant Company"
+            value={upgradeSubCompanyId}
+            onChange={(e) => setUpgradeSubCompanyId(e.target.value)}
+            options={tenants.map(t => ({ value: String(t.id), label: `${t.name} (Current: ${t.plan})` }))}
+            placeholder="-- Select Company --"
+          />
+          <SelectInput
+            label="Upgrade Target Tier Plan"
+            value={upgradeSubPlan}
+            onChange={(e) => setUpgradeSubPlan(e.target.value)}
+            options={[
+              { value: 'Starter', label: 'Starter Tier - $199/mo' },
+              { value: 'Professional', label: 'Professional Tier - $499/mo' },
+              { value: 'Enterprise', label: 'Enterprise Tier - $1,299/mo' }
+            ]}
+          />
+          <Button type="submit" variant="success" className="w-full">
+            <Check className="h-4 w-4 mr-1" /> Perform Plan Upgrade
           </Button>
         </form>
       </Modal>

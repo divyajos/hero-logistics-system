@@ -42,7 +42,7 @@ import {
 } from 'recharts';
 
 import {
-  Mail, Phone, Calendar, User, UserPlus, BarChart3, ShieldCheck,
+  Bell, Mail, Phone, Calendar, User, UserPlus, BarChart3, ShieldCheck,
   Plus, Check, ArrowRight, ArrowLeft, Trash2, Edit, FileText, ChevronRight,
   Filter, Settings, Search, Sliders, X, Briefcase, Clock, Activity,
   FileSpreadsheet, Play, CheckSquare, Square, AlertTriangle, Layers,
@@ -155,6 +155,10 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
   const [proposalPreviewModalOpen, setProposalPreviewModalOpen] = useState(false);
   const [demoModalOpen, setDemoModalOpen] = useState(false);
   const [followupModalOpen, setFollowupModalOpen] = useState(false);
+  const [onboardingTaskModalOpen, setOnboardingTaskModalOpen] = useState(false);
+  const [onboardingTaskForm, setOnboardingTaskForm] = useState({ name: '' });
+  const [onboardingHandoverModalOpen, setOnboardingHandoverModalOpen] = useState(false);
+  const [onboardingHandoverForm, setOnboardingHandoverForm] = useState({ notes: '', repName: 'Alex Wright' });
   const [dragConfirmModalOpen, setDragConfirmModalOpen] = useState(false);
   const [extendTrialModalOpen, setExtendTrialModalOpen] = useState(false);
   const [contactModalOpen, setContactModalOpen] = useState(false);
@@ -164,6 +168,8 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
   const [taskModalOpen, setTaskModalOpen] = useState(false);
   const [previewDocModalOpen, setPreviewDocModalOpen] = useState(false);
   const [conversionWizardOpen, setConversionWizardOpen] = useState(false);
+  const [crmNotificationsOpen, setCrmNotificationsOpen] = useState(false);
+  const [recommendPlanModalOpen, setRecommendPlanModalOpen] = useState(false);
 
   // --- CRM CONFIGS, REVISIONS, AND REPORT STATES ---
   const [revisingProposalId, setRevisingProposalId] = useState(null);
@@ -249,6 +255,142 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
     }
   };
 
+  const handleSaveTemplate = () => {
+    const updatedTemplates = {
+      ...customTemplates,
+      [settingsActiveTemplate]: settingsTemplateBody
+    };
+    setCustomTemplates(updatedTemplates);
+    localStorage.setItem('hero_crm_templates', JSON.stringify(updatedTemplates));
+    triggerToast(`Email template "${settingsActiveTemplate}" updated successfully!`);
+  };
+
+  const handleAddStage = () => {
+    if (!newStageInput.trim()) return;
+    if (pipelineStages.includes(newStageInput.trim())) {
+      triggerToast('Stage already exists.', 'warning');
+      return;
+    }
+    const updatedStages = [...pipelineStages, newStageInput.trim()];
+    setPipelineStages(updatedStages);
+    localStorage.setItem('hero_crm_stages', JSON.stringify(updatedStages));
+    setNewStageInput('');
+    triggerToast(`Pipeline stage "${newStageInput.trim()}" added.`);
+  };
+
+  const handleDeleteStage = (stageToDelete) => {
+    if (['New Lead', 'Won', 'Lost'].includes(stageToDelete)) {
+      triggerToast('Core stages (New Lead, Won, Lost) cannot be deleted.', 'warning');
+      return;
+    }
+    const updatedStages = pipelineStages.filter(s => s !== stageToDelete);
+    setPipelineStages(updatedStages);
+    localStorage.setItem('hero_crm_stages', JSON.stringify(updatedStages));
+    triggerToast(`Stage "${stageToDelete}" deleted.`);
+  };
+
+  const handleAddLeadSource = () => {
+    if (!newLeadSourceInput.trim()) return;
+    if (leadSources.includes(newLeadSourceInput.trim())) {
+      triggerToast('Source already exists.', 'warning');
+      return;
+    }
+    const updatedSources = [...leadSources, newLeadSourceInput.trim()];
+    setLeadSources(updatedSources);
+    localStorage.setItem('hero_crm_lead_sources', JSON.stringify(updatedSources));
+    setNewLeadSourceInput('');
+    triggerToast(`Lead source "${newLeadSourceInput.trim()}" added.`);
+  };
+
+  const handleDeleteLeadSource = (sourceToDelete) => {
+    if (leadSources.length <= 1) {
+      triggerToast('At least one lead source is required.', 'warning');
+      return;
+    }
+    const updatedSources = leadSources.filter(s => s !== sourceToDelete);
+    setLeadSources(updatedSources);
+    localStorage.setItem('hero_crm_lead_sources', JSON.stringify(updatedSources));
+    triggerToast(`Lead source "${sourceToDelete}" deleted.`);
+  };
+
+  const handleExportCSV = () => {
+    const headers = ['Company', 'Contact Name', 'Email', 'Phone', 'Stage', 'Revenue', 'Rep', 'Priority', 'Niche'];
+    const rows = crmDb.leads.map(l => [
+      l.company,
+      l.name,
+      l.email,
+      l.phone,
+      l.stage,
+      l.revenue,
+      l.rep,
+      l.priority,
+      l.niche
+    ]);
+    
+    const csvContent = [headers.join(','), ...rows.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Hero_Logistics_CRM_Leads_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    triggerToast("CSV Export downloaded successfully!");
+  };
+
+  const handleExportPDF = () => {
+    const printWindow = window.open('', '_blank');
+    const html = `
+      <html>
+        <head>
+          <title>Hero Logistics - CRM Report</title>
+          <style>
+            body { font-family: sans-serif; padding: 20px; color: #333; }
+            h1 { border-bottom: 2px solid #FFD400; padding-bottom: 10px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+          </style>
+        </head>
+        <body>
+          <h1>Hero Logistics System - CRM Leads Report</h1>
+          <p>Generated on: ${new Date().toLocaleString()}</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Contact Name</th>
+                <th>Email</th>
+                <th>Stage</th>
+                <th>Rep</th>
+                <th>Est. Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${crmDb.leads.map(l => `
+                <tr>
+                  <td><strong>${l.company}</strong></td>
+                  <td>${l.name}</td>
+                  <td>${l.email}</td>
+                  <td>${l.stage}</td>
+                  <td>${l.rep}</td>
+                  <td>$${l.revenue}/mo</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <script>
+            window.onload = function() { window.print(); window.close(); }
+          </script>
+        </body>
+      </html>
+    `;
+    printWindow.document.write(html);
+    printWindow.document.close();
+    triggerToast("PDF print dialog opened.");
+  };
+
   // --- ADD LEAD FORM STATE ---
   const [leadForm, setLeadForm] = useState({
     company: '', name: '', email: '', phone: '', website: '',
@@ -261,6 +403,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
 
   // --- MOCK FORM STATES ---
   const [demoForm, setDemoForm] = useState({ date: '', time: '10:00 AM', presenter: 'Alex Wright', notes: '' });
+  const [followupForm, setFollowupForm] = useState({ type: 'Call', priority: 'Medium', dueDate: '', dueTime: '10:00 AM', notes: '' });
 
   const handleOpenAddLeadModal = () => {
     setLeadForm({
@@ -415,6 +558,33 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
 
     setDemoModalOpen(false);
     triggerToast(`Demo Presentation scheduled for ${selectedLead.company}!`);
+  };
+  
+  const handleCreateFollowup = (e) => {
+    e.preventDefault();
+    if (!followupForm.dueDate) {
+      triggerToast('Due date is required.', 'error');
+      return;
+    }
+    crmRepository.createFollowup(selectedLead.id, {
+      type: followupForm.type,
+      priority: followupForm.priority,
+      dueDate: followupForm.dueDate,
+      dueTime: followupForm.dueTime,
+      notes: followupForm.notes
+    });
+    crmActivityEngine.logMutation(
+      selectedLead.id,
+      permissionRole,
+      'Followup Scheduled',
+      `Scheduled ${followupForm.type} follow-up on ${followupForm.dueDate} at ${followupForm.dueTime}. Notes: ${followupForm.notes}`,
+      'None',
+      'Scheduled'
+    );
+    const leadNewObj = crmRepository.getLeadById(selectedLead.id);
+    setSelectedLead(leadNewObj);
+    setFollowupModalOpen(false);
+    triggerToast(`Follow-up scheduled with ${selectedLead.company}!`);
   };
 
   // Completed Demo
@@ -1036,6 +1206,62 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
     triggerToast('Onboarding checklist updated.');
   };
 
+  const handleCreateOnboardingTask = (e) => {
+    e.preventDefault();
+    if (!onboardingTaskForm.name.trim()) {
+      triggerToast('Task name is required.', 'error');
+      return;
+    }
+    crmRepository.addOnboardingTask(selectedOnboarding.id, onboardingTaskForm.name.trim());
+    const db = crmRepository.getCrmDatabase();
+    setSelectedOnboarding(db.onboarding.find(o => o.id === selectedOnboarding.id));
+    setOnboardingTaskModalOpen(false);
+    triggerToast(`Added onboarding task: ${onboardingTaskForm.name}`);
+  };
+
+  const handleSendOnboardingHandover = (e) => {
+    e.preventDefault();
+    if (!onboardingHandoverForm.notes.trim()) {
+      triggerToast('Handover notes are required.', 'error');
+      return;
+    }
+    
+    crmStore.updateDb(db => {
+      const onboard = db.crmOnboarding.find(o => o.id === selectedOnboarding.id);
+      if (onboard) {
+        const exists = onboard.checklist.some(item => item.name === 'Onboarding Handover Package Dispatched');
+        if (!exists) {
+          onboard.checklist.push({
+            name: 'Onboarding Handover Package Dispatched',
+            completed: true
+          });
+        } else {
+          onboard.checklist.forEach(item => {
+            if (item.name === 'Onboarding Handover Package Dispatched') {
+              item.completed = true;
+            }
+          });
+        }
+        const allCompleted = onboard.checklist.every(c => c.completed);
+        onboard.status = allCompleted ? 'Completed' : 'In Progress';
+      }
+    });
+    
+    crmActivityEngine.logMutation(
+      selectedOnboarding.leadId,
+      permissionRole,
+      'Handover Dispatched',
+      `Onboarding handover checklist and documents dispatched. Notes: ${onboardingHandoverForm.notes}`,
+      'Onboarding',
+      'Handover Sent'
+    );
+    
+    const db = crmRepository.getCrmDatabase();
+    setSelectedOnboarding(db.onboarding.find(o => o.id === selectedOnboarding.id));
+    setOnboardingHandoverModalOpen(false);
+    triggerToast(`Handover package sent to Operations Team successfully!`);
+  };
+
   return (
     <div className="space-y-6">
       
@@ -1088,6 +1314,20 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
               <option value="Sales Representative" className="bg-[#161F30]">Sales Representative (Restricted)</option>
             </select>
           </div>
+
+          {/* CRM Notification Center Trigger */}
+          <button
+            onClick={() => setCrmNotificationsOpen(true)}
+            className="relative p-2 bg-[#161F30]/80 border border-[#23324C]/60 rounded-xl text-slate-400 hover:text-white cursor-pointer hover:border-brand-500/40 transition-all duration-200"
+            title="CRM Activity Notifications"
+          >
+            <Bell className="h-4.5 w-4.5" />
+            {crmDb.crmNotifications?.filter(n => !n.isRead).length > 0 && (
+              <span className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full flex items-center justify-center text-[8px] font-black animate-pulse">
+                {crmDb.crmNotifications.filter(n => !n.isRead).length}
+              </span>
+            )}
+          </button>
 
           <Button variant="primary" icon={Plus} onClick={handleOpenAddLeadModal}>
             Add New Lead
@@ -1200,8 +1440,14 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                           <button
                             onClick={() => {
                               setSelectedLead(overviewSelectedLead);
-                              setTaskForm({ title: 'Schedule followup Touchpoint', type: 'Call', dueDate: overviewSelectedLead.nextFollowup || new Date().toISOString().split('T')[0], priority: 'Medium' });
-                              setTaskModalOpen(true);
+                              setFollowupForm({
+                                type: 'Call',
+                                priority: 'Medium',
+                                dueDate: overviewSelectedLead.nextFollowup || new Date().toISOString().split('T')[0],
+                                dueTime: '10:00 AM',
+                                notes: 'Follow-up regarding telematics setup.'
+                              });
+                              setFollowupModalOpen(true);
                             }}
                             className="text-brand-400 hover:text-brand-300 text-[9px] font-bold uppercase cursor-pointer"
                           >
@@ -1251,16 +1497,8 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                         {/* Recommend Plan */}
                         <button
                           onClick={() => {
-                            let recPlan = 'Starter Plan';
-                            let details = 'Recommended for fleet size of < 35 trucks.';
-                            if (overviewSelectedLead.fleetSize >= 35 && overviewSelectedLead.fleetSize <= 100) {
-                              recPlan = 'Professional Plan';
-                              details = 'Recommended for fleets of 35-100 trucks needing factoring interfaces.';
-                            } else if (overviewSelectedLead.fleetSize > 100) {
-                              recPlan = 'Enterprise Custom Plan';
-                              details = 'Recommended for major enterprise fleets > 100 trucks with custom SLA requirements.';
-                            }
-                            triggerToast(`Recommended license: ${recPlan}. Reason: ${details}`, 'info');
+                            setSelectedLead(overviewSelectedLead);
+                            setRecommendPlanModalOpen(true);
                           }}
                           className="bg-purple-950 hover:bg-purple-900 text-purple-200 border border-purple-800 text-[10px] font-bold px-3 py-1.5 rounded-xl cursor-pointer flex items-center gap-1"
                         >
@@ -1350,8 +1588,14 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                         <button
                           onClick={() => {
                             setSelectedLead(overviewSelectedLead);
-                            setTaskForm({ title: 'Urgent follow-up', type: 'Call', dueDate: new Date().toISOString().split('T')[0], priority: 'Medium' });
-                            setTaskModalOpen(true);
+                            setFollowupForm({
+                              type: 'Call',
+                              priority: 'Medium',
+                              dueDate: new Date().toISOString().split('T')[0],
+                              dueTime: '10:00 AM',
+                              notes: 'Urgent follow-up touchpoint.'
+                            });
+                            setFollowupModalOpen(true);
                           }}
                           className="p-2 bg-slate-900 border border-[#23324C]/65 hover:border-brand-500/25 rounded-xl text-slate-400 hover:text-white cursor-pointer"
                           title="Schedule Follow-up"
@@ -1444,7 +1688,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                   <div className="space-y-3.5 my-3 max-h-[220px] overflow-y-auto pr-1">
                     {(() => {
                       const allEvents = crmDb.leads.flatMap(l => 
-                        l.timeline.map(t => ({
+                        (l.timeline || []).map(t => ({
                           ...t,
                           company: l.company,
                           rep: l.rep
@@ -2392,7 +2636,18 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                 <div className="border-b border-[#23324C]/50 pb-4 flex justify-between items-start">
                   <div>
                     <span className="text-[9px] font-mono font-bold bg-[#111827] px-2.5 py-1 rounded text-slate-450 border border-[#23324C]/60 uppercase tracking-widest">Setup Handover Stepper</span>
-                    <h4 className="text-white text-base font-extrabold mt-2">{selectedOnboarding.company} setup Checklist</h4>
+                    <div className="flex items-center gap-3">
+                      <h4 className="text-white text-base font-extrabold mt-2">{selectedOnboarding.company} setup Checklist</h4>
+                      <button
+                        onClick={() => {
+                          setOnboardingTaskForm({ name: '' });
+                          setOnboardingTaskModalOpen(true);
+                        }}
+                        className="mt-2 text-brand-400 hover:text-brand-300 font-bold text-[10px] uppercase cursor-pointer"
+                      >
+                        + Add Task
+                      </button>
+                    </div>
                     <span className="text-[10px] text-slate-455 block mt-1">Responsible Owner: {selectedOnboarding.owner} • Due Target Date: {selectedOnboarding.dueDate}</span>
                   </div>
                   
@@ -2432,7 +2687,11 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                     <button 
                       onClick={() => {
                         const lead = crmDb.leads.find(l => l.id === selectedOnboarding.leadId);
-                        if (lead) handleConvertLeadToCompany(lead);
+                        if (lead) {
+                          setSelectedLead(lead);
+                          setWizardStep(1);
+                          setConversionWizardOpen(true);
+                        }
                       }}
                       className="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black py-2 px-6 rounded-xl text-xs cursor-pointer inline-flex items-center gap-2"
                     >
@@ -2440,19 +2699,31 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                     </button>
                   </div>
                 ) : (
-                  selectedOnboarding.pendingDocuments.length > 0 && (
-                    <div className="border-t border-[#23324C]/50 pt-4 space-y-2">
-                      <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider block">Pending Legal Documents Checklist</span>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px]">
-                        {selectedOnboarding.pendingDocuments.map((doc, dIdx) => (
-                          <div key={dIdx} className="flex items-center gap-2 p-2 bg-red-950/20 border border-red-900/30 text-red-400 rounded-lg font-bold">
-                            <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0" />
-                            <span>{doc}</span>
-                          </div>
-                        ))}
+                  <div className="space-y-4">
+                    <button
+                      onClick={() => {
+                        setOnboardingHandoverForm({ notes: '', repName: selectedOnboarding.owner || 'Alex Wright' });
+                        setOnboardingHandoverModalOpen(true);
+                      }}
+                      className="bg-indigo-950 hover:bg-indigo-900 border border-indigo-800 text-indigo-200 text-xs font-bold py-2 px-6 rounded-xl cursor-pointer inline-flex items-center justify-center gap-2"
+                    >
+                      <Send className="h-4 w-4" /> Send Handover Package
+                    </button>
+
+                    {selectedOnboarding.pendingDocuments && selectedOnboarding.pendingDocuments.length > 0 && (
+                      <div className="border-t border-[#23324C]/50 pt-4 space-y-2">
+                        <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider block">Pending Legal Documents Checklist</span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px]">
+                          {selectedOnboarding.pendingDocuments.map((doc, dIdx) => (
+                            <div key={dIdx} className="flex items-center gap-2 p-2 bg-red-950/20 border border-red-900/30 text-red-400 rounded-lg font-bold">
+                              <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0" />
+                              <span>{doc}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )
+                    )}
+                  </div>
                 )}
 
               </div>
@@ -2833,11 +3104,11 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
           <div className="p-4 bg-[#111827]/40 border border-[#23324C]/60 rounded-xl flex items-center justify-between">
             <span className="text-[10px] text-slate-400 font-bold">Export complete report decks:</span>
             <div className="flex gap-2">
-              <button onClick={() => triggerToast("Generating analytical PDF file summary...")} className="px-3.5 py-2 bg-slate-900 border border-[#23324C]/65 hover:border-brand-500/40 rounded-xl text-[10px] font-black uppercase text-slate-350 hover:text-white cursor-pointer">
+              <button onClick={handleExportPDF} className="px-3.5 py-2 bg-slate-900 border border-[#23324C]/65 hover:border-brand-500/40 rounded-xl text-[10px] font-black uppercase text-slate-350 hover:text-white cursor-pointer">
                 Export PDF
               </button>
-              <button onClick={() => triggerToast("Exporting Leads conversion database CSV package...")} className="px-3.5 py-2 bg-slate-900 border border-[#23324C]/65 hover:border-brand-500/40 rounded-xl text-[10px] font-black uppercase text-slate-350 hover:text-white cursor-pointer">
-                Export CSV
+              <button onClick={handleExportCSV} className="px-3.5 py-2 bg-slate-900 border border-[#23324C]/65 hover:border-brand-500/40 rounded-xl text-[10px] font-black uppercase text-slate-350 hover:text-white cursor-pointer">
+                Export CSV / Excel
               </button>
             </div>
           </div>
@@ -2846,8 +3117,137 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
       )}
 
       {/* ============================================================================
-          TAB 10: SETTINGS PANELS CONFIGURATION  (OLD BLOCK REMOVED - new block is above)
+          TAB 10: SETTINGS PANELS CONFIGURATION
           ============================================================================ */}
+      {activeTab === 'settings' && (
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch text-left animate-fade-in">
+          
+          {/* Panel 1: Template Manager */}
+          <div className="lg:col-span-6 glass rounded-2xl p-5 border border-[#23324C]/60 flex flex-col justify-between">
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-extrabold text-white">Email & Touchpoint Templates</h3>
+                <p className="text-[10px] text-slate-500">Configure pre-formatted messages for demo slots and trial invites.</p>
+              </div>
+
+              <div className="space-y-3">
+                <SelectInput 
+                  label="Select Target Template" 
+                  value={settingsActiveTemplate} 
+                  onChange={(e) => setSettingsActiveTemplate(e.target.value)}
+                  options={Object.keys(customTemplates).map(k => ({ value: k, label: k }))}
+                />
+                
+                <TextInput 
+                  label="Subject Line Lineup" 
+                  value={settingsTemplateSubject} 
+                  onChange={(e) => setSettingsTemplateSubject(e.target.value)} 
+                />
+
+                <div className="space-y-1.5">
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Template Body Editor</label>
+                  <textarea
+                    rows={6}
+                    value={settingsTemplateBody}
+                    onChange={(e) => setSettingsTemplateBody(e.target.value)}
+                    className="w-full bg-[#0B0F19] border border-[#23324C]/60 text-slate-200 text-xs p-3.5 rounded-xl focus:outline-none focus:border-brand-500/50 font-mono resize-none"
+                  />
+                  <span className="text-[8px] text-slate-500 block">Available merge tags: <code>{"{{contact_name}}"}</code>, <code>{"{{company_name}}"}</code>, <code>{"{{rep_name}}"}</code></span>
+                </div>
+              </div>
+            </div>
+
+            <button 
+              onClick={handleSaveTemplate}
+              className="mt-4 bg-brand-500 hover:bg-brand-600 text-slate-950 font-black py-2 rounded-xl text-xs cursor-pointer flex items-center justify-center gap-1.5"
+            >
+              <FileSpreadsheet className="h-4 w-4" /> Save Template Configuration
+            </button>
+          </div>
+
+          {/* Panel 2 & 3: Stages & Lead Sources */}
+          <div className="lg:col-span-6 flex flex-col gap-6">
+            
+            {/* Pipeline Stage Editor */}
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 flex-1 flex flex-col justify-between">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-extrabold text-white">Pipeline Stages</h3>
+                  <p className="text-[10px] text-slate-500">Add or manage stages defining your sales pipeline columns.</p>
+                </div>
+
+                <div className="space-y-2.5 max-h-[140px] overflow-y-auto pr-1">
+                  {pipelineStages.map((stage) => (
+                    <div key={stage} className="flex justify-between items-center bg-[#111827]/40 border border-[#23324C]/50 rounded-xl px-3 py-1.5 text-xs">
+                      <span className="text-white font-semibold">{stage}</span>
+                      {!['New Lead', 'Won', 'Lost'].includes(stage) && (
+                        <button onClick={() => handleDeleteStage(stage)} className="text-slate-500 hover:text-red-400 cursor-pointer">
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-2 mt-4">
+                <input
+                  type="text"
+                  placeholder="New stage title..."
+                  value={newStageInput}
+                  onChange={(e) => setNewStageInput(e.target.value)}
+                  className="bg-[#0B0F19] border border-[#23324C]/60 text-slate-200 text-xs px-3.5 py-2 rounded-xl flex-grow focus:outline-none"
+                />
+                <button 
+                  onClick={handleAddStage}
+                  className="px-4 bg-slate-900 border border-[#23324C]/65 text-brand-400 hover:text-white rounded-xl text-xs font-black cursor-pointer"
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+
+            {/* Lead Sources Editor */}
+            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 flex-1 flex flex-col justify-between">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-sm font-extrabold text-white">Lead Acquisition Sources</h3>
+                  <p className="text-[10px] text-slate-500">Track and filter where inbound carrier queries originate.</p>
+                </div>
+
+                <div className="space-y-2.5 max-h-[140px] overflow-y-auto pr-1">
+                  {leadSources.map((source) => (
+                    <div key={source} className="flex justify-between items-center bg-[#111827]/40 border border-[#23324C]/50 rounded-xl px-3 py-1.5 text-xs">
+                      <span className="text-white font-semibold">{source}</span>
+                      <button onClick={() => handleDeleteLeadSource(source)} className="text-slate-500 hover:text-red-400 cursor-pointer">
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-2 mt-4">
+                <input
+                  type="text"
+                  placeholder="New acquisition source..."
+                  value={newLeadSourceInput}
+                  onChange={(e) => setNewLeadSourceInput(e.target.value)}
+                  className="bg-[#0B0F19] border border-[#23324C]/60 text-slate-200 text-xs px-3.5 py-2 rounded-xl flex-grow focus:outline-none"
+                />
+                <button 
+                  onClick={handleAddLeadSource}
+                  className="px-4 bg-slate-900 border border-[#23324C]/65 text-brand-400 hover:text-white rounded-xl text-xs font-black cursor-pointer"
+                >
+                  Add
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      )}
 
       {/* ============================================================================
           CRM DRAWERS & INTERACTIVE DIALOGS
@@ -3282,11 +3682,11 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
       <Modal isOpen={contactModalOpen} onClose={() => setContactModalOpen(false)} title={selectedContact ? "Edit Contact" : "Add New Contact"}>
         {selectedLead && (
           <form onSubmit={handleSaveContact} className="space-y-4 text-left text-xs">
-            <TextInput label="Full Name" required value={contactForm.name} onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })} />
+            <TextInput label="Full Name" required value={contactForm.name} onChange={(e) => setContactForm(prev => ({ ...prev, name: e.target.value }))} />
             <SelectInput 
               label="Company Role" 
               value={contactForm.role} 
-              onChange={(e) => setContactForm({ ...contactForm, role: e.target.value })}
+              onChange={(e) => setContactForm(prev => ({ ...prev, role: e.target.value }))}
               options={[
                 { value: 'Owner', label: 'Owner / Executive' },
                 { value: 'Operations Manager', label: 'Operations Manager' },
@@ -3296,15 +3696,15 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                 { value: 'Primary Contact', label: 'Primary Contact' }
               ]}
             />
-            <TextInput label="Email Address" required type="email" value={contactForm.email} onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })} />
-            <TextInput label="Phone Number" value={contactForm.phone} onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })} />
+            <TextInput label="Email Address" required type="email" value={contactForm.email} onChange={(e) => setContactForm(prev => ({ ...prev, email: e.target.value }))} />
+            <TextInput label="Phone Number" value={contactForm.phone} onChange={(e) => setContactForm(prev => ({ ...prev, phone: e.target.value }))} />
             
             <div className="flex items-center gap-2">
               <input 
                 type="checkbox" 
                 id="contactPrimaryCheck" 
                 checked={contactForm.isPrimary} 
-                onChange={(e) => setContactForm({ ...contactForm, isPrimary: e.target.checked })} 
+                onChange={(e) => setContactForm(prev => ({ ...prev, isPrimary: e.target.checked }))} 
                 className="cursor-pointer"
               />
               <label htmlFor="contactPrimaryCheck" className="text-slate-350 cursor-pointer select-none">Set as Primary contact person</label>
@@ -3692,6 +4092,34 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                       <strong className="text-slate-200 block mt-1">{selectedLead.name}</strong>
                       <span className="text-[9px] text-slate-500 font-mono mt-0.5 block">{selectedLead.email}</span>
                       <span className="text-[9px] text-slate-500 font-mono mt-0.5 block">{selectedLead.phone}</span>
+                      
+                      {/* Rep assignment dropdown inside Drawer */}
+                      <div className="mt-3 flex items-center gap-1 bg-slate-900 border border-[#23324C]/60 rounded-xl px-2 py-1 w-max">
+                        <User className="h-3 w-3 text-brand-400" />
+                        <span className="text-[8px] text-slate-400 font-bold">Rep:</span>
+                        <select
+                          value={selectedLead.rep}
+                          onChange={(e) => {
+                            crmRepository.assignRep(selectedLead.id, e.target.value);
+                            crmActivityEngine.logMutation(
+                              selectedLead.id,
+                              permissionRole,
+                              'Representative Assigned',
+                              `Lead assigned to representative: ${e.target.value}`,
+                              selectedLead.rep,
+                              e.target.value
+                            );
+                            setSelectedLead(crmRepository.getLeadById(selectedLead.id));
+                            triggerToast(`Re-assigned representative to ${e.target.value}`);
+                          }}
+                          className="bg-transparent text-slate-200 text-[9px] font-bold focus:outline-none cursor-pointer"
+                        >
+                          <option value="Alex Wright" className="bg-[#161F30]">Alex Wright</option>
+                          <option value="Sarah K." className="bg-[#161F30]">Sarah K.</option>
+                          <option value="Michael Scott" className="bg-[#161F30]">Michael Scott</option>
+                          <option value="Jan Levinson" className="bg-[#161F30]">Jan Levinson</option>
+                        </select>
+                      </div>
                     </div>
                     <div>
                       <span className="text-[9px] text-slate-500 uppercase font-black block">Estimated Contract Value</span>
@@ -3727,16 +4155,8 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                     <div className="flex flex-wrap gap-2">
                       <button
                         onClick={() => {
-                          let recPlan = 'Starter Plan';
-                          let details = 'Recommended for fleet size of < 35 trucks.';
-                          if (selectedLead.fleetSize >= 35 && selectedLead.fleetSize <= 100) {
-                            recPlan = 'Professional Plan';
-                            details = 'Recommended for fleets of 35-100 trucks.';
-                          } else if (selectedLead.fleetSize > 100) {
-                            recPlan = 'Enterprise Custom Plan';
-                            details = 'Recommended for fleets > 100 trucks.';
-                          }
-                          triggerToast(`Recommended license: ${recPlan}. Reason: ${details}`, 'info');
+                          setSelectedLead(selectedLead);
+                          setRecommendPlanModalOpen(true);
                         }}
                         className="bg-purple-950 hover:bg-purple-900 text-purple-200 border border-purple-800 text-[10px] font-bold px-2.5 py-1 rounded-xl cursor-pointer"
                       >
@@ -3764,8 +4184,15 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                       </button>
                       <button
                         onClick={() => {
-                          setTaskForm({ title: 'Schedule Touchpoint', type: 'Call', dueDate: selectedLead.nextFollowup || new Date().toISOString().split('T')[0], priority: 'Medium' });
-                          setTaskModalOpen(true);
+                          setSelectedLead(selectedLead);
+                          setFollowupForm({
+                            type: 'Call',
+                            priority: 'Medium',
+                            dueDate: selectedLead.nextFollowup || new Date().toISOString().split('T')[0],
+                            dueTime: '10:00 AM',
+                            notes: 'Follow-up touchpoint check-in.'
+                          });
+                          setFollowupModalOpen(true);
                         }}
                         className="bg-slate-900 hover:bg-slate-800 border border-[#23324C] text-slate-200 text-[10px] font-bold px-2.5 py-1 rounded-xl cursor-pointer"
                       >
@@ -4190,6 +4617,303 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
           </div>
         )}
       </Drawer>
+
+      {/* 15. CRM Notification Center Drawer */}
+      <Drawer isOpen={crmNotificationsOpen} onClose={() => setCrmNotificationsOpen(false)} title="CRM Real-Time Activity Log">
+        <div className="space-y-4 text-left text-slate-300 text-xs h-full flex flex-col justify-between">
+          <div className="space-y-4 flex-grow overflow-y-auto pr-2 scrollbar-none">
+            <div className="flex justify-between items-center border-b border-[#23324C]/60 pb-3">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Touchpoint Actions & System Triggers</span>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    crmStore.updateDb(db => {
+                      (db.crmNotifications || []).forEach(n => n.isRead = true);
+                    });
+                    triggerToast('All notifications marked as read.');
+                  }}
+                  className="text-brand-400 hover:text-brand-350 text-[9px] font-black uppercase cursor-pointer"
+                >
+                  Mark All Read
+                </button>
+                <span className="text-[#23324C]">|</span>
+                <button
+                  onClick={() => {
+                    crmStore.updateDb(db => {
+                      db.crmNotifications = [];
+                    });
+                    triggerToast('Notification feed cleared.');
+                  }}
+                  className="text-red-400 hover:text-red-350 text-[9px] font-black uppercase cursor-pointer"
+                >
+                  Clear All
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-2.5 max-h-[calc(100vh-200px)] overflow-y-auto pr-1 scrollbar-none">
+              {(crmDb.crmNotifications || []).map((notif) => (
+                <div 
+                  key={notif.id} 
+                  onClick={() => {
+                    crmStore.updateDb(db => {
+                      const n = (db.crmNotifications || []).find(x => x.id === notif.id);
+                      if (n) n.isRead = true;
+                    });
+                    if (notif.leadId) {
+                      const lead = crmDb.leads.find(l => String(l.id) === String(notif.leadId));
+                      if (lead) {
+                        setSelectedLead(lead);
+                        setInspectDrawerOpen(true);
+                        setDrawerActiveTab('Overview');
+                        setCrmNotificationsOpen(false);
+                      }
+                    }
+                  }}
+                  className={`p-3 border rounded-xl flex gap-3 cursor-pointer transition-all duration-200 ${
+                    notif.isRead 
+                      ? 'bg-[#111827]/30 border-[#23324C]/40 hover:bg-[#111827]/50' 
+                      : 'bg-brand-500/5 border-brand-500/35 hover:bg-brand-500/10'
+                  }`}
+                >
+                  <div className="mt-1 flex-shrink-0">
+                    <div className={`w-2 h-2 rounded-full ${notif.isRead ? 'bg-slate-700' : 'bg-brand-500 animate-pulse'}`} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[8px] bg-slate-900 border border-[#23324C]/40 px-1 rounded text-slate-400 font-mono">{notif.time || 'Just now'}</span>
+                      {!notif.isRead && <span className="text-[8px] bg-brand-500 text-slate-950 font-black px-1.5 rounded uppercase tracking-wider">New</span>}
+                    </div>
+                    <p className="text-white text-xs font-semibold mt-1">{notif.message}</p>
+                    <span className="text-[8px] text-slate-500 block mt-1 font-mono uppercase tracking-widest">{notif.type}</span>
+                  </div>
+                </div>
+              ))}
+              {(crmDb.crmNotifications || []).length === 0 && (
+                <div className="text-center py-20 text-slate-500 italic">No activity notifications registered yet.</div>
+              )}
+            </div>
+          </div>
+        </div>
+      </Drawer>
+
+      {/* 16. Recommend Plan Modal */}
+      <Modal isOpen={recommendPlanModalOpen} onClose={() => setRecommendPlanModalOpen(false)} title="Interactive License Tier Recommendation">
+        {selectedLead && (
+          <div className="space-y-6 text-left text-xs">
+            <div>
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Lead Diagnosis</span>
+              <h4 className="text-white font-extrabold text-sm mt-1">{selectedLead.company}</h4>
+              <p className="text-slate-400 mt-1">Fleet Size: <strong>{selectedLead.fleetSize} Trucks</strong> • Current Software: <strong>{selectedLead.currentSoftware}</strong></p>
+            </div>
+
+            <div className="space-y-3.5">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Available License Plan Tiers</span>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {[
+                  {
+                    tier: 'Starter',
+                    price: 199,
+                    desc: 'For small operators < 35 trucks',
+                    checks: ['Core Dispatching', 'Basic Driver App', 'GPS Tracking (hourly)', 'Email Support'],
+                    isRec: selectedLead.fleetSize < 35
+                  },
+                  {
+                    tier: 'Professional',
+                    price: 499,
+                    desc: 'For growing fleets 35 - 100 trucks',
+                    checks: ['Dynamic Dispatching', 'Factor Integration APIs', 'GPS Tracking (live HMR)', 'Priority Support'],
+                    isRec: selectedLead.fleetSize >= 35 && selectedLead.fleetSize <= 100
+                  },
+                  {
+                    tier: 'Enterprise',
+                    price: 1299,
+                    desc: 'For logistics giants > 100 trucks',
+                    checks: ['AI CommandCenter Router', 'Custom Billing Rules', 'Unlimited Drivers/HQ Nodes', 'Dedicated SLA Custom Support'],
+                    isRec: selectedLead.fleetSize > 100
+                  }
+                ].map(plan => (
+                  <div 
+                    key={plan.tier}
+                    className={`p-4 border rounded-2xl flex flex-col justify-between transition-all duration-200 ${
+                      plan.isRec 
+                        ? 'bg-brand-500/5 border-brand-500 shadow-lg shadow-brand-500/5 scale-102 ring-1 ring-brand-500/30' 
+                        : 'bg-slate-900 border-[#23324C] opacity-75 hover:opacity-100'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex justify-between items-start">
+                        <strong className="text-white text-sm block font-extrabold">{plan.tier}</strong>
+                        {plan.isRec && (
+                          <span className="bg-brand-500 text-slate-950 text-[7px] font-black uppercase px-1.5 py-0.5 rounded tracking-wider">Recommended</span>
+                        )}
+                      </div>
+                      <span className="text-slate-400 text-[10px] block mt-1">{plan.desc}</span>
+                      <div className="my-3 text-white">
+                        <span className="text-base font-black">${plan.price}</span>
+                        <span className="text-[10px] text-slate-500 font-bold">/mo</span>
+                      </div>
+                      <ul className="space-y-1.5 text-[9px] text-slate-400 font-semibold border-t border-[#23324C]/40 pt-2.5">
+                        {plan.checks.map((c, cIdx) => (
+                          <li key={cIdx} className="flex items-center gap-1.5">
+                            <Check className="h-2.5 w-2.5 text-brand-400" />
+                            <span className="truncate">{c}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        crmRepository.updateLead(selectedLead.id, {
+                          revenue: plan.price
+                        });
+                        crmActivityEngine.logMutation(
+                          selectedLead.id,
+                          permissionRole,
+                          'Plan Recommended',
+                          `Selected plan: ${plan.tier} ($${plan.price}/mo) recommended for fleet size ${selectedLead.fleetSize}.`,
+                          selectedLead.revenue,
+                          plan.price
+                        );
+                        setSelectedLead(crmRepository.getLeadById(selectedLead.id));
+                        setRecommendPlanModalOpen(false);
+                        triggerToast(`Recommended ${plan.tier} Plan applied to ${selectedLead.company}!`);
+                      }}
+                      className={`w-full mt-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider cursor-pointer transition-all ${
+                        plan.isRec 
+                          ? 'bg-brand-500 hover:bg-brand-600 text-slate-950 shadow-md shadow-brand-500/10' 
+                          : 'bg-slate-800 hover:bg-slate-700 text-slate-200'
+                      }`}
+                    >
+                      Apply {plan.tier} Plan
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      {/* 17. Schedule Follow-Up Modal */}
+      <Modal isOpen={followupModalOpen} onClose={() => setFollowupModalOpen(false)} title="Schedule Follow-Up Touchpoint">
+        {selectedLead && (
+          <form onSubmit={handleCreateFollowup} className="space-y-4 text-left text-xs">
+            <p className="text-slate-400">Scheduling a follow-up action for prospect <strong>{selectedLead.company}</strong>.</p>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <SelectInput 
+                label="Follow-Up Action Type" 
+                value={followupForm.type} 
+                onChange={(e) => setFollowupForm({ ...followupForm, type: e.target.value })}
+                options={[
+                  { value: 'Call', label: '📞 Phone Call' },
+                  { value: 'Email', label: '✉️ Email Outreach' },
+                  { value: 'Meeting', label: '🤝 In-Person / Zoom Meeting' },
+                  { value: 'Demo', label: '🎥 Product Demo' },
+                  { value: 'Contract Check', label: '📄 Proposal Review' }
+                ]}
+              />
+              <SelectInput 
+                label="Priority Tier" 
+                value={followupForm.priority} 
+                onChange={(e) => setFollowupForm({ ...followupForm, priority: e.target.value })}
+                options={[
+                  { value: 'Low', label: '🟢 Low' },
+                  { value: 'Medium', label: '🟡 Medium' },
+                  { value: 'High', label: '🔴 High' }
+                ]}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <DatePicker 
+                label="Target Date" 
+                value={followupForm.dueDate} 
+                onChange={(e) => setFollowupForm({ ...followupForm, dueDate: e.target.value })} 
+              />
+              <TextInput 
+                label="Time Slot" 
+                placeholder="e.g. 10:30 AM" 
+                value={followupForm.dueTime} 
+                onChange={(e) => setFollowupForm({ ...followupForm, dueTime: e.target.value })} 
+              />
+            </div>
+
+            <TextInput 
+              label="Follow-Up Memo / Action Notes" 
+              required
+              placeholder="e.g. Discuss custom flatbed lane volume integration..." 
+              value={followupForm.notes} 
+              onChange={(e) => setFollowupForm({ ...followupForm, notes: e.target.value })} 
+            />
+
+            <Button type="submit" variant="primary" className="w-full">
+              Schedule Follow-Up Task
+            </Button>
+          </form>
+        )}
+      </Modal>
+
+      {/* 18. Onboarding Task Modal */}
+      <Modal isOpen={onboardingTaskModalOpen} onClose={() => setOnboardingTaskModalOpen(false)} title="Create Onboarding Task">
+        {selectedOnboarding && (
+          <form onSubmit={handleCreateOnboardingTask} className="space-y-4 text-left text-xs">
+            <p className="text-slate-400">Add a custom task to the onboarding checklist for <strong>{selectedOnboarding.company}</strong>.</p>
+            
+            <TextInput 
+              label="Task Name" 
+              required
+              placeholder="e.g. Set up custom factoring rules" 
+              value={onboardingTaskForm.name} 
+              onChange={(e) => setOnboardingTaskForm({ name: e.target.value })} 
+            />
+
+            <Button type="submit" variant="primary" className="w-full">
+              Add Onboarding Task
+            </Button>
+          </form>
+        )}
+      </Modal>
+
+      {/* 19. Onboarding Handover Modal */}
+      <Modal isOpen={onboardingHandoverModalOpen} onClose={() => setOnboardingHandoverModalOpen(false)} title="Onboarding Handover package dispatch">
+        {selectedOnboarding && (
+          <form onSubmit={handleSendOnboardingHandover} className="space-y-4 text-left text-xs">
+            <p className="text-slate-400">Dispatch legal details and setup parameters to the logistics operations desk for <strong>{selectedOnboarding.company}</strong>.</p>
+            
+            <SelectInput 
+              label="Target Representative" 
+              value={onboardingHandoverForm.repName} 
+              onChange={(e) => setOnboardingHandoverForm({ ...onboardingHandoverForm, repName: e.target.value })}
+              options={[
+                { value: 'Alex Wright', label: 'Alex Wright (Inside Sales)' },
+                { value: 'Sarah K.', label: 'Sarah K. (Account Management)' },
+                { value: 'Michael Scott', label: 'Michael Scott (Regional Coordinator)' },
+                { value: 'Jan Levinson', label: 'Jan Levinson (Operations Lead)' }
+              ]}
+            />
+
+            <div className="space-y-1">
+              <label className="text-slate-400 font-bold block">Handover Notes / Instructions</label>
+              <textarea 
+                rows={4} 
+                required
+                placeholder="Provide billing integration info, special customer SLA rules..." 
+                value={onboardingHandoverForm.notes} 
+                onChange={(e) => setOnboardingHandoverForm({ ...onboardingHandoverForm, notes: e.target.value })}
+                className="w-full bg-[#0B0F19]/50 border border-[#23324C] text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:ring-1 focus:ring-brand-500 font-sans"
+              />
+            </div>
+
+            <Button type="submit" variant="primary" className="w-full">
+              Confirm & Dispatch Handover Package
+            </Button>
+          </form>
+        )}
+      </Modal>
 
     </div>
   );
