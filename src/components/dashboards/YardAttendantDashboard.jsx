@@ -413,6 +413,17 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
     triggerToast('All notifications marked as read.');
   };
 
+  const handleSubmitIncident = (e) => {
+    e.preventDefault();
+    if (!incident.location || !incident.desc) {
+      triggerToast('Complete location and description.', 'error');
+      return;
+    }
+    triggerToast(`Incident logged successfully: ${incident.type}`);
+    setIncidentModal(false);
+    setIncident({ type: 'Accident', location: '', desc: '', severity: 'Medium' });
+  };
+
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
