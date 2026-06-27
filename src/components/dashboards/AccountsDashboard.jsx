@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAccountsData, addLedgerEntry, payPayrollRecord } from '../../store/slices/accountsSlice';
+import { fetchAccountsData, executeAccountAction } from '../../store/slices/accountsSlice';
 import Button from '../common/Button';
 import TextInput from '../common/TextInput';
 import SelectInput from '../common/SelectInput';
@@ -21,11 +21,15 @@ import {
   Trash2, Edit2, Download, TrendingUp, Users, Calendar, Plus
 } from 'lucide-react';
 import { useLogistics } from '../../context/LogisticsContext';
+import { useAuth } from '../../context/AuthContext';
 
 export default function AccountsDashboard({ activeTab = 'overview' }) {
   const dispatch = useDispatch();
-  const { ledgers, factoringCount, payrollCount, balanceDue, driverPayroll, employeePayments, contractorPayments, loading } = useSelector((state) => state.accounts);
+  const { data, loading } = useSelector((state) => state.accounts);
+  const { invoices = [], invoiceItems = [], customers = [], loads = [], trips = [], payments = [], employees = [], drivers = [], contractors = [], payroll = [], expenses = [], gst = [], payg = [], vehicleCosts = [], profitAndLoss = [], cashFlow = [], journalEntries = [], chartOfAccounts = [], customerLedger = [], vendorLedger = [], employeeLedger = [], driverLedger = [], contractorLedger = [], generalLedger = [], auditLogs = [], notifications = [], reports = [], bankReconciliation = [], revenue = 0, expensesSum = 0, grossProfit = 0, margin = '0%', paidRevenue = 0, balanceDue = 0, ledgers = [], driverPayroll = [], employeePayments = [], contractorPayments = [] } = data || {};
   const { shiftState } = useLogistics();
+  const { user } = useAuth();
+  const isRestricted = ['Read Only', 'Auditor'].includes(user?.role);
 
   // Modals & Drawers
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -128,6 +132,17 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
     }
   }, [ledgers]);
 
+  const applySearch = (list) => {
+    if (!search || !list || !Array.isArray(list)) return list || [];
+    const q = search.toLowerCase();
+    return list.filter(item => {
+      if (!item) return false;
+      return Object.values(item).some(val => 
+        val !== null && val !== undefined && String(val).toLowerCase().includes(q)
+      );
+    });
+  };
+
   const triggerToast = (msg, type = 'success') => {
     setToastMessage(msg);
     setToastType(type);
@@ -150,7 +165,8 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
     };
     // Update local state
     setLocalLedgers([newEntry, ...localLedgers]);
-    dispatch(addLedgerEntry({
+    dispatch(executeAccountAction({
+      action: 'addLedgerEntry',
       type: ledgerType,
       payee: payeeName,
       amount: parseFloat(amountVal)
@@ -170,19 +186,19 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
 
   // Run Driver Payroll
   const handlePayDriver = (id) => {
-    dispatch(payPayrollRecord({ id, processedBy: 'Company Admin' }));
+    dispatch(executeAccountAction({ action: 'payPayrollRecord', id, processedBy: 'Company Admin' }));
     triggerToast(`Payroll run complete for driver. Direct deposit issued.`);
   };
 
   // Pay Contractor
   const handlePayContractor = (id) => {
-    dispatch(payPayrollRecord({ id, processedBy: 'Company Admin' }));
+    dispatch(executeAccountAction({ action: 'payPayrollRecord', id, processedBy: 'Company Admin' }));
     triggerToast('Contractor payment disbursed.');
   };
 
   // Pay Employee
   const handlePayEmployee = (id) => {
-    dispatch(payPayrollRecord({ id, processedBy: 'Company Admin' }));
+    dispatch(executeAccountAction({ action: 'payPayrollRecord', id, processedBy: 'Company Admin' }));
     triggerToast('Employee payroll payment disbursed.');
   };
 
@@ -350,7 +366,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                   <Button size="sm" variant="secondary" onClick={() => triggerToast('Factoring application submitted to finance provider.')}>Submit Factoring</Button>
                   <Button size="sm" variant="secondary" onClick={() => triggerToast('Manual payment record logged to ledger.')}>Record Payment</Button>
                   <Button size="sm" variant="danger" onClick={() => triggerToast('Bad debt written off and flagged in ledger.')}>Write Off Bad Debt</Button>
-                  <Button size="sm" variant="secondary" onClick={() => triggerToast('Payroll run initiated for all pending workers.')}>Run Payroll</Button>
+                  <Button size="sm" variant="secondary" disabled={isRestricted} onClick={() => handleAction('processAllPayroll', null, 'Payroll run initiated for all pending workers.')}>Run Payroll</Button>
                 </div>
               </div>
 
@@ -412,7 +428,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                   <Button size="sm" variant="secondary" onClick={() => triggerToast("Opening inline invoice editor panel.")}>
                     Edit Invoice
                   </Button>
-                  <Button size="sm" variant="primary" onClick={() => triggerToast("Invoice approved and moved to Sent queue.")}>
+                  <Button size="sm" variant="primary" disabled={isRestricted} onClick={() => handleAction('approveInvoice', selectedInvoice || invoices.find(i=>i.status==='Draft')?.id, 'Invoice approved and moved to Sent queue.')}>
                     Approve Invoice
                   </Button>
                 </div>
@@ -425,10 +441,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                 { key: 'amount', label: 'Total Amount', render: (row) => <span className="font-mono font-bold text-slate-200">{row.amount}</span> },
                 { key: 'gst', label: 'GST (10%)', render: (row) => <span className="font-mono text-slate-400">{row.gst}</span> },
                 { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> }
-              ]} data={[
-                { id: 'INV-4011', customer: 'Global Retail Corp', loadId: 'LD-9411', amount: '$1,200.00', gst: '$120.00', status: 'Draft' },
-                { id: 'INV-4012', customer: 'Vance Refrigeration', loadId: 'LD-9412', amount: '$850.00', gst: '$85.00', status: 'Draft' }
-              ]} />
+              ]} data={applySearch(invoices.filter(i => i.status === 'Draft'))} />
             </div>
           )}
 
@@ -441,13 +454,13 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                   <p className="text-xs text-slate-450 mt-1">Audit dispatched invoices, track aging, export tax documents, and issue statements.</p>
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" variant="primary" onClick={() => triggerToast("Re-sent invoice mailer to shipper.")}>
+                  <Button size="sm" variant="primary" disabled={isRestricted} onClick={() => handleAction('sendInvoice', invoices.find(i=>i.status==='Sent')?.id, 'Re-sent invoice mailer to shipper.')}>
                     Send Invoice
                   </Button>
-                  <Button size="sm" variant="secondary" onClick={() => triggerToast("Downloading PDF Invoice document.")}>
+                  <Button size="sm" variant="secondary" onClick={() => handleExport('PDF Invoice')}>
                     Export PDF
                   </Button>
-                  <Button size="sm" variant="secondary" onClick={() => triggerToast("Monthly statement report dispatched.")}>
+                  <Button size="sm" variant="secondary" onClick={() => handleExport('Monthly Statement')}>
                     Send Statement
                   </Button>
                 </div>
@@ -475,7 +488,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                   <p className="text-xs text-slate-450 mt-1">Record incoming client check deposits, match bank transactions, and cancel bad debts.</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <Button size="sm" variant="primary" onClick={() => triggerToast("Invoice settled.")}>
+                  <Button size="sm" variant="primary" disabled={isRestricted} onClick={() => handleAction('recordPayment', invoices.find(i=>i.status==='Sent')?.id, 'Invoice settled.')}>
                     Mark Paid
                   </Button>
                   <Button size="sm" variant="secondary" onClick={() => triggerToast("Manual payment record logged.")}>
@@ -512,7 +525,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                   <p className="text-xs text-slate-450 mt-1">Review revenue streams, employee payroll, contractor pay, fuel cards, and vehicle costing.</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <Button size="sm" variant="primary" onClick={() => triggerToast("Full P&L spreadsheet ledger generated.")}>
+                  <Button size="sm" variant="primary" onClick={() => handleExport('P&L Spreadsheet')}>
                     View P&L
                   </Button>
                   <Button size="sm" variant="secondary" onClick={() => triggerToast("GST BAS tax sheet compiled.")}>
@@ -524,7 +537,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                   <Button size="sm" variant="secondary" onClick={() => triggerToast("Auditing pending operational expense receipts.")}>
                     Review Expense
                   </Button>
-                  <Button size="sm" variant="primary" onClick={() => triggerToast("Expense approved and posted to general ledger.")}>
+                  <Button size="sm" variant="primary" disabled={isRestricted} onClick={() => handleAction('approveExpense', expenses.find(e=>e.status==='Pending')?.id, 'Expense approved and posted to general ledger.')}>
                     Approve Expense
                   </Button>
                   <Button size="sm" variant="success" onClick={() => triggerToast("AI OCR receipt scan confirmed.")}>
@@ -533,10 +546,10 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                   <Button size="sm" variant="danger" onClick={() => triggerToast("AI OCR receipt scan rejected.")}>
                     Reject AI Receipt
                   </Button>
-                  <Button size="sm" variant="primary" onClick={() => triggerToast("Brokerage contractor pay run executed.")}>
+                  <Button size="sm" variant="primary" disabled={isRestricted} onClick={() => handleAction('processContractorPay', payroll.find(p=>p.workerType==='Driver' && p.status==='Pending')?.id, 'Brokerage contractor pay run executed.')}>
                     Process Contractor Pay
                   </Button>
-                  <Button size="sm" variant="primary" onClick={() => triggerToast("Depot employee salary deposits cleared.")}>
+                  <Button size="sm" variant="primary" disabled={isRestricted} onClick={() => handleAction('processEmployeePay', payroll.find(p=>p.workerType==='Employee' && p.status==='Pending')?.id, 'Depot employee salary deposits cleared.')}>
                     Process Employee Pay
                   </Button>
                   <Button size="sm" variant="secondary" onClick={() => triggerToast("Payroll bank files exported.")}>
@@ -654,7 +667,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                     Process Payroll
                   </button>
                   <button 
-                    onClick={() => triggerToast('Payroll ABA format manifest exported successfully.')}
+                    onClick={() => handleExport('ABA Payroll Manifest')}
                     className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-750 text-slate-200 text-[11px] rounded-xl font-bold transition-all cursor-pointer"
                   >
                     Export Payroll
@@ -783,6 +796,120 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
           )}
 
           {/* Expense Management Screen */}
+
+          {activeTab === 'contractor-pay' && (
+            <div className="space-y-6">
+              <div className="flex flex-wrap gap-2 justify-between items-center bg-[#111827]/40 p-4 border border-[#23324C]/45 rounded-xl">
+                <div>
+                  <strong className="text-white text-xs block">Contractor Payouts</strong>
+                  <span className="text-[10px] text-slate-500">Manage and disburse external contractor settlements.</span>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => handleExport('ABA Payroll Manifest')} className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-750 text-slate-200 text-[11px] rounded-xl font-bold transition-all cursor-pointer" disabled={isRestricted}>Export Manifest</button>
+                </div>
+              </div>
+              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                <h3 className="text-sm font-extrabold text-white">Subcontractor Brokerage settlements</h3>
+                <DataTable columns={[
+                  { key: 'contractor', label: 'External Contractor Service', render: (row) => <span className="font-extrabold text-white">{row.workerName}</span> },
+                  { key: 'amount', label: 'Settlement Amount', render: (row) => <span className="font-mono font-bold text-brand-400">{row.amount}</span> },
+                  { key: 'status', label: 'State', render: (row) => <StatusBadge status={row.status} /> },
+                  { key: 'actions', label: 'Disburse', render: (row) => (
+                    row.status === 'Pending' ? (
+                      <Button size="sm" variant="secondary" disabled={isRestricted} onClick={() => handlePayContractor(row.id)}>Pay Broker</Button>
+                    ) : (
+                      <span className="text-[11px] font-semibold text-slate-550">Disbursed</span>
+                    )
+                  )}
+                ]} data={applySearch(contractorPayments || [])} />
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'employee-pay' && (
+            <div className="space-y-6">
+              <div className="flex flex-wrap gap-2 justify-between items-center bg-[#111827]/40 p-4 border border-[#23324C]/45 rounded-xl">
+                <div>
+                  <strong className="text-white text-xs block">Employee Base Salaries</strong>
+                  <span className="text-[10px] text-slate-500">Manage office staff & yard salaries.</span>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => handleExport('ABA Payroll Manifest')} className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-750 text-slate-200 text-[11px] rounded-xl font-bold transition-all cursor-pointer" disabled={isRestricted}>Export Manifest</button>
+                </div>
+              </div>
+              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                <h3 className="text-sm font-extrabold text-white">Office staff & Yard Salaries</h3>
+                <DataTable columns={[
+                  { key: 'name', label: 'Employee', render: (row) => <span className="font-extrabold text-white">{row.workerName}</span> },
+                  { key: 'role', label: 'Position', render: (row) => <span className="text-slate-350">{row.position}</span> },
+                  { key: 'rate', label: 'Hourly/Salaried', render: (row) => <span className="font-mono text-xs">{row.rateType}</span> },
+                  { key: 'salary', label: 'Salary Net', render: (row) => <span className="font-mono font-bold text-slate-300">{row.amount}</span> },
+                  { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> },
+                  { key: 'actions', label: 'Disburse', render: (row) => (
+                    row.status === 'Pending' ? (
+                      <Button size="sm" variant="secondary" disabled={isRestricted} onClick={() => handlePayEmployee(row.id)}>Pay Staff</Button>
+                    ) : (
+                      <span className="text-[11px] font-semibold text-slate-550">Direct Deposited</span>
+                    )
+                  )}
+                ]} data={applySearch(employeePayments || [])} />
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'reports' && (
+            <div className="space-y-6">
+              <div className="flex flex-wrap gap-2 justify-between items-center bg-[#111827]/40 p-4 border border-[#23324C]/45 rounded-xl">
+                <div>
+                  <strong className="text-white text-xs block">Enterprise Reports Center</strong>
+                  <span className="text-[10px] text-slate-500">Generate, view, and export all financial and operational reports.</span>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => handleExport('Master Financial Report')} className="px-3.5 py-1.5 bg-brand-500 hover:bg-brand-600 text-slate-950 text-[11px] rounded-xl font-black transition-all cursor-pointer" disabled={isRestricted}>Generate Full Report</button>
+                  <button onClick={() => handleExport('Audit Trail PDF')} className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-750 text-slate-200 text-[11px] rounded-xl font-bold transition-all cursor-pointer" disabled={isRestricted}>Export Audit Trail</button>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                 {[
+                   { title: 'Tax Report', desc: 'Q2 GST and PAYG Summaries', action: 'Tax Report PDF' },
+                   { title: 'Profitability Report', desc: 'Per-load net margin & Vehicle Costs', action: 'Costing Reports' },
+                   { title: 'P&L Statement', desc: 'Income vs Expense master ledger', action: 'P&L Spreadsheet' },
+                   { title: 'Payroll Manifest', desc: 'Consolidated driver & employee pay', action: 'ABA Payroll Manifest' }
+                 ].map((r, i) => (
+                    <div key={i} className="glass p-4 rounded-xl border border-[#23324C]/60 flex flex-col justify-between h-32 text-left">
+                       <div>
+                         <h4 className="text-sm font-extrabold text-white">{r.title}</h4>
+                         <span className="text-[10px] text-slate-400">{r.desc}</span>
+                       </div>
+                       <Button size="sm" variant="secondary" onClick={() => handleExport(r.action)} className="mt-2 w-full text-xs">Download CSV</Button>
+                    </div>
+                 ))}
+              </div>
+              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 mt-6">
+                <h3 className="text-sm font-extrabold text-white">Generated Reports History</h3>
+                <DataTable columns={[
+                  { key: 'id', label: 'Report ID', render: (row) => <span className="font-mono text-xs font-bold text-white">{row.id}</span> },
+                  { key: 'type', label: 'Report Type', render: (row) => <span className="text-slate-300 font-semibold">{row.type}</span> },
+                  { key: 'generatedBy', label: 'Generated By', render: (row) => <span className="text-slate-400 text-xs">{row.generatedBy}</span> },
+                  { key: 'date', label: 'Generation Date', render: (row) => <span className="font-mono text-xs text-slate-400">{row.date}</span> },
+                  { key: 'actions', label: 'Action', render: (row) => (
+                      <Button size="sm" variant="outline" onClick={() => handleExport(row.type)}>Download</Button>
+                  )}
+                ]} data={applySearch(reports || [])} />
+              </div>
+            </div>
+          )}
+
+
+          {activeTab === 'reports' && (
+            <div className="space-y-6">
+              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                <h3 className="text-sm font-extrabold text-white">Reports Panel (Safe Mode)</h3>
+                <p className="text-slate-400 text-xs">If you see this, the previous code caused a crash.</p>
+              </div>
+            </div>
+          )}
+
           {activeTab === 'expenses' && (
             <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
               <h3 className="text-sm font-extrabold text-white">Operational Expenses Ledger</h3>
@@ -858,7 +985,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                   </div>
 
                   <button 
-                    onClick={() => triggerToast('Costing reports generated and sent.')}
+                    onClick={() => handleExport('Costing Reports')}
                     className="w-full py-2 bg-slate-800 hover:bg-slate-750 text-slate-200 text-xs rounded-xl font-bold transition-all cursor-pointer"
                   >
                     Generate Cost Reports
@@ -885,7 +1012,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                   ))}
                 </div>
                 <button 
-                  onClick={() => triggerToast('Tax Report compiled and exported as PDF.')}
+                  onClick={() => handleExport('Tax Report PDF')}
                   className="px-3.5 py-1.5 bg-brand-500 hover:bg-brand-600 text-slate-950 rounded-lg font-black cursor-pointer"
                 >
                   Export Tax Report
@@ -1194,7 +1321,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
             { value: 'Driver Pay', label: 'Driver Payroll Payout' },
             { value: 'Factoring', label: 'Invoice Factoring Margin' }
           ]} />
-          <Button type="submit" variant="primary" className="w-full">
+          <Button type="submit" variant="primary" disabled={isRestricted} className="w-full">
             Save Financial Entry
           </Button>
         </form>
@@ -1283,7 +1410,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
             />
           )}
 
-          <Button type="submit" variant="primary" className="w-full">
+          <Button type="submit" variant="primary" disabled={isRestricted} className="w-full">
             Save Rate Mappings
           </Button>
         </form>
@@ -1318,7 +1445,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
           />
           <TextInput label="Rate Value Amount ($)" required placeholder="e.g. 45.00" type="number" step="0.01" />
           
-          <Button type="submit" variant="primary" className="w-full">
+          <Button type="submit" variant="primary" disabled={isRestricted} className="w-full">
             Save Pay Rate
           </Button>
         </form>

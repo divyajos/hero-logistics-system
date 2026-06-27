@@ -15,8 +15,10 @@ import Toast from '../common/Toast';
 export default function ReportsDashboard({ activeTab = 'overview' }) {
   const dispatch = useDispatch();
   const { data: staticData, filters } = useSelector((state) => state.reports);
-  const { ledgers } = useSelector((state) => state.accounts);
-  const { items: loads } = useSelector((state) => state.loads);
+  const { data: accountsData } = useSelector((state) => state.accounts);
+  const ledgers = accountsData?.ledgers || [];
+  const { data: loadsData, items } = useSelector((state) => state.loads);
+  const loads = items || loadsData?.loads || [];
   
   const [reportTab, setReportTab] = useState('revenue'); // revenue, driver, vehicle, customer, warehouse
   const [toastMessage, setToastMessage] = useState('');

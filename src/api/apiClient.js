@@ -90,20 +90,563 @@ if (isMockMode) {
         nextRenewalDate: '07/24/2026',
         autoRenewal: true,
         invoices: [
-          { id: 'INV-1001A', date: '06/12/2026', amount: 8500, status: 'Paid', period: '06/12/2026 - 07/12/2026' },
-          { id: 'INV-1001B', date: '05/12/2026', amount: 8500, status: 'Paid', period: '05/12/2026 - 06/12/2026' },
-          { id: 'INV-1001C', date: '04/12/2026', amount: 8500, status: 'Paid', period: '04/12/2026 - 05/12/2026' },
-          { id: 'INV-1001D', date: '03/12/2026', amount: 8500, status: 'Paid', period: '03/12/2026 - 04/12/2026' }
+          {
+            "id": "INV-1001A",
+            "date": "06/12/2026",
+            "amount": 8500,
+            "gst": 850,
+            "status": "Paid",
+            "period": "06/12/2026 - 07/12/2026",
+            "customerId": "CUST-001",
+            "dueDate": "06/26/2026",
+            "loadId": "L-5001"
+          },
+          {
+            "id": "INV-1002A",
+            "date": "06/15/2026",
+            "amount": 4200,
+            "gst": 420,
+            "status": "Sent",
+            "period": "06/15/2026 - 06/29/2026",
+            "customerId": "CUST-002",
+            "dueDate": "06/29/2026",
+            "loadId": "L-5002"
+          },
+          {
+            "id": "INV-1003A",
+            "date": "06/20/2026",
+            "amount": 3100,
+            "gst": 310,
+            "status": "Draft",
+            "period": "06/20/2026 - 07/04/2026",
+            "customerId": "CUST-001",
+            "dueDate": "07/04/2026",
+            "loadId": "L-5003"
+          },
+          {
+            "id": "INV-1004A",
+            "date": "05/10/2026",
+            "amount": 5000,
+            "gst": 500,
+            "status": "Overdue",
+            "period": "05/10/2026 - 05/24/2026",
+            "customerId": "CUST-003",
+            "dueDate": "05/24/2026",
+            "loadId": "L-5004"
+          }
+        ],
+        invoiceItems: [
+          {
+            "invoiceId": "INV-1001A",
+            "item": "Freight Transport - Sydney to Melbourne",
+            "qty": 1,
+            "rate": 8500,
+            "amount": 8500
+          },
+          {
+            "invoiceId": "INV-1002A",
+            "item": "Refrigerated Transport - Brisbane",
+            "qty": 1,
+            "rate": 4200,
+            "amount": 4200
+          },
+          {
+            "invoiceId": "INV-1003A",
+            "item": "Pallet Delivery - Local Metro",
+            "qty": 31,
+            "rate": 100,
+            "amount": 3100
+          },
+          {
+            "invoiceId": "INV-1004A",
+            "item": "Heavy Haulage - Perth",
+            "qty": 1,
+            "rate": 5000,
+            "amount": 5000
+          }
+        ],
+        customers: [
+          {
+            "id": "CUST-001",
+            "name": "Acme Corp",
+            "email": "billing@acme.com",
+            "phone": "555-0101",
+            "status": "Active"
+          },
+          {
+            "id": "CUST-002",
+            "name": "Global Tech",
+            "email": "accounts@globaltech.com",
+            "phone": "555-0102",
+            "status": "Active"
+          },
+          {
+            "id": "CUST-003",
+            "name": "Fresh Foods Ltd",
+            "email": "pay@freshfoods.com",
+            "phone": "555-0103",
+            "status": "Active"
+          }
+        ],
+        loads: [
+          {
+            "id": "L-5001",
+            "origin": "Sydney, NSW",
+            "destination": "Melbourne, VIC",
+            "status": "Delivered",
+            "customerId": "CUST-001",
+            "rate": 8500
+          },
+          {
+            "id": "L-5002",
+            "origin": "Brisbane, QLD",
+            "destination": "Gold Coast, QLD",
+            "status": "Delivered",
+            "customerId": "CUST-002",
+            "rate": 4200
+          },
+          {
+            "id": "L-5003",
+            "origin": "Sydney, NSW",
+            "destination": "Parramatta, NSW",
+            "status": "Delivered",
+            "customerId": "CUST-001",
+            "rate": 3100
+          },
+          {
+            "id": "L-5004",
+            "origin": "Perth, WA",
+            "destination": "Fremantle, WA",
+            "status": "Delivered",
+            "customerId": "CUST-003",
+            "rate": 5000
+          }
+        ],
+        trips: [
+          {
+            "id": "T-9001",
+            "loadId": "L-5001",
+            "driverId": "DRV-01",
+            "vehicleId": "VEH-01",
+            "status": "Completed",
+            "distance": 877
+          },
+          {
+            "id": "T-9002",
+            "loadId": "L-5002",
+            "driverId": "DRV-02",
+            "vehicleId": "VEH-02",
+            "status": "Completed",
+            "distance": 80
+          },
+          {
+            "id": "T-9003",
+            "loadId": "L-5003",
+            "driverId": "DRV-03",
+            "vehicleId": "VEH-03",
+            "status": "Completed",
+            "distance": 25
+          },
+          {
+            "id": "T-9004",
+            "loadId": "L-5004",
+            "driverId": "DRV-01",
+            "vehicleId": "VEH-01",
+            "status": "Completed",
+            "distance": 22
+          }
         ],
         payments: [
-          { id: 'PAY-1001A', date: '06/12/2026', amount: 8500, method: 'Visa ending 4022', status: 'Completed' },
-          { id: 'PAY-1001B', date: '05/12/2026', amount: 8500, method: 'Visa ending 4022', status: 'Completed' },
-          { id: 'PAY-1001C', date: '04/12/2026', amount: 8500, method: 'Visa ending 4022', status: 'Completed' },
-          { id: 'PAY-1001D', date: '03/12/2026', amount: 8500, method: 'Visa ending 4022', status: 'Completed' }
+          {
+            "id": "PAY-2001",
+            "invoiceId": "INV-1001A",
+            "date": "06/25/2026",
+            "amount": 9350,
+            "method": "Bank Transfer",
+            "reference": "EFT-788912",
+            "status": "Completed"
+          }
         ],
-        audits: [
-          { id: 1, action: 'Company Created', detail: 'Falcon Logistics LLC provisioned on Professional Plan.', time: '03/12/2026, 09:00:00 AM' }
-        ]
+        employees: [
+          {
+            "id": "EMP-01",
+            "name": "Sarah Jenkins",
+            "role": "Operations Manager",
+            "salary": 85000,
+            "status": "Active"
+          },
+          {
+            "id": "EMP-02",
+            "name": "Tom Hardy",
+            "role": "Dispatcher",
+            "salary": 65000,
+            "status": "Active"
+          }
+        ],
+        drivers: [
+          {
+            "id": "DRV-01",
+            "name": "Mike Ross",
+            "type": "Company",
+            "rateType": "Per KM",
+            "rate": 0.45,
+            "status": "Active"
+          },
+          {
+            "id": "DRV-02",
+            "name": "Harvey Specter",
+            "type": "Company",
+            "rateType": "Hourly",
+            "rate": 35,
+            "status": "Active"
+          },
+          {
+            "id": "DRV-03",
+            "name": "Louis Litt",
+            "type": "Owner Operator",
+            "rateType": "Percentage",
+            "rate": 75,
+            "status": "Active"
+          }
+        ],
+        contractors: [
+          {
+            "id": "CON-01",
+            "name": "FastLane Logistics",
+            "type": "Subcontractor",
+            "status": "Active"
+          },
+          {
+            "id": "CON-02",
+            "name": "Express Freight Co",
+            "type": "Subcontractor",
+            "status": "Active"
+          }
+        ],
+        payroll: [
+          {
+            "id": "PR-3001",
+            "workerId": "DRV-01",
+            "workerType": "Driver",
+            "period": "06/01/2026 - 06/14/2026",
+            "gross": 2450,
+            "tax": 450,
+            "net": 2000,
+            "status": "Paid",
+            "paymentDate": "06/15/2026"
+          },
+          {
+            "id": "PR-3002",
+            "workerId": "EMP-01",
+            "workerType": "Employee",
+            "period": "06/01/2026 - 06/30/2026",
+            "gross": 7083,
+            "tax": 1583,
+            "net": 5500,
+            "status": "Pending",
+            "paymentDate": null
+          }
+        ],
+        expenses: [
+          {
+            "id": "EXP-4001",
+            "date": "06/10/2026",
+            "category": "Fuel",
+            "vendor": "Ampol",
+            "amount": 850,
+            "gst": 85,
+            "status": "Approved",
+            "vehicleId": "VEH-01"
+          },
+          {
+            "id": "EXP-4002",
+            "date": "06/12/2026",
+            "category": "Maintenance",
+            "vendor": "Penske",
+            "amount": 1200,
+            "gst": 120,
+            "status": "Pending",
+            "vehicleId": "VEH-02"
+          },
+          {
+            "id": "EXP-4003",
+            "date": "06/15/2026",
+            "category": "Office Supplies",
+            "vendor": "Officeworks",
+            "amount": 150,
+            "gst": 15,
+            "status": "Approved",
+            "vehicleId": null
+          }
+        ],
+        gst: [
+          {
+            "period": "Q2 2026",
+            "collected": 1580,
+            "paid": 220,
+            "liability": 1360,
+            "status": "Pending",
+            "dueDate": "07/28/2026"
+          }
+        ],
+        payg: [
+          {
+            "period": "June 2026",
+            "withheld": 2033,
+            "status": "Pending",
+            "dueDate": "07/21/2026"
+          }
+        ],
+        vehicleCosts: [
+          {
+            "vehicleId": "VEH-01",
+            "month": "June 2026",
+            "fuel": 850,
+            "maintenance": 0,
+            "insurance": 250,
+            "total": 1100
+          }
+        ],
+        profitAndLoss: [
+          {
+            "month": "June 2026",
+            "revenue": 15800,
+            "cogs": 8500,
+            "grossProfit": 7300,
+            "expenses": 2200,
+            "netProfit": 5100
+          }
+        ],
+        cashFlow: [
+          {
+            "date": "06/25/2026",
+            "type": "Inflow",
+            "amount": 9350,
+            "category": "Accounts Receivable",
+            "description": "Payment for INV-1001A"
+          },
+          {
+            "date": "06/15/2026",
+            "type": "Outflow",
+            "amount": 2000,
+            "category": "Payroll",
+            "description": "Driver Payroll PR-3001"
+          }
+        ],
+        journalEntries: [
+          {
+            "id": "JE-5001",
+            "date": "06/12/2026",
+            "description": "Invoice INV-1001A created",
+            "accountDebit": "Accounts Receivable",
+            "accountCredit": "Sales Revenue",
+            "amount": 8500
+          },
+          {
+            "id": "JE-5002",
+            "date": "06/12/2026",
+            "description": "GST on Invoice INV-1001A",
+            "accountDebit": "Accounts Receivable",
+            "accountCredit": "GST Collected",
+            "amount": 850
+          }
+        ],
+        chartOfAccounts: [
+          {
+            "id": "1000",
+            "name": "Cash",
+            "type": "Asset",
+            "balance": 45000
+          },
+          {
+            "id": "1200",
+            "name": "Accounts Receivable",
+            "type": "Asset",
+            "balance": 12300
+          },
+          {
+            "id": "2000",
+            "name": "Accounts Payable",
+            "type": "Liability",
+            "balance": 1200
+          },
+          {
+            "id": "2100",
+            "name": "GST Collected",
+            "type": "Liability",
+            "balance": 1580
+          },
+          {
+            "id": "2200",
+            "name": "GST Paid",
+            "type": "Asset",
+            "balance": 220
+          },
+          {
+            "id": "4000",
+            "name": "Sales Revenue",
+            "type": "Equity",
+            "balance": 15800
+          },
+          {
+            "id": "5000",
+            "name": "Cost of Goods Sold",
+            "type": "Expense",
+            "balance": 8500
+          },
+          {
+            "id": "6000",
+            "name": "Operating Expenses",
+            "type": "Expense",
+            "balance": 2200
+          }
+        ],
+        customerLedger: [
+          {
+            "id": "CL-01",
+            "customerId": "CUST-001",
+            "date": "06/12/2026",
+            "description": "Invoice INV-1001A",
+            "debit": 9350,
+            "credit": 0,
+            "balance": 9350
+          },
+          {
+            "id": "CL-02",
+            "customerId": "CUST-001",
+            "date": "06/25/2026",
+            "description": "Payment PAY-2001",
+            "debit": 0,
+            "credit": 9350,
+            "balance": 0
+          }
+        ],
+        vendorLedger: [
+          {
+            "id": "VL-01",
+            "vendorId": "Ampol",
+            "date": "06/10/2026",
+            "description": "Fuel Expense EXP-4001",
+            "debit": 0,
+            "credit": 935,
+            "balance": -935
+          }
+        ],
+        employeeLedger: [
+          {
+            "id": "EL-01",
+            "employeeId": "EMP-01",
+            "date": "06/30/2026",
+            "description": "Salary June",
+            "debit": 0,
+            "credit": 5500,
+            "balance": -5500
+          }
+        ],
+        driverLedger: [
+          {
+            "id": "DL-01",
+            "driverId": "DRV-01",
+            "date": "06/14/2026",
+            "description": "Payroll PR-3001",
+            "debit": 0,
+            "credit": 2000,
+            "balance": -2000
+          },
+          {
+            "id": "DL-02",
+            "driverId": "DRV-01",
+            "date": "06/15/2026",
+            "description": "Payment PR-3001",
+            "debit": 2000,
+            "credit": 0,
+            "balance": 0
+          }
+        ],
+        contractorLedger: [
+          {
+            "id": "CNL-01",
+            "contractorId": "CON-01",
+            "date": "06/20/2026",
+            "description": "Subcontractor Settlement",
+            "debit": 0,
+            "credit": 3200,
+            "balance": -3200
+          }
+        ],
+        generalLedger: [
+          {
+            "id": "GL-01",
+            "date": "06/12/2026",
+            "account": "Accounts Receivable",
+            "debit": 9350,
+            "credit": 0,
+            "description": "Invoice INV-1001A"
+          },
+          {
+            "id": "GL-02",
+            "date": "06/12/2026",
+            "account": "Sales Revenue",
+            "debit": 0,
+            "credit": 8500,
+            "description": "Invoice INV-1001A"
+          },
+          {
+            "id": "GL-03",
+            "date": "06/12/2026",
+            "account": "GST Collected",
+            "debit": 0,
+            "credit": 850,
+            "description": "Invoice INV-1001A"
+          }
+        ],
+        auditLogs: [
+          {
+            "id": 1,
+            "action": "Invoice Created",
+            "module": "Accounts",
+            "user": "Alex W.",
+            "detail": "Generated INV-1001A for Acme Corp",
+            "time": "06/12/2026, 09:15:00 AM"
+          },
+          {
+            "id": 2,
+            "action": "Payment Received",
+            "module": "Accounts",
+            "user": "Alex W.",
+            "detail": "Recorded PAY-2001 for INV-1001A",
+            "time": "06/25/2026, 11:30:00 AM"
+          }
+        ],
+        notifications: [
+          {
+            "id": 1,
+            "type": "Invoice Paid",
+            "message": "Invoice INV-1001A has been paid in full.",
+            "read": false,
+            "time": "06/25/2026, 11:30:00 AM"
+          }
+        ],
+        reports: [
+          {
+            "id": 1,
+            "name": "Q2 2026 Profit & Loss",
+            "type": "P&L",
+            "generatedDate": "07/01/2026",
+            "status": "Ready"
+          }
+        ],
+        bankReconciliation: [
+          {
+            "id": 1,
+            "date": "06/25/2026",
+            "statementAmount": 9350,
+            "erpAmount": 9350,
+            "difference": 0,
+            "status": "Matched",
+            "description": "Payment PAY-2001"
+          }
+        ],
       },
       { 
         id: 2, 
@@ -1730,34 +2273,62 @@ if (isMockMode) {
             });
           }
           if (role === 'accounts') {
-            const invoicesList = mockDb.ledgers.filter(l => l.type === 'Invoice');
-            const totalRevenue = invoicesList.reduce((acc, curr) => acc + parseFloat(curr.amount.replace(/[$,]/g, '') || '0'), 0);
-            const paidRevenue = invoicesList.filter(l => l.status === 'Paid').reduce((acc, curr) => acc + parseFloat(curr.amount.replace(/[$,]/g, '') || '0'), 0);
+            const invoicesList = mockDb.invoices || [];
+            const expensesList = mockDb.expenses || [];
             
-            const expensesList = mockDb.ledgers.filter(l => l.type === 'Driver Pay' || l.type === 'Expense');
-            const totalExpenses = expensesList.reduce((acc, curr) => acc + parseFloat(curr.amount.replace(/[$,]/g, '') || '0'), 0);
+            const totalRevenue = invoicesList.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
+            const paidRevenue = invoicesList.filter(i => i.status === 'Paid').reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
+            const totalExpenses = expensesList.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
             
             const grossProfit = totalRevenue - totalExpenses;
             const margin = totalRevenue > 0 ? Math.round((grossProfit / totalRevenue) * 100) : 0;
             
-            const factoringAmt = mockDb.ledgers.filter(l => l.type === 'Factoring').reduce((acc, current) => acc + parseFloat(current.amount.replace(/[^0-9.]/g, '') || '0'), 0);
-            const balanceDue = invoicesList.filter(l => l.status === 'Pending' || l.status === 'Draft').reduce((acc, curr) => acc + parseFloat(curr.amount.replace(/[$,]/g, '') || '0'), 0);
+            const balanceDue = invoicesList.filter(l => l.status === 'Sent' || l.status === 'Draft' || l.status === 'Overdue').reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
 
             return resolve({
               status: 200,
-              data: { 
-                ledgers: mockDb.ledgers, 
-                factoring: factoringAmt, 
-                payrollCount: mockDb.ledgers.filter(l => l.type === 'Driver Pay').length, 
-                balanceDue,
+              data: {
+                invoices: mockDb.invoices || [],
+                invoiceItems: mockDb.invoiceItems || [],
+                customers: mockDb.customers || [],
+                loads: mockDb.loads || [],
+                trips: mockDb.trips || [],
+                payments: mockDb.payments || [],
+                employees: mockDb.employees || [],
+                drivers: mockDb.drivers || [],
+                contractors: mockDb.contractors || [],
+                payroll: mockDb.payroll || [],
+                expenses: mockDb.expenses || [],
+                gst: mockDb.gst || [],
+                payg: mockDb.payg || [],
+                vehicleCosts: mockDb.vehicleCosts || [],
+                profitAndLoss: mockDb.profitAndLoss || [],
+                cashFlow: mockDb.cashFlow || [],
+                journalEntries: mockDb.journalEntries || [],
+                chartOfAccounts: mockDb.chartOfAccounts || [],
+                customerLedger: mockDb.customerLedger || [],
+                vendorLedger: mockDb.vendorLedger || [],
+                employeeLedger: mockDb.employeeLedger || [],
+                driverLedger: mockDb.driverLedger || [],
+                contractorLedger: mockDb.contractorLedger || [],
+                generalLedger: mockDb.generalLedger || [],
+                auditLogs: mockDb.auditLogs || [],
+                notifications: mockDb.notifications || [],
+                reports: mockDb.reports || [],
+                bankReconciliation: mockDb.bankReconciliation || [],
+                
                 revenue: totalRevenue,
-                expenses: totalExpenses,
+                expensesSum: totalExpenses,
                 grossProfit,
                 margin: `${margin}%`,
                 paidRevenue,
-                driverPayroll: mockDb.driverPayroll || [],
-                employeePayments: mockDb.employeePayments || [],
-                contractorPayments: mockDb.contractorPayments || []
+                balanceDue,
+                
+                // Keep backward compatibility for the component while transitioning
+                ledgers: mockDb.ledgers || [],
+                driverPayroll: mockDb.payroll?.filter(p => p.workerType === 'Driver') || [],
+                employeePayments: mockDb.payroll?.filter(p => p.workerType === 'Employee') || [],
+                contractorPayments: mockDb.payroll?.filter(p => p.workerType === 'Contractor') || []
               }
             });
           }
@@ -2815,6 +3386,63 @@ if (isMockMode) {
           mockDb.coupons = mockDb.coupons.filter(c => c.code !== code);
           saveDb();
           return resolve({ status: 200, data: { success: true } });
+        }
+
+        
+        // --- ACCOUNTS BUSINESS LOGIC ENDPOINTS ---
+        if (url.startsWith('accounts/action') && method === 'POST') {
+          const actionData = body; // { action: 'approveInvoice', id: 'INV-1001A', etc }
+          
+          const auditLog = { id: Date.now(), action: actionData.action, module: 'Accounts', user: 'Current User', detail: 'Executed ' + actionData.action + ' on ' + (actionData.id || 'system'), time: new Date().toLocaleString() };
+          mockDb.auditLogs = mockDb.auditLogs || [];
+          mockDb.auditLogs.unshift(auditLog);
+
+          if (actionData.action === 'approveInvoice') {
+             const inv = mockDb.invoices.find(i => i.id === actionData.id);
+             if(inv) inv.status = 'Approved';
+          } else if (actionData.action === 'sendInvoice') {
+             const inv = mockDb.invoices.find(i => i.id === actionData.id);
+             if(inv) inv.status = 'Sent';
+          } else if (actionData.action === 'recordPayment') {
+             const inv = mockDb.invoices.find(i => i.id === actionData.invoiceId);
+             if(inv) inv.status = 'Paid';
+             mockDb.payments = mockDb.payments || [];
+             mockDb.payments.push({ id: 'PAY-' + Date.now(), invoiceId: actionData.invoiceId, date: new Date().toLocaleDateString(), amount: actionData.amount, method: 'Bank Transfer', status: 'Completed' });
+             mockDb.cashFlow = mockDb.cashFlow || [];
+             mockDb.cashFlow.push({ date: new Date().toLocaleDateString(), type: 'Inflow', amount: actionData.amount, category: 'Accounts Receivable', description: 'Payment for ' + actionData.invoiceId });
+          } else if (actionData.action === 'approveExpense') {
+             const exp = mockDb.expenses.find(e => e.id === actionData.id);
+             if(exp) exp.status = 'Approved';
+          } else if (actionData.action === 'rejectExpense') {
+             const exp = mockDb.expenses.find(e => e.id === actionData.id);
+             if(exp) exp.status = 'Rejected';
+          } else if (actionData.action === 'processContractorPay') {
+             const pr = mockDb.payroll.find(p => p.id === actionData.id);
+             if(pr) {
+               pr.status = 'Paid';
+               pr.paymentDate = new Date().toLocaleDateString();
+               mockDb.cashFlow.push({ date: new Date().toLocaleDateString(), type: 'Outflow', amount: pr.net, category: 'Contractor Pay', description: 'Payment for ' + pr.id });
+             }
+          } else if (actionData.action === 'processEmployeePay') {
+             const pr = mockDb.payroll.find(p => p.id === actionData.id);
+             if(pr) {
+               pr.status = 'Paid';
+               pr.paymentDate = new Date().toLocaleDateString();
+               mockDb.cashFlow.push({ date: new Date().toLocaleDateString(), type: 'Outflow', amount: pr.net, category: 'Payroll', description: 'Payment for ' + pr.id });
+             }
+          } else if (actionData.action === 'processAllPayroll') {
+             if (mockDb.payroll) {
+               mockDb.payroll.forEach(pr => {
+                 if (pr.status === 'Pending') {
+                   pr.status = 'Paid';
+                   pr.paymentDate = new Date().toLocaleDateString();
+                 }
+               });
+             }
+          }
+
+          saveDb();
+          return resolve({ status: 200, data: { success: true, message: 'Action executed successfully', actionData } });
         }
 
         // --- PAYMENT GATEWAYS CONTROLLERS ---

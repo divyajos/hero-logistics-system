@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, FileText, Truck, Users, Compass, HelpCircle } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAccountsData } from '../../store/slices/accountsSlice';
 import { crmRepository } from '../../services/crmRepository';
 
 export default function CommandCenter({ setActiveTab }) {
@@ -56,6 +58,67 @@ export default function CommandCenter({ setActiveTab }) {
     { id: 'invoices', title: 'Accounts Shipper billing invoices', category: 'Pages', role: 'Accounts' },
     { id: 'payroll', title: 'Accounts Driver payout runs', category: 'Pages', role: 'Accounts' }
   ].filter(p => !p.role || p.role === user.role);
+
+    const dispatch = useDispatch();
+  const { data: accountsData } = useSelector(state => state.accounts || {});
+  const [accountRecords, setAccountRecords] = useState([]);
+
+  useEffect(() => {
+    if (isOpen) {
+      dispatch(fetchAccountsData());
+    }
+  }, [isOpen, dispatch]);
+
+  useEffect(() => {
+    if (!isOpen || !accountsData) return;
+    const records = [];
+    
+    if (accountsData.invoices) {
+      accountsData.invoices.forEach(i => {
+        records.push({
+          id: `inv-${i.id}`,
+          title: `Invoice ${i.id} - ${i.customer} (${i.amount}) - ${i.status}`,
+          category: 'Invoices',
+          icon: FileText
+        });
+      });
+    }
+    
+    if (accountsData.payroll) {
+      accountsData.payroll.forEach(p => {
+        records.push({
+          id: `pay-${p.id}`,
+          title: `${p.workerType} Pay: ${p.workerName} (${p.netPay})`,
+          category: 'Payroll',
+          icon: Users
+        });
+      });
+    }
+    
+    if (accountsData.generalLedger) {
+      accountsData.generalLedger.forEach(l => {
+        records.push({
+          id: `gl-${l.id}`,
+          title: `Ledger: ${l.accountName} (${l.balance}) - ${l.type}`,
+          category: 'Ledger',
+          icon: FileText
+        });
+      });
+    }
+    
+    if (accountsData.expenses) {
+      accountsData.expenses.forEach(e => {
+        records.push({
+          id: `exp-${e.id}`,
+          title: `Expense: ${e.vendor} - ${e.category} (${e.amount})`,
+          category: 'Expenses',
+          icon: FileText
+        });
+      });
+    }
+    
+    setAccountRecords(records);
+  }, [isOpen, accountsData]);
 
   const [crmRecords, setCrmRecords] = useState([]);
 
@@ -123,7 +186,7 @@ export default function CommandCenter({ setActiveTab }) {
     { id: 'tx-custody', title: 'Transfer Custody #TX-702 (Hero ➔ Super Freight)', category: 'Transfers', icon: Compass }
   ];
 
-  const searchItems = [...pages, ...dataRecords, ...crmRecords];
+  const searchItems = [...pages, ...dataRecords, ...crmRecords, ...accountRecords];
 
   const [activeFilter, setActiveFilter] = useState('All');
   const [recentSearches, setRecentSearches] = useState(() => {
@@ -160,6 +223,9 @@ export default function CommandCenter({ setActiveTab }) {
           detail: { leadId, subTab }
         }));
       }
+    } else if (item.category === 'Invoices' || item.category === 'Payroll' || item.category === 'Ledger' || item.category === 'Expenses') {
+      setActiveTab('accounts');
+      setIsOpen(false);
     } else {
       localStorage.setItem('hero_global_search_query', item.title);
       setActiveTab('search-results');

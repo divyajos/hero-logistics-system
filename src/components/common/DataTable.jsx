@@ -29,7 +29,9 @@ export default function DataTable({
     const saved = localStorage.getItem(`${tableName}_columns`);
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        const validKeys = parsed.filter(k => columns.some(c => c.key === k));
+        if (validKeys.length > 0) return validKeys;
       } catch (e) {
         console.error(e);
       }
