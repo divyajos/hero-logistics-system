@@ -24,11 +24,14 @@ import MiniChart from '../common/MiniChart';
 import { KpiGridSkeleton, TableSkeleton } from '../common/Skeletons';
 import { 
   Truck, MapPin, Users, Briefcase, Plus, Check, Edit2, 
-  Trash2, Shield, Calendar, Key, UserCheck, AlertTriangle, Activity, DollarSign, Package, BarChart3
+  Trash2, Shield, Calendar, Key, UserCheck, AlertTriangle, Activity, DollarSign, Package, BarChart3,
+  Bell, Search, FileText, Download, Sparkles, XCircle, X, Edit, Settings
 } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, BarChart, Bar, AreaChart, Area, Legend } from 'recharts';
+import AlertsReminders from './AlertsReminders';
+import PermissionsPanel from './PermissionsPanel';
 
-export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
+export default function CompanyAdminDashboard({ activeTab: initialActiveTab = 'overview' }) {
   const dispatch = useDispatch();
   const { fleet, loading: fleetLoading } = useSelector((state) => state.vehicles);
   const { drivers, loading: driversLoading } = useSelector((state) => state.drivers);
@@ -41,6 +44,232 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
   // Modals & Drawers
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [detailsDrawerOpen, setDetailsDrawerOpen] = useState(false);
+  const [addAlertModalOpen, setAddAlertModalOpen] = useState(false);
+  
+  // Add User Modal State
+  const [addUserModalOpen, setAddUserModalOpen] = useState(false);
+  const [isSavingUser, setIsSavingUser] = useState(false);
+  const [newUser, setNewUser] = useState({
+    firstName: '', lastName: '', email: '', phone: '', employeeId: '', role: 'Company Admin', branch: '', status: 'Active', permissions: []
+  });
+
+  // Assign User Modal State
+  const [assignUserModalOpen, setAssignUserModalOpen] = useState(false);
+  const [isAssigningUser, setIsAssigningUser] = useState(false);
+  const [assignUser, setAssignUser] = useState({
+    userId: '', currentBranch: 'Chicago HQ Terminal', assignToBranch: '', effectiveDate: '', position: '', notes: ''
+  });
+
+  // Permissions Options
+  const permissionOptions = [
+    'View Reports', 'Manage Fleet', 'Approve Expenses', 'Manage Users',
+    'Edit Branch Settings', 'Dispatch Loads', 'View Billing', 'Audit Logs'
+  ];
+
+  // Submit Handlers
+  const handleAddUserSubmit = (e) => {
+    e.preventDefault();
+    if (!newUser.firstName || !newUser.lastName || !newUser.email || !newUser.branch) {
+      triggerToast('Please fill in all required fields.', 'error');
+      return;
+    }
+    
+    // Check permission validation
+    if (!checkPermission('manageUsers', 'create a new user')) return;
+    
+    setIsSavingUser(true);
+    setTimeout(() => {
+      const createdUser = {
+        id: newUser.employeeId || `EMP-${Math.floor(1000 + Math.random() * 9000)}`,
+        ...newUser
+      };
+      
+      setUsers(prev => [createdUser, ...prev]);
+      
+      // Log audit
+      logAuditEvent('User Created', `Created user ${newUser.firstName} ${newUser.lastName} (${newUser.email}) assigned to ${newUser.branch}`);
+      
+      triggerToast(`Successfully created user: ${newUser.firstName} ${newUser.lastName}`);
+      setIsSavingUser(false);
+      setAddUserModalOpen(false);
+      setNewUser({ firstName: '', lastName: '', email: '', phone: '', employeeId: '', role: 'Company Admin', branch: '', status: 'Active', permissions: [] });
+    }, 800);
+  };
+
+  const handleAssignUserSubmit = (e) => {
+    e.preventDefault();
+    if (!assignUser.userId || !assignUser.assignToBranch || !assignUser.effectiveDate) {
+      triggerToast('Please complete all required fields.', 'error');
+      return;
+    }
+    
+    // Check permission validation
+    if (!checkPermission('manageUsers', 'assign a user to a branch')) return;
+    
+    setIsAssigningUser(true);
+    setTimeout(() => {
+      setUsers(prev => prev.map(u => {
+        if (u.id === assignUser.userId) {
+          return {
+            ...u,
+            branch: assignUser.assignToBranch,
+            role: assignUser.position || u.role
+          };
+        }
+        return u;
+      }));
+      
+      const targetUser = users.find(u => u.id === assignUser.userId);
+      const userName = targetUser ? `${targetUser.firstName} ${targetUser.lastName}` : assignUser.userId;
+      
+      // Log audit
+      logAuditEvent('User Assigned', `Assigned user ${userName} to branch ${assignUser.assignToBranch} effective ${assignUser.effectiveDate}`);
+      
+      triggerToast(`User successfully assigned to ${assignUser.assignToBranch} effective ${assignUser.effectiveDate}.`);
+      setIsAssigningUser(false);
+      setAssignUserModalOpen(false);
+      setAssignUser({ userId: '', currentBranch: 'Chicago HQ Terminal', assignToBranch: '', effectiveDate: '', position: '', notes: '' });
+    }, 800);
+  };
+
+  // CSV Import handler
+  const handleCsvImport = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    // Check permission validation
+    if (!checkPermission('manageUsers', 'import users via CSV')) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target.result;
+      const lines = text.split('\n');
+      const newImportedUsers = [];
+      let skippedCount = 0;
+      
+      if (lines.length <= 1) {
+        triggerToast('The CSV file is empty.', 'error');
+        return;
+      }
+
+      // Parse header line to determine columns
+      const headers = lines[0].split(',').map(h => h.trim().replace(/^["']|["']$/g, '').toLowerCase());
+      
+      const fnIdx = headers.indexOf('first name') !== -1 ? headers.indexOf('first name') : headers.indexOf('firstname');
+      const lnIdx = headers.indexOf('last name') !== -1 ? headers.indexOf('last name') : headers.indexOf('lastname');
+      const emailIdx = headers.indexOf('email');
+      const phoneIdx = headers.indexOf('phone') !== -1 ? headers.indexOf('phone') : headers.indexOf('phone number');
+      const roleIdx = headers.indexOf('role');
+      const branchIdx = headers.indexOf('branch') !== -1 ? headers.indexOf('branch') : headers.indexOf('assigned branch');
+      
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        const columns = line.split(',').map(c => c.trim().replace(/^["']|["']$/g, ''));
+        
+        const firstName = columns[fnIdx] || '';
+        const lastName = columns[lnIdx] || '';
+        const email = columns[emailIdx] || '';
+        const phone = columns[phoneIdx] || '';
+        const role = columns[roleIdx] || 'Dispatcher';
+        const branch = columns[branchIdx] || 'Chicago HQ Terminal';
+        
+        if (!firstName || !lastName || !email) {
+          skippedCount++;
+          continue;
+        }
+        
+        newImportedUsers.push({
+          id: `EMP-${Math.floor(1000 + Math.random() * 9000)}`,
+          firstName,
+          lastName,
+          email,
+          phone,
+          role,
+          branch,
+          status: 'Active',
+          permissions: []
+        });
+      }
+      
+      if (newImportedUsers.length > 0) {
+        setUsers(prev => [...newImportedUsers, ...prev]);
+        logAuditEvent('CSV User Import', `Imported ${newImportedUsers.length} users from CSV file: ${file.name}`);
+        triggerToast(`Successfully imported ${newImportedUsers.length} users.${skippedCount > 0 ? ` Skipped ${skippedCount} invalid records.` : ''}`);
+      } else {
+        triggerToast('No valid user records found in the CSV file.', 'error');
+      }
+      
+      e.target.value = '';
+    };
+    reader.readAsText(file);
+  };
+
+  // Export handlers
+  const handleExportUsersCSV = () => {
+    if (!checkPermission('exportReports', 'export users registry')) return;
+    const headers = ['Employee ID', 'First Name', 'Last Name', 'Email Address', 'Phone Number', 'Role Profile', 'Assigned Branch', 'Status'];
+    const rows = users.map(u => [u.id, u.firstName, u.lastName, u.email, u.phone || '', u.role, u.branch, u.status]);
+    const csvContent = [headers.join(','), ...rows.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Hero_Logistics_Users_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    logAuditEvent('Export Users', 'Exported users registry to CSV.');
+    triggerToast('Users list CSV exported.');
+  };
+
+  const handleExportBranchesCSV = () => {
+    if (!checkPermission('exportReports', 'export branches registry')) return;
+    const headers = ['Branch Name', 'Address', 'City', 'State', 'Manager', 'Staff Count'];
+    const rows = branches.map(b => [b.name, b.address, b.city, b.state, b.manager, getBranchStaffCount(b.name)]);
+    const csvContent = [headers.join(','), ...rows.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Hero_Logistics_Branches_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    logAuditEvent('Export Branches', 'Exported branches list to CSV.');
+    triggerToast('Branches list CSV exported.');
+  };
+
+  // Reusable confirmation modal trigger
+  const handleConfirmDeactivate = (item, type) => {
+    setConfirmTitle(type === 'driver' ? 'Suspend Driver?' : type === 'user' ? 'Deactivate User?' : 'Deactivate Vehicle?');
+    setConfirmText(
+      type === 'driver' 
+        ? `Are you sure you want to suspend driver ${item.name}? This will remove them from active dispatch rosters.`
+        : type === 'user'
+        ? `Are you sure you want to deactivate staff member ${item.firstName} ${item.lastName}? They will lose access to the logistics system immediately.`
+        : `Are you sure you want to decommission vehicle ${item.plate}? Active dispatches associated with this vehicle will be unassigned.`
+    );
+    setConfirmAction(() => () => {
+      if (type === 'driver') {
+        if (!checkPermission('driverMgmt', 'suspend a driver')) return;
+        dispatch(deleteDriver(item.id));
+        logAuditEvent('Driver Suspended', `Deactivated driver ${item.name} from registry.`);
+        triggerToast('Driver suspended and removed from registry.', 'warning');
+      } else if (type === 'user') {
+        if (!checkPermission('manageUsers', 'deactivate a user')) return;
+        setUsers(prev => prev.filter(u => u.id !== item.id));
+        logAuditEvent('User Deactivated', `Deactivated user ${item.firstName} ${item.lastName} (${item.email})`);
+        triggerToast('User deactivated and access revoked.', 'warning');
+      } else if (type === 'fleet') {
+        if (!checkPermission('manageFleet', 'deactivate a vehicle')) return;
+        dispatch(deleteVehicle(item.id));
+        logAuditEvent('Vehicle Decommissioned', `Decommissioned vehicle ${item.plate}`);
+        triggerToast('Vehicle deactivated and removed from registry.', 'warning');
+      }
+    });
+    setConfirmModalOpen(true);
+  };
 
   // Selections
   const [selectedItem, setSelectedItem] = useState(null);
@@ -70,6 +299,19 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
   const [formType, setFormType] = useState('');
   const [formValue, setFormValue] = useState('');
 
+  // Sync activeTab to state to allow local overrides
+  const [activeTab, setActiveTab] = useState(initialActiveTab);
+  useEffect(() => {
+    setActiveTab(initialActiveTab);
+    setCurrentPage(1);
+    setSearchQuery('');
+  }, [initialActiveTab]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+    setSearchQuery('');
+  }, [activeTab]);
+
   // Branch Selector
   const [selectedBranch, setSelectedBranch] = useState('all');
 
@@ -87,14 +329,125 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
   const [newInsType, setNewInsType] = useState('Customer Instructions');
   const [newInsScopeType, setNewInsScopeType] = useState('Customer');
   const [newInsScopeValue, setNewInsScopeValue] = useState('');
+
+  // Niche Configurations
+  const [selectedNiche, setSelectedNiche] = useState('General Freight');
+  const [nicheSettings, setNicheSettings] = useState({
+    generalFreightEnabled: true,
+    carCarryingEnabled: false,
+    dangerousGoodsEnabled: false
+  });
+
+  // Address Instructions
+  const [instructionSubTab, setInstructionSubTab] = useState('customer');
+  const [addressInstructions, setAddressInstructions] = useState([
+    { id: 1, address: 'Chicago HQ Depot - Dock A', instructions: 'Ring bell and wait for yard operator. Hand over paperwork before uncoupling.', hazard: 'High Forklift Traffic', priority: 'High' },
+    { id: 2, address: 'Los Angeles Terminal - Gate B', instructions: 'Security code #4019. Driver must wear steel-toed boots at all times.', hazard: 'Heavy Container Movement', priority: 'High' },
+    { id: 3, address: 'Atlanta Depot - East Wing', instructions: 'Register safety manifest at gatehouse. Speed limit is strictly 5 MPH.', hazard: 'None', priority: 'Medium' }
+  ]);
+  const [addressForm, setAddressForm] = useState({ address: '', instructions: '', hazard: '', priority: 'Medium' });
+
+
+  // AI Actions Review
+  const [aiActionReview, setAiActionReview] = useState(null);
   const [newInsText, setNewInsText] = useState('');
   const [newInsIsCritical, setNewInsIsCritical] = useState(false);
 
+  // Confirmation Dialog Modal State
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [confirmTitle, setConfirmTitle] = useState('');
+  const [confirmText, setConfirmText] = useState('');
+  const [confirmAction, setConfirmAction] = useState(null);
+
+  // Sub Tab states
+  const [driversSubTab, setDriversSubTab] = useState('drivers');
+  const [settingsSubTab, setSettingsSubTab] = useState('niche');
+
   // Custom DB lists states
-  const [branches, setBranches] = useState([
+  const defaultBranches = [
     { id: 1, name: 'Chicago HQ Terminal', address: '100 Logistics Blvd', city: 'Chicago', state: 'IL', manager: 'hq@company.com', staff: 8 },
     { id: 2, name: 'Los Angeles Depot', address: '45 Long Beach Rd', city: 'Los Angeles', state: 'CA', manager: 'la@company.com', staff: 4 }
-  ]);
+  ];
+  
+  const [branches, setBranches] = useState(() => {
+    const saved = localStorage.getItem('hero_admin_branches');
+    return saved ? JSON.parse(saved) : defaultBranches;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('hero_admin_branches', JSON.stringify(branches));
+  }, [branches]);
+
+  const defaultUsers = [
+    { id: 'EMP-8021', firstName: 'Alex', lastName: 'Wright', email: 'alex.w@company.com', phone: '+1 (555) 102-3921', role: 'Dispatcher', branch: 'Chicago HQ Terminal', status: 'Active', permissions: ['Dispatch Loads', 'Manage Fleet'] },
+    { id: 'EMP-4921', firstName: 'Jan', lastName: 'Levinson', email: 'jan.l@company.com', phone: '+1 (555) 910-3841', role: 'Company Admin', branch: 'Chicago HQ Terminal', status: 'Active', permissions: ['View Reports', 'Audit Logs', 'Manage Users'] },
+    { id: 'EMP-3042', firstName: 'Michael', lastName: 'Scott', email: 'michael.s@company.com', phone: '+1 (555) 201-9482', role: 'Branch Manager', branch: 'Los Angeles Depot', status: 'Active', permissions: ['Dispatch Loads', 'View Billing'] }
+  ];
+
+  const [users, setUsers] = useState(() => {
+    const saved = localStorage.getItem('hero_admin_users');
+    return saved ? JSON.parse(saved) : defaultUsers;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('hero_admin_users', JSON.stringify(users));
+  }, [users]);
+
+  // Audit Logs & Activity History
+  const defaultAuditLogs = [
+    { id: 1, action: 'User Created', detail: 'Created user Alex Wright (alex.w@company.com) assigned to Chicago HQ Terminal', user: 'Jan Levinson (Admin)', time: new Date(Date.now() - 3600000 * 2).toLocaleString() },
+    { id: 2, action: 'Role Updated', detail: 'Changed role for Michael Scott to Branch Manager', user: 'Jan Levinson (Admin)', time: new Date(Date.now() - 3600000 * 4).toLocaleString() },
+    { id: 3, action: 'System Backup', detail: 'Automated nightly state backup completed successfully.', user: 'System', time: new Date(Date.now() - 3600000 * 12).toLocaleString() },
+    { id: 4, action: 'Branch Configured', detail: 'Configured LA Terminal location gate security protocols.', user: 'Jan Levinson (Admin)', time: new Date(Date.now() - 3600000 * 24).toLocaleString() }
+  ];
+
+  const [auditLogs, setAuditLogs] = useState(() => {
+    const saved = localStorage.getItem('hero_admin_audit_logs');
+    return saved ? JSON.parse(saved) : defaultAuditLogs;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('hero_admin_audit_logs', JSON.stringify(auditLogs));
+  }, [auditLogs]);
+
+  const logAuditEvent = (action, detail) => {
+    const newLog = {
+      id: Date.now(),
+      action,
+      detail,
+      user: user?.name || 'Company Admin',
+      time: new Date().toLocaleString()
+    };
+    setAuditLogs(prev => [newLog, ...prev]);
+  };
+
+  const getBranchStaffCount = (branchName) => {
+    return users.filter(u => u.branch === branchName).length;
+  };
+
+  const checkPermission = (permKey, actionName) => {
+    const saved = localStorage.getItem('hero_perms_toggles');
+    if (!saved) return true;
+    const roleMap = {
+      'Super Admin': 'companyadmin',
+      'Company Admin': 'companyadmin',
+      'Dispatcher': 'dispatcher',
+      'Driver': 'driver',
+      'Warehouse Manager': 'warehouse',
+      'Yard Attendant': 'yard',
+      'Accounts': 'accounts',
+      'Customer': 'customer'
+    };
+    const roleKey = roleMap[user?.role] || 'dispatcher';
+    if (roleKey === 'companyadmin') return true;
+    const pk = `${permKey}_${roleKey}`;
+    const perms = JSON.parse(saved);
+    if (perms[pk] === false) {
+      triggerToast(`Access Denied: Role '${user?.role}' does not have permission to ${actionName}.`, 'error');
+      return false;
+    }
+    return true;
+  };
 
   const [customers, setCustomers] = useState([
     { id: 1, name: 'Global Retail Corp', email: 'billing@globalretail.com', contract: 'Enterprise Contract', billing: 'Net 30' },
@@ -333,14 +686,27 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
 
   // Driver/Vehicle Suspension
   const handleDeactivateItem = () => {
-    if (drawerType === 'fleet') {
-      dispatch(deleteVehicle(selectedItem.id));
-      triggerToast('Vehicle deactivated and removed from registry.', 'warning');
-    } else if (drawerType === 'driver') {
-      dispatch(deleteDriver(selectedItem.id));
-      triggerToast('Driver suspended and removed from registry.', 'warning');
-    }
-    setDetailsDrawerOpen(false);
+    setConfirmTitle(drawerType === 'fleet' ? 'Deactivate Vehicle?' : 'Suspend Driver?');
+    setConfirmText(
+      drawerType === 'fleet'
+        ? `Are you sure you want to de-register and deactivate vehicle ${selectedItem?.plate}?`
+        : `Are you sure you want to suspend driver ${selectedItem?.name} and revoke portal access?`
+    );
+    setConfirmAction(() => () => {
+      if (drawerType === 'fleet') {
+        if (!checkPermission('manageFleet', 'deactivate a vehicle')) return;
+        dispatch(deleteVehicle(selectedItem.id));
+        logAuditEvent('Vehicle Decommissioned', `Decommissioned vehicle ${selectedItem.plate} via details drawer`);
+        triggerToast('Vehicle deactivated and removed from registry.', 'warning');
+      } else if (drawerType === 'driver') {
+        if (!checkPermission('driverMgmt', 'suspend a driver')) return;
+        dispatch(deleteDriver(selectedItem.id));
+        logAuditEvent('Driver Suspended', `Deactivated driver ${selectedItem.name} via details drawer`);
+        triggerToast('Driver suspended and removed from registry.', 'warning');
+      }
+      setDetailsDrawerOpen(false);
+    });
+    setConfirmModalOpen(true);
   };
 
   // Customer Instructions Handlers
@@ -396,34 +762,249 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
   };
 
   const handleDeleteIns = (id) => {
-    if (confirm('Are you sure you want to delete this instruction?')) {
+    const ins = customerInstructions.find(i => i.id === id);
+    const insText = ins ? ins.text : '';
+    setConfirmTitle('Delete Special Instruction?');
+    setConfirmText(`Are you sure you want to delete this safety directive? "${insText}"`);
+    setConfirmAction(() => () => {
       dispatch(deleteCustomerInstruction(id));
+      logAuditEvent('Instruction Deleted', `Deleted safety instruction directive: "${insText}"`);
       triggerToast('Instruction deleted.', 'warning');
-    }
+    });
+    setConfirmModalOpen(true);
   };
 
   // Search & Pagination queries
   const getFilteredList = () => {
+    let list = [];
     if (activeTab === 'branches') {
-      return branches.filter(b => b.name.toLowerCase().includes(searchQuery.toLowerCase()));
+      list = branches;
+    } else if (activeTab === 'customers') {
+      list = customers;
+    } else if (activeTab === 'drivers') {
+      list = drivers;
+    } else if (activeTab === 'fleet') {
+      list = fleet;
+    } else if (activeTab === 'trailers') {
+      list = trailers;
+    } else if (activeTab === 'assets') {
+      list = assets;
     }
-    if (activeTab === 'customers') {
-      return customers.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    // Filter by branch
+    if (selectedBranch !== 'all') {
+      list = list.filter(item => {
+        const itemId = item.id || (item.plate ? parseInt(item.plate.replace(/\D/g, '')) : 0) || 0;
+        return itemId % 2 === (selectedBranch === 1 ? 0 : 1);
+      });
     }
-    if (activeTab === 'drivers') {
-      return drivers.filter(d => d.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    // Filter by search query (Global Search)
+    if (searchQuery.trim() !== '') {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(item => {
+        return (
+          (item.name && item.name.toLowerCase().includes(q)) ||
+          (item.plate && item.plate.toLowerCase().includes(q)) ||
+          (item.serial && item.serial.toLowerCase().includes(q)) ||
+          (item.vin && item.vin.toLowerCase().includes(q)) ||
+          (item.rego && item.rego.toLowerCase().includes(q)) ||
+          (item.id && String(item.id).toLowerCase().includes(q)) ||
+          (item.email && item.email.toLowerCase().includes(q)) ||
+          (item.instructions && item.instructions.toLowerCase().includes(q)) ||
+          (item.address && item.address.toLowerCase().includes(q))
+        );
+      });
     }
-    if (activeTab === 'fleet') {
-      return fleet.filter(v => v.plate.toLowerCase().includes(searchQuery.toLowerCase()));
-    }
-    if (activeTab === 'trailers') {
-      return trailers.filter(t => t.plate.toLowerCase().includes(searchQuery.toLowerCase()));
-    }
-    if (activeTab === 'assets') {
-      return assets.filter(a => a.name.toLowerCase().includes(searchQuery.toLowerCase()));
-    }
-    return [];
+    return list;
   };
+
+  const getSimulatedChangeForAi = (title) => {
+    switch(title) {
+      case 'AI Receipt Reader': return 'Receipt Total: $342.50 | Pilot Flying J | Auto-matched to Vehicle #VH-1102 (Odometer: 142,500 mi).';
+      case 'AI Dispatch Suggestions': return 'Assign LD-9422 to John D. | ETA improvement: +1.5 hours (saves 92 miles of empty return trip).';
+      case 'AI ETA Prediction': return 'Predicted arrival: 06/27 2:30 PM (Confidence: 95.2%). Original Scheduled: 06/27 4:15 PM.';
+      case 'AI Cost Suggestions': return 'Re-route LD-9418 via I-94 to Dallas | Fuel saved: 12 gal ($48) | Toll savings: $35.';
+      case 'AI Alert Center': return 'Compliance check: 2 Driver CDL documents expiring in <15 days. Auto-queued notification mail drafts.';
+      case 'AI Load Optimiser': return 'Combine cargo: Chicago➔Atlanta (LD-9418 & LD-9420). Saves 1 truck dispatch and 180 total miles.';
+      default: return 'No simulation data available.';
+    }
+  };
+
+  const handleTriggerAiAction = (ai) => {
+    setAiActionReview({
+      title: ai.title,
+      icon: ai.icon,
+      suggestion: ai.fn,
+      details: ai.desc,
+      simulatedChange: getSimulatedChangeForAi(ai.title)
+    });
+  };
+
+  const handleExportReportCSV = (reportName) => {
+    const reportData = [
+      { ref: 'REF-8812 (Chicago HQ)', date: 'Jun 26, 2026', cat: 'Standard Billing', deb: '$0.00', cred: '$4,200.00', status: 'Settled' },
+      { ref: 'REF-8411 (BP station Chicago)', date: 'Jun 25, 2026', cat: 'Fuel Expense', deb: '$340.50', cred: '$0.00', status: 'Approved' },
+      { ref: 'REF-7922 (Dallas terminal)', date: 'Jun 24, 2026', cat: 'Inter-Company', deb: '$0.00', cred: '$1,800.00', status: 'Settled' },
+      { ref: 'REF-6821 (Tyre replacements)', date: 'Jun 21, 2026', cat: 'Maintenance', deb: '$1,200.00', cred: '$0.00', status: 'Approved' },
+      { ref: 'REF-4819 (Memphis Shippers)', date: 'Jun 20, 2026', cat: 'Bulk Freight', deb: '$0.00', cred: '$8,800.00', status: 'Settled' }
+    ];
+
+    const headers = ['Record / Reference', 'Date / Period', 'Type / Category', 'Debit / Cost', 'Credit / Revenue', 'Status'];
+    const rows = reportData.map(r => [r.ref, r.date, r.cat, r.deb, r.cred, r.status]);
+
+    const csvContent = [headers.join(','), ...rows.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Hero_Logistics_${reportName.replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    triggerToast(`${reportName} CSV Export downloaded successfully!`);
+  };
+
+  const handleExportReportPDF = (reportName) => {
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+    const html = `
+      <html>
+        <head>
+          <title>${reportName} - Hero Logistics</title>
+          <style>
+            body { font-family: sans-serif; padding: 20px; color: #333; }
+            h1 { border-bottom: 2px solid #FFD400; padding-bottom: 10px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+            th { background-color: #f2f2f2; }
+          </style>
+        </head>
+        <body>
+          <h1>Hero Logistics - ${reportName}</h1>
+          <p>Generated on: ${new Date().toLocaleString()}</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Record / Reference</th>
+                <th>Date / Period</th>
+                <th>Type / Category</th>
+                <th>Debit / Cost</th>
+                <th>Credit / Revenue</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>REF-8812 (Chicago HQ)</td>
+                <td>Jun 26, 2026</td>
+                <td>Standard Billing</td>
+                <td>$0.00</td>
+                <td>$4,200.00</td>
+                <td>Settled</td>
+              </tr>
+              <tr>
+                <td>REF-8411 (BP station Chicago)</td>
+                <td>Jun 25, 2026</td>
+                <td>Fuel Expense</td>
+                <td>$340.50</td>
+                <td>$0.00</td>
+                <td>Approved</td>
+              </tr>
+              <tr>
+                <td>REF-7922 (Dallas terminal)</td>
+                <td>Jun 24, 2026</td>
+                <td>Inter-Company</td>
+                <td>$0.00</td>
+                <td>$1,800.00</td>
+                <td>Settled</td>
+              </tr>
+              <tr>
+                <td>REF-6821 (Tyre replacements)</td>
+                <td>Jun 21, 2026</td>
+                <td>Maintenance</td>
+                <td>$1,200.00</td>
+                <td>$0.00</td>
+                <td>Approved</td>
+              </tr>
+              <tr>
+                <td>REF-4819 (Memphis Shippers)</td>
+                <td>Jun 20, 2026</td>
+                <td>Bulk Freight</td>
+                <td>$0.00</td>
+                <td>$8,800.00</td>
+                <td>Settled</td>
+              </tr>
+            </tbody>
+          </table>
+        </body>
+      </html>
+    `;
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
+  const getBranchStats = () => {
+    if (selectedBranch === 1) { // Chicago HQ
+      return {
+        activeLoads: 9,
+        completedLoads: 122,
+        revenue: 55400,
+        expenses: 21120,
+        grossMargin: '61.9%',
+        availableDrivers: 4,
+        activeVehicles: 6,
+        overdueInvoices: 3,
+        netProfit: 34280,
+        profitChange: '↑ +12.4% vs last month',
+        revenueChange: '↑ +6.2% vs last month',
+        expensesChange: '↑ Fuel +$1,400',
+        marginChange: '↑ +1.5% improvement',
+        driversSub: 'of 6 assigned drivers',
+        vehiclesSub: 'of 6 registered'
+      };
+    }
+    if (selectedBranch === 2) { // Los Angeles Depot
+      return {
+        activeLoads: 5,
+        completedLoads: 65,
+        revenue: 28800,
+        expenses: 10420,
+        grossMargin: '63.8%',
+        availableDrivers: 3,
+        activeVehicles: 3,
+        overdueInvoices: 1,
+        netProfit: 18380,
+        profitChange: '↑ +17.8% vs last month',
+        revenueChange: '↑ +11.4% vs last month',
+        expensesChange: '↑ Fuel +$700',
+        marginChange: '↑ +3.2% improvement',
+        driversSub: 'of 4 assigned drivers',
+        vehiclesSub: 'of 3 registered'
+      };
+    }
+    // Consolidated / All Branches
+    return {
+      activeLoads: 14,
+      completedLoads: 187,
+      revenue: 84200,
+      expenses: 31540,
+      grossMargin: '62.5%',
+      availableDrivers: drivers.filter(d => d.status !== 'On Trip').length || 7,
+      activeVehicles: fleet.filter(v => v.status === 'Active' || v.status === 'In Transit').length || 9,
+      overdueInvoices: 4,
+      netProfit: 52660,
+      profitChange: '↑ +14.2% vs last month',
+      revenueChange: '↑ +8.4% vs last month',
+      expensesChange: '↑ Fuel +$2,100',
+      marginChange: '↑ +2.1% improvement',
+      driversSub: `of ${drivers.length} total drivers`,
+      vehiclesSub: `of ${fleet.length} registered`
+    };
+  };
+
+  const branchStats = getBranchStats();
 
   const activeList = getFilteredList();
   const totalPages = Math.ceil(activeList.length / itemsPerPage);
@@ -443,32 +1024,105 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
       )}
 
       {/* Header Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#23324C]/60 pb-5">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-black text-white capitalize">Company Admin • {activeTab.replace('-', ' ')}</h2>
-          <p className="text-xs text-slate-400">Configure entities, invite operators, and audit registered company assets.</p>
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 border-b border-[#23324C]/60 pb-5">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div>
+            <h2 className="text-xl sm:text-2xl font-black text-white capitalize">Company Admin • {activeTab.replace('-', ' ')}</h2>
+            <p className="text-xs text-slate-400">Configure entities, invite operators, and audit registered company assets.</p>
+          </div>
+          
+          {/* Branch Switcher Select */}
+          <div className="flex items-center gap-1.5 bg-[#111827]/80 border border-[#23324C] px-3 py-1.5 rounded-xl text-xs font-bold text-slate-350">
+            <MapPin className="h-3.5 w-3.5 text-brand-400" />
+            <select 
+              value={selectedBranch} 
+              onChange={(e) => {
+                const val = e.target.value === 'all' ? 'all' : Number(e.target.value);
+                setSelectedBranch(val);
+                triggerToast(val === 'all' ? 'Showing consolidated data for all branches.' : `Filtered dashboard views to ${branches.find(b => b.id === val)?.name}`);
+              }}
+              className="bg-transparent focus:outline-none text-slate-200 cursor-pointer"
+            >
+              <option value="all" className="bg-[#111827]">All Branches</option>
+              {branches.map(b => (
+                <option key={b.id} value={b.id} className="bg-[#111827]">{b.name}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <Button variant="outline" onClick={handleAddUser}>
-            Add User
-          </Button>
-          <Button variant="outline" onClick={() => triggerToast('Opening assign user to branch modal...')}>
-            Assign User To Branch
-          </Button>
+        <div className="flex flex-wrap gap-2 items-center">
+          {/* Global Search Bar */}
+          <div className="relative flex items-center bg-[#111827]/80 border border-[#23324C] rounded-xl px-3 py-2 w-48 sm:w-64 focus-within:border-brand-500 transition-all mr-2">
+            <Search className="h-3.5 w-3.5 text-slate-500 mr-2 flex-shrink-0" />
+            <input 
+              type="text" 
+              placeholder="Search VIN, Rego, Load ID..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-transparent text-slate-200 text-xs w-full focus:outline-none placeholder-slate-500"
+            />
+            {searchQuery && (
+              <button type="button" onClick={() => setSearchQuery('')} className="text-slate-500 hover:text-slate-300">
+                <X className="h-3 w-3" />
+              </button>
+            )}
+          </div>
+
+          {/* Hide user buttons on alerts tab to reduce clutter */}
+          {activeTab !== 'alerts' && (
+            <>
+              <Button variant="outline" onClick={() => {
+                setNewUser(prev => ({ ...prev, employeeId: `EMP-${Math.floor(1000 + Math.random() * 9000)}` }));
+                setAddUserModalOpen(true);
+              }}>
+                Add User
+              </Button>
+              <Button variant="outline" onClick={() => {
+                document.getElementById('csv-file-input').click();
+              }}>
+                Bulk Import (CSV)
+              </Button>
+              <input 
+                id="csv-file-input" 
+                type="file" 
+                accept=".csv" 
+                className="hidden" 
+                onChange={handleCsvImport} 
+              />
+              <Button variant="outline" onClick={handleExportUsersCSV}>
+                Export Users (CSV)
+              </Button>
+              <Button variant="outline" onClick={() => setAssignUserModalOpen(true)}>
+                Assign User To Branch
+              </Button>
+            </>
+          )}
           {activeTab === 'branches' && (
             <>
-              <Button variant="outline" onClick={() => triggerToast('Branch P&L report loading...')}>
+              <Button variant="outline" onClick={() => {
+                setActiveTab('branch-pl');
+                triggerToast('Loading Branch P&L Analysis...');
+              }}>
                 View Branch P&L
+              </Button>
+              <Button variant="outline" onClick={handleExportBranchesCSV}>
+                Export Branches (CSV)
               </Button>
               <Button variant="primary" icon={Plus} onClick={() => setAddModalOpen(true)}>
                 Add Branch
               </Button>
             </>
           )}
-          {activeTab !== 'overview' && activeTab !== 'workforce' && activeTab !== 'branches' && activeTab !== 'availability' && (
-            <Button variant="primary" icon={Plus} onClick={() => setAddModalOpen(true)}>
-              Add {activeTab === 'fleet' ? 'Vehicle' : activeTab === 'drivers' ? 'Driver' : activeTab === 'customers' ? 'Customer' : activeTab === 'trailers' ? 'Trailer' : activeTab === 'assets' ? 'Asset' : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+          {activeTab !== 'overview' && activeTab !== 'workforce' && activeTab !== 'branches' && activeTab !== 'availability' && activeTab !== 'branch-pl' && activeTab !== 'settings' && (
+            <Button variant="primary" icon={Plus} onClick={() => {
+              if (activeTab === 'alerts') {
+                setAddAlertModalOpen(true);
+              } else {
+                setAddModalOpen(true);
+              }
+            }}>
+              Add {activeTab === 'fleet' ? 'Vehicle' : activeTab === 'drivers' ? 'Driver' : activeTab === 'customers' ? 'Customer' : activeTab === 'trailers' ? 'Trailer' : activeTab === 'assets' ? 'Asset' : activeTab === 'alerts' ? 'Alerts' : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
             </Button>
           )}
         </div>
@@ -477,94 +1131,49 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
       {/* Main dashboard screens */}
       {activeTab === 'overview' && (
         <div className="space-y-6">
-
-          {/* Branch Selector */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 bg-[#111827]/60 border border-[#23324C]/60 rounded-2xl">
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-brand-400 flex-shrink-0" />
-              <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">Branch View</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => setSelectedBranch('all')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  selectedBranch === 'all'
-                    ? 'bg-brand-500 text-slate-950 shadow-lg shadow-brand-500/20'
-                    : 'bg-slate-800/60 text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-                }`}
-              >
-                All Branches
-              </button>
-              {branches.map(b => (
-                <button
-                  key={b.id}
-                  onClick={() => setSelectedBranch(b.id)}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                    selectedBranch === b.id
-                      ? 'bg-brand-500 text-slate-950 shadow-lg shadow-brand-500/20'
-                      : 'bg-slate-800/60 text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-                  }`}
-                >
-                  {b.name}
-                </button>
-              ))}
-              <button
-                onClick={() => { setAddModalOpen(true); }}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-slate-800/40 text-slate-500 hover:text-brand-400 hover:bg-brand-500/10 border border-dashed border-[#23324C] transition-all cursor-pointer flex items-center gap-1"
-              >
-                <Plus className="h-3 w-3" /> Add Branch
-              </button>
-            </div>
-            {selectedBranch !== 'all' && (
-              <span className="ml-auto text-[10px] text-brand-400 font-bold uppercase tracking-wider bg-brand-500/10 border border-brand-500/20 px-2 py-0.5 rounded-full">
-                Filtered: {branches.find(b => b.id === selectedBranch)?.name}
-              </span>
-            )}
-          </div>
-
           {/* 8 KPI Cards — Client Required */}
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Row 1 */}
             <div className="p-4 glass border border-[#23324C]/60 rounded-2xl text-left space-y-1 hover:border-brand-500/30 transition-all">
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Active Loads</p>
-              <p className="text-2xl font-black text-white">14</p>
+              <p className="text-2xl font-black text-white">{branchStats.activeLoads}</p>
               <p className="text-[10px] text-emerald-400 font-semibold">↑ 3 new today</p>
             </div>
             <div className="p-4 glass border border-[#23324C]/60 rounded-2xl text-left space-y-1 hover:border-brand-500/30 transition-all">
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Completed Loads</p>
-              <p className="text-2xl font-black text-white">187</p>
+              <p className="text-2xl font-black text-white">{branchStats.completedLoads}</p>
               <p className="text-[10px] text-emerald-400 font-semibold">↑ +12 this week</p>
             </div>
             <div className="p-4 glass border border-[#23324C]/60 rounded-2xl text-left space-y-1 hover:border-brand-500/30 transition-all">
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Revenue</p>
-              <p className="text-2xl font-black text-emerald-400">$84,200</p>
-              <p className="text-[10px] text-emerald-400 font-semibold">↑ +8.4% vs last month</p>
+              <p className="text-2xl font-black text-emerald-400">${branchStats.revenue.toLocaleString()}</p>
+              <p className="text-[10px] text-emerald-400 font-semibold">{branchStats.revenueChange}</p>
             </div>
             <div className="p-4 glass border border-[#23324C]/60 rounded-2xl text-left space-y-1 hover:border-brand-500/30 transition-all">
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Expenses</p>
-              <p className="text-2xl font-black text-red-400">$31,540</p>
-              <p className="text-[10px] text-red-400 font-semibold">↑ Fuel +$2,100</p>
+              <p className="text-2xl font-black text-red-400">${branchStats.expenses.toLocaleString()}</p>
+              <p className="text-[10px] text-red-400 font-semibold">{branchStats.expensesChange}</p>
             </div>
             {/* Row 2 */}
             <div className="p-4 glass border border-[#23324C]/60 rounded-2xl text-left space-y-1 hover:border-brand-500/30 transition-all">
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Gross Margin</p>
-              <p className="text-2xl font-black text-brand-400">62.5%</p>
-              <p className="text-[10px] text-brand-400 font-semibold">↑ +2.1% improvement</p>
+              <p className="text-2xl font-black text-brand-400">{branchStats.grossMargin}</p>
+              <p className="text-[10px] text-brand-400 font-semibold">{branchStats.marginChange}</p>
             </div>
             <div className="p-4 glass border border-[#23324C]/60 rounded-2xl text-left space-y-1 hover:border-brand-500/30 transition-all">
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Available Drivers</p>
-              <p className="text-2xl font-black text-white">{drivers.filter(d => d.status !== 'On Trip').length || drivers.length}</p>
-              <p className="text-[10px] text-slate-400 font-semibold">of {drivers.length} total drivers</p>
+              <p className="text-2xl font-black text-white">{branchStats.availableDrivers}</p>
+              <p className="text-[10px] text-slate-400 font-semibold">{branchStats.driversSub}</p>
             </div>
             <div className="p-4 glass border border-[#23324C]/60 rounded-2xl text-left space-y-1 hover:border-brand-500/30 transition-all">
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Vehicles Active</p>
-              <p className="text-2xl font-black text-white">{fleet.filter(v => v.status === 'Active' || v.status === 'In Transit').length || fleet.length}</p>
-              <p className="text-[10px] text-slate-400 font-semibold">of {fleet.length} registered</p>
+              <p className="text-2xl font-black text-white">{branchStats.activeVehicles}</p>
+              <p className="text-[10px] text-slate-400 font-semibold">{branchStats.vehiclesSub}</p>
             </div>
             <div className="p-4 glass border border-red-500/20 bg-red-500/5 rounded-2xl text-left space-y-1 hover:border-red-500/40 transition-all">
               <p className="text-[10px] font-bold text-red-400 uppercase tracking-wider">Overdue Invoices</p>
-              <p className="text-2xl font-black text-red-400">4</p>
-              <p className="text-[10px] text-red-400 font-semibold">⚠ $12,400 outstanding</p>
+              <p className="text-2xl font-black text-red-400">{branchStats.overdueInvoices}</p>
+              <p className="text-[10px] text-red-400 font-semibold">⚠ ${(branchStats.overdueInvoices * 3100).toLocaleString()} outstanding</p>
             </div>
           </div>
 
@@ -572,8 +1181,8 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="p-4 glass border border-brand-500/20 bg-brand-500/5 rounded-2xl text-left space-y-1">
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Net Profit (MTD)</p>
-              <p className="text-2xl font-black text-brand-400">$52,660</p>
-              <p className="text-[10px] text-brand-400 font-semibold">↑ +14.2% vs last month</p>
+              <p className="text-2xl font-black text-brand-400">${branchStats.netProfit.toLocaleString()}</p>
+              <p className="text-[10px] text-brand-400 font-semibold">{branchStats.profitChange}</p>
             </div>
             <div className="sm:col-span-2 glass rounded-2xl p-4 border border-[#23324C]/60 text-left">
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-3">Quick Actions</p>
@@ -588,32 +1197,19 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
                   {label:'AI Suggestions',icon:'🤖',fn:'AI Dispatch Suggestions activated.'},
                   {label:'Export Report',icon:'📄',fn:'Dashboard report PDF exported.'},
                 ].map((a,i)=>(
-                  <button key={i} onClick={()=>triggerToast(a.fn)} className="flex items-center gap-2 p-2 bg-[#111827]/60 border border-[#23324C]/40 hover:border-brand-500/30 hover:bg-brand-500/5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white transition-all cursor-pointer">
+                  <button key={i} onClick={() => {
+                    if (a.label === 'Export Report') {
+                      handleExportReportPDF('Operational Report MTD');
+                    } else if (a.label === 'View Reports') {
+                      setActiveTab('reports');
+                    } else {
+                      triggerToast(a.fn);
+                    }
+                  }} className="flex items-center gap-2 p-2 bg-[#111827]/60 border border-[#23324C]/40 hover:border-brand-500/30 hover:bg-brand-500/5 rounded-xl text-xs font-semibold text-slate-300 hover:text-white transition-all cursor-pointer">
                     <span>{a.icon}</span><span className="truncate">{a.label}</span>
                   </button>
                 ))}
               </div>
-            </div>
-          </div>
-
-          {/* Alerts Banner */}
-          <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 text-left">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 text-red-400">
-                <AlertTriangle className="h-4.5 w-4.5" />
-                <span className="text-xs font-bold uppercase tracking-wider">Expense Reminders & Overdue Alerts — Auto System</span>
-              </div>
-              <p className="text-slate-300 text-xs">
-                Alert: <strong>3 Vehicle DOT Inspections</strong> overdue this week. <strong>4 outstanding invoices</strong> ($12,400) breached Net-30 payment terms. <strong>2 driver CDL</strong> documents expiring within 15 days.
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button size="sm" variant="secondary" onClick={() => triggerToast('Auto-alert reminders sent to billing contacts & drivers.')}>
-                Trigger Reminders
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => triggerToast('Maintenance routing alerts dispatched to dispatch board.')}>
-                Route Vehicles
-              </Button>
             </div>
           </div>
 
@@ -1001,25 +1597,122 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
       )}
 
       {/* Driver Registry Screen */}
-      {activeTab === 'drivers' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-            <h3 className="text-sm font-extrabold text-white">Active Driver Registry</h3>
-            <SearchInput value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onClear={() => setSearchQuery('')} className="max-w-[200px]" />
+      {activeTab === 'drivers' && (() => {
+        // Calculate filtered and paginated drivers
+        const filteredDrivers = drivers.filter(item => {
+          if (selectedBranch !== 'all') {
+            const itemId = item.id || 0;
+            if (itemId % 2 !== (selectedBranch === 1 ? 0 : 1)) return false;
+          }
+          if (searchQuery.trim() !== '') {
+            const q = searchQuery.toLowerCase();
+            return item.name.toLowerCase().includes(q) || item.email.toLowerCase().includes(q) || (item.plate && item.plate.toLowerCase().includes(q));
+          }
+          return true;
+        });
+        const totalDriversPages = Math.ceil(filteredDrivers.length / itemsPerPage);
+        const paginatedDriversList = filteredDrivers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+        // Calculate filtered and paginated users (staff)
+        const filteredUsers = users.filter(item => {
+          if (selectedBranch !== 'all') {
+            const targetB = branches.find(b => b.id === selectedBranch);
+            if (targetB && item.branch !== targetB.name) return false;
+          }
+          if (searchQuery.trim() !== '') {
+            const q = searchQuery.toLowerCase();
+            return (
+              item.firstName.toLowerCase().includes(q) || 
+              item.lastName.toLowerCase().includes(q) || 
+              item.email.toLowerCase().includes(q) ||
+              item.role.toLowerCase().includes(q) ||
+              item.id.toLowerCase().includes(q)
+            );
+          }
+          return true;
+        });
+        const totalUsersPages = Math.ceil(filteredUsers.length / itemsPerPage);
+        const paginatedUsersList = filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+        return (
+          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-[#23324C]/30 pb-3">
+              <div>
+                <h3 className="text-sm font-extrabold text-white">Personnel Registry</h3>
+                <p className="text-[10px] text-slate-400 mt-0.5">Manage drivers, dispatchers, yard staff, and administrative operators.</p>
+              </div>
+              
+              <div className="flex border border-[#23324C]/60 bg-[#111827]/40 rounded-xl p-0.5 text-xs font-bold">
+                {[
+                  { id: 'drivers', label: 'Active Drivers' },
+                  { id: 'staff', label: 'Staff Directory' }
+                ].map(sub => (
+                  <button 
+                    key={sub.id}
+                    onClick={() => {
+                      setDriversSubTab(sub.id);
+                      setCurrentPage(1);
+                    }}
+                    className={`px-3 py-1.5 rounded-lg cursor-pointer transition-all ${
+                      driversSubTab === sub.id ? 'bg-brand-500 text-slate-950 font-black' : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    {sub.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {driversSubTab === 'drivers' ? (
+              <div className="space-y-4 animate-fade-in">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-slate-400 font-bold">{filteredDrivers.length} Drivers registered</span>
+                  <SearchInput value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onClear={() => setSearchQuery('')} className="max-w-[200px]" />
+                </div>
+                <DataTable columns={[
+                  { key: 'name', label: 'Driver Operator Name', render: (row) => <span className="font-extrabold text-white">{row.name}</span> },
+                  { key: 'email', label: 'Portal Email', render: (row) => <span className="text-slate-300 font-mono text-[11px]">{row.email}</span> },
+                  { key: 'plate', label: 'Active Assigned Vehicle', render: (row) => <span className="font-mono text-brand-400">{row.plate}</span> },
+                  { key: 'rating', label: 'Performance Rating', render: (row) => <span className="font-bold text-yellow-400 font-mono">★ {row.rating}</span> },
+                  { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> },
+                  { key: 'actions', label: 'Actions', render: (row) => (
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="secondary" onClick={() => handleOpenInspect(row, 'driver')}>Inspect</Button>
+                      <Button size="sm" variant="danger" onClick={() => handleConfirmDeactivate(row, 'driver')}>Deactivate</Button>
+                    </div>
+                  ) }
+                ]} data={paginatedDriversList} />
+                <Pagination currentPage={currentPage} totalPages={totalDriversPages} onPageChange={setCurrentPage} />
+              </div>
+            ) : (
+              <div className="space-y-4 animate-fade-in">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-slate-400 font-bold">{filteredUsers.length} Users registered</span>
+                  <div className="flex gap-2">
+                    <SearchInput value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onClear={() => setSearchQuery('')} className="max-w-[200px]" />
+                    <Button variant="outline" size="sm" onClick={handleExportUsersCSV}>Export CSV</Button>
+                  </div>
+                </div>
+                <DataTable columns={[
+                  { key: 'id', label: 'Employee ID', render: (row) => <span className="font-mono text-xs text-slate-400 font-bold">{row.id}</span> },
+                  { key: 'name', label: 'Full Name', render: (row) => <span className="font-extrabold text-white">{row.firstName} {row.lastName}</span> },
+                  { key: 'email', label: 'Email Address', render: (row) => <span className="text-slate-300 font-mono text-[11px]">{row.email}</span> },
+                  { key: 'role', label: 'Role Profile', render: (row) => <span className="font-bold text-brand-400">{row.role}</span> },
+                  { key: 'branch', label: 'Assigned Branch', render: (row) => <span className="text-slate-300 font-semibold">{row.branch}</span> },
+                  { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> },
+                  { key: 'actions', label: 'Actions', render: (row) => (
+                    <div className="flex gap-2">
+                      <Button size="sm" variant="secondary" onClick={() => handleOpenInspect({ ...row, name: `${row.firstName} ${row.lastName}` }, 'user')}>Inspect</Button>
+                      <Button size="sm" variant="danger" onClick={() => handleConfirmDeactivate(row, 'user')}>Deactivate</Button>
+                    </div>
+                  ) }
+                ]} data={paginatedUsersList} />
+                <Pagination currentPage={currentPage} totalPages={totalUsersPages} onPageChange={setCurrentPage} />
+              </div>
+            )}
           </div>
-
-          <DataTable columns={[
-            { key: 'name', label: 'Driver Operator Name', render: (row) => <span className="font-extrabold text-white">{row.name}</span> },
-            { key: 'email', label: 'Portal Email', render: (row) => <span className="text-slate-300 font-mono text-[11px]">{row.email}</span> },
-            { key: 'plate', label: 'Active Assigned Vehicle', render: (row) => <span className="font-mono text-brand-400">{row.plate}</span> },
-            { key: 'rating', label: 'Performance Rating', render: (row) => <span className="font-bold text-yellow-400 font-mono">★ {row.rating}</span> },
-            { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> },
-            { key: 'actions', label: 'Actions', render: (row) => <Button size="sm" variant="secondary" onClick={() => handleOpenInspect(row, 'driver')}>Inspect</Button> }
-          ]} data={paginatedList} />
-
-          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
-        </div>
-      )}
+        );
+      })()}
 
       {/* Fleet Register Screen */}
       {activeTab === 'fleet' && (
@@ -1209,170 +1902,322 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
       {/* Customer Instructions Module (Priority 5) */}
       {activeTab === 'instructions' && (
         <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-5">
-          <div>
-            <h3 className="text-sm font-extrabold text-white">Customer Instructions Registry</h3>
-            <p className="text-xs text-slate-400">Attach special handling directives, address alerts, or loading instructions to customers, loads, and stop terminals.</p>
-          </div>
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+            <div>
+              <h3 className="text-sm font-extrabold text-white">Customer &amp; Terminal Instructions Registry</h3>
+              <p className="text-xs text-slate-400">Attach special handling directives, address alerts, or loading instructions to customers, loads, and stop terminals.</p>
+            </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-            {/* Create Instruction Form */}
-            <form onSubmit={handleCreateInstruction} className="lg:col-span-5 bg-[#111827]/60 border border-[#23324C] rounded-2xl p-5 space-y-4">
-              <strong className="text-xs text-slate-200 block">Create Instruction Alert</strong>
-              <div className="space-y-3 text-xs">
-                <div>
-                  <label className="block text-slate-400 mb-1 font-semibold uppercase text-[9px]">Instruction Category</label>
-                  <select 
-                    value={newInsType} 
-                    onChange={(e) => setNewInsType(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500"
-                  >
-                    <option value="Customer Instructions">Customer Instructions</option>
-                    <option value="Delivery Instructions">Delivery Instructions</option>
-                    <option value="Address Instructions">Address Instructions</option>
-                    <option value="Special Handling Instructions">Special Handling Instructions</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label className="block text-slate-400 mb-1 font-semibold uppercase text-[9px]">Attachment Scope Type</label>
-                  <select 
-                    value={newInsScopeType} 
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setNewInsScopeType(val);
-                      if (val === 'Customer') setNewInsScopeValue('Global Retail Corp');
-                      else if (val === 'Address') setNewInsScopeValue('Chicago HQ Terminal');
-                      else setNewInsScopeValue('LD-9411');
-                    }}
-                    className="w-full px-3 py-2 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500"
-                  >
-                    <option value="Customer">Customer Account</option>
-                    <option value="Address">Address / Stop Terminal</option>
-                    <option value="Load">Load ID</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-slate-400 mb-1 font-semibold uppercase text-[9px]">Select Scope Target</label>
-                  <select 
-                    value={newInsScopeValue} 
-                    onChange={(e) => setNewInsScopeValue(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500"
-                  >
-                    {newInsScopeType === 'Customer' && [
-                      'Global Retail Corp', 'Memphis Shippers Inc', 'Vance Refrigeration', 'HEB Distributors', 'Seattle Metalworks', 'East Coast Textiles'
-                    ].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                    {newInsScopeType === 'Address' && [
-                      'Chicago HQ Terminal', 'Los Angeles Depot', 'Dallas Depot', 'Portland Metal Distributors, Dock #2', 'Seattle Metalworks Dock #4', 'Houston Logistics Hub, Lane 4', 'Atlanta Depot'
-                    ].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                    {newInsScopeType === 'Load' && [
-                      'LD-9411', 'LD-1102', 'LD-4809', 'LD-7712'
-                    ].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                  </select>
-                </div>
-
-                <div className="flex items-center gap-2 py-1.5">
-                  <input
-                    type="checkbox"
-                    id="ins-critical-chk"
-                    checked={newInsIsCritical}
-                    onChange={(e) => setNewInsIsCritical(e.target.checked)}
-                    className="rounded border-[#23324C] text-brand-500 focus:ring-brand-500 h-4 w-4 cursor-pointer"
-                  />
-                  <label htmlFor="ins-critical-chk" className="text-[10px] font-bold text-red-400 uppercase tracking-wider cursor-pointer">
-                    Flag as Critical / High Priority (Requires Driver Acknowledgement)
-                  </label>
-                </div>
-
-                <div>
-                  <label className="block text-slate-400 mb-1 font-semibold uppercase text-[9px]">Directives / Instructions Alert</label>
-                  <textarea 
-                    value={newInsText}
-                    onChange={(e) => setNewInsText(e.target.value)}
-                    placeholder="e.g. Call supervisor on arrival; check gate clearance..." 
-                    className="w-full h-20 px-3 py-2 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500 placeholder:text-slate-550" 
-                  />
-                </div>
-              </div>
+            {/* Sub-tabs for Instructions */}
+            <div className="flex gap-2 bg-[#111827] border border-[#23324C] p-1 rounded-xl">
               <button 
-                type="submit"
-                className="w-full py-2 bg-brand-500 hover:bg-brand-600 text-slate-950 text-xs rounded-xl font-black transition-all cursor-pointer"
+                type="button"
+                onClick={() => setInstructionSubTab('customer')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  instructionSubTab === 'customer' 
+                    ? 'bg-brand-500 text-slate-950 shadow-md shadow-brand-500/20' 
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
               >
-                Attach Instruction
+                Customer Instructions
               </button>
-            </form>
-
-            {/* Linked Instructions Registry list */}
-            <div className="lg:col-span-7 space-y-4">
-              <strong className="text-xs text-slate-200 block">Linked Special Instructions</strong>
-              <div className="space-y-3.5 max-h-[420px] overflow-y-auto pr-1">
-                {(customerInstructions || []).length === 0 ? (
-                  <p className="text-xs text-slate-500 text-center py-8">No special instructions registered.</p>
-                ) : (
-                  (customerInstructions || []).map((item) => (
-                    <div key={item.id} className={`p-4 bg-[#111827]/40 border rounded-xl text-xs space-y-2.5 transition-all ${
-                      item.isCritical ? 'border-red-500/30 bg-red-500/5' : 'border-[#23324C]'
-                    }`}>
-                      <div className="flex justify-between items-center border-b border-[#23324C]/40 pb-1.5 flex-wrap gap-2">
-                        <div className="flex items-center gap-2">
-                          <span className={`text-[9px] px-2 py-0.5 rounded font-bold uppercase ${
-                            item.isCritical ? 'bg-red-500/20 text-red-400' : 'bg-slate-800 text-slate-400'
-                          }`}>
-                            {item.isCritical ? '🚨 CRITICAL' : item.type}
-                          </span>
-                          {item.isCritical && (
-                            <span className="text-[9px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded font-semibold uppercase">
-                              Needs Driver Conf
-                            </span>
-                          )}
-                        </div>
-                        <strong className="text-[10px] text-slate-400 font-mono">{item.scope}</strong>
-                      </div>
-
-                      {editingInsId === item.id ? (
-                        <div className="space-y-2">
-                          <textarea
-                            value={editingInsText}
-                            onChange={(e) => setEditingInsText(e.target.value)}
-                            className="w-full h-16 px-3 py-2 bg-[#111827] border border-brand-500 rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500"
-                          />
-                          <div className="flex gap-2 justify-end">
-                            <Button size="xs" variant="primary" onClick={() => handleSaveEditIns(item)}>Save</Button>
-                            <Button size="xs" variant="secondary" onClick={() => { setEditingInsId(null); setEditingInsText(''); }}>Cancel</Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <p className="text-slate-200 italic">"{item.text}"</p>
-                          <div className="flex justify-between items-center border-t border-[#23324C]/25 pt-2 text-[9px] text-slate-500 font-medium">
-                            <div className="flex gap-2">
-                              <span>Created by: {item.createdBy || 'System'}</span>
-                              <span>•</span>
-                              <span>At: {item.createdAt ? new Date(item.createdAt).toLocaleString() : 'N/A'}</span>
-                            </div>
-                            <div className="flex gap-2.5">
-                              <button 
-                                onClick={() => handleStartEditIns(item)}
-                                className="text-brand-400 hover:text-brand-300 font-bold flex items-center gap-0.5 cursor-pointer"
-                              >
-                                <Edit2 className="h-3 w-3" /> Edit
-                              </button>
-                              <button 
-                                onClick={() => handleDeleteIns(item.id)}
-                                className="text-red-400 hover:text-red-300 font-bold flex items-center gap-0.5 cursor-pointer"
-                              >
-                                <Trash2 className="h-3 w-3" /> Delete
-                              </button>
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
+              <button 
+                type="button"
+                onClick={() => setInstructionSubTab('address')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                  instructionSubTab === 'address' 
+                    ? 'bg-brand-500 text-slate-950 shadow-md shadow-brand-500/20' 
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                Address Instructions
+              </button>
             </div>
           </div>
+
+          {instructionSubTab === 'customer' ? (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+              {/* Create Instruction Form */}
+              <form onSubmit={handleCreateInstruction} className="lg:col-span-5 bg-[#111827]/60 border border-[#23324C] rounded-2xl p-5 space-y-4">
+                <strong className="text-xs text-slate-200 block">Create Instruction Alert</strong>
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-semibold uppercase text-[9px]">Instruction Category</label>
+                    <select 
+                      value={newInsType} 
+                      onChange={(e) => setNewInsType(e.target.value)}
+                      className="w-full px-3 py-2 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500"
+                    >
+                      <option value="Customer Instructions">Customer Instructions</option>
+                      <option value="Delivery Instructions">Delivery Instructions</option>
+                      <option value="Address Instructions">Address Instructions</option>
+                      <option value="Special Handling Instructions">Special Handling Instructions</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-semibold uppercase text-[9px]">Attachment Scope Type</label>
+                    <select 
+                      value={newInsScopeType} 
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setNewInsScopeType(val);
+                        if (val === 'Customer') setNewInsScopeValue('Global Retail Corp');
+                        else if (val === 'Address') setNewInsScopeValue('Chicago HQ Terminal');
+                        else setNewInsScopeValue('LD-9411');
+                      }}
+                      className="w-full px-3 py-2 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500"
+                    >
+                      <option value="Customer">Customer Account</option>
+                      <option value="Address">Address / Stop Terminal</option>
+                      <option value="Load">Load ID</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-semibold uppercase text-[9px]">Select Scope Target</label>
+                    <select 
+                      value={newInsScopeValue} 
+                      onChange={(e) => setNewInsScopeValue(e.target.value)}
+                      className="w-full px-3 py-2 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500"
+                    >
+                      {newInsScopeType === 'Customer' && [
+                        'Global Retail Corp', 'Memphis Shippers Inc', 'Vance Refrigeration', 'HEB Distributors', 'Seattle Metalworks', 'East Coast Textiles'
+                      ].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                      {newInsScopeType === 'Address' && [
+                        'Chicago HQ Terminal', 'Los Angeles Depot', 'Dallas Depot', 'Portland Metal Distributors, Dock #2', 'Seattle Metalworks Dock #4', 'Houston Logistics Hub, Lane 4', 'Atlanta Depot'
+                      ].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                      {newInsScopeType === 'Load' && [
+                        'LD-9411', 'LD-1102', 'LD-4809', 'LD-7712'
+                      ].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                    </select>
+                  </div>
+
+                  <div className="flex items-center gap-2 py-1.5">
+                    <input
+                      type="checkbox"
+                      id="ins-critical-chk"
+                      checked={newInsIsCritical}
+                      onChange={(e) => setNewInsIsCritical(e.target.checked)}
+                      className="rounded border-[#23324C] text-brand-500 focus:ring-brand-500 h-4 w-4 cursor-pointer"
+                    />
+                    <label htmlFor="ins-critical-chk" className="text-[10px] font-bold text-red-400 uppercase tracking-wider cursor-pointer">
+                      Flag as Critical / High Priority (Requires Driver Acknowledgement)
+                    </label>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-semibold uppercase text-[9px]">Directives / Instructions Alert</label>
+                    <textarea 
+                      value={newInsText}
+                      onChange={(e) => setNewInsText(e.target.value)}
+                      placeholder="e.g. Call supervisor on arrival; check gate clearance..." 
+                      className="w-full h-20 px-3 py-2 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500 placeholder:text-slate-550" 
+                    />
+                  </div>
+                </div>
+                <button 
+                  type="submit"
+                  className="w-full py-2 bg-brand-500 hover:bg-brand-600 text-slate-950 text-xs rounded-xl font-black transition-all cursor-pointer"
+                >
+                  Attach Instruction
+                </button>
+              </form>
+
+              {/* Linked Instructions Registry list */}
+              <div className="lg:col-span-7 space-y-4">
+                <strong className="text-xs text-slate-200 block">Linked Special Instructions</strong>
+                <div className="space-y-3.5 max-h-[420px] overflow-y-auto pr-1">
+                  {(customerInstructions || []).length === 0 ? (
+                    <p className="text-xs text-slate-500 text-center py-8">No special instructions registered.</p>
+                  ) : (
+                    (customerInstructions || []).map((item) => (
+                      <div key={item.id} className={`p-4 bg-[#111827]/40 border rounded-xl text-xs space-y-2.5 transition-all ${
+                        item.isCritical ? 'border-red-500/30 bg-red-500/5' : 'border-[#23324C]'
+                      }`}>
+                        <div className="flex justify-between items-center border-b border-[#23324C]/40 pb-1.5 flex-wrap gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className={`text-[9px] px-2 py-0.5 rounded font-bold uppercase ${
+                              item.isCritical ? 'bg-red-500/20 text-red-400' : 'bg-slate-800 text-slate-400'
+                            }`}>
+                              {item.isCritical ? '🚨 CRITICAL' : item.type}
+                            </span>
+                            {item.isCritical && (
+                              <span className="text-[9px] bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded font-semibold uppercase">
+                                Needs Driver Conf
+                              </span>
+                            )}
+                          </div>
+                          <strong className="text-[10px] text-slate-400 font-mono">{item.scope}</strong>
+                        </div>
+
+                        {editingInsId === item.id ? (
+                          <div className="space-y-2">
+                            <textarea
+                              value={editingInsText}
+                              onChange={(e) => setEditingInsText(e.target.value)}
+                              className="w-full h-16 px-3 py-2 bg-[#111827] border border-brand-500 rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500"
+                            />
+                            <div className="flex gap-2 justify-end">
+                              <Button size="xs" variant="primary" onClick={() => handleSaveEditIns(item)}>Save</Button>
+                              <Button size="xs" variant="secondary" onClick={() => { setEditingInsId(null); setEditingInsText(''); }}>Cancel</Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <p className="text-slate-200 italic">"{item.text}"</p>
+                            <div className="flex justify-between items-center border-t border-[#23324C]/25 pt-2 text-[9px] text-slate-500 font-medium">
+                              <div className="flex gap-2">
+                                <span>Created by: {item.createdBy || 'System'}</span>
+                                <span>•</span>
+                                <span>At: {item.createdAt ? new Date(item.createdAt).toLocaleString() : 'N/A'}</span>
+                              </div>
+                              <div className="flex gap-2.5">
+                                <button 
+                                  type="button"
+                                  onClick={() => handleStartEditIns(item)}
+                                  className="text-brand-400 hover:text-brand-300 font-bold flex items-center gap-0.5 cursor-pointer bg-transparent border-none"
+                                >
+                                  <Edit2 className="h-3 w-3" /> Edit
+                                </button>
+                                <button 
+                                  type="button"
+                                  onClick={() => handleDeleteIns(item.id)}
+                                  className="text-red-400 hover:text-red-300 font-bold flex items-center gap-0.5 cursor-pointer bg-transparent border-none"
+                                >
+                                  <Trash2 className="h-3 w-3" /> Delete
+                                </button>
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+              {/* Create Address Instruction Form */}
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!addressForm.address || !addressForm.instructions) return;
+                  const newAi = {
+                    id: Date.now(),
+                    address: addressForm.address,
+                    instructions: addressForm.instructions,
+                    hazard: addressForm.hazard || 'None',
+                    priority: addressForm.priority
+                  };
+                  setAddressInstructions([newAi, ...addressInstructions]);
+                  setAddressForm({ address: '', instructions: '', hazard: '', priority: 'Medium' });
+                  triggerToast(`Address instructions added for ${newAi.address}`);
+                }} 
+                className="lg:col-span-5 bg-[#111827]/60 border border-[#23324C] rounded-2xl p-5 space-y-4"
+              >
+                <strong className="text-xs text-slate-200 block">Add Terminal Address Instruction</strong>
+                <div className="space-y-3 text-xs">
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-semibold uppercase text-[9px]">Terminal / Location Address</label>
+                    <select 
+                      value={addressForm.address} 
+                      onChange={(e) => setAddressForm({ ...addressForm, address: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500"
+                    >
+                      <option value="">-- Select Terminal --</option>
+                      <option value="Chicago HQ Depot - Dock A">Chicago HQ Depot - Dock A</option>
+                      <option value="Los Angeles Terminal - Gate B">Los Angeles Terminal - Gate B</option>
+                      <option value="Atlanta Depot - East Wing">Atlanta Depot - East Wing</option>
+                      <option value="Dallas Depot - Main Entrance">Dallas Depot - Main Entrance</option>
+                      <option value="New York Terminal - Cargo Ramp">New York Terminal - Cargo Ramp</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-semibold uppercase text-[9px]">Special Instructions Alert</label>
+                    <textarea 
+                      value={addressForm.instructions}
+                      onChange={(e) => setAddressForm({ ...addressForm, instructions: e.target.value })}
+                      placeholder="e.g. Speed limit 5 MPH; ring yard manager bell on entry..." 
+                      className="w-full h-20 px-3 py-2 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500 placeholder:text-slate-550" 
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-semibold uppercase text-[9px]">Safety Hazard Notes</label>
+                    <TextInput 
+                      value={addressForm.hazard}
+                      onChange={(e) => setAddressForm({ ...addressForm, hazard: e.target.value })}
+                      placeholder="e.g. Heavy container crane traffic..." 
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 mb-1 font-semibold uppercase text-[9px]">Alert Priority Level</label>
+                    <select 
+                      value={addressForm.priority} 
+                      onChange={(e) => setAddressForm({ ...addressForm, priority: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500"
+                    >
+                      <option value="Low">Low Priority</option>
+                      <option value="Medium">Medium Priority</option>
+                      <option value="High">High / Critical</option>
+                    </select>
+                  </div>
+                </div>
+                <button 
+                  type="submit"
+                  className="w-full py-2 bg-brand-500 hover:bg-brand-600 text-slate-950 text-xs rounded-xl font-black transition-all cursor-pointer border-none"
+                >
+                  Save Address Instruction
+                </button>
+              </form>
+
+              {/* Linked Address Instructions list */}
+              <div className="lg:col-span-7 space-y-4">
+                <strong className="text-xs text-slate-200 block">Registered Terminal address Directives</strong>
+                <div className="space-y-3.5 max-h-[420px] overflow-y-auto pr-1">
+                  {addressInstructions.length === 0 ? (
+                    <p className="text-xs text-slate-500 text-center py-8">No terminal address instructions registered.</p>
+                  ) : (
+                    addressInstructions.map((item) => (
+                      <div key={item.id} className={`p-4 bg-[#111827]/40 border rounded-xl text-xs space-y-2.5 transition-all ${
+                        item.priority === 'High' ? 'border-red-500/30 bg-red-500/5' : 'border-[#23324C]'
+                      }`}>
+                        <div className="flex justify-between items-center">
+                          <span className="font-extrabold text-white text-[11px]">{item.address}</span>
+                          <div className="flex gap-2 items-center">
+                            <span className={`text-[8px] font-bold uppercase px-2 py-0.5 rounded ${
+                              item.priority === 'High' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-slate-800 text-slate-400 border border-[#23324C]'
+                            }`}>
+                              {item.priority} Priority
+                            </span>
+                            <button 
+                              type="button"
+                              onClick={() => {
+                                setAddressInstructions(prev => prev.filter(a => a.id !== item.id));
+                                triggerToast("Address instruction removed.");
+                              }}
+                              className="text-slate-500 hover:text-red-400 transition-all cursor-pointer bg-transparent border-none"
+                              title="Delete"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                        <p className="text-slate-300 leading-normal">"{item.instructions}"</p>
+                        <div className="text-[10px] text-slate-450 border-t border-[#23324C]/40 pt-2 flex justify-between items-center">
+                          <span>⚠️ Hazard Warning: <strong className="text-amber-400">{item.hazard}</strong></span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -1714,25 +2559,16 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
             </div>
           </div>
 
-          {/* Expense Reminders */}
-          <div className="p-4 bg-amber-500/5 border border-amber-500/20 rounded-2xl space-y-2">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-amber-400" />
-              <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">Upcoming Expense Reminders</span>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-2">
-              {[{text:'Vehicle insurance renewal — TX-9811',due:'Jul 5',type:'Insurance'},{text:'Rego renewal due — 3 vehicles',due:'Jul 12',type:'Registration'},{text:'WHS compliance audit fee',due:'Jul 20',type:'Compliance'}].map((r,i)=>(
-                <div key={i} className="p-3 bg-[#111827]/40 border border-amber-500/15 rounded-xl text-xs">
-                  <p className="text-amber-300 font-semibold">{r.text}</p>
-                  <div className="flex justify-between mt-1.5">
-                    <span className="text-slate-500">{r.type}</span>
-                    <span className="text-amber-400 font-bold font-mono">Due: {r.due}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
+      )}
+
+      {/* Alerts & Reminders Screen */}
+      {activeTab === 'alerts' && (
+        <AlertsReminders 
+          globalSearchQuery={searchQuery}
+          addAlertModalOpen={addAlertModalOpen}
+          setAddAlertModalOpen={setAddAlertModalOpen}
+        />
       )}
 
       {/* Inter-Company Transfers Screen */}
@@ -1943,134 +2779,7 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
       )}
 
       {activeTab === 'permissions' && (
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-5">
-            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-              <div>
-                <h3 className="text-sm font-extrabold text-white">Permission Matrix — Module-wise Access Control</h3>
-                <p className="text-xs text-slate-400 mt-0.5">Control module access, feature toggles, and branch-specific permissions per role.</p>
-              </div>
-              <div className="flex gap-2">
-                <Button size="sm" variant="primary" onClick={() => triggerToast('Permissions saved successfully for all roles.')}>Save All Changes</Button>
-                <Button size="sm" variant="secondary" onClick={() => triggerToast('Resetting all permissions to default policy...')}>Reset Defaults</Button>
-              </div>
-            </div>
-
-            {/* Full Permission Matrix */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-xs min-w-[700px]">
-                <thead>
-                  <tr className="border-b border-[#23324C]/60">
-                    <th className="text-left py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider w-44">Module / Feature</th>
-                    {['Dispatcher','Driver','Warehouse','Accounts','Yard Attd','Customer'].map(r=>(
-                      <th key={r} className="text-center py-3 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">{r}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#23324C]/30">
-                  {[
-                    {label:'Create Loads',key:'createLoads',def:['dispatcher']},
-                    {label:'Edit Routes',key:'editRoutes',def:['dispatcher']},
-                    {label:'View Financials',key:'viewFinancials',def:['accounts']},
-                    {label:'Approve Payroll',key:'approvePayroll',def:['accounts']},
-                    {label:'Warehouse Access',key:'warehouseAccess',def:['warehouse','yard']},
-                    {label:'Driver Management',key:'driverMgmt',def:['dispatcher']},
-                    {label:'Customer Portal',key:'customerPortal',def:['dispatcher','accounts','customer']},
-                    {label:'Export Reports',key:'exportReports',def:['dispatcher','accounts']},
-                    {label:'Asset Register',key:'assetRegister',def:['warehouse']},
-                    {label:'Expense Submit',key:'expenseSubmit',def:['dispatcher','driver','warehouse','accounts','yard']},
-                    {label:'Invoice View',key:'invoiceView',def:['accounts','customer']},
-                    {label:'Settings Access',key:'settingsAccess',def:[]},
-                  ].map(perm=>(
-                    <tr key={perm.key} className="hover:bg-slate-900/20 transition-colors">
-                      <td className="py-2.5 px-3 font-semibold text-slate-300 text-xs">{perm.label}</td>
-                      {['dispatcher','driver','warehouse','accounts','yard','customer'].map(role=>{
-                        const pk=`${perm.key}_${role}`;
-                        const on=userPermissions[pk]!==undefined?userPermissions[pk]:perm.def.includes(role);
-                        return(
-                          <td key={role} className="py-2.5 px-2 text-center">
-                            <button onClick={()=>{setUserPermissions(p=>({...p,[pk]:!on}));triggerToast(`'${perm.label}' for ${role}: ${on?'disabled':'enabled'}.`);}}
-                              className={`w-9 h-4.5 rounded-full transition-all relative cursor-pointer ${on?'bg-brand-500 shadow-brand-500/20':'bg-slate-700'}`}>
-                              <span className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full shadow transition-all ${on?'left-4.5':'left-0.5'}`}/>
-                            </button>
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Feature Toggles */}
-          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-            <h3 className="text-sm font-extrabold text-white">Feature Toggles</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {[
-                {label:'AI Dispatch Suggestions',desc:'Show AI-powered route & driver suggestions',key:'aiDispatch',on:true},
-                {label:'GPS Live Tracking',desc:'Enable real-time vehicle GPS map view',key:'gpsTracking',on:true},
-                {label:'Driver Chat (In-App)',desc:'Allow dispatcher-driver messaging',key:'driverChat',on:true},
-                {label:'Customer Portal Access',desc:'Let customers log in to track loads',key:'custPortal',on:false},
-                {label:'Expense Receipt AI',desc:'AI auto-scan and categorize expenses',key:'expAI',on:true},
-                {label:'White Label Mode',desc:'Hide Hero Logistics branding for clients',key:'whiteLabel',on:false},
-                {label:'Auto-Invoice on Delivery',desc:'Generate invoice when load is delivered',key:'autoInvoice',on:true},
-                {label:'SMS Notifications',desc:'Send automated SMS alerts to drivers',key:'smsAlerts',on:false},
-              ].map((f,i)=>(
-                <div key={i} className="flex items-center justify-between p-3 bg-[#111827]/50 border border-[#23324C]/40 rounded-xl">
-                  <div>
-                    <p className="text-xs font-bold text-white">{f.label}</p>
-                    <p className="text-[10px] text-slate-500 mt-0.5">{f.desc}</p>
-                  </div>
-                  <button onClick={()=>triggerToast(`Feature '${f.label}' toggled.`)} className={`w-10 h-5 rounded-full relative cursor-pointer flex-shrink-0 ml-3 transition-all ${f.on?'bg-brand-500':'bg-slate-700'}`}>
-                    <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${f.on?'left-5':'left-0.5'}`}/>
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Branch-wise Permissions + User Groups */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
-              <h3 className="text-sm font-extrabold text-white">Branch-wise Permissions</h3>
-              <p className="text-[10px] text-slate-500">Restrict users to specific branches only.</p>
-              {[{branch:'Chicago HQ Terminal',users:8,restrict:false},{branch:'Los Angeles Depot',users:4,restrict:true},{branch:'Dallas Terminal',users:3,restrict:false}].map((b,i)=>(
-                <div key={i} className="flex items-center justify-between p-3 bg-[#111827]/40 border border-[#23324C]/30 rounded-xl text-xs">
-                  <div>
-                    <p className="font-bold text-white">{b.branch}</p>
-                    <p className="text-slate-500">{b.users} users assigned</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-[10px] font-bold ${b.restrict?'text-red-400':'text-emerald-400'}`}>{b.restrict?'Restricted':'Open'}</span>
-                    <button onClick={()=>triggerToast(`Branch restriction toggled for ${b.branch}.`)} className={`w-9 h-4.5 rounded-full relative cursor-pointer transition-all ${b.restrict?'bg-red-500':'bg-emerald-500'}`}>
-                      <span className={`absolute top-0.5 w-3.5 h-3.5 bg-white rounded-full shadow transition-all ${b.restrict?'left-4.5':'left-0.5'}`}/>
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
-              <div className="flex justify-between items-center">
-                <h3 className="text-sm font-extrabold text-white">User Groups</h3>
-                <Button size="sm" variant="outline" onClick={()=>triggerToast('Create user group modal opened.')}>+ New Group</Button>
-              </div>
-              {[{name:'Dispatch Team',members:4,perms:['Create Loads','Edit Routes','Driver Access']},{name:'Finance Team',members:2,perms:['View Financials','Export Reports','Invoice View']},{name:'Ops Managers',members:3,perms:['All Modules','Settings','Reports']}].map((g,i)=>(
-                <div key={i} className="p-3 bg-[#111827]/40 border border-[#23324C]/30 rounded-xl space-y-2">
-                  <div className="flex justify-between items-center">
-                    <p className="font-bold text-white text-xs">{g.name}</p>
-                    <span className="text-[10px] bg-slate-800 text-slate-400 border border-[#23324C] px-2 py-0.5 rounded-full font-bold">{g.members} members</span>
-                  </div>
-                  <div className="flex flex-wrap gap-1">
-                    {g.perms.map((p,j)=>(<span key={j} className="text-[9px] bg-brand-500/10 text-brand-400 border border-brand-500/20 px-1.5 py-0.5 rounded font-bold">{p}</span>))}
-                  </div>
-                  <button onClick={()=>triggerToast(`Editing group: ${g.name}`)} className="text-[10px] text-slate-400 hover:text-brand-400 cursor-pointer transition-colors">Edit Group →</button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        <PermissionsPanel globalSearchQuery={searchQuery} />
       )}
 
       {/* ===== WAREHOUSE INTEGRATION ===== */}
@@ -2229,8 +2938,8 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
                 <div className="flex justify-between items-center">
                   <h4 className="text-xs font-bold text-slate-450 uppercase">Itemised Ledger Registry</h4>
                   <div className="flex gap-2">
-                    <Button size="sm" variant="secondary" onClick={() => triggerToast(`${selectedReport} PDF exported successfully.`)}>PDF</Button>
-                    <Button size="sm" variant="primary" onClick={() => triggerToast(`${selectedReport} Excel sheet downloaded.`)}>XLS</Button>
+                    <Button size="sm" variant="secondary" onClick={() => handleExportReportPDF(selectedReport)}>PDF</Button>
+                    <Button size="sm" variant="primary" onClick={() => handleExportReportCSV(selectedReport)}>XLS</Button>
                   </div>
                 </div>
                 
@@ -2301,9 +3010,9 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
                       <p className="text-[10px] text-slate-400 mt-0.5">{r.desc}</p>
                     </div>
                     <div className="flex gap-2">
-                      <button onClick={()=>setSelectedReport(r.title)} className="flex-1 py-2 bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 border border-brand-500/20 rounded-xl text-[10px] font-bold transition-all cursor-pointer">View Report</button>
-                      <button onClick={()=>triggerToast(`${r.title} PDF exported.`)} className="px-3 py-2 bg-slate-800/60 hover:bg-slate-800 text-slate-400 rounded-xl text-[10px] font-bold transition-all cursor-pointer">PDF</button>
-                      <button onClick={()=>triggerToast(`${r.title} Excel downloaded.`)} className="px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 rounded-xl text-[10px] font-bold transition-all cursor-pointer">XLS</button>
+                      <button type="button" onClick={()=>setSelectedReport(r.title)} className="flex-1 py-2 bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 border border-brand-500/20 rounded-xl text-[10px] font-bold transition-all cursor-pointer">View Report</button>
+                      <button type="button" onClick={()=>handleExportReportPDF(r.title)} className="px-3 py-2 bg-slate-800/60 hover:bg-slate-800 text-slate-400 rounded-xl text-[10px] font-bold transition-all cursor-pointer">PDF</button>
+                      <button type="button" onClick={()=>handleExportReportCSV(r.title)} className="px-3 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 rounded-xl text-[10px] font-bold transition-all cursor-pointer">XLS</button>
                     </div>
                   </div>
                 ))}
@@ -2415,12 +3124,371 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
                   <h4 className="text-sm font-extrabold text-white">{ai.title}</h4>
                   <p className="text-[10px] text-slate-400 mt-0.5">{ai.desc}</p>
                 </div>
-                <button onClick={()=>triggerToast(ai.fn)} className="w-full py-2 bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 border border-brand-500/20 rounded-xl text-xs font-bold transition-all cursor-pointer">{ai.action}</button>
+                <button type="button" onClick={()=>handleTriggerAiAction(ai)} className="w-full py-2 bg-brand-500/10 hover:bg-brand-500/20 text-brand-400 border border-brand-500/20 rounded-xl text-xs font-bold transition-all cursor-pointer">{ai.action}</button>
               </div>
             ))}
           </div>
         </div>
       )}
+
+      {/* settings screen */}
+      {/* settings screen */}
+      {activeTab === 'settings' && (() => {
+        // Enforce settingsAccess permission check
+        if (!checkPermission('settingsAccess', 'view Operations Settings')) {
+          return (
+            <div className="glass rounded-2xl p-8 border border-red-500/20 bg-red-500/5 text-center text-red-400">
+              <AlertTriangle className="h-10 w-10 mx-auto mb-4 animate-bounce" />
+              <h4 className="font-extrabold text-sm text-white">Access Denied</h4>
+              <p className="text-[10px] text-slate-400 mt-1">Your role does not have permission to view or manage Operations Settings.</p>
+            </div>
+          );
+        }
+
+        // Calculate filtered and paginated audit logs
+        const filteredAudits = auditLogs.filter(item => {
+          if (searchQuery.trim() !== '') {
+            const q = searchQuery.toLowerCase();
+            return (
+              item.action.toLowerCase().includes(q) || 
+              item.detail.toLowerCase().includes(q) || 
+              item.user.toLowerCase().includes(q)
+            );
+          }
+          return true;
+        });
+        const totalAuditPages = Math.ceil(filteredAudits.length / itemsPerPage);
+        const paginatedAuditList = filteredAudits.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+        return (
+          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6">
+            <div className="flex border-b border-[#23324C]/45 pb-px text-xs font-bold gap-4 text-left justify-between items-center">
+              <div className="flex gap-4">
+                {[
+                  { id: 'niche', label: 'Operations & Subscriptions' },
+                  { id: 'audit', label: 'Audit Log & History' }
+                ].map(sub => (
+                  <button 
+                    key={sub.id}
+                    onClick={() => {
+                      setSettingsSubTab(sub.id);
+                      setCurrentPage(1);
+                    }}
+                    className={`capitalize pb-2 border-b-2 transition-all cursor-pointer ${
+                      settingsSubTab === sub.id ? 'border-brand-500 text-brand-400 font-extrabold' : 'border-transparent text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    {sub.label}
+                  </button>
+                ))}
+              </div>
+              <span className="text-[10px] text-slate-500 font-mono">Last Sync MTD: {new Date().toLocaleDateString()}</span>
+            </div>
+
+            {settingsSubTab === 'niche' ? (
+              <div className="space-y-6 animate-fade-in">
+                <div>
+                  <h3 className="text-sm font-extrabold text-white">Operations &amp; Subscription Settings</h3>
+                  <p className="text-xs text-slate-400 mt-0.5">Configure operational niche settings, set safety guidelines, and manage subscriptions.</p>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                  {/* Left Panel: Niche Configuration */}
+                  <div className="lg:col-span-6 bg-[#111827]/60 border border-[#23324C] rounded-2xl p-5 space-y-4">
+                    <strong className="text-xs text-slate-200 block">Configure Company Operational Niche</strong>
+                    <div className="space-y-3.5 text-xs">
+                      <div>
+                        <label className="block text-slate-400 mb-1 font-semibold uppercase text-[9px]">Select Active Operations Niche</label>
+                        <select 
+                          value={selectedNiche} 
+                          onChange={(e) => {
+                            setSelectedNiche(e.target.value);
+                            logAuditEvent('Niche Changed', `Operations Niche changed to ${e.target.value}.`);
+                            triggerToast(`Operations Niche changed to ${e.target.value}. Updating compliance rules...`);
+                          }}
+                          className="w-full px-3 py-2 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500"
+                        >
+                          <option value="General Freight">General Freight</option>
+                          <option value="Car Carrying">Car Carrying</option>
+                          <option value="Dangerous Goods">Dangerous Goods</option>
+                        </select>
+                      </div>
+
+                      {selectedNiche === 'Car Carrying' && (
+                        <div className="bg-brand-500/5 border border-brand-500/10 p-3 rounded-xl space-y-2">
+                          <span className="text-[9px] text-brand-400 font-bold uppercase tracking-wider block">Car Carrying compliance rules</span>
+                          <ul className="list-disc list-inside text-[10px] text-slate-400 space-y-1">
+                            <li>Requires active Auto-Ramp structural inspections.</li>
+                            <li>Standard hauler vehicle configuration: Multi-car carrier trailer.</li>
+                            <li>Pre-trip checklist includes tire pressure & tie-down straps safety validation.</li>
+                          </ul>
+                        </div>
+                      )}
+
+                      {selectedNiche === 'Dangerous Goods' && (
+                        <div className="bg-red-500/5 border border-red-500/10 p-3 rounded-xl space-y-2">
+                          <span className="text-[9px] text-red-400 font-bold uppercase tracking-wider block">HAZMAT Dangerous Goods compliance rules</span>
+                          <ul className="list-disc list-inside text-[10px] text-slate-400 space-y-1">
+                            <li>Requires Class 9 hazardous materials certificate on active shipments.</li>
+                            <li>Placard verification checklist is mandatory for all active drivers.</li>
+                            <li>Spills kit & safety containment guidelines must be marked as pass weekly.</li>
+                          </ul>
+                        </div>
+                      )}
+
+                      {selectedNiche === 'General Freight' && (
+                        <div className="bg-slate-900/40 border border-[#23324C]/60 p-3 rounded-xl space-y-2">
+                          <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">General Freight rules</span>
+                          <ul className="list-disc list-inside text-[10px] text-slate-400 space-y-1">
+                            <li>Requires standard dry van or refrigerated trailer clearance.</li>
+                            <li>Warehouse forklift certification required for load handler staff.</li>
+                            <li>Pallet capacity check is activated during loading phase.</li>
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                    <Button variant="primary" className="w-full mt-2" onClick={() => {
+                      logAuditEvent('Niche Configuration Saved', `Saved operations niche settings: ${selectedNiche}`);
+                      triggerToast(`Niche settings saved for ${selectedNiche}`);
+                    }}>
+                      Save Niche Configuration
+                    </Button>
+                  </div>
+
+                  {/* Right Panel: Subscription & Profile Summary */}
+                  <div className="lg:col-span-6 bg-[#111827]/60 border border-[#23324C] rounded-2xl p-5 space-y-4">
+                    <strong className="text-xs text-slate-200 block">Company Profile &amp; Plan Tier</strong>
+                    <div className="space-y-3 text-xs text-slate-400">
+                      <div className="flex justify-between py-1 border-b border-[#23324C]/35">
+                        <span>Registered Company Name</span>
+                        <strong className="text-white">{activeTenant?.name || 'Apex Logistics LLC'}</strong>
+                      </div>
+                      <div className="flex justify-between py-1 border-b border-[#23324C]/35">
+                        <span>Contact E-mail</span>
+                        <span className="text-white">admin@apexlogistics.com</span>
+                      </div>
+                      <div className="flex justify-between py-1 border-b border-[#23324C]/35">
+                        <span>Active Plan Tier</span>
+                        <span className="bg-brand-500/10 text-brand-400 border border-brand-500/20 px-2 py-0.5 rounded font-bold uppercase text-[9px]">Enterprise Premium Plan</span>
+                      </div>
+                      <div className="flex justify-between py-1">
+                        <span>Registered Drivers</span>
+                        <span className="text-white">{drivers.length} Drivers</span>
+                      </div>
+                      <div className="flex justify-between py-1">
+                        <span>Registered Fleet size</span>
+                        <span className="text-white">{fleet.length} Vehicles</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4 animate-fade-in">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="text-sm font-extrabold text-white">System Audit Log &amp; Activity Trail</h3>
+                    <p className="text-xs text-slate-400 mt-0.5">Immutable record of administrative mutations, configuration adjustments, and user actions.</p>
+                  </div>
+                  <Button size="sm" variant="outline" onClick={() => {
+                    const headers = ['Timestamp', 'Action Event', 'Audit Details', 'Operator'];
+                    const rows = auditLogs.map(l => [l.time, l.action, l.detail, l.user]);
+                    const csvContent = [headers.join(','), ...rows.map(e => e.map(val => `"${String(val).replace(/"/g, '""')}"`).join(","))].join("\n");
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement("a");
+                    link.setAttribute("href", url);
+                    link.setAttribute("download", `Hero_Logistics_Audit_Logs_${new Date().toISOString().split('T')[0]}.csv`);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    triggerToast('System Audit Logs exported.');
+                  }}>
+                    Export Logs (CSV)
+                  </Button>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-slate-400 font-bold">{filteredAudits.length} events logged</span>
+                  <SearchInput value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onClear={() => setSearchQuery('')} className="max-w-[200px]" />
+                </div>
+
+                <DataTable columns={[
+                  { key: 'time', label: 'Timestamp', render: (row) => <span className="font-mono text-slate-400 text-xs">{row.time}</span> },
+                  { key: 'action', label: 'Action Event', render: (row) => <span className="font-extrabold text-white text-xs">{row.action}</span> },
+                  { key: 'detail', label: 'Audit Details', render: (row) => <span className="text-slate-355 font-semibold text-xs leading-normal">{row.detail}</span> },
+                  { key: 'user', label: 'Operator / Agent', render: (row) => <span className="text-brand-400 font-bold">{row.user}</span> }
+                ]} data={paginatedAuditList} />
+                <Pagination currentPage={currentPage} totalPages={totalAuditPages} onPageChange={setCurrentPage} />
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
+      {/* branch-pl screen */}
+      {activeTab === 'branch-pl' && (
+        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-5">
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="text-sm font-extrabold text-white">Branch Profit &amp; Loss Analysis</h3>
+              <p className="text-xs text-slate-400 mt-0.5">Consolidated branch accounting statements, margins, and operational costs MTD.</p>
+            </div>
+            <Button variant="secondary" size="sm" onClick={() => setActiveTab('branches')}>
+              ← Back to Branches
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-8 overflow-x-auto bg-[#111827]/60 border border-[#23324C] rounded-2xl p-5">
+              <strong className="text-xs text-slate-200 block mb-3">Profit &amp; Loss Statement (Consolidated)</strong>
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-[#23324C]/60 text-slate-500 uppercase font-bold text-[9px]">
+                    <th className="py-2.5 px-3 text-left">Branch Name</th>
+                    <th className="py-2.5 px-3 text-right">Revenue</th>
+                    <th className="py-2.5 px-3 text-right">Wages</th>
+                    <th className="py-2.5 px-3 text-right">Fuel Cost</th>
+                    <th className="py-2.5 px-3 text-right">Maintenance</th>
+                    <th className="py-2.5 px-3 text-right">Net Profit</th>
+                    <th className="py-2.5 px-3 text-center">Margin %</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#23324C]/20 text-slate-350 font-mono">
+                  {[
+                    { name: 'Chicago HQ Terminal', rev: 55400, wages: 11200, fuel: 6200, maint: 2500, profit: 34280, margin: '61.9%' },
+                    { name: 'Los Angeles Depot', rev: 28800, wages: 6400, fuel: 2800, maint: 800, profit: 18380, margin: '63.8%' },
+                    { name: 'New York Terminal', rev: 15200, wages: 3600, fuel: 1500, maint: 1100, profit: 8200, margin: '53.9%' },
+                    { name: 'Atlanta Depot', rev: 12400, wages: 2800, fuel: 1100, maint: 600, profit: 7700, margin: '62.1%' }
+                  ].map((row, idx) => (
+                    <tr key={idx} className="hover:bg-slate-955/40">
+                      <td className="py-3 px-3 font-sans font-extrabold text-white text-left">{row.name}</td>
+                      <td className="py-3 px-3 text-right text-emerald-400 font-bold">${row.rev.toLocaleString()}</td>
+                      <td className="py-3 px-3 text-right text-red-400">${row.wages.toLocaleString()}</td>
+                      <td className="py-3 px-3 text-right text-red-400">${row.fuel.toLocaleString()}</td>
+                      <td className="py-3 px-3 text-right text-red-400">${row.maint.toLocaleString()}</td>
+                      <td className="py-3 px-3 text-right text-brand-400 font-bold">${row.profit.toLocaleString()}</td>
+                      <td className="py-3 px-3 text-center font-sans font-black text-brand-400">{row.margin}</td>
+                    </tr>
+                  ))}
+                  <tr className="bg-slate-900/60 font-sans font-black">
+                    <td className="py-3 px-3 text-white text-left">Consolidated Total</td>
+                    <td className="py-3 px-3 text-right text-emerald-400 text-xs">$111,800</td>
+                    <td className="py-3 px-3 text-right text-red-400 text-xs">$24,000</td>
+                    <td className="py-3 px-3 text-right text-red-400 text-xs">$11,600</td>
+                    <td className="py-3 px-3 text-right text-red-400 text-xs">$5,000</td>
+                    <td className="py-3 px-3 text-right text-brand-400 text-xs">$68,560</td>
+                    <td className="py-3 px-3 text-center text-brand-400 text-xs">61.3%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div className="lg:col-span-4 bg-[#111827]/60 border border-[#23324C] rounded-2xl p-5 space-y-4">
+              <strong className="text-xs text-slate-200 block">Profit Share Comparison</strong>
+              <div className="h-52 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={[
+                    { name: 'Chicago', profit: 34280 },
+                    { name: 'Los Angeles', profit: 18380 },
+                    { name: 'New York', profit: 8200 },
+                    { name: 'Atlanta', profit: 7700 }
+                  ]}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#23324C" />
+                    <XAxis dataKey="name" stroke="#94a3b8" fontSize={9} />
+                    <YAxis stroke="#94a3b8" fontSize={9} />
+                    <Tooltip contentStyle={{ backgroundColor: '#0B0F19', borderColor: '#23324C' }} />
+                    <Bar dataKey="profit" fill="#FFD400" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="text-[10px] text-slate-400 space-y-1">
+                <p>💡 Chicago HQ Terminal continues to drive <strong>50%</strong> of company MTD net operating margins.</p>
+                <p>📈 Los Angeles shows highest margin efficiency at <strong>63.8%</strong>.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 8. AI Confirmation Modal */}
+      <Modal 
+        isOpen={!!aiActionReview} 
+        onClose={() => setAiActionReview(null)} 
+        title={`AI Decision Workflow: ${aiActionReview?.title}`}
+      >
+        {aiActionReview && (
+          <div className="space-y-4 text-left text-xs">
+            <div className="flex items-center gap-3 p-3.5 bg-brand-500/10 border border-brand-500/25 rounded-2xl">
+              <span className="text-2xl">{aiActionReview.icon}</span>
+              <div>
+                <strong className="text-white text-xs block">{aiActionReview.title} Recommendation</strong>
+                <p className="text-slate-400 text-[10px] mt-0.5">{aiActionReview.details}</p>
+              </div>
+            </div>
+            
+            <div className="bg-[#111827]/80 border border-[#23324C] rounded-2xl p-4 space-y-3">
+              <span className="text-[10px] text-slate-500 uppercase font-black block">AI Generated Proposal</span>
+              <p className="text-slate-200 leading-relaxed font-mono">{aiActionReview.suggestion}</p>
+              
+              {aiActionReview.simulatedChange && (
+                <div className="border-t border-[#23324C]/60 pt-3 mt-1 text-[11px] text-slate-350 space-y-1 bg-slate-900/30 p-2.5 rounded-xl">
+                  <span className="font-bold text-brand-400">Simulation Comparison:</span>
+                  <p className="font-mono">{aiActionReview.simulatedChange}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  triggerToast("Reviewing full route comparison map...");
+                }}
+                className="flex-1"
+              >
+                <Sparkles className="h-3 w-3 text-brand-400 mr-1" /> Review Simulation
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  const newProposal = prompt("Edit the AI proposal text:", aiActionReview.suggestion);
+                  if (newProposal !== null) {
+                    setAiActionReview({ ...aiActionReview, suggestion: newProposal });
+                    triggerToast("AI Proposal edited successfully.");
+                  }
+                }}
+                className="flex-1"
+              >
+                <Edit className="h-3 w-3 mr-1" /> Edit Proposal
+              </Button>
+            </div>
+
+            <div className="flex gap-2">
+              <Button 
+                variant="secondary" 
+                onClick={() => {
+                  triggerToast("AI Proposal rejected and dismissed.");
+                  setAiActionReview(null);
+                }}
+                className="flex-1"
+              >
+                Reject Recommendation
+              </Button>
+              <Button 
+                variant="primary" 
+                onClick={() => {
+                  triggerToast("AI recommendation confirmed and applied successfully!");
+                  setAiActionReview(null);
+                }}
+                className="flex-1"
+              >
+                Confirm & Apply
+              </Button>
+            </div>
+          </div>
+        )}
+      </Modal>
 
       {/* General Add Item Modal */}
       <Modal isOpen={addModalOpen} onClose={() => setAddModalOpen(false)} title={`Register New ${activeTab.charAt(0).toUpperCase() + activeTab.slice(1).replace('s', '')}`}>
@@ -2513,6 +3581,103 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
             </Button>
           </div>
         )}
+      </Modal>
+
+      {/* Add User Modal */}
+      <Modal isOpen={addUserModalOpen} onClose={() => setAddUserModalOpen(false)} title="Add New User">
+        <form onSubmit={handleAddUserSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto px-1 scrollbar-hide">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <TextInput label="First Name" required value={newUser.firstName} onChange={e => setNewUser({...newUser, firstName: e.target.value})} placeholder="e.g. John" />
+            <TextInput label="Last Name" required value={newUser.lastName} onChange={e => setNewUser({...newUser, lastName: e.target.value})} placeholder="e.g. Doe" />
+            <TextInput label="Email Address" type="email" required value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} placeholder="john.doe@company.com" />
+            <TextInput label="Phone Number" value={newUser.phone} onChange={e => setNewUser({...newUser, phone: e.target.value})} placeholder="+1 (555) 000-0000" />
+            <TextInput label="Employee ID" value={newUser.employeeId} disabled />
+            <div>
+              <label className="block text-slate-400 font-bold uppercase text-[9px] mb-1">Profile Photo (Optional)</label>
+              <input type="file" accept="image/*" className="w-full text-xs text-slate-400 file:mr-4 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand-500/20 file:text-brand-400 hover:file:bg-brand-500/30 cursor-pointer" />
+            </div>
+            <SelectInput label="Role" value={newUser.role} onChange={e => setNewUser({...newUser, role: e.target.value})} options={[
+              { value: 'Company Admin', label: 'Company Admin' },
+              { value: 'Branch Manager', label: 'Branch Manager' },
+              { value: 'Dispatcher', label: 'Dispatcher' },
+              { value: 'Driver', label: 'Driver' },
+              { value: 'Warehouse Staff', label: 'Warehouse Staff' },
+              { value: 'Yard Staff', label: 'Yard Staff' },
+              { value: 'Accounts', label: 'Accounts' },
+              { value: 'Payroll', label: 'Payroll' },
+              { value: 'HR', label: 'HR' },
+              { value: 'Sales', label: 'Sales' },
+              { value: 'Maintenance', label: 'Maintenance' }
+            ]} />
+            <SelectInput label="Branch Assignment" required value={newUser.branch} onChange={e => setNewUser({...newUser, branch: e.target.value})} options={[
+              { value: '', label: 'Select Branch...' },
+              ...branches.map(b => ({ value: b.name, label: b.name }))
+            ]} />
+            <SelectInput label="Status" value={newUser.status} onChange={e => setNewUser({...newUser, status: e.target.value})} options={[
+              { value: 'Active', label: 'Active' },
+              { value: 'Inactive', label: 'Inactive' }
+            ]} />
+          </div>
+
+          <div className="pt-2">
+            <label className="block text-slate-400 font-bold uppercase text-[9px] mb-2">Permissions</label>
+            <div className="grid grid-cols-2 gap-2 bg-[#111827]/60 border border-[#23324C] rounded-xl p-3">
+              {permissionOptions.map(perm => (
+                <label key={perm} className="flex items-center gap-2 text-xs text-slate-200 cursor-pointer">
+                  <input type="checkbox" className="w-3.5 h-3.5 bg-[#111827] border-[#23324C] rounded accent-brand-500" 
+                    checked={newUser.permissions.includes(perm)}
+                    onChange={(e) => {
+                      if (e.target.checked) setNewUser({...newUser, permissions: [...newUser.permissions, perm]});
+                      else setNewUser({...newUser, permissions: newUser.permissions.filter(p => p !== perm)});
+                    }}
+                  />
+                  {perm}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-4 border-t border-[#23324C]/40">
+            <Button type="button" variant="secondary" onClick={() => setAddUserModalOpen(false)}>Cancel</Button>
+            <Button type="submit" variant="primary" disabled={isSavingUser || !newUser.firstName || !newUser.lastName || !newUser.email || !newUser.branch}>
+              {isSavingUser ? 'Creating...' : 'Create User'}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Assign User Modal */}
+      <Modal isOpen={assignUserModalOpen} onClose={() => setAssignUserModalOpen(false)} title="Assign User To Branch">
+        <form onSubmit={handleAssignUserSubmit} className="space-y-4">
+          <SelectInput label="Select User" required value={assignUser.userId} onChange={e => setAssignUser({...assignUser, userId: e.target.value})} options={[
+            { value: '', label: 'Select user...' },
+            ...drivers.map(d => ({ value: d.id, label: d.name })) // using drivers mock for users
+          ]} />
+          
+          <TextInput label="Current Branch" value={assignUser.currentBranch} disabled />
+          
+          <SelectInput label="Assign To Branch" required value={assignUser.assignToBranch} onChange={e => setAssignUser({...assignUser, assignToBranch: e.target.value})} options={[
+            { value: '', label: 'Select destination branch...' },
+            ...branches.map(b => ({ value: b.name, label: b.name }))
+          ]} />
+          
+          <div className="grid grid-cols-2 gap-4">
+            <TextInput label="Effective Date" type="date" required value={assignUser.effectiveDate} onChange={e => setAssignUser({...assignUser, effectiveDate: e.target.value})} />
+            <TextInput label="New Position (Optional)" value={assignUser.position} onChange={e => setAssignUser({...assignUser, position: e.target.value})} placeholder="e.g. Lead Dispatcher" />
+          </div>
+          
+          <div>
+            <label className="block text-slate-400 font-bold uppercase text-[9px] mb-1">Assignment Notes</label>
+            <textarea className="w-full px-3 py-2 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:border-brand-500 min-h-[80px]" placeholder="Reason for transfer or special instructions..." value={assignUser.notes} onChange={e => setAssignUser({...assignUser, notes: e.target.value})}></textarea>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-4 border-t border-[#23324C]/40">
+            <Button type="button" variant="secondary" onClick={() => setAssignUserModalOpen(false)}>Cancel</Button>
+            <Button type="submit" variant="primary" disabled={isAssigningUser || !assignUser.userId || !assignUser.assignToBranch || !assignUser.effectiveDate}>
+              {isAssigningUser ? 'Assigning...' : 'Assign'}
+            </Button>
+          </div>
+        </form>
       </Modal>
 
       {/* Asset QR Code Modal */}
@@ -3384,6 +4549,44 @@ export default function CompanyAdminDashboard({ activeTab = 'overview' }) {
           </div>
         )}
       </Drawer>
+
+      {/* Reusable Enterprise Confirmation Modal */}
+      {confirmModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B0F19]/80 backdrop-blur-sm animate-fade-in">
+          <div className="bg-[#111827] border border-[#23324C] rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl space-y-4 text-left">
+            <div className="flex items-center gap-3">
+              <span className="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-xl">⚠️</span>
+              <h3 className="text-base font-extrabold text-white">{confirmTitle}</h3>
+            </div>
+            
+            <p className="text-xs text-slate-400 leading-relaxed">{confirmText}</p>
+            
+            <div className="flex gap-2.5 pt-2 justify-end">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setConfirmModalOpen(false);
+                  setConfirmAction(null);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button 
+                variant="danger" 
+                onClick={() => {
+                  if (confirmAction) {
+                    confirmAction();
+                  }
+                  setConfirmModalOpen(false);
+                  setConfirmAction(null);
+                }}
+              >
+                Confirm Action
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
