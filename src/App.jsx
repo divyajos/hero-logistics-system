@@ -31,7 +31,7 @@ function PublicLayout() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#0B0F19] text-slate-100 flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+    <div className="min-h-screen w-full overflow-x-hidden bg-[#0B0F19] text-slate-100 flex flex-col justify-between selection:bg-brand-500 selection:text-white">
       <Navbar />
       <div className="flex-grow">
         <Outlet />

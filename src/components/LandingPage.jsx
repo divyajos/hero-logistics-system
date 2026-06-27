@@ -328,7 +328,7 @@ export default function LandingPage({ setView }) {
   };
 
   return (
-    <div className="bg-[#0B0F19] relative">
+    <div className="bg-[#0B0F19] relative w-full overflow-x-hidden">
       {/* Background Spotlight Cursor Effect */}
       <div 
         className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-300"
@@ -494,7 +494,7 @@ export default function LandingPage({ setView }) {
       {/* ======================================================== */}
       {/* 3. FEATURES SECTION */}
       {/* ======================================================== */}
-      <section id="features" className="py-24 relative px-4">
+      <section id="features" className="py-24 relative px-4 overflow-hidden">
         <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-brand-500/5 rounded-full blur-[100px] pointer-events-none"></div>
 
         <div className="max-w-7xl mx-auto relative z-10">
@@ -528,7 +528,7 @@ export default function LandingPage({ setView }) {
       {/* ======================================================== */}
       {/* 4. SOLUTIONS SECTION */}
       {/* ======================================================== */}
-      <section id="solutions" className="py-24 bg-[#0B0F19] border-t border-[#23324C]/40 px-4">
+      <section id="solutions" className="py-24 bg-[#0B0F19] border-t border-[#23324C]/40 px-4 overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
@@ -596,7 +596,7 @@ export default function LandingPage({ setView }) {
       {/* ======================================================== */}
       {/* 5. SCREENSHOTS GALLERY */}
       {/* ======================================================== */}
-      <section className="py-24 bg-[#0B0F19] border-t border-[#23324C]/40 px-4">
+      <section className="py-24 bg-[#0B0F19] border-t border-[#23324C]/40 px-4 overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
@@ -647,7 +647,7 @@ export default function LandingPage({ setView }) {
       {/* ======================================================== */}
       {/* 6. PRICING SECTION */}
       {/* ======================================================== */}
-      <section id="pricing" className="py-24 bg-[#0B0F19] border-t border-[#23324C]/40 px-4">
+      <section id="pricing" className="py-24 bg-[#0B0F19] border-t border-[#23324C]/40 px-4 overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
@@ -714,7 +714,7 @@ export default function LandingPage({ setView }) {
       {/* ======================================================== */}
       {/* 7. INTEGRATIONS SECTION */}
       {/* ======================================================== */}
-      <section id="integrations" className="py-20 bg-[#0B0F19] border-t border-[#23324C]/40 px-4">
+      <section id="integrations" className="py-20 bg-[#0B0F19] border-t border-[#23324C]/40 px-4 overflow-hidden">
         <div className="max-w-7xl mx-auto text-center">
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-4">
             Supported Integrations
@@ -738,7 +738,7 @@ export default function LandingPage({ setView }) {
       {/* ======================================================== */}
       {/* 8. TESTIMONIALS SECTION */}
       {/* ======================================================== */}
-      <section className="py-24 bg-[#0B0F19] border-t border-[#23324C]/40 px-4">
+      <section className="py-24 bg-[#0B0F19] border-t border-[#23324C]/40 px-4 overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <ScrollReveal direction="up" className="text-3xl font-extrabold text-white text-center mb-16">
             Tested & Trusted in Action
@@ -796,7 +796,7 @@ export default function LandingPage({ setView }) {
       {/* ======================================================== */}
       {/* 9. FAQ SECTION */}
       {/* ======================================================== */}
-      <section id="faq" className="py-24 bg-[#0B0F19] border-t border-[#23324C]/40 px-4">
+      <section id="faq" className="py-24 bg-[#0B0F19] border-t border-[#23324C]/40 px-4 overflow-hidden">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl font-extrabold text-white text-center mb-12">
             Frequently Asked Questions
@@ -830,7 +830,7 @@ export default function LandingPage({ setView }) {
       {/* ======================================================== */}
       {/* 10. CONTACT & LEAD GEN SECTION */}
       {/* ======================================================== */}
-      <section id="contact" className="py-24 bg-[#0B0F19] border-t border-[#23324C]/40 px-4 relative">
+      <section id="contact" className="py-24 bg-[#0B0F19] border-t border-[#23324C]/40 px-4 relative overflow-hidden">
         <div className="absolute bottom-10 left-10 w-96 h-96 bg-brand-500/5 rounded-full blur-[100px] pointer-events-none"></div>
 
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 relative z-10">
