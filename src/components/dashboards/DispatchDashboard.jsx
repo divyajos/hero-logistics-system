@@ -123,6 +123,16 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
   const [drawerTab, setDrawerTab] = useState('details');
   const [newNoteText, setNewNoteText] = useState('');
   
+  // Assign Vehicle Modal State
+  const [isAssignVehicleModalOpen, setIsAssignVehicleModalOpen] = useState(false);
+  const [assignVehicleForm, setAssignVehicleForm] = useState({
+    loadId: '',
+    vehicleId: '',
+    driver: '',
+    trailer: '',
+    notes: ''
+  });
+  
   // Selected load details reactively updated from Redux store state
   const selectedLoadDetail = loads.find(l => l.id === selectedLoad?.id) || selectedLoad;
   const selectedOverviewLoad = loads.find(l => l.id === selectedOverviewLoadId) || loads[0];
@@ -208,6 +218,42 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
     }));
     setNewNoteText('');
     triggerToast('Note successfully recorded.');
+  };
+
+  const handleAssignVehicleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (!assignVehicleForm.vehicleId) {
+      triggerToast('Please select a vehicle.', 'error');
+      return;
+    }
+
+    const targetLoadId = assignVehicleForm.loadId || (loads && loads.length > 0 ? loads[0].id : null);
+
+    const selectedVehicle = fleet.find(v => v.id === assignVehicleForm.vehicleId || v.plate === assignVehicleForm.vehicleId);
+    if (!selectedVehicle) {
+      triggerToast('Invalid vehicle selected.', 'error');
+      return;
+    }
+
+    if (selectedVehicle.status === 'Maintenance') {
+      triggerToast(`Vehicle ${selectedVehicle.plate} is currently under Maintenance and cannot be assigned.`, 'error');
+      return;
+    }
+
+    if (targetLoadId) {
+      dispatch(updateLoadStatus({
+        id: targetLoadId,
+        vehicle: selectedVehicle.plate,
+        driver: assignVehicleForm.driver || undefined,
+        trailer: assignVehicleForm.trailer || undefined,
+        statusNote: `Vehicle ${selectedVehicle.plate} assigned to load by Dispatcher. ${assignVehicleForm.notes}`
+      }));
+    }
+
+    triggerToast(`Vehicle ${selectedVehicle.plate} successfully assigned to load.`);
+    setIsAssignVehicleModalOpen(false);
+    setAssignVehicleForm({ loadId: '', vehicleId: '', driver: '', trailer: '', notes: '' });
   };
 
   // Add Stop in 11-step Stepper
@@ -742,26 +788,44 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
           {/* 2. 11-STEP CREATE LOAD FLOW */}
           {activeTab === 'create-load' && (
             <div className="flex flex-col space-y-6">
-              {/* Header */}
+              {/* Header - Step 11 */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-[#0B0F19] border border-[#23324C]/60 rounded-2xl p-5 shadow-lg">
                 <div>
                   <h3 className="text-xl font-black text-white tracking-tight uppercase">Create Load Console</h3>
-                  <p className="text-[10px] text-brand-400 font-bold tracking-widest mt-1">OPERATIONAL PRINCIPLE: LOAD ➔ STOPS ➔ ITEMS</p>
+                  <p className="text-[10px] text-brand-400 font-bold tracking-widest mt-1">STEP 11: ACTIVATE / DISPATCH</p>
                 </div>
-                <div className="flex gap-3 w-full sm:w-auto">
-                  <Button variant="outline" className="flex-1 sm:flex-none border-[#23324C] text-slate-300 hover:bg-slate-800">
+                <div className="flex gap-2 w-full sm:w-auto">
+                  <Button variant="outline" onClick={handleSaveDraft} className="flex-1 sm:flex-none border-[#23324C] text-slate-300 hover:bg-slate-800 text-xs">
                     SAVE DRAFT
                   </Button>
-                  <Button variant="primary" className="flex-1 sm:flex-none bg-brand-500 text-slate-950 font-black hover:bg-brand-400">
+                  <Button variant="primary" onClick={() => handleActivateLoad(false)} className="flex-1 sm:flex-none bg-brand-500 text-slate-950 font-black hover:bg-brand-400 text-xs">
                     ACTIVATE LOAD
+                  </Button>
+                  <Button variant="success" onClick={() => handleActivateLoad(true)} className="flex-1 sm:flex-none text-xs font-black">
+                    DISPATCH LOAD
                   </Button>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                {/* Left Column (Steps 1 & 2) */}
+                {/* Left Column */}
                 <div className="lg:col-span-7 space-y-6">
-                  {/* Step 1: Config Route Stops */}
+                  
+                  {/* Step 1: Create Load Header */}
+                  <div className="bg-[#0B0F19] rounded-2xl p-6 border border-[#23324C]/60 shadow-xl relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-1.5 h-full bg-slate-500"></div>
+                    <h4 className="text-xs font-bold text-white uppercase tracking-wider border-b border-[#23324C]/40 pb-3 mb-4 flex items-center gap-2">
+                      <Check className="h-4 w-4 text-emerald-400" /> Step 1: Create Load Header
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <TextInput label="Customer Reference #" placeholder="e.g. PO-99238" />
+                      <TextInput label="Global Deadline / Required Date" type="datetime-local" value={newLoadHeader.requiredDate} onChange={(e) => setNewLoadHeader({...newLoadHeader, requiredDate: e.target.value})} />
+                      <SelectInput label="Niche" value={newLoadHeader.niche} onChange={(e) => setNewLoadHeader({...newLoadHeader, niche: e.target.value})} options={[{value:'general_freight', label:'General Freight'},{value:'car_carrying', label:'Car Carrying'},{value:'dangerous_goods', label:'Dangerous Goods'}]} />
+                      <SelectInput label="Branch" value={newLoadHeader.branch} onChange={(e) => setNewLoadHeader({...newLoadHeader, branch: e.target.value})} options={[{value:'Chicago HQ Terminal', label:'Chicago HQ Terminal'},{value:'Los Angeles Depot', label:'Los Angeles Depot'}]} />
+                    </div>
+                  </div>
+
+                  {/* Step 2: Add Stops */}
                   <div className="glass rounded-2xl p-6 border border-[#23324C]/60 shadow-xl relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-1.5 h-full bg-blue-500"></div>
                     
@@ -771,60 +835,54 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                           <MapPin className="h-4 w-4 text-blue-400" />
                         </div>
                         <div>
-                          <h4 className="text-sm font-bold text-white uppercase tracking-wider">Step 1: Configure Route Stops</h4>
+                          <h4 className="text-sm font-bold text-white uppercase tracking-wider">Step 2: Add Stops</h4>
                           <p className="text-[10px] text-slate-400">Define pickup, layover, and delivery locations.</p>
                         </div>
                       </div>
-                      <Button variant="outline" size="sm" icon={Plus} className="text-[10px] border-[#23324C] hover:border-blue-500/50 hover:text-blue-400 transition-colors">
-                        ADD STOP
-                      </Button>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={handleReorderStops} className="text-[10px] border-[#23324C]">
+                          REORDER STOPS
+                        </Button>
+                        <Button variant="outline" size="sm" icon={Plus} onClick={handleAddStepperStop} className="text-[10px] border-[#23324C] hover:border-blue-500/50 hover:text-blue-400 transition-colors">
+                          ADD STOP
+                        </Button>
+                      </div>
                     </div>
 
                     <div className="space-y-4">
-                      {/* Default Stop 1 */}
-                      <div className="p-4 bg-[#0B0F19]/50 border border-[#23324C]/40 rounded-xl space-y-4">
-                        <div className="flex justify-between items-center border-b border-[#23324C]/40 pb-2">
-                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Stop 1</span>
-                          <button className="text-slate-500 hover:text-red-400 transition-colors"><Trash2 className="h-3.5 w-3.5" /></button>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                          <div className="sm:col-span-1">
-                            <SelectInput label="Stop Type" value="pickup" options={[{value:'pickup', label:'Pickup'},{value:'delivery', label:'Delivery'}]} />
+                      {newStops.length === 0 ? (
+                        <div className="p-4 bg-[#0B0F19]/50 border border-[#23324C]/40 rounded-xl space-y-4">
+                          <div className="flex justify-between items-center border-b border-[#23324C]/40 pb-2">
+                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">New Stop Setup</span>
                           </div>
-                          <div className="sm:col-span-2">
-                            <TextInput label="Address / Location" placeholder="Enter full address..." />
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div className="sm:col-span-1">
+                              <SelectInput label="Stop Type" value={stopType} onChange={(e) => setStopType(e.target.value)} options={[{value:'Pickup', label:'Pickup'},{value:'Delivery', label:'Delivery'}]} />
+                            </div>
+                            <div className="sm:col-span-2">
+                              <TextInput label="Address / Location" value={stopAddress} onChange={(e) => setStopAddress(e.target.value)} placeholder="Enter full address..." />
+                            </div>
                           </div>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                          <TextInput label="Contact Name" placeholder="Warehouse Manager" />
-                          <TextInput label="Phone Number" placeholder="+1 (555) 000-0000" />
-                          <TextInput label="Required Time" type="datetime-local" />
-                        </div>
-                      </div>
-                      {/* Default Stop 2 */}
-                      <div className="p-4 bg-[#0B0F19]/50 border border-[#23324C]/40 rounded-xl space-y-4">
-                        <div className="flex justify-between items-center border-b border-[#23324C]/40 pb-2">
-                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Stop 2</span>
-                          <button className="text-slate-500 hover:text-red-400 transition-colors"><Trash2 className="h-3.5 w-3.5" /></button>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                          <div className="sm:col-span-1">
-                            <SelectInput label="Stop Type" value="delivery" options={[{value:'pickup', label:'Pickup'},{value:'delivery', label:'Delivery'}]} />
-                          </div>
-                          <div className="sm:col-span-2">
-                            <TextInput label="Address / Location" placeholder="Enter full address..." />
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <TextInput label="Stop Notes" value={stopNotes} onChange={(e) => setStopNotes(e.target.value)} placeholder="e.g. Call before arrival" className="sm:col-span-3" />
                           </div>
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                          <TextInput label="Contact Name" placeholder="Receiver Contact" />
-                          <TextInput label="Phone Number" placeholder="+1 (555) 000-0000" />
-                          <TextInput label="Required Time" type="datetime-local" />
-                        </div>
-                      </div>
+                      ) : (
+                        newStops.map((stop, idx) => (
+                          <div key={stop.id} className="p-4 bg-[#0B0F19]/50 border border-[#23324C]/40 rounded-xl space-y-4 relative">
+                            <div className="flex justify-between items-center border-b border-[#23324C]/40 pb-2">
+                              <span className="text-[10px] font-black text-brand-400 uppercase tracking-wider">Stop {stop.sequence}: {stop.type}</span>
+                              <button onClick={() => handleRemoveStepperStop(stop.id)} className="text-slate-500 hover:text-red-400 transition-colors"><Trash2 className="h-3.5 w-3.5" /></button>
+                            </div>
+                            <p className="text-xs text-white font-bold">{stop.address}</p>
+                            {stop.notes && <p className="text-[10px] text-slate-400">{stop.notes}</p>}
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
 
-                  {/* Step 2: Declare Items */}
+                  {/* Step 3, 4, 5: Add Items & Link */}
                   <div className="glass rounded-2xl p-6 border border-[#23324C]/60 shadow-xl relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-1.5 h-full bg-brand-500"></div>
                     
@@ -834,79 +892,104 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                           <Layers className="h-4 w-4 text-brand-400" />
                         </div>
                         <div>
-                          <h4 className="text-sm font-bold text-white uppercase tracking-wider">Step 2: Declare Items / Cars</h4>
-                          <p className="text-[10px] text-slate-400">Map cargo items to specific stops.</p>
+                          <h4 className="text-sm font-bold text-white uppercase tracking-wider">Step 3, 4, 5: Add Items & Links</h4>
+                          <p className="text-[10px] text-slate-400">Declare items, Link to Stops, and Link Customer.</p>
                         </div>
                       </div>
-                      <Button variant="outline" size="sm" icon={Plus} className="text-[10px] border-[#23324C] hover:border-brand-500/50 hover:text-brand-400 transition-colors">
+                      <Button variant="outline" size="sm" icon={Plus} onClick={handleAddStepperItem} className="text-[10px] border-[#23324C] hover:border-brand-500/50 hover:text-brand-400 transition-colors">
                         ADD ITEM
                       </Button>
                     </div>
 
                     <div className="space-y-4">
-                      {/* Default Item 1 */}
-                      <div className="p-4 bg-[#0B0F19]/50 border border-[#23324C]/40 rounded-xl space-y-4">
-                        <div className="flex justify-between items-center border-b border-[#23324C]/40 pb-2">
-                          <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Item 1</span>
-                          <button className="text-slate-500 hover:text-red-400 transition-colors"><Trash2 className="h-3.5 w-3.5" /></button>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                          <TextInput label="Customer / Owner" placeholder="Select Customer Profile" />
-                          <SelectInput label="Link Pickup Stop" options={[{value:'stop1', label:'Stop 1'}]} />
-                          <SelectInput label="Link Drop-off Stop" options={[{value:'stop2', label:'Stop 2'}]} />
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                          <div className="sm:col-span-1">
-                            <SelectInput label="Niche Type" value="freight" options={[{value:'freight', label:'General Freight'},{value:'car', label:'Car / Vehicle'},{value:'dg', label:'Dangerous Goods'}]} />
+                      {newItems.length === 0 ? (
+                        <div className="p-4 bg-[#0B0F19]/50 border border-[#23324C]/40 rounded-xl space-y-4">
+                          <div className="flex justify-between items-center border-b border-[#23324C]/40 pb-2">
+                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">New Item Setup</span>
                           </div>
-                          <div className="sm:col-span-1">
-                            <TextInput label="Item Description / VIN" placeholder="Description or VIN" />
+                          
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1 border-b border-[#23324C]/40 pb-4">
+                            <div className="sm:col-span-1">
+                              <span className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Step 5: Link Customer</span>
+                              <TextInput value={itemCustLink} onChange={(e) => setItemCustLink(e.target.value)} placeholder="Select Customer Profile" />
+                            </div>
+                            <div className="sm:col-span-2 grid grid-cols-2 gap-4">
+                              <div className="col-span-2"><span className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Step 4: Link Items to Stops</span></div>
+                              <SelectInput options={[{value:'', label:'Select Pickup Stop'}, ...newStops.filter(s=>s.type==='Pickup').map(s=>({value:s.id, label:`Stop ${s.sequence}: ${s.address}`}))]} />
+                              <SelectInput options={[{value:'', label:'Select Drop-off Stop'}, ...newStops.filter(s=>s.type==='Delivery').map(s=>({value:s.id, label:`Stop ${s.sequence}: ${s.address}`}))]} />
+                            </div>
                           </div>
-                          <div className="sm:col-span-1">
-                            <TextInput label="Weight (Lbs/Kg)" placeholder="e.g. 4500" />
+
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div className="sm:col-span-1">
+                              <TextInput label="Item Description" value={itemName} onChange={(e) => setItemName(e.target.value)} placeholder="Description" />
+                            </div>
+                            <div className="sm:col-span-1">
+                              <TextInput label="VIN / Serial" value={itemVin} onChange={(e) => setItemVin(e.target.value)} placeholder="VIN" />
+                            </div>
+                            <div className="sm:col-span-1">
+                              <TextInput label="Weight (Lbs/Kg)" value={itemWeight} onChange={(e) => setItemWeight(e.target.value)} placeholder="e.g. 4500" />
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      ) : (
+                        newItems.map((item, idx) => (
+                          <div key={item.id} className="p-4 bg-[#0B0F19]/50 border border-[#23324C]/40 rounded-xl space-y-4 relative">
+                            <div className="flex justify-between items-center border-b border-[#23324C]/40 pb-2">
+                              <span className="text-[10px] font-black text-brand-400 uppercase tracking-wider">Item: {item.name}</span>
+                              <button onClick={() => handleRemoveStepperItem(item.id)} className="text-slate-500 hover:text-red-400 transition-colors"><Trash2 className="h-3.5 w-3.5" /></button>
+                            </div>
+                            <div className="text-xs text-slate-300">
+                              <p>Customer: {item.customer}</p>
+                              <p>Weight: {item.weight} | VIN: {item.vin}</p>
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 </div>
 
-                {/* Right Column (Specs & Docs) */}
+                {/* Right Column */}
                 <div className="lg:col-span-5 space-y-6">
-                  {/* Load Specifications */}
-                  <div className="bg-[#0B0F19] rounded-2xl p-6 border border-[#23324C]/60 shadow-xl">
+                  
+                  {/* Step 6, 7, 8: Vehicle Assignment */}
+                  <div className="glass rounded-2xl p-6 border border-[#23324C]/60 shadow-xl">
                     <h4 className="text-xs font-bold text-white uppercase tracking-wider border-b border-[#23324C]/40 pb-3 mb-4 flex items-center gap-2">
-                      <Check className="h-4 w-4 text-emerald-400" /> Load Specifications
+                      <Truck className="h-4 w-4 text-brand-400" /> Step 6, 7, 8: Assignments
                     </h4>
                     <div className="space-y-4">
-                      <TextInput label="Customer Reference #" placeholder="e.g. PO-99238" />
                       <div>
-                        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Priority Tier</label>
-                        <div className="grid grid-cols-3 gap-2">
-                          <button className="py-2 px-3 text-[10px] font-bold rounded-lg bg-[#111827] border border-[#23324C] text-slate-400 hover:text-white transition-colors">Normal</button>
-                          <button className="py-2 px-3 text-[10px] font-bold rounded-lg bg-brand-500/10 border border-brand-500/50 text-brand-400">Express</button>
-                          <button className="py-2 px-3 text-[10px] font-bold rounded-lg bg-[#111827] border border-[#23324C] text-slate-400 hover:text-red-400 transition-colors">Urgent</button>
-                        </div>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Step 6: Assign Driver</span>
+                        <SelectInput value={assignedDriver} onChange={(e) => setAssignedDriver(e.target.value)} options={[{value:'', label:'Select Driver'}, ...drivers.map(d=>({value:d.name, label:d.name}))]} />
                       </div>
-                      <TextInput label="Global Deadline" type="datetime-local" />
+                      <div>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Step 7: Assign Truck</span>
+                        <SelectInput value={assignedVehicle} onChange={(e) => setAssignedVehicle(e.target.value)} options={[{value:'', label:'Select Truck'}, ...fleet.filter(f=>f.type!=='Trailer').map(f=>({value:f.plate, label:`${f.plate} (${f.type})`}))]} />
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase mb-1 block">Step 8: Assign Trailer</span>
+                        <SelectInput value={assignedTrailer} onChange={(e) => setAssignedTrailer(e.target.value)} options={[{value:'', label:'Select Trailer'}, ...fleet.filter(f=>f.type==='Trailer').map(f=>({value:f.plate, label:`${f.plate} (${f.type})`}))]} />
+                      </div>
                     </div>
                   </div>
 
-                  {/* Documents & Photos */}
+                  {/* Step 9: Upload Documents */}
                   <div className="glass rounded-2xl p-6 border border-[#23324C]/60 shadow-xl">
                     <h4 className="text-xs font-bold text-white uppercase tracking-wider border-b border-[#23324C]/40 pb-3 mb-4 flex items-center gap-2">
-                      <FileText className="h-4 w-4 text-slate-300" /> Documents & Photos
+                      <FileText className="h-4 w-4 text-slate-300" /> Step 9: Upload Documents
                     </h4>
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="border border-dashed border-[#23324C] bg-[#0B0F19]/50 rounded-xl p-4 flex flex-col items-center justify-center text-center hover:border-brand-500/50 hover:bg-brand-500/5 transition-colors cursor-pointer min-h-[120px]">
-                        <FileText className="h-6 w-6 text-slate-500 mb-2" />
-                        <span className="text-[10px] font-bold text-slate-300">Upload Manifest / BOL</span>
-                        <span className="text-[8px] text-slate-500 mt-1">PDF, DOCX</span>
+                      <div onClick={() => {setNewDocs({...newDocs, bol: true}); triggerToast('Manifest uploaded.');}} className={`border border-dashed ${newDocs.bol ? 'border-emerald-500 bg-emerald-500/10' : 'border-[#23324C] bg-[#0B0F19]/50'} rounded-xl p-4 flex flex-col items-center justify-center text-center hover:border-brand-500/50 hover:bg-brand-500/5 transition-colors cursor-pointer min-h-[100px]`}>
+                        <FileText className={`h-6 w-6 ${newDocs.bol ? 'text-emerald-400' : 'text-slate-500'} mb-2`} />
+                        <span className="text-[10px] font-bold text-slate-300">Manifest / BOL</span>
                       </div>
-                      <div className="border border-dashed border-[#23324C] bg-[#0B0F19]/50 rounded-xl p-4 flex flex-col items-center justify-center text-center hover:border-brand-500/50 hover:bg-brand-500/5 transition-colors cursor-pointer min-h-[120px]">
+                      <div onClick={() => triggerToast('Photos uploaded.')} className="border border-dashed border-[#23324C] bg-[#0B0F19]/50 rounded-xl p-4 flex flex-col items-center justify-center text-center hover:border-brand-500/50 hover:bg-brand-500/5 transition-colors cursor-pointer min-h-[100px]">
                         <Layers className="h-6 w-6 text-slate-500 mb-2" />
                         <span className="text-[10px] font-bold text-slate-300">Upload Photos</span>
-                        <span className="text-[8px] text-slate-500 mt-1">JPG, PNG</span>
+                      </div>
+                      <div className="col-span-2 flex justify-center">
+                        <Button variant="outline" size="sm" onClick={() => triggerToast('Select document dialog opened')} className="w-full">Upload Document</Button>
                       </div>
                     </div>
                   </div>
@@ -917,9 +1000,22 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                       <MessageSquare className="h-4 w-4 text-slate-300" /> Internal Dispatch Notes
                     </h4>
                     <textarea 
-                      className="w-full bg-[#0B0F19] border border-[#23324C] rounded-xl p-4 text-xs text-slate-300 focus:outline-none focus:border-brand-500 resize-none min-h-[120px]"
+                      value={newNotes}
+                      onChange={(e) => setNewNotes(e.target.value)}
+                      className="w-full bg-[#0B0F19] border border-[#23324C] rounded-xl p-4 text-xs text-slate-300 focus:outline-none focus:border-brand-500 resize-none min-h-[100px]"
                       placeholder="Add any internal routing or dispatcher notes here..."
                     ></textarea>
+                  </div>
+                  
+                  {/* Step 10: Review Load */}
+                  <div className="bg-brand-500/10 rounded-2xl p-6 border border-brand-500/30 shadow-xl">
+                    <h4 className="text-xs font-bold text-brand-400 uppercase tracking-wider border-b border-brand-500/30 pb-3 mb-4 flex items-center gap-2">
+                      <Eye className="h-4 w-4" /> Step 10: Review Load
+                    </h4>
+                    <p className="text-xs text-slate-300 mb-4">Review all parameters before activating. Load contains {newStops.length} stops and {newItems.length} items.</p>
+                    <Button variant="primary" className="w-full" onClick={() => triggerToast('Load reviewed. Ready for Dispatch.')}>
+                      Review Load
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -960,7 +1056,7 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                             </div>
                             <strong className="text-white text-xs block truncate">{item.data.customer || 'Vance Refrigeration'}</strong>
                             <button 
-                              onClick={() => triggerToast(`Matched with customer registry: ${item.data.customer}`)}
+                              onClick={() => { if (window.confirm('Confirm Match Customer?')) triggerToast(`Matched with customer registry: ${item.data.customer}`) }}
                               className="w-full py-1 bg-slate-800 hover:bg-slate-750 text-slate-300 text-[10px] rounded-lg font-bold transition-all cursor-pointer"
                             >
                               Match Customer
@@ -974,7 +1070,7 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                             </div>
                             <strong className="text-white text-xs block truncate">{item.data.route || 'Chicago HQ ➔ St. Louis'}</strong>
                             <button 
-                              onClick={() => triggerToast(`Terminal route coordinates geocoded.`)}
+                              onClick={() => { if (window.confirm('Confirm Match Address?')) triggerToast(`Terminal route coordinates geocoded.`) }}
                               className="w-full py-1 bg-slate-800 hover:bg-slate-750 text-slate-300 text-[10px] rounded-lg font-bold transition-all cursor-pointer"
                             >
                               Match Address
@@ -988,7 +1084,7 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                             </div>
                             <strong className="text-white text-xs block">2 stops identified</strong>
                             <button 
-                              onClick={() => triggerToast(`Confirmed Stops sequence synced.`)}
+                              onClick={() => { if (window.confirm('Confirm Stops sequence?')) triggerToast(`Confirmed Stops sequence synced.`) }}
                               className="w-full py-1 bg-slate-800 hover:bg-slate-750 text-slate-300 text-[10px] rounded-lg font-bold transition-all cursor-pointer"
                             >
                               Confirm Stops
@@ -1002,7 +1098,7 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                             </div>
                             <strong className="text-white text-xs block truncate">{item.data.cargo || 'HVAC Units'}</strong>
                             <button 
-                              onClick={() => triggerToast(`Confirmed Items quantity: ${item.data.weight}`)}
+                              onClick={() => { if (window.confirm('Confirm Items quantity?')) triggerToast(`Confirmed Items quantity: ${item.data.weight}`) }}
                               className="w-full py-1 bg-slate-800 hover:bg-slate-750 text-slate-300 text-[10px] rounded-lg font-bold transition-all cursor-pointer"
                             >
                               Confirm Items
@@ -1013,23 +1109,25 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                         {/* Ingestion & Action Buttons */}
                         <div className="flex flex-wrap gap-2 pt-3 border-t border-[#23324C]/35">
                           <button 
-                            onClick={() => triggerToast(`AI Raw JSON manifest metadata loaded for inspection.`)}
+                            onClick={() => { if (window.confirm('Review AI Extract?')) triggerToast(`AI Raw JSON manifest metadata loaded for inspection.`) }}
                             className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-xl font-bold transition-all cursor-pointer"
                           >
                             Review AI Extract
                           </button>
                           <button 
                             onClick={() => {
-                              resolveAiItem('loadInbox', item.id, 'confirmed');
-                              dispatch(createLoad({
-                                status: 'Planned',
-                                cargo: item.data.cargo,
-                                weight: item.data.weight,
-                                route: item.data.route,
-                                customerName: item.data.customer,
-                                cost: '$1,200.00'
-                              }));
-                              triggerToast(`AI Ingested Load ${item.id} successfully Confirmed and created!`);
+                              if (window.confirm('Confirm AI Load and create Planned Load?')) {
+                                resolveAiItem('loadInbox', item.id, 'confirmed');
+                                dispatch(createLoad({
+                                  status: 'Planned',
+                                  cargo: item.data.cargo,
+                                  weight: item.data.weight,
+                                  route: item.data.route,
+                                  customerName: item.data.customer,
+                                  cost: '$1,200.00'
+                                }));
+                                triggerToast(`AI Ingested Load ${item.id} successfully Confirmed and created!`);
+                              }
                             }}
                             className="px-3.5 py-2 bg-brand-500 hover:bg-brand-600 text-slate-950 text-xs rounded-xl font-black transition-all cursor-pointer"
                           >
@@ -1037,16 +1135,18 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                           </button>
                           <button 
                             onClick={() => {
-                              resolveAiItem('loadInbox', item.id, 'confirmed');
-                              dispatch(createLoad({
-                                status: 'Draft',
-                                cargo: item.data.cargo,
-                                weight: item.data.weight,
-                                route: item.data.route,
-                                customerName: item.data.customer,
-                                cost: '$1,200.00'
-                              }));
-                              triggerToast(`Draft Load created successfully!`);
+                              if (window.confirm('Create Draft Load?')) {
+                                resolveAiItem('loadInbox', item.id, 'confirmed');
+                                dispatch(createLoad({
+                                  status: 'Draft',
+                                  cargo: item.data.cargo,
+                                  weight: item.data.weight,
+                                  route: item.data.route,
+                                  customerName: item.data.customer,
+                                  cost: '$1,200.00'
+                                }));
+                                triggerToast(`Draft Load created successfully!`);
+                              }
                             }}
                             className="px-3.5 py-2 bg-slate-700 hover:bg-slate-650 text-slate-300 text-xs rounded-xl font-bold transition-all cursor-pointer"
                           >
@@ -1054,15 +1154,17 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                           </button>
                           <button 
                             onClick={() => {
-                              resolveAiItem('loadInbox', item.id, 'rejected');
-                              triggerToast(`AI extracted load ${item.id} Rejected.`, 'warning');
+                              if (window.confirm('Reject Inbox Item?')) {
+                                resolveAiItem('loadInbox', item.id, 'rejected');
+                                triggerToast(`AI extracted load ${item.id} Rejected.`, 'warning');
+                              }
                             }}
                             className="px-3.5 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs rounded-xl font-bold transition-all cursor-pointer"
                           >
                             Reject Inbox Item
                           </button>
                           <button 
-                            onClick={() => triggerToast(`AI Ingestion item assigned to dispatch node operator.`)}
+                            onClick={() => { if (window.confirm('Assign to Dispatcher?')) triggerToast(`AI Ingestion item assigned to dispatch node operator.`) }}
                             className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-450 text-xs rounded-xl font-bold transition-all cursor-pointer"
                           >
                             Assign to Dispatcher
@@ -1249,7 +1351,7 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
                 <div className="flex gap-2">
                   <Button size="sm" variant="primary" onClick={() => triggerToast('Trailer swap wizard triggered.')}>Swap Trailer</Button>
                   <Button size="sm" variant="outline" onClick={() => triggerToast('Trailer change reason saved.')}>Record Trailer Change Reason</Button>
-                  <Button size="sm" variant="success" onClick={() => triggerToast('Asset Creation form loaded.')}>Add Vehicle</Button>
+                  <Button size="sm" variant="success" onClick={() => setIsAssignVehicleModalOpen(true)}>Add Vehicle</Button>
                 </div>
               </div>
               <DataTable 
@@ -1381,9 +1483,13 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
 
                   <div className="p-3 bg-[#0b0f19]/30 border border-[#23324C]/60 rounded-xl space-y-2">
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wide block">Operations Actions</span>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       <Button size="xs" variant="primary" onClick={() => triggerToast('Coordinates sent to driver GPS.')}>Send Location to Driver</Button>
                       <Button size="xs" variant="secondary" onClick={() => triggerToast('Loading vehicle coordinates history...')}>View GPS History</Button>
+                      <Button size="xs" variant="outline" onClick={() => triggerToast('Transfer Load initiated.')}>Transfer Load</Button>
+                      <Button size="xs" variant="outline" onClick={() => triggerToast('Transfer Item initiated.')}>Transfer Item</Button>
+                      <Button size="xs" variant="outline" onClick={() => triggerToast('Opening Chain of Custody logs...')}>View Chain of Custody</Button>
+                      <Button size="xs" variant="outline" onClick={() => triggerToast('Displaying Customer Instructions...')}>View Customer Instructions</Button>
                     </div>
                   </div>
 
@@ -1499,6 +1605,76 @@ export default function DispatchDashboard({ activeTab = 'overview' }) {
           </div>
         )}
       </Drawer>
+
+    {/* Assign Vehicle Modal */}
+      <Modal isOpen={isAssignVehicleModalOpen} onClose={() => setIsAssignVehicleModalOpen(false)} title="Assign Existing Vehicle to Dispatch Load">
+        <form onSubmit={handleAssignVehicleSubmit} className="space-y-4 p-1 text-left">
+          <SelectInput 
+            label="Select Load" 
+            value={assignVehicleForm.loadId} 
+            onChange={(e) => setAssignVehicleForm({...assignVehicleForm, loadId: e.target.value})} 
+            options={[{value:'', label:'Select a load...'}, ...loads.map(l => ({value: l.id, label: `${l.loadId || l.id} - ${l.route}`}))]} 
+          />
+          <SelectInput 
+            label="Select Vehicle" 
+            value={assignVehicleForm.vehicleId} 
+            onChange={(e) => setAssignVehicleForm({...assignVehicleForm, vehicleId: e.target.value})} 
+            options={[{value:'', label:'Select a vehicle...'}, ...fleet.filter(f => f.type !== 'Trailer').map(f => ({value: f.plate, label: `${f.plate} - ${f.status}`}))]} 
+          />
+          
+          {assignVehicleForm.vehicleId && (() => {
+            const v = fleet.find(f => f.id === assignVehicleForm.vehicleId || f.plate === assignVehicleForm.vehicleId);
+            if (!v) return null;
+            return (
+              <div className="grid grid-cols-2 gap-4 bg-slate-800/20 p-3 rounded-lg border border-[#23324C]/40">
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 block">Vehicle Plate</label>
+                  <input type="text" value={v.plate} disabled className="w-full bg-[#111827] border border-[#23324C] text-slate-300 p-2 rounded-lg opacity-70" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 block">Vehicle Type</label>
+                  <input type="text" value={v.type} disabled className="w-full bg-[#111827] border border-[#23324C] text-slate-300 p-2 rounded-lg opacity-70" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 block">Current Status</label>
+                  <input type="text" value={v.status} disabled className="w-full bg-[#111827] border border-[#23324C] text-slate-300 p-2 rounded-lg opacity-70" />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase mb-1 block">Current Branch</label>
+                  <input type="text" value={v.branch || 'Main Depot'} disabled className="w-full bg-[#111827] border border-[#23324C] text-slate-300 p-2 rounded-lg opacity-70" />
+                </div>
+              </div>
+            );
+          })()}
+
+          <div className="grid grid-cols-2 gap-4">
+            <SelectInput 
+              label="Assigned Driver (Optional)" 
+              value={assignVehicleForm.driver} 
+              onChange={(e) => setAssignVehicleForm({...assignVehicleForm, driver: e.target.value})} 
+              options={[{value:'', label:'Unassigned'}, ...drivers.map(d => ({value: d.name, label: d.name}))]} 
+            />
+            <SelectInput 
+              label="Trailer (Optional)" 
+              value={assignVehicleForm.trailer} 
+              onChange={(e) => setAssignVehicleForm({...assignVehicleForm, trailer: e.target.value})} 
+              options={[{value:'', label:'None'}, ...fleet.filter(f => f.type === 'Trailer').map(f => ({value: f.plate, label: f.plate}))]} 
+            />
+          </div>
+          
+          <TextInput 
+            label="Dispatch Notes" 
+            value={assignVehicleForm.notes} 
+            onChange={(e) => setAssignVehicleForm({...assignVehicleForm, notes: e.target.value})} 
+            placeholder="Add any routing or dispatch notes..." 
+          />
+
+          <div className="flex gap-2 justify-end pt-4 border-t border-[#23324C]/60 mt-2">
+            <Button variant="secondary" onClick={(e) => { e.preventDefault(); setIsAssignVehicleModalOpen(false); }}>Cancel</Button>
+            <Button type="submit" variant="primary">Assign Vehicle</Button>
+          </div>
+        </form>
+      </Modal>
 
     </div>
   );
