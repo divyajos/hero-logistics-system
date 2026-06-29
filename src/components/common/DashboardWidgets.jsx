@@ -39,10 +39,10 @@ export function ActivityTimeline({ items = [], className = '' }) {
             {/* Content Details */}
             <div className="flex-1 pb-4.5">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                <h4 className="text-xs font-extrabold text-slate-800 dark:text-slate-200">{item.title}</h4>
-                <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 font-mono">{item.time}</span>
+                <h4 className="text-xs font-extrabold text-slate-800 ">{item.title}</h4>
+                <span className="text-[9px] font-bold text-slate-500  font-mono">{item.time}</span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">{item.desc}</p>
+              <p className="text-xs text-slate-500  mt-1.5 leading-relaxed">{item.desc}</p>
             </div>
           </div>
         );
@@ -58,15 +58,15 @@ export function RecentActivityFeed({ logs = [], className = '' }) {
       {logs.map((log, idx) => {
         const Icon = log.icon || Activity;
         return (
-          <div key={idx} className="py-3 flex items-start gap-3.5 hover:bg-slate-50/50 dark:hover:bg-slate-800/10 px-2 transition-all rounded-xl">
-            <div className="p-2 bg-slate-100 dark:bg-slate-800/40 rounded-lg text-slate-400 dark:text-slate-500 mt-0.5 flex-shrink-0">
+          <div key={idx} className="py-3 flex items-start gap-3.5 hover:bg-slate-50/50 dark:hover:bg-white/10 px-2 transition-all rounded-xl">
+            <div className="p-2 bg-slate-100 dark:bg-white/40 rounded-lg text-slate-500  mt-0.5 flex-shrink-0">
               <Icon className="h-4 w-4" />
             </div>
             <div className="flex-1 space-y-1">
-              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 block leading-tight">
+              <span className="text-xs font-semibold text-slate-700  block leading-tight">
                 {log.message}
               </span>
-              <div className="flex items-center gap-1.5 text-[9px] text-slate-400 dark:text-slate-500 font-bold font-mono">
+              <div className="flex items-center gap-1.5 text-[9px] text-slate-500  font-bold font-mono">
                 <span>{log.user}</span>
                 <span>•</span>
                 <span>{log.time}</span>
@@ -89,12 +89,12 @@ export function QuickActionsPanel({ actions = [], className = '' }) {
           <button
             key={idx}
             onClick={act.onClick}
-            className="flex flex-col items-center justify-center p-4 bg-slate-50 hover:bg-slate-100 dark:bg-[#161F30]/40 dark:hover:bg-brand-500/10 border border-slate-200 dark:border-[#23324C]/60 hover:border-brand-500/40 rounded-2xl cursor-pointer transition-all duration-300 select-none group text-center gap-2.5 shadow-sm"
+            className="flex flex-col items-center justify-center p-4 bg-slate-50 hover:bg-slate-100 dark:bg-slate-50/40 dark:hover:bg-brand-500/10 border border-slate-200 dark:border-slate-200 hover:border-brand-500/40 rounded-2xl cursor-pointer transition-all duration-300 select-none group text-center gap-2.5 shadow-sm"
           >
-            <div className="p-3 bg-brand-500/10 group-hover:bg-brand-500 group-hover:text-white rounded-xl text-brand-400 transition-colors">
+            <div className="p-3 bg-brand-500/10 group-hover:bg-brand-500 group-hover:text-slate-900 rounded-xl text-brand-400 transition-colors">
               <Icon className="h-5 w-5" />
             </div>
-            <span className="text-xs font-bold text-slate-600 dark:text-slate-300 group-hover:text-brand-500 dark:group-hover:text-brand-400">
+            <span className="text-xs font-bold text-slate-600  group-hover:text-brand-500 dark:group-hover:text-brand-400">
               {act.label}
             </span>
           </button>
@@ -112,8 +112,8 @@ export function KpiTrendCard({ title, value, previousValue, trendValue, trendDir
     <div className="glass rounded-2xl p-5 border border-slate-200 dark:border-darkbg-border/60 flex flex-col justify-between hover:shadow-lg transition-all duration-300 relative overflow-hidden">
       <div className="flex justify-between items-start mb-2">
         <div>
-          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block mb-1">{title}</span>
-          <strong className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white leading-tight">{value}</strong>
+          <span className="text-[10px] font-bold text-slate-500  uppercase tracking-wider block mb-1">{title}</span>
+          <strong className="text-xl sm:text-2xl font-black text-slate-800  leading-tight">{value}</strong>
         </div>
         <div className={`inline-flex items-center px-2 py-0.5 rounded-lg border text-[10px] font-bold ${
           isUp 
@@ -131,7 +131,7 @@ export function KpiTrendCard({ title, value, previousValue, trendValue, trendDir
         </div>
       )}
 
-      <div className="mt-1 flex items-center justify-between text-[10px] font-semibold text-slate-400 dark:text-slate-500 border-t border-slate-100 dark:border-darkbg-border/30 pt-2 font-mono">
+      <div className="mt-1 flex items-center justify-between text-[10px] font-semibold text-slate-500  border-t border-slate-100 dark:border-darkbg-border/30 pt-2 font-mono">
         <span>Prev: {previousValue}</span>
         <span>Current Month</span>
       </div>

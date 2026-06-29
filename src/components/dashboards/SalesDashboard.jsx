@@ -1268,7 +1268,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
       {/* Toast Popup */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 animate-slide-in">
-          <div className="flex items-center gap-3 bg-slate-900 border border-slate-700 text-white rounded-xl shadow-xl px-4 py-3 text-xs font-semibold">
+          <div className="flex items-center gap-3 bg-slate-900 border border-slate-700 text-slate-900 rounded-xl shadow-xl px-4 py-3 text-xs font-semibold">
             <span>{toastMessage}</span>
             {undoHistory && (
               <button 
@@ -1278,7 +1278,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                 Undo
               </button>
             )}
-            <button onClick={() => setToastMessage('')} className="text-slate-400 hover:text-white cursor-pointer ml-1">
+            <button onClick={() => setToastMessage('')} className="text-slate-500 hover:text-slate-900 cursor-pointer ml-1">
               <X className="h-3.5 w-3.5" />
             </button>
           </div>
@@ -1286,44 +1286,44 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
       )}
 
       {/* Header controls */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#23324C]/60 pb-5 text-left">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-200 pb-5 text-left">
         <div>
-          <h2 className="text-xl sm:text-2xl font-black text-white capitalize flex items-center gap-2">
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 capitalize flex items-center gap-2">
             Hero Sales CRM Console <span className="bg-brand-500/10 border border-brand-500/20 text-brand-400 px-2 py-0.5 rounded text-[10px] uppercase font-bold tracking-wider">Enterprise Logistics</span>
           </h2>
-          <p className="text-xs text-slate-400">Complete end-to-end client conversion console backed by secure localStorage registry tables.</p>
+          <p className="text-xs text-slate-500">Complete end-to-end client conversion console backed by secure localStorage registry tables.</p>
         </div>
 
         {/* Global Toolbar */}
         <div className="flex flex-wrap items-center gap-3">
           
-          <div className="bg-[#111827]/60 border border-[#23324C]/50 rounded-xl px-3 py-1.5 flex items-center gap-2">
+          <div className="bg-white/60 border border-slate-200/50 rounded-xl px-3 py-1.5 flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[10px] text-slate-350 font-mono font-bold">Shift: Sales Active</span>
+            <span className="text-[10px] text-slate-500 font-mono font-bold">Shift: Sales Active</span>
           </div>
 
-          <div className="bg-[#161F30]/80 border border-[#23324C]/60 rounded-xl px-2.5 py-1.5 flex items-center gap-2">
+          <div className="bg-slate-50/80 border border-slate-200 rounded-xl px-2.5 py-1.5 flex items-center gap-2">
             <Lock className="h-3 w-3 text-brand-400" />
-            <span className="text-[10px] text-slate-400 font-bold">Role:</span>
+            <span className="text-[10px] text-slate-500 font-bold">Role:</span>
             <select
               value={permissionRole}
               onChange={(e) => changePermissionRole(e.target.value)}
-              className="bg-transparent text-slate-200 text-[10px] font-black focus:outline-none cursor-pointer"
+              className="bg-transparent text-slate-700 text-[10px] font-black focus:outline-none cursor-pointer"
             >
-              <option value="Sales Director" className="bg-[#161F30]">Sales Director (Full Access)</option>
-              <option value="Sales Representative" className="bg-[#161F30]">Sales Representative (Restricted)</option>
+              <option value="Sales Director" className="bg-slate-50">Sales Director (Full Access)</option>
+              <option value="Sales Representative" className="bg-slate-50">Sales Representative (Restricted)</option>
             </select>
           </div>
 
           {/* CRM Notification Center Trigger */}
           <button
             onClick={() => setCrmNotificationsOpen(true)}
-            className="relative p-2 bg-[#161F30]/80 border border-[#23324C]/60 rounded-xl text-slate-400 hover:text-white cursor-pointer hover:border-brand-500/40 transition-all duration-200"
+            className="relative p-2 bg-slate-50/80 border border-slate-200 rounded-xl text-slate-500 hover:text-slate-900 cursor-pointer hover:border-brand-500/40 transition-all duration-200"
             title="CRM Activity Notifications"
           >
             <Bell className="h-4.5 w-4.5" />
             {crmDb.crmNotifications?.filter(n => !n.isRead).length > 0 && (
-              <span className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-white rounded-full flex items-center justify-center text-[8px] font-black animate-pulse">
+              <span className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-red-500 text-slate-900 rounded-full flex items-center justify-center text-[8px] font-black animate-pulse">
                 {crmDb.crmNotifications.filter(n => !n.isRead).length}
               </span>
             )}
@@ -1359,22 +1359,22 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
             <div className="lg:col-span-8 space-y-6">
               
               {/* Widget 1: Kanban Sales Pipeline Indicator */}
-              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 space-y-4">
-                <div className="flex justify-between items-center border-b border-[#23324C]/45 pb-3">
+              <div className="glass rounded-2xl p-5 border border-slate-200 space-y-4">
+                <div className="flex justify-between items-center border-b border-slate-200/45 pb-3">
                   <span className="text-[10px] font-bold text-brand-400 uppercase tracking-widest block">Pipeline Stage Distribution Matrix</span>
-                  <span className="text-[10px] text-slate-400 font-mono font-bold">{crmDb.leads.length} Leads Active</span>
+                  <span className="text-[10px] text-slate-500 font-mono font-bold">{crmDb.leads.length} Leads Active</span>
                 </div>
                 
                 <div className="grid grid-cols-3 sm:grid-cols-9 gap-2">
                   {stages.map(stage => {
                     const count = crmDb.leads.filter(l => l.stage === stage).length;
                     return (
-                      <div key={stage} className="p-2 bg-[#111827]/40 border border-[#23324C]/45 rounded-xl text-center space-y-1 hover:border-brand-500/30 transition-all cursor-pointer" onClick={() => {
+                      <div key={stage} className="p-2 bg-white/40 border border-slate-200/45 rounded-xl text-center space-y-1 hover:border-brand-500/30 transition-all cursor-pointer" onClick={() => {
                         // Switch to leads tab
                         window.dispatchEvent(new CustomEvent('hero-switch-tab', { detail: 'leads' }));
                       }}>
-                        <span className="text-[8px] uppercase tracking-wider text-slate-400 block truncate">{stage}</span>
-                        <strong className="text-white text-sm block font-mono">{count}</strong>
+                        <span className="text-[8px] uppercase tracking-wider text-slate-500 block truncate">{stage}</span>
+                        <strong className="text-slate-900 text-sm block font-mono">{count}</strong>
                         <div className="w-full bg-slate-900 rounded-full h-1">
                           <div className="bg-brand-500 h-full rounded-full" style={{ width: `${Math.min(100, (count / (crmDb.leads.length || 1)) * 100)}%` }} />
                         </div>
@@ -1385,14 +1385,14 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
               </div>
 
               {/* Widget 2: Selected Lead Details Panel */}
-              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 space-y-4">
-                <div className="flex justify-between items-center border-b border-[#23324C]/45 pb-2">
+              <div className="glass rounded-2xl p-5 border border-slate-200 space-y-4">
+                <div className="flex justify-between items-center border-b border-slate-200/45 pb-2">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-[10px] font-bold text-brand-400 uppercase tracking-widest block">Selected Lead details Workspace</span>
                     <select
                       value={overviewSelectedLeadId || ''}
                       onChange={(e) => setOverviewSelectedLeadId(e.target.value)}
-                      className="bg-[#0B0F19] border border-[#23324C]/60 text-slate-200 text-[10px] font-bold px-2 py-1 rounded focus:outline-none cursor-pointer"
+                      className="bg-slate-50 border border-slate-200 text-slate-700 text-[10px] font-bold px-2 py-1 rounded focus:outline-none cursor-pointer"
                     >
                       {crmDb.leads.map(l => (
                         <option key={l.id} value={l.id}>{l.company} ({l.name})</option>
@@ -1409,18 +1409,18 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                 {overviewSelectedLead ? (
                   <div className="space-y-4">
                     {/* Stats table */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-[#111827]/40 border border-[#23324C]/45 rounded-xl p-3.5 text-xs">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-white/40 border border-slate-200/45 rounded-xl p-3.5 text-xs">
                       <div>
                         <span className="text-[9px] text-slate-500 uppercase block font-bold">Fleet Size</span>
-                        <strong className="text-white block mt-0.5">{overviewSelectedLead.fleetSize} Trucks</strong>
+                        <strong className="text-slate-900 block mt-0.5">{overviewSelectedLead.fleetSize} Trucks</strong>
                       </div>
                       <div>
                         <span className="text-[9px] text-slate-500 uppercase block font-bold">Transport Niche</span>
-                        <strong className="text-white block mt-0.5">{overviewSelectedLead.niche}</strong>
+                        <strong className="text-slate-900 block mt-0.5">{overviewSelectedLead.niche}</strong>
                       </div>
                       <div>
                         <span className="text-[9px] text-slate-500 uppercase block font-bold">Current Software</span>
-                        <strong className="text-white block mt-0.5 truncate" title={overviewSelectedLead.currentSoftware}>{overviewSelectedLead.currentSoftware}</strong>
+                        <strong className="text-slate-900 block mt-0.5 truncate" title={overviewSelectedLead.currentSoftware}>{overviewSelectedLead.currentSoftware}</strong>
                       </div>
                       <div>
                         <span className="text-[9px] text-slate-500 uppercase block font-bold">Estimated Value</span>
@@ -1429,14 +1429,14 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                      <div className="bg-[#111827]/25 border border-[#23324C]/40 rounded-xl p-3">
+                      <div className="bg-white/25 border border-slate-200 rounded-xl p-3">
                         <span className="text-[9px] text-slate-500 uppercase block font-bold">Core Pain Points</span>
-                        <p className="text-slate-300 mt-1 italic">"{overviewSelectedLead.painPoints || 'No pain points recorded.'}"</p>
+                        <p className="text-slate-600 mt-1 italic">"{overviewSelectedLead.painPoints || 'No pain points recorded.'}"</p>
                       </div>
-                      <div className="bg-[#111827]/25 border border-[#23324C]/40 rounded-xl p-3">
+                      <div className="bg-white/25 border border-slate-200 rounded-xl p-3">
                         <span className="text-[9px] text-slate-500 uppercase block font-bold">Next Follow-Up Target</span>
                         <div className="flex justify-between items-center mt-1">
-                          <strong className="text-white">{overviewSelectedLead.nextFollowup || 'None Scheduled'}</strong>
+                          <strong className="text-slate-900">{overviewSelectedLead.nextFollowup || 'None Scheduled'}</strong>
                           <button
                             onClick={() => {
                               setSelectedLead(overviewSelectedLead);
@@ -1460,10 +1460,10 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                     {/* Notes area */}
                     <div className="space-y-1.5 text-xs">
                       <span className="text-[9px] text-slate-500 uppercase font-bold block">Internal Notes / Log Comment</span>
-                      <div className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3 max-h-20 overflow-y-auto space-y-1.5">
+                      <div className="bg-white/40 border border-slate-200/50 rounded-xl p-3 max-h-20 overflow-y-auto space-y-1.5">
                         {overviewSelectedLead.notes?.map(note => (
-                          <div key={note.id} className="border-b border-[#23324C]/30 pb-1.5 last:border-b-0 text-[10px]">
-                            <p className="text-slate-300 font-medium">{note.text}</p>
+                          <div key={note.id} className="border-b border-slate-200 pb-1.5 last:border-b-0 text-[10px]">
+                            <p className="text-slate-600 font-medium">{note.text}</p>
                             <span className="text-[8px] text-slate-500 block text-right font-mono">- {note.author} on {note.date}</span>
                           </div>
                         )) || <span className="text-slate-500 italic">No internal notes logged.</span>}
@@ -1471,26 +1471,26 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                     </div>
 
                     {/* Quick Action buttons */}
-                    <div className="border-t border-[#23324C]/45 pt-3 space-y-3">
+                    <div className="border-t border-slate-200/45 pt-3 space-y-3">
                       <span className="text-[9px] text-slate-500 uppercase font-black tracking-wider block">CRM Direct Dispatch Actions</span>
                       
                       <div className="flex flex-wrap items-center gap-2">
                         {/* Assign rep */}
-                        <div className="flex items-center gap-1.5 bg-slate-900 border border-[#23324C]/60 rounded-xl px-2 py-1">
+                        <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-200 rounded-xl px-2 py-1">
                           <User className="h-3 w-3 text-brand-400" />
-                          <span className="text-[9px] text-slate-400 font-bold">Rep:</span>
+                          <span className="text-[9px] text-slate-500 font-bold">Rep:</span>
                           <select
                             value={overviewSelectedLead.rep}
                             onChange={(e) => {
                               crmRepository.assignRep(overviewSelectedLead.id, e.target.value);
                               triggerToast(`Re-assigned representative to ${e.target.value}`);
                             }}
-                            className="bg-transparent text-slate-200 text-[9px] font-bold focus:outline-none cursor-pointer"
+                            className="bg-transparent text-slate-700 text-[9px] font-bold focus:outline-none cursor-pointer"
                           >
-                            <option value="Alex Wright" className="bg-[#161F30]">Alex Wright</option>
-                            <option value="Sarah K." className="bg-[#161F30]">Sarah K.</option>
-                            <option value="Michael Scott" className="bg-[#161F30]">Michael Scott</option>
-                            <option value="Jan Levinson" className="bg-[#161F30]">Jan Levinson</option>
+                            <option value="Alex Wright" className="bg-slate-50">Alex Wright</option>
+                            <option value="Sarah K." className="bg-slate-50">Sarah K.</option>
+                            <option value="Michael Scott" className="bg-slate-50">Michael Scott</option>
+                            <option value="Jan Levinson" className="bg-slate-50">Jan Levinson</option>
                           </select>
                         </div>
 
@@ -1521,7 +1521,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
 
                         <button
                           onClick={() => handleOpenProposalModal(overviewSelectedLead)}
-                          className="bg-slate-900 hover:bg-slate-800 border border-[#23324C] text-slate-200 text-[10px] font-bold px-3 py-1.5 rounded-xl cursor-pointer flex items-center gap-1"
+                          className="bg-slate-900 hover:bg-white border border-slate-200 text-slate-700 text-[10px] font-bold px-3 py-1.5 rounded-xl cursor-pointer flex items-center gap-1"
                         >
                           <Send className="h-3 w-3" /> Send Proposal
                         </button>
@@ -1560,14 +1560,14 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                       </div>
 
                       {/* Communication Integration buttons */}
-                      <div className="flex gap-2 items-center flex-wrap pt-1.5 border-t border-[#23324C]/30">
+                      <div className="flex gap-2 items-center flex-wrap pt-1.5 border-t border-slate-200">
                         <button
                           onClick={() => {
                             setSelectedLead(overviewSelectedLead);
                             setEmailForm({ subject: 'Welcome Sandbox Invite', template: 'Welcome Sandbox Invite', body: '', status: 'Sent' });
                             setEmailModalOpen(true);
                           }}
-                          className="p-2 bg-slate-900 border border-[#23324C]/65 hover:border-brand-500/25 rounded-xl text-slate-400 hover:text-white cursor-pointer"
+                          className="p-2 bg-slate-900 border border-slate-200/65 hover:border-brand-500/25 rounded-xl text-slate-500 hover:text-slate-900 cursor-pointer"
                           title="Send Email"
                         >
                           <Mail className="h-3.5 w-3.5" />
@@ -1579,7 +1579,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                             setCallForm({ duration: '2m 15s', outcome: 'Connected', notes: '' });
                             setCallModalOpen(true);
                           }}
-                          className="p-2 bg-slate-900 border border-[#23324C]/65 hover:border-brand-500/25 rounded-xl text-slate-400 hover:text-white cursor-pointer"
+                          className="p-2 bg-slate-900 border border-slate-200/65 hover:border-brand-500/25 rounded-xl text-slate-500 hover:text-slate-900 cursor-pointer"
                           title="Log Call"
                         >
                           <Phone className="h-3.5 w-3.5" />
@@ -1597,7 +1597,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                             });
                             setFollowupModalOpen(true);
                           }}
-                          className="p-2 bg-slate-900 border border-[#23324C]/65 hover:border-brand-500/25 rounded-xl text-slate-400 hover:text-white cursor-pointer"
+                          className="p-2 bg-slate-900 border border-slate-200/65 hover:border-brand-500/25 rounded-xl text-slate-500 hover:text-slate-900 cursor-pointer"
                           title="Schedule Follow-up"
                         >
                           <Calendar className="h-3.5 w-3.5" />
@@ -1613,7 +1613,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                               e.target.value = '';
                             }
                           }}
-                          className="bg-[#0B0F19] border border-[#23324C]/60 text-slate-200 text-[10px] px-3 py-2 rounded-xl flex-grow focus:outline-none"
+                          className="bg-slate-50 border border-slate-200 text-slate-700 text-[10px] px-3 py-2 rounded-xl flex-grow focus:outline-none"
                         />
                       </div>
                     </div>
@@ -1628,10 +1628,10 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
             <div className="lg:col-span-4 space-y-6">
               
               {/* Widget 3: Upcoming Follow-up Tasks */}
-              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 flex flex-col justify-between">
+              <div className="glass rounded-2xl p-5 border border-slate-200 flex flex-col justify-between">
                 <div>
-                  <div className="flex justify-between items-center border-b border-[#23324C]/40 pb-2">
-                    <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Upcoming Follow-Up Tasks</span>
+                  <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+                    <span className="text-[10px] font-black uppercase text-slate-500 tracking-wider">Upcoming Follow-Up Tasks</span>
                     <button
                       onClick={() => {
                         setSelectedLead(crmDb.leads[0]);
@@ -1647,15 +1647,15 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                     {crmDb.followups.filter(f => f.status === 'Pending').slice(0, 5).map(f => {
                       const isOverdue = new Date(f.dueDate) < new Date(new Date().toISOString().split('T')[0]);
                       return (
-                        <div key={f.id} className="p-2.5 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl flex items-center justify-between text-xs hover:border-brand-500/25 transition-all">
+                        <div key={f.id} className="p-2.5 bg-white/40 border border-slate-200/50 rounded-xl flex items-center justify-between text-xs hover:border-brand-500/25 transition-all">
                           <div>
                             <div className="flex items-center gap-1.5">
-                              <strong className="text-white block font-bold">{f.company}</strong>
+                              <strong className="text-slate-900 block font-bold">{f.company}</strong>
                               {isOverdue && (
                                 <span className="bg-red-500/10 border border-red-500/25 text-red-400 text-[7px] font-black uppercase px-1 rounded font-mono">Overdue</span>
                               )}
                             </div>
-                            <span className="text-[9px] text-slate-400 block mt-0.5">Due: {f.dueDate} at {f.dueTime}</span>
+                            <span className="text-[9px] text-slate-500 block mt-0.5">Due: {f.dueDate} at {f.dueTime}</span>
                             <span className="text-[9px] text-brand-400 block mt-0.5">Task: {f.type} • {f.notes}</span>
                           </div>
                           <button
@@ -1663,7 +1663,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                               crmRepository.completeFollowup(f.id);
                               triggerToast(`Completed ${f.type} followup with ${f.contact}`);
                             }}
-                            className="p-1 bg-slate-900 border border-[#23324C] hover:bg-slate-800 text-slate-200 rounded-lg cursor-pointer"
+                            className="p-1 bg-slate-900 border border-slate-200 hover:bg-white text-slate-700 rounded-lg cursor-pointer"
                             title="Complete"
                           >
                             <Check className="h-3 w-3 text-emerald-400" />
@@ -1679,10 +1679,10 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
               </div>
 
               {/* Widget 4: Recent Sales Activity Timeline */}
-              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 flex flex-col justify-between">
+              <div className="glass rounded-2xl p-5 border border-slate-200 flex flex-col justify-between">
                 <div>
-                  <div className="flex justify-between items-center border-b border-[#23324C]/40 pb-2">
-                    <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Recent Activity Timeline</span>
+                  <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+                    <span className="text-[10px] font-black uppercase text-slate-500 tracking-wider">Recent Activity Timeline</span>
                     <Activity className="h-3.5 w-3.5 text-brand-400" />
                   </div>
                   <div className="space-y-3.5 my-3 max-h-[220px] overflow-y-auto pr-1">
@@ -1696,16 +1696,16 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                       ).sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5);
 
                       return allEvents.map((ev, idx) => (
-                        <div key={idx} className="flex gap-2.5 text-left text-xs border-b border-[#23324C]/20 pb-2 last:border-0">
+                        <div key={idx} className="flex gap-2.5 text-left text-xs border-b border-slate-200/20 pb-2 last:border-0">
                           <div className="mt-1 flex-shrink-0">
                             <div className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
                           </div>
                           <div>
                             <div className="flex items-center gap-1.5">
-                              <strong className="text-white text-[11px]">{ev.company}</strong>
-                              <span className="text-[8px] bg-slate-900 border border-[#23324C]/50 text-slate-400 px-1 rounded">{ev.date}</span>
+                              <strong className="text-slate-900 text-[11px]">{ev.company}</strong>
+                              <span className="text-[8px] bg-slate-900 border border-slate-200/50 text-slate-500 px-1 rounded">{ev.date}</span>
                             </div>
-                            <span className="text-[10px] text-slate-350 block mt-0.5">{ev.event}: {ev.detail}</span>
+                            <span className="text-[10px] text-slate-500 block mt-0.5">{ev.event}: {ev.detail}</span>
                             <span className="text-[8px] text-slate-500 block font-mono">User: {ev.user}</span>
                           </div>
                         </div>
@@ -1722,9 +1722,9 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-left">
             
             {/* Widget 5: Monthly Sales Analytics */}
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 space-y-4">
+            <div className="glass rounded-2xl p-5 border border-slate-200 space-y-4">
               <div>
-                <h4 className="text-sm font-extrabold text-white">Monthly Sales Analytics</h4>
+                <h4 className="text-sm font-extrabold text-slate-900">Monthly Sales Analytics</h4>
                 <p className="text-[10px] text-slate-500">Pipeline growth performance forecast.</p>
               </div>
               <div className="h-[200px]">
@@ -1759,9 +1759,9 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
             </div>
 
             {/* Widget 6: Conversion Rate Chart */}
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 space-y-4">
+            <div className="glass rounded-2xl p-5 border border-slate-200 space-y-4">
               <div>
-                <h4 className="text-sm font-extrabold text-white">Conversion Rate Chart</h4>
+                <h4 className="text-sm font-extrabold text-slate-900">Conversion Rate Chart</h4>
                 <p className="text-[10px] text-slate-500">Funnel efficiency progression across stages.</p>
               </div>
               <div className="h-[200px]">
@@ -1796,10 +1796,10 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
           TAB 2: LEADS AND SAVED FILTERS TABS
           ============================================================================ */}
       {activeTab === 'leads' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 relative">
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4 relative">
           
           {/* Saved filters tabs bar */}
-          <div className="flex gap-2 border-b border-[#23324C]/45 pb-3 overflow-x-auto scrollbar-none">
+          <div className="flex gap-2 border-b border-slate-200/45 pb-3 overflow-x-auto scrollbar-none">
             {['All', 'My Leads', 'High Value', 'Hot Leads', 'Demo Pending', 'Proposal Pending', 'Won', 'Lost'].map(tab => (
               <button
                 key={tab}
@@ -1807,7 +1807,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                 className={`px-3 py-1.5 text-xs rounded-xl font-bold uppercase tracking-wide transition-all cursor-pointer border ${
                   currentFilterTab === tab
                     ? 'bg-brand-500 border-brand-500 text-slate-950 font-black shadow-md'
-                    : 'bg-slate-900 border-[#23324C]/65 text-slate-400 hover:text-slate-200'
+                    : 'bg-slate-900 border-slate-200/65 text-slate-500 hover:text-slate-700'
                 }`}
               >
                 {tab}
@@ -1829,7 +1829,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
               <select
                 value={filterNiche}
                 onChange={(e) => setFilterNiche(e.target.value)}
-                className="bg-[#0B0F19]/60 border border-[#23324C] text-slate-350 text-[11px] font-bold px-3 py-2 rounded-xl focus:outline-none cursor-pointer"
+                className="bg-slate-50/60 border border-slate-200 text-slate-500 text-[11px] font-bold px-3 py-2 rounded-xl focus:outline-none cursor-pointer"
               >
                 <option value="All">All Transport Niches</option>
                 <option value="Car Carrying">🚗 Car Carrying</option>
@@ -1843,7 +1843,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
               <select
                 value={filterSize}
                 onChange={(e) => setFilterSize(e.target.value)}
-                className="bg-[#0B0F19]/60 border border-[#23324C] text-slate-350 text-[11px] font-bold px-3 py-2 rounded-xl focus:outline-none cursor-pointer"
+                className="bg-slate-50/60 border border-slate-200 text-slate-500 text-[11px] font-bold px-3 py-2 rounded-xl focus:outline-none cursor-pointer"
               >
                 <option value="All">All Fleet Sizes</option>
                 <option value="Starter">Starter (&lt; 35 Trucks)</option>
@@ -1858,10 +1858,10 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
             <EmptyState title="No leads matched query" description="Clean filter options or compose a manual lead entry." icon={UserPlus} />
           ) : (
             <>
-              <div className="overflow-x-auto border border-[#23324C]/60 rounded-xl relative">
-                <table className="w-full text-[11px] text-slate-350 text-left border-collapse">
+              <div className="overflow-x-auto border border-slate-200 rounded-xl relative">
+                <table className="w-full text-[11px] text-slate-500 text-left border-collapse">
                   <thead>
-                    <tr className="bg-[#161F30]/65 text-slate-400 font-bold uppercase border-b border-[#23324C]/60">
+                    <tr className="bg-slate-50/65 text-slate-500 font-bold uppercase border-b border-slate-200">
                       <th className="p-3 w-10">
                         <input 
                           type="checkbox" 
@@ -1886,7 +1886,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                       return (
                         <tr 
                           key={lead.id} 
-                          className="hover:bg-slate-800/25 transition-colors cursor-pointer group"
+                          className="hover:bg-white/25 transition-colors cursor-pointer group"
                           onClick={() => { setSelectedLead(lead); setDrawerActiveTab('Overview'); setInspectDrawerOpen(true); }}
                         >
                           <td className="p-3" onClick={(e) => e.stopPropagation()}>
@@ -1897,21 +1897,21 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                               className="cursor-pointer"
                             />
                           </td>
-                          <td className="p-3 font-extrabold text-white">
+                          <td className="p-3 font-extrabold text-slate-900">
                             <div className="flex items-center gap-1.5">
                               <span>{lead.company}</span>
                               {lead.score > 80 && <Sparkle className="h-3 w-3 text-brand-400 animate-pulse" />}
                             </div>
                           </td>
                           <td className="p-3">
-                            <span className="font-semibold text-slate-200 block">{lead.name}</span>
+                            <span className="font-semibold text-slate-700 block">{lead.name}</span>
                             <span className="text-[9px] text-slate-500 font-mono">{lead.email}</span>
                           </td>
                           <td className="p-3">
-                            <span className="text-slate-300 block">{lead.niche}</span>
+                            <span className="text-slate-600 block">{lead.niche}</span>
                             <span className="text-[9px] text-slate-500 font-mono">{lead.fleetSize} Trucks</span>
                           </td>
-                          <td className="p-3 font-black text-slate-200">${lead.revenue.toLocaleString()}/mo</td>
+                          <td className="p-3 font-black text-slate-700">${lead.revenue.toLocaleString()}/mo</td>
                           <td className="p-3">
                             <div className="flex items-center gap-2">
                               <span className={`w-2 h-2 rounded-full ${
@@ -1921,7 +1921,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                             </div>
                           </td>
                           <td className="p-3 font-mono">
-                            <span className={lead.stageDays > 14 ? 'text-red-400 font-extrabold' : 'text-slate-400'}>
+                            <span className={lead.stageDays > 14 ? 'text-red-400 font-extrabold' : 'text-slate-500'}>
                               {lead.stageDays} Days
                             </span>
                           </td>
@@ -1934,7 +1934,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                             <div className="flex gap-1.5 justify-end">
                               <button 
                                 onClick={() => handleEditLeadOpen(lead)}
-                                className="p-1.5 bg-slate-900 border border-[#23324C] hover:border-brand-500/30 rounded-lg text-slate-450 hover:text-white cursor-pointer"
+                                className="p-1.5 bg-slate-900 border border-slate-200 hover:border-brand-500/30 rounded-lg text-slate-450 hover:text-slate-900 cursor-pointer"
                                 title="Edit Info"
                               >
                                 <Edit className="h-3.5 w-3.5" />
@@ -1943,7 +1943,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                                 onClick={() => handleDeleteLead(lead.id)}
                                 className={`p-1.5 rounded-lg border cursor-pointer ${
                                   verifyPermission('delete_lead', true)
-                                    ? 'bg-slate-900 border-[#23324C] text-red-450 hover:text-red-400 hover:border-red-500/30'
+                                    ? 'bg-slate-900 border-slate-200 text-red-450 hover:text-red-400 hover:border-red-500/30'
                                     : 'bg-slate-900/40 border-slate-850 text-slate-600 cursor-not-allowed'
                                 }`}
                                 title={verifyPermission('delete_lead', true) ? "Delete lead" : "Locked to Director"}
@@ -1969,31 +1969,31 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
               <span className="text-brand-400 font-bold border-r border-slate-700 pr-4">{selectedLeadIds.length} Selected</span>
               
               <div className="flex items-center gap-2">
-                <span className="text-slate-400">Rep:</span>
+                <span className="text-slate-500">Rep:</span>
                 <select 
                   value={bulkRepVal} 
                   onChange={(e) => setBulkRepVal(e.target.value)}
-                  className="bg-[#0B0F19] border border-[#23324C] text-slate-200 px-2 py-1 rounded focus:outline-none cursor-pointer"
+                  className="bg-slate-50 border border-slate-200 text-slate-700 px-2 py-1 rounded focus:outline-none cursor-pointer"
                 >
                   <option value="Alex Wright">Alex Wright</option>
                   <option value="Sarah K.">Sarah K.</option>
                   <option value="Michael Scott">Michael Scott</option>
                 </select>
-                <button onClick={handleBulkRepAssign} className="bg-slate-800 hover:bg-slate-750 border border-slate-700 px-3 py-1 rounded cursor-pointer">
+                <button onClick={handleBulkRepAssign} className="bg-white hover:bg-slate-750 border border-slate-700 px-3 py-1 rounded cursor-pointer">
                   Assign
                 </button>
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-slate-400">Status:</span>
+                <span className="text-slate-500">Status:</span>
                 <select 
                   value={bulkStatusVal} 
                   onChange={(e) => setBulkStatusVal(e.target.value)}
-                  className="bg-[#0B0F19] border border-[#23324C] text-slate-200 px-2 py-1 rounded focus:outline-none cursor-pointer"
+                  className="bg-slate-50 border border-slate-200 text-slate-700 px-2 py-1 rounded focus:outline-none cursor-pointer"
                 >
                   {stages.map(st => <option key={st} value={st}>{st}</option>)}
                 </select>
-                <button onClick={handleBulkStatusChange} className="bg-slate-800 hover:bg-slate-750 border border-slate-700 px-3 py-1 rounded cursor-pointer">
+                <button onClick={handleBulkStatusChange} className="bg-white hover:bg-slate-750 border border-slate-700 px-3 py-1 rounded cursor-pointer">
                   Move
                 </button>
               </div>
@@ -2002,7 +2002,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                 Delete
               </button>
               
-              <button onClick={() => setSelectedLeadIds([])} className="text-slate-450 hover:text-white cursor-pointer ml-2">
+              <button onClick={() => setSelectedLeadIds([])} className="text-slate-450 hover:text-slate-900 cursor-pointer ml-2">
                 Cancel
               </button>
             </div>
@@ -2016,7 +2016,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
           ============================================================================ */}
       {activeTab === 'kanban' && (
         <div className="space-y-4">
-          <div className="bg-[#111827]/40 border border-[#23324C]/60 rounded-xl p-3 text-left">
+          <div className="bg-white/40 border border-slate-200 rounded-xl p-3 text-left">
             <span className="text-[10px] text-brand-400 font-bold uppercase tracking-wider block">Carrier Lifecycle Pipeline</span>
             <p className="text-[9px] text-slate-500 mt-1">Drag and drop prospect cards to transition lifecycle workflows. Shifting lanes will trigger intermediate confirmation dialogs.</p>
           </div>
@@ -2029,11 +2029,11 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                   key={stage}
                   onDragOver={handleDragOver}
                   onDrop={(e) => handleDrop(e, stage)}
-                  className="bg-[#111827]/25 border border-[#23324C]/35 rounded-2xl p-3 flex flex-col space-y-3 min-w-[240px] max-w-[240px]"
+                  className="bg-white/25 border border-slate-200/35 rounded-2xl p-3 flex flex-col space-y-3 min-w-[240px] max-w-[240px]"
                 >
-                  <div className="flex items-center justify-between border-b border-[#23324C]/50 pb-2">
-                    <span className="text-[10px] uppercase font-black text-white tracking-wide">{stage}</span>
-                    <span className="bg-[#161F30] px-2 py-0.5 rounded text-[9px] text-slate-400 font-mono font-bold">
+                  <div className="flex items-center justify-between border-b border-slate-200/50 pb-2">
+                    <span className="text-[10px] uppercase font-black text-slate-900 tracking-wide">{stage}</span>
+                    <span className="bg-slate-50 px-2 py-0.5 rounded text-[9px] text-slate-500 font-mono font-bold">
                       {laneLeads.length}
                     </span>
                   </div>
@@ -2045,10 +2045,10 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                         draggable
                         onDragStart={(e) => handleDragStart(e, lead)}
                         onClick={() => { setSelectedLead(lead); setDrawerActiveTab('Overview'); setInspectDrawerOpen(true); }}
-                        className="glass rounded-xl p-3.5 border border-[#23324C]/60 text-left space-y-3 shadow-md hover:border-brand-500/35 transition-all cursor-grab active:cursor-grabbing hover:scale-[1.01]"
+                        className="glass rounded-xl p-3.5 border border-slate-200 text-left space-y-3 shadow-md hover:border-brand-500/35 transition-all cursor-grab active:cursor-grabbing hover:scale-[1.01]"
                       >
                         <div className="flex justify-between items-start gap-1">
-                          <strong className="text-white text-xs block font-bold truncate max-w-[150px]">{lead.company}</strong>
+                          <strong className="text-slate-900 text-xs block font-bold truncate max-w-[150px]">{lead.company}</strong>
                           <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded ${
                             lead.priority === 'High' ? 'bg-red-500/10 text-red-400' : (lead.priority === 'Medium' ? 'bg-amber-500/10 text-amber-400' : 'bg-slate-500/10 text-slate-450')
                           }`}>{lead.priority}</span>
@@ -2056,17 +2056,17 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                         
                         <div className="space-y-1">
                           <span className="text-[10px] text-slate-450 block">{lead.name}</span>
-                          <span className="text-[10px] text-slate-200 font-black block">${lead.revenue.toLocaleString()}/mo</span>
+                          <span className="text-[10px] text-slate-700 font-black block">${lead.revenue.toLocaleString()}/mo</span>
                         </div>
 
-                        <div className="flex justify-between items-center border-t border-[#23324C]/35 pt-2 text-[9px] text-slate-500">
+                        <div className="flex justify-between items-center border-t border-slate-200/35 pt-2 text-[9px] text-slate-500">
                           <span>👤 {lead.rep?.split(' ')[0] || 'Unassigned'}</span>
                           <span className="font-mono">🚛 {lead.fleetSize} Trk</span>
                         </div>
                       </div>
                     ))}
                     {laneLeads.length === 0 && (
-                      <div className="text-[9px] text-slate-500 text-center py-16 font-medium border border-dashed border-[#23324C]/30 rounded-xl">Drop Cards Here</div>
+                      <div className="text-[9px] text-slate-500 text-center py-16 font-medium border border-dashed border-slate-200 rounded-xl">Drop Cards Here</div>
                     )}
                   </div>
                 </div>
@@ -2083,16 +2083,16 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch text-left">
           
           {/* Calendar visual column */}
-          <div className="lg:col-span-7 glass rounded-2xl p-5 border border-[#23324C]/60 space-y-4">
-            <div className="flex justify-between items-center border-b border-[#23324C]/45 pb-3">
+          <div className="lg:col-span-7 glass rounded-2xl p-5 border border-slate-200 space-y-4">
+            <div className="flex justify-between items-center border-b border-slate-200/45 pb-3">
               <div>
-                <h3 className="text-sm font-extrabold text-white">Product Demo Walkthroughs Schedule</h3>
+                <h3 className="text-sm font-extrabold text-slate-900">Product Demo Walkthroughs Schedule</h3>
                 <p className="text-[10px] text-slate-500">Date-wise booking distribution (June 2026).</p>
               </div>
-              <span className="text-[10px] font-mono font-bold bg-[#111827] px-3 py-1 rounded text-slate-400 border border-[#23324C]/50">June 2026</span>
+              <span className="text-[10px] font-mono font-bold bg-white px-3 py-1 rounded text-slate-500 border border-slate-200/50">June 2026</span>
             </div>
 
-            <div className="grid grid-cols-7 gap-2 text-center text-[10px] font-bold text-slate-500 border-b border-[#23324C]/40 pb-2">
+            <div className="grid grid-cols-7 gap-2 text-center text-[10px] font-bold text-slate-500 border-b border-slate-200 pb-2">
               <span>SUN</span><span>MON</span><span>TUE</span><span>WED</span><span>THU</span><span>FRI</span><span>SAT</span>
             </div>
             <div className="grid grid-cols-7 gap-2 items-stretch">
@@ -2104,7 +2104,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                 return (
                   <div 
                     key={day} 
-                    className="min-h-[85px] p-2 border border-[#23324C]/40 hover:border-brand-500/20 bg-[#111827]/20 rounded-xl flex flex-col justify-between transition-all"
+                    className="min-h-[85px] p-2 border border-slate-200 hover:border-brand-500/20 bg-white/20 rounded-xl flex flex-col justify-between transition-all"
                   >
                     <span className="text-[9px] font-mono font-bold text-slate-500">{day}</span>
                     <div className="space-y-1 mt-1">
@@ -2131,10 +2131,10 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
           </div>
 
           {/* Scheduling list and feedback sidebar column */}
-          <div className="lg:col-span-5 glass rounded-2xl p-5 border border-[#23324C]/60 flex flex-col justify-between space-y-4">
+          <div className="lg:col-span-5 glass rounded-2xl p-5 border border-slate-200 flex flex-col justify-between space-y-4">
             <div className="space-y-4 flex-grow overflow-y-auto max-h-[500px] pr-1">
-              <div className="flex justify-between items-center border-b border-[#23324C]/40 pb-2">
-                <h3 className="text-sm font-extrabold text-white">Upcoming Slots Walkthrough</h3>
+              <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+                <h3 className="text-sm font-extrabold text-slate-900">Upcoming Slots Walkthrough</h3>
                 <Button size="sm" variant="primary" onClick={() => handleOpenDemoModal(crmDb.leads[0])}>
                   + Book Demo
                 </Button>
@@ -2142,14 +2142,14 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
 
               <div className="space-y-3.5">
                 {crmDb.demos.map(d => (
-                  <div key={d.id} className="p-3 bg-[#111827]/40 border border-[#23324C]/60 rounded-xl space-y-3">
+                  <div key={d.id} className="p-3 bg-white/40 border border-slate-200 rounded-xl space-y-3">
                     <div className="flex justify-between items-start">
                       <div>
-                        <strong className="text-white text-xs block">{d.company}</strong>
-                        <span className="text-[10px] text-slate-400 block mt-0.5">Presenter: {d.presenter} • {d.date} at {d.time} {d.timezone}</span>
+                        <strong className="text-slate-900 text-xs block">{d.company}</strong>
+                        <span className="text-[10px] text-slate-500 block mt-0.5">Presenter: {d.presenter} • {d.date} at {d.time} {d.timezone}</span>
                         {d.feedback && (
-                          <div className="mt-1.5 p-2 bg-[#0B0F19]/60 rounded border border-[#23324C]/35 text-[9px] text-slate-350">
-                            <span className="font-bold text-slate-400 block">Feedback (Rating: {d.rating}/5 ⭐)</span>
+                          <div className="mt-1.5 p-2 bg-slate-50/60 rounded border border-slate-200/35 text-[9px] text-slate-500">
+                            <span className="font-bold text-slate-500 block">Feedback (Rating: {d.rating}/5 ⭐)</span>
                             "{d.feedback}"
                           </div>
                         )}
@@ -2162,7 +2162,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                             crmRepository.updateDemo(d.id, { status: e.target.value });
                             triggerToast(`Updated demo status to ${e.target.value}`);
                           }}
-                          className="bg-[#0B0F19] border border-[#23324C]/60 text-slate-200 text-[9px] px-1 py-0.5 rounded cursor-pointer font-bold focus:outline-none"
+                          className="bg-slate-50 border border-slate-200 text-slate-700 text-[9px] px-1 py-0.5 rounded cursor-pointer font-bold focus:outline-none"
                         >
                           <option value="Upcoming">Upcoming</option>
                           <option value="Completed">Completed</option>
@@ -2171,7 +2171,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-2 pt-1.5 border-t border-[#23324C]/30 justify-between items-center">
+                    <div className="flex flex-wrap gap-2 pt-1.5 border-t border-slate-200 justify-between items-center">
                       <div className="flex gap-1.5">
                         {d.status === 'Upcoming' && (
                           <a href={d.meetingLink} target="_blank" rel="noreferrer" className="bg-brand-500 hover:bg-brand-600 text-slate-950 text-[9px] font-black px-2.5 py-1.5 rounded-lg text-center cursor-pointer flex items-center gap-1">
@@ -2184,7 +2184,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                               crmRepository.completeDemo(d.id);
                               triggerToast(`Demo presentation complete.`);
                             }}
-                            className="bg-slate-800 hover:bg-slate-700 text-slate-200 text-[9px] font-bold px-2.5 py-1.5 rounded-lg cursor-pointer"
+                            className="bg-white hover:bg-slate-700 text-slate-700 text-[9px] font-bold px-2.5 py-1.5 rounded-lg cursor-pointer"
                           >
                             Mark Complete
                           </button>
@@ -2218,7 +2218,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                             crmRepository.logDemoFeedback(d.id, feedbackText, rating);
                             triggerToast("Demo feedback logs registered.");
                           }}
-                          className="text-[9px] text-slate-400 hover:text-slate-250 font-bold uppercase cursor-pointer border-l border-[#23324C] pl-2"
+                          className="text-[9px] text-slate-500 hover:text-slate-250 font-bold uppercase cursor-pointer border-l border-slate-200 pl-2"
                         >
                           Feedback
                         </button>
@@ -2237,27 +2237,27 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
           TAB 5: TRIAL COMPANIES
           ============================================================================ */}
       {activeTab === 'trials' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-          <div className="flex justify-between items-center border-b border-[#23324C]/45 pb-3 flex-wrap gap-2">
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
+          <div className="flex justify-between items-center border-b border-slate-200/45 pb-3 flex-wrap gap-2">
             <div>
-              <h3 className="text-sm font-extrabold text-white">SaaS Trial Workspace Quotas</h3>
+              <h3 className="text-sm font-extrabold text-slate-900">SaaS Trial Workspace Quotas</h3>
               <p className="text-[10px] text-slate-500">Track Sandbox active evaluations and limits.</p>
             </div>
             
             {/* Conversion Metrics Headers */}
             <div className="flex gap-4 text-xs">
-              <div className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl px-3 py-1.5 text-center">
-                <span className="text-[9px] text-slate-400 block font-bold">ACTIVE TRIALS</span>
-                <strong className="text-white text-sm font-mono">{crmDb.trials.filter(t => t.status === 'Active').length}</strong>
+              <div className="bg-white/40 border border-slate-200/50 rounded-xl px-3 py-1.5 text-center">
+                <span className="text-[9px] text-slate-500 block font-bold">ACTIVE TRIALS</span>
+                <strong className="text-slate-900 text-sm font-mono">{crmDb.trials.filter(t => t.status === 'Active').length}</strong>
               </div>
-              <div className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl px-3 py-1.5 text-center">
-                <span className="text-[9px] text-slate-400 block font-bold">CONVERSION RATE</span>
+              <div className="bg-white/40 border border-slate-200/50 rounded-xl px-3 py-1.5 text-center">
+                <span className="text-[9px] text-slate-500 block font-bold">CONVERSION RATE</span>
                 <strong className="text-brand-400 text-sm font-mono">
                   {Math.round((crmDb.leads.filter(l => l.stage === 'Won').length / (crmDb.leads.length || 1)) * 100)}%
                 </strong>
               </div>
-              <div className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl px-3 py-1.5 text-center">
-                <span className="text-[9px] text-slate-400 block font-bold">EXPIRED PORTALS</span>
+              <div className="bg-white/40 border border-slate-200/50 rounded-xl px-3 py-1.5 text-center">
+                <span className="text-[9px] text-slate-500 block font-bold">EXPIRED PORTALS</span>
                 <strong className="text-red-400 text-sm font-mono">{crmDb.trials.filter(t => t.status === 'Expired').length}</strong>
               </div>
             </div>
@@ -2270,15 +2270,15 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                 <div key={t.id} className={`p-4 rounded-xl space-y-4 border transition-all ${
                   expiringSoon 
                     ? 'bg-red-500/5 border-red-500/30' 
-                    : 'bg-[#111827]/40 border-[#23324C]/60 hover:border-brand-500/25'
+                    : 'bg-white/40 border-slate-200 hover:border-brand-500/25'
                 }`}>
                   
-                  <div className="flex justify-between items-start border-b border-[#23324C]/30 pb-3">
+                  <div className="flex justify-between items-start border-b border-slate-200 pb-3">
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <h4 className="text-white text-xs font-black">{t.company}</h4>
+                        <h4 className="text-slate-900 text-xs font-black">{t.company}</h4>
                         {expiringSoon && (
-                          <span className="bg-red-500 text-white text-[7px] font-black uppercase px-1 rounded animate-pulse">EXPIRING SOON</span>
+                          <span className="bg-red-500 text-slate-900 text-[7px] font-black uppercase px-1 rounded animate-pulse">EXPIRING SOON</span>
                         )}
                       </div>
                       <span className="text-[10px] text-slate-450 block mt-0.5">Admin: {t.admin}</span>
@@ -2297,9 +2297,9 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
 
                   <div className="space-y-3 text-[10px]">
                     <div className="space-y-1">
-                      <div className="flex justify-between text-slate-400">
+                      <div className="flex justify-between text-slate-500">
                         <span>Days Remaining</span>
-                        <strong className="text-white">{t.daysRemaining} / 14 Days</strong>
+                        <strong className="text-slate-900">{t.daysRemaining} / 14 Days</strong>
                       </div>
                       <div className="w-full bg-slate-900 rounded-full h-1">
                         <div className="bg-brand-500 h-full rounded-full" style={{ width: `${Math.min(100, (t.daysRemaining / 14) * 100)}%` }} />
@@ -2308,21 +2308,21 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
 
                     <div className="flex justify-between text-slate-450">
                       <span>Term Period:</span>
-                      <strong className="text-slate-200">{t.startDate} to {t.expiryDate}</strong>
+                      <strong className="text-slate-700">{t.startDate} to {t.expiryDate}</strong>
                     </div>
 
-                    <div className="flex justify-between text-slate-400">
+                    <div className="flex justify-between text-slate-500">
                       <span>Most Used Module:</span>
-                      <strong className="text-white text-right">{t.mostUsedModule}</strong>
+                      <strong className="text-slate-900 text-right">{t.mostUsedModule}</strong>
                     </div>
 
-                    <div className="flex justify-between text-slate-400">
+                    <div className="flex justify-between text-slate-500">
                       <span>Quota limits:</span>
-                      <strong className="text-white">{t.activeUsers} Users • {t.storage}</strong>
+                      <strong className="text-slate-900">{t.activeUsers} Users • {t.storage}</strong>
                     </div>
                   </div>
 
-                  <div className="flex gap-2 pt-2 border-t border-[#23324C]/30">
+                  <div className="flex gap-2 pt-2 border-t border-slate-200">
                     <button 
                       onClick={() => triggerToast(`Impersonating admin session takeover context for ${t.company}...`)}
                       className="flex-1 bg-brand-500 hover:bg-brand-600 text-slate-950 text-[10px] font-black py-1.5 rounded-lg cursor-pointer"
@@ -2331,7 +2331,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                     </button>
                     <button 
                       onClick={() => { setSelectedTrial(t); setExtendTrialModalOpen(true); }}
-                      className="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[10px] font-bold py-1.5 rounded-lg cursor-pointer"
+                      className="flex-1 bg-white hover:bg-slate-700 text-slate-700 text-[10px] font-bold py-1.5 rounded-lg cursor-pointer"
                     >
                       Extend Trial
                     </button>
@@ -2350,8 +2350,8 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
       {activeTab === 'proposals' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch text-left">
           
-          <div className="lg:col-span-5 glass rounded-2xl p-5 border border-[#23324C]/60 space-y-4">
-            <h3 className="text-sm font-extrabold text-white">Issued Licensing Agreements</h3>
+          <div className="lg:col-span-5 glass rounded-2xl p-5 border border-slate-200 space-y-4">
+            <h3 className="text-sm font-extrabold text-slate-900">Issued Licensing Agreements</h3>
             <div className="space-y-3.5 max-h-[420px] overflow-y-auto scrollbar-none">
               {crmDb.proposals.map(p => (
                 <div 
@@ -2360,13 +2360,13 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                   className={`p-3 border rounded-xl space-y-2 cursor-pointer transition-all ${
                     selectedProposal?.id === p.id 
                       ? 'bg-brand-500/10 border-brand-500 shadow-md' 
-                      : 'bg-[#111827]/40 border-[#23324C]/60 hover:bg-[#111827]/85'
+                      : 'bg-white/40 border-slate-200 hover:bg-white/85'
                   }`}
                 >
                   <div className="flex justify-between items-start">
                     <div>
-                      <strong className="text-white text-xs block">{p.company}</strong>
-                      <span className="text-[9px] text-slate-400 block mt-0.5">Value: ${p.total.toLocaleString()}/mo • Validity: {p.validity}</span>
+                      <strong className="text-slate-900 text-xs block">{p.company}</strong>
+                      <span className="text-[9px] text-slate-500 block mt-0.5">Value: ${p.total.toLocaleString()}/mo • Validity: {p.validity}</span>
                     </div>
                     <span className={`px-2 py-0.5 rounded text-[8px] font-bold ${
                       p.status === 'Accepted' ? 'bg-emerald-500/10 text-emerald-400' : (p.status === 'Rejected' ? 'bg-red-500/10 text-red-400' : 'bg-brand-500/10 text-brand-400')
@@ -2377,14 +2377,14 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
             </div>
           </div>
 
-          <div className="lg:col-span-7 glass rounded-2xl p-5 border border-[#23324C]/60 flex flex-col justify-between">
+          <div className="lg:col-span-7 glass rounded-2xl p-5 border border-slate-200 flex flex-col justify-between">
             {selectedProposal ? (
               <div className="space-y-6">
                 
-                <div className="border-b border-[#23324C]/50 pb-4 flex justify-between items-start">
+                <div className="border-b border-slate-200/50 pb-4 flex justify-between items-start">
                   <div>
-                    <span className="text-[9px] font-mono font-bold bg-[#111827] px-2.5 py-1 rounded text-slate-450 border border-[#23324C]/60 uppercase tracking-widest">SaaS License Proposal</span>
-                    <h4 className="text-white text-base font-extrabold mt-2">{selectedProposal.title}</h4>
+                    <span className="text-[9px] font-mono font-bold bg-white px-2.5 py-1 rounded text-slate-450 border border-slate-200 uppercase tracking-widest">SaaS License Proposal</span>
+                    <h4 className="text-slate-900 text-base font-extrabold mt-2">{selectedProposal.title}</h4>
                     <span className="text-[10px] text-slate-455 block mt-1">Proposal ID: PROP-{selectedProposal.id} • Issued: {selectedProposal.createdDate} • Version: {selectedProposal.version || 'V1'}</span>
                   </div>
                   
@@ -2393,14 +2393,14 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                       onClick={() => {
                         setProposalPreviewModalOpen(true);
                       }}
-                      className="p-2 bg-slate-900 border border-[#23324C] hover:border-brand-500/40 rounded-xl text-slate-400 hover:text-white cursor-pointer flex items-center justify-center"
+                      className="p-2 bg-slate-900 border border-slate-200 hover:border-brand-500/40 rounded-xl text-slate-500 hover:text-slate-900 cursor-pointer flex items-center justify-center"
                       title="Print / PDF Preview"
                     >
                       <Eye className="h-4 w-4" />
                     </button>
                     <button 
                       onClick={() => triggerToast(`SaaS license agreement contract PDF generated for PROP-${selectedProposal.id}.`)}
-                      className="p-2 bg-slate-900 border border-[#23324C] hover:border-brand-500/40 rounded-xl text-slate-400 hover:text-white cursor-pointer"
+                      className="p-2 bg-slate-900 border border-slate-200 hover:border-brand-500/40 rounded-xl text-slate-500 hover:text-slate-900 cursor-pointer"
                       title="Download PDF"
                     >
                       <Download className="h-4 w-4" />
@@ -2411,10 +2411,10 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                 {/* Proposal Calculations */}
                 <div className="space-y-4 text-xs">
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Contract Pricing Details</span>
-                  <div className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3.5 space-y-2.5">
-                    <div className="flex justify-between text-slate-400">
+                  <div className="bg-white/40 border border-slate-200/50 rounded-xl p-3.5 space-y-2.5">
+                    <div className="flex justify-between text-slate-500">
                       <span>Base platform license core</span>
-                      <strong className="text-slate-200">${selectedProposal.value.toLocaleString()} / mo</strong>
+                      <strong className="text-slate-700">${selectedProposal.value.toLocaleString()} / mo</strong>
                     </div>
                     {selectedProposal.discount > 0 && (
                       <div className="flex justify-between text-emerald-400">
@@ -2422,7 +2422,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                         <strong>-${(selectedProposal.value * selectedProposal.discount / 100).toLocaleString()} / mo</strong>
                       </div>
                     )}
-                    <div className="border-t border-[#23324C]/35 pt-2.5 flex justify-between text-white font-extrabold text-sm">
+                    <div className="border-t border-slate-200/35 pt-2.5 flex justify-between text-slate-900 font-extrabold text-sm">
                       <span>Total Proposed MRR</span>
                       <span className="text-brand-400">${selectedProposal.total.toLocaleString()} / mo</span>
                     </div>
@@ -2432,7 +2432,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                 {/* Features included list */}
                 <div className="space-y-3.5 text-xs text-left">
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Included Service Modules</span>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[10px] text-slate-350">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[10px] text-slate-500">
                     {(selectedProposal.features || []).map((f, idx) => (
                       <div key={idx} className="flex items-center gap-2">
                         <Check className="h-3.5 w-3.5 text-emerald-400 flex-shrink-0" />
@@ -2446,17 +2446,17 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                 {selectedProposal.versionsList && selectedProposal.versionsList.length > 0 && (
                   <div className="space-y-2 text-xs">
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Proposal Revision History</span>
-                    <div className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3.5 space-y-2">
+                    <div className="bg-white/40 border border-slate-200/50 rounded-xl p-3.5 space-y-2">
                       {selectedProposal.versionsList.map((ver, idx) => (
-                        <div key={idx} className="flex justify-between items-center text-[10px] text-slate-355 border-b border-[#23324C]/20 pb-2 last:border-0 last:pb-0">
+                        <div key={idx} className="flex justify-between items-center text-[10px] text-slate-355 border-b border-slate-200/20 pb-2 last:border-0 last:pb-0">
                           <div>
-                            <span className="text-white font-extrabold">Version {ver.version}</span>
+                            <span className="text-slate-900 font-extrabold">Version {ver.version}</span>
                             <span className="text-slate-500 ml-2">({ver.date})</span>
                           </div>
                           <div className="flex items-center gap-3">
                             <span className="text-brand-400 font-black">${ver.total.toLocaleString()} / mo</span>
                             <span className={`px-1.5 py-0.2 rounded font-mono text-[8px] ${
-                              ver.status === 'Accepted' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-slate-800 text-slate-400'
+                              ver.status === 'Accepted' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-white text-slate-500'
                             }`}>{ver.status}</span>
                           </div>
                         </div>
@@ -2465,7 +2465,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                   </div>
                 )}
 
-                <div className="flex flex-wrap gap-2 border-t border-[#23324C]/45 pt-4">
+                <div className="flex flex-wrap gap-2 border-t border-slate-200/45 pt-4">
                   {selectedProposal.status === 'Sent' && (
                     <button 
                       onClick={() => handleProposalAccept(selectedProposal)}
@@ -2481,7 +2481,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                         crmWorkflowEngine.handleStageChange(selectedProposal.leadId, 'Lost', 'Proposal rejected by client', permissionRole);
                         triggerToast(`Proposal for ${selectedProposal.company} marked Rejected.`);
                       }}
-                      className="px-4 bg-slate-800 hover:bg-red-500/10 text-slate-350 hover:text-red-400 border border-[#23324C] hover:border-red-500/20 text-[11px] font-bold py-2 rounded-lg cursor-pointer"
+                      className="px-4 bg-white hover:bg-red-500/10 text-slate-500 hover:text-red-400 border border-slate-200 hover:border-red-500/20 text-[11px] font-bold py-2 rounded-lg cursor-pointer"
                     >
                       Reject Contract
                     </button>
@@ -2520,10 +2520,10 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
           TAB 7: FOLLOW-UPS
           ============================================================================ */}
       {activeTab === 'calendar' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-          <div className="flex justify-between items-center border-b border-[#23324C]/45 pb-3">
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
+          <div className="flex justify-between items-center border-b border-slate-200/45 pb-3">
             <div>
-              <h3 className="text-sm font-extrabold text-white">Sales Follow-Up Tasks Agenda</h3>
+              <h3 className="text-sm font-extrabold text-slate-900">Sales Follow-Up Tasks Agenda</h3>
               <p className="text-[10px] text-slate-500">Track pending calls, touchpoint emails, and administrative check-ins.</p>
             </div>
             
@@ -2543,7 +2543,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
 
           <div className="space-y-3 max-h-[460px] overflow-y-auto scrollbar-none">
             {crmDb.followups.map(f => (
-              <div key={f.id} className="p-3 bg-[#111827]/40 border border-[#23324C]/60 rounded-xl flex items-center justify-between gap-4">
+              <div key={f.id} className="p-3 bg-white/40 border border-slate-200 rounded-xl flex items-center justify-between gap-4">
                 
                 <div className="flex items-center gap-3">
                   <div className={`p-2 rounded-xl border ${
@@ -2555,10 +2555,10 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <strong className="text-white text-xs">{f.company}</strong>
-                      <span className="text-[9px] bg-slate-900 border border-[#23324C]/50 px-1.5 py-0.2 rounded font-mono text-slate-450">{f.dueDate} • {f.dueTime}</span>
+                      <strong className="text-slate-900 text-xs">{f.company}</strong>
+                      <span className="text-[9px] bg-slate-900 border border-slate-200/50 px-1.5 py-0.2 rounded font-mono text-slate-450">{f.dueDate} • {f.dueTime}</span>
                     </div>
-                    <span className="text-[10px] text-slate-400 block mt-0.5">Contact: {f.contact} • Task: {f.notes}</span>
+                    <span className="text-[10px] text-slate-500 block mt-0.5">Contact: {f.contact} • Task: {f.notes}</span>
                   </div>
                 </div>
 
@@ -2572,7 +2572,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                         crmRepository.completeFollowup(f.id);
                         triggerToast(`Touchpoint followup call completed with ${f.contact}.`);
                       }}
-                      className="p-1 hover:bg-slate-800 text-slate-450 hover:text-white rounded cursor-pointer"
+                      className="p-1 hover:bg-white text-slate-450 hover:text-slate-900 rounded cursor-pointer"
                       title="Mark Completed"
                     >
                       <Check className="h-4 w-4 text-emerald-400" />
@@ -2593,8 +2593,8 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
       {activeTab === 'onboarding' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch text-left">
           
-          <div className="lg:col-span-5 glass rounded-2xl p-5 border border-[#23324C]/60 space-y-4">
-            <h3 className="text-sm font-extrabold text-white">Won Carrier Workspace Handovers</h3>
+          <div className="lg:col-span-5 glass rounded-2xl p-5 border border-slate-200 space-y-4">
+            <h3 className="text-sm font-extrabold text-slate-900">Won Carrier Workspace Handovers</h3>
             <div className="space-y-3.5 max-h-[420px] overflow-y-auto scrollbar-none">
               {crmDb.onboarding.map(o => {
                 const completeCount = o.checklist.filter(c => c.completed).length;
@@ -2607,12 +2607,12 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                     className={`p-3 border rounded-xl space-y-3 cursor-pointer transition-all ${
                       selectedOnboarding?.id === o.id
                         ? 'bg-brand-500/10 border-brand-500 shadow-md'
-                        : 'bg-[#111827]/40 border-[#23324C]/60 hover:bg-[#111827]/85'
+                        : 'bg-white/40 border-slate-200 hover:bg-white/85'
                     }`}
                   >
                     <div className="flex justify-between items-start">
                       <div>
-                        <strong className="text-white text-xs block">{o.company}</strong>
+                        <strong className="text-slate-900 text-xs block">{o.company}</strong>
                         <span className="text-[9px] text-slate-450 block mt-0.5">Owner: {o.owner} • Target: {o.dueDate}</span>
                       </div>
                       <span className={`px-2 py-0.5 rounded text-[8px] font-bold ${
@@ -2629,15 +2629,15 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
             </div>
           </div>
 
-          <div className="lg:col-span-7 glass rounded-2xl p-5 border border-[#23324C]/60 flex flex-col justify-between">
+          <div className="lg:col-span-7 glass rounded-2xl p-5 border border-slate-200 flex flex-col justify-between">
             {selectedOnboarding ? (
               <div className="space-y-6">
                 
-                <div className="border-b border-[#23324C]/50 pb-4 flex justify-between items-start">
+                <div className="border-b border-slate-200/50 pb-4 flex justify-between items-start">
                   <div>
-                    <span className="text-[9px] font-mono font-bold bg-[#111827] px-2.5 py-1 rounded text-slate-450 border border-[#23324C]/60 uppercase tracking-widest">Setup Handover Stepper</span>
+                    <span className="text-[9px] font-mono font-bold bg-white px-2.5 py-1 rounded text-slate-450 border border-slate-200 uppercase tracking-widest">Setup Handover Stepper</span>
                     <div className="flex items-center gap-3">
-                      <h4 className="text-white text-base font-extrabold mt-2">{selectedOnboarding.company} setup Checklist</h4>
+                      <h4 className="text-slate-900 text-base font-extrabold mt-2">{selectedOnboarding.company} setup Checklist</h4>
                       <button
                         onClick={() => {
                           setOnboardingTaskForm({ name: '' });
@@ -2663,26 +2663,26 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                     <div 
                       key={idx} 
                       onClick={() => handleCompleteOnboardingTask(selectedOnboarding.id, idx)}
-                      className="flex items-center gap-3 p-2 bg-[#111827]/40 border border-[#23324C]/35 rounded-xl cursor-pointer hover:border-brand-500/25 transition-all"
+                      className="flex items-center gap-3 p-2 bg-white/40 border border-slate-200/35 rounded-xl cursor-pointer hover:border-brand-500/25 transition-all"
                     >
-                      <button className="text-slate-450 hover:text-white cursor-pointer flex-shrink-0">
+                      <button className="text-slate-450 hover:text-slate-900 cursor-pointer flex-shrink-0">
                         {item.completed ? (
                           <CheckCircle2 className="h-5 w-5 text-emerald-400" />
                         ) : (
                           <Square className="h-5 w-5 text-slate-600" />
                         )}
                       </button>
-                      <span className={`font-semibold ${item.completed ? 'text-slate-500 line-through' : 'text-slate-200'}`}>{item.name}</span>
+                      <span className={`font-semibold ${item.completed ? 'text-slate-500 line-through' : 'text-slate-700'}`}>{item.name}</span>
                     </div>
                   ))}
                 </div>
 
                 {selectedOnboarding.checklist.every(item => item.completed) ? (
-                  <div className="border-t border-[#23324C]/50 pt-4 bg-[#10B981]/5 border border-[#10B981]/20 rounded-xl p-4 text-center space-y-3">
+                  <div className="border-t border-slate-200/50 pt-4 bg-[#10B981]/5 border border-[#10B981]/20 rounded-xl p-4 text-center space-y-3">
                     <CheckCircle2 className="h-10 w-10 text-emerald-400 mx-auto animate-bounce" />
                     <div>
-                      <h4 className="text-white font-extrabold text-sm">Onboarding checklist 100% Completed!</h4>
-                      <p className="text-[10px] text-slate-400 mt-1">Tenant setup criteria validated. Click below to provision the production workspace.</p>
+                      <h4 className="text-slate-900 font-extrabold text-sm">Onboarding checklist 100% Completed!</h4>
+                      <p className="text-[10px] text-slate-500 mt-1">Tenant setup criteria validated. Click below to provision the production workspace.</p>
                     </div>
                     <button 
                       onClick={() => {
@@ -2711,7 +2711,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                     </button>
 
                     {selectedOnboarding.pendingDocuments && selectedOnboarding.pendingDocuments.length > 0 && (
-                      <div className="border-t border-[#23324C]/50 pt-4 space-y-2">
+                      <div className="border-t border-slate-200/50 pt-4 space-y-2">
                         <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider block">Pending Legal Documents Checklist</span>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px]">
                           {selectedOnboarding.pendingDocuments.map((doc, dIdx) => (
@@ -2741,8 +2741,8 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
         <div className="space-y-6 text-left">
           
           {/* Sub-Reports Navigation Tabs */}
-          <div className="glass rounded-2xl border border-[#23324C]/60 overflow-hidden">
-            <div className="flex gap-1 border-b border-[#23324C]/50 p-3 overflow-x-auto scrollbar-none">
+          <div className="glass rounded-2xl border border-slate-200 overflow-hidden">
+            <div className="flex gap-1 border-b border-slate-200/50 p-3 overflow-x-auto scrollbar-none">
               {['Leads', 'Conversions', 'Revenue', 'Demos', 'Trials', 'Proposals', 'Rep Performance', 'Activities'].map(tab => (
                 <button
                   key={tab}
@@ -2750,7 +2750,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                   className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wide whitespace-nowrap transition-all cursor-pointer ${
                     selectedSubReport === tab
                       ? 'bg-brand-500 text-slate-950 shadow-md'
-                      : 'bg-[#111827]/40 border border-[#23324C]/50 text-slate-400 hover:text-slate-200'
+                      : 'bg-white/40 border border-slate-200/50 text-slate-500 hover:text-slate-700'
                   }`}
                 >
                   {tab}
@@ -2763,7 +2763,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
               {selectedSubReport === 'Leads' && (
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
-                    <span className="text-[11px] font-black text-white uppercase tracking-wider">Leads Report — All Pipeline Records</span>
+                    <span className="text-[11px] font-black text-slate-900 uppercase tracking-wider">Leads Report — All Pipeline Records</span>
                     <span className="text-[10px] text-slate-500 font-mono">{crmDb.leads.length} Total Leads</span>
                   </div>
                   <div className="grid grid-cols-4 gap-3 text-center text-[10px]">
@@ -2773,15 +2773,15 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                       { label: 'Won', value: kpis.dealsWon, color: 'text-emerald-400' },
                       { label: 'Lost', value: kpis.dealsLost, color: 'text-red-400' }
                     ].map(s => (
-                      <div key={s.label} className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3">
+                      <div key={s.label} className="bg-white/40 border border-slate-200/50 rounded-xl p-3">
                         <span className={`text-xl font-black block ${s.color}`}>{s.value}</span>
                         <span className="text-slate-500 text-[9px] uppercase font-bold">{s.label}</span>
                       </div>
                     ))}
                   </div>
-                  <div className="overflow-x-auto rounded-xl border border-[#23324C]/50">
-                    <table className="w-full text-[10px] text-slate-350">
-                      <thead className="bg-[#161F30]/60 text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                  <div className="overflow-x-auto rounded-xl border border-slate-200/50">
+                    <table className="w-full text-[10px] text-slate-500">
+                      <thead className="bg-slate-50/60 text-slate-500 uppercase font-black border-b border-slate-200/50">
                         <tr>
                           <th className="p-2.5 text-left">Company</th>
                           <th className="p-2.5 text-left">Rep</th>
@@ -2793,10 +2793,10 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                       </thead>
                       <tbody className="divide-y divide-[#23324C]/30">
                         {crmDb.leads.slice(0, 8).map(l => (
-                          <tr key={l.id} className="hover:bg-slate-800/20">
-                            <td className="p-2.5 font-bold text-white">{l.company}</td>
-                            <td className="p-2.5 text-slate-400">{l.rep}</td>
-                            <td className="p-2.5 text-slate-400">{l.niche}</td>
+                          <tr key={l.id} className="hover:bg-white/20">
+                            <td className="p-2.5 font-bold text-slate-900">{l.company}</td>
+                            <td className="p-2.5 text-slate-500">{l.rep}</td>
+                            <td className="p-2.5 text-slate-500">{l.niche}</td>
                             <td className="p-2.5 text-right text-brand-400 font-black">${l.revenue?.toLocaleString()}</td>
                             <td className="p-2.5 text-center"><span className="bg-brand-500/10 border border-brand-500/20 text-brand-400 px-1.5 py-0.5 rounded text-[8px] font-bold">{l.stage}</span></td>
                             <td className="p-2.5 text-center font-mono font-bold">{l.score}</td>
@@ -2811,7 +2811,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
               {/* Conversions Sub-Report */}
               {selectedSubReport === 'Conversions' && (
                 <div className="space-y-4">
-                  <span className="text-[11px] font-black text-white uppercase tracking-wider block">Conversions Funnel Report</span>
+                  <span className="text-[11px] font-black text-slate-900 uppercase tracking-wider block">Conversions Funnel Report</span>
                   <div className="h-[200px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={[
@@ -2834,15 +2834,15 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                     </ResponsiveContainer>
                   </div>
                   <div className="grid grid-cols-3 gap-3 text-[10px] text-center">
-                    <div className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3">
+                    <div className="bg-white/40 border border-slate-200/50 rounded-xl p-3">
                       <span className="text-xl font-black block text-brand-400">{Math.round((kpis.dealsWon / (crmDb.leads.length || 1)) * 100)}%</span>
                       <span className="text-slate-500 text-[9px] uppercase font-bold">Conversion Rate</span>
                     </div>
-                    <div className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3">
+                    <div className="bg-white/40 border border-slate-200/50 rounded-xl p-3">
                       <span className="text-xl font-black block text-emerald-400">{Math.round((crmDb.demos.filter(d => d.status === 'Completed').length / (crmDb.demos.length || 1)) * 100)}%</span>
                       <span className="text-slate-500 text-[9px] uppercase font-bold">Demo → Trial Rate</span>
                     </div>
-                    <div className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3">
+                    <div className="bg-white/40 border border-slate-200/50 rounded-xl p-3">
                       <span className="text-xl font-black block text-amber-400">{Math.round((crmDb.proposals.filter(p => p.status === 'Accepted').length / (crmDb.proposals.length || 1)) * 100)}%</span>
                       <span className="text-slate-500 text-[9px] uppercase font-bold">Proposal Accept Rate</span>
                     </div>
@@ -2853,17 +2853,17 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
               {/* Revenue Sub-Report */}
               {selectedSubReport === 'Revenue' && (
                 <div className="space-y-4">
-                  <span className="text-[11px] font-black text-white uppercase tracking-wider block">Revenue Analytics Report</span>
+                  <span className="text-[11px] font-black text-slate-900 uppercase tracking-wider block">Revenue Analytics Report</span>
                   <div className="grid grid-cols-3 gap-3 text-center text-[10px]">
-                    <div className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3">
+                    <div className="bg-white/40 border border-slate-200/50 rounded-xl p-3">
                       <span className="text-sm font-black block text-brand-400">${kpis.mrr.toLocaleString()}</span>
                       <span className="text-slate-500 text-[9px] uppercase font-bold">Monthly MRR</span>
                     </div>
-                    <div className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3">
+                    <div className="bg-white/40 border border-slate-200/50 rounded-xl p-3">
                       <span className="text-sm font-black block text-emerald-400">${(kpis.mrr * 12).toLocaleString()}</span>
                       <span className="text-slate-500 text-[9px] uppercase font-bold">Annual ARR</span>
                     </div>
-                    <div className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3">
+                    <div className="bg-white/40 border border-slate-200/50 rounded-xl p-3">
                       <span className="text-sm font-black block text-amber-400">${kpis.totalPipelineValue.toLocaleString()}</span>
                       <span className="text-slate-500 text-[9px] uppercase font-bold">Pipeline Value</span>
                     </div>
@@ -2888,22 +2888,22 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
               {/* Demos Sub-Report */}
               {selectedSubReport === 'Demos' && (
                 <div className="space-y-4">
-                  <span className="text-[11px] font-black text-white uppercase tracking-wider block">Demo Bookings Report</span>
+                  <span className="text-[11px] font-black text-slate-900 uppercase tracking-wider block">Demo Bookings Report</span>
                   <div className="grid grid-cols-3 gap-3 text-center text-[10px]">
                     {[
-                      { label: 'Total Demos', value: crmDb.demos.length, color: 'text-white' },
+                      { label: 'Total Demos', value: crmDb.demos.length, color: 'text-slate-900' },
                       { label: 'Upcoming', value: crmDb.demos.filter(d => d.status === 'Upcoming').length, color: 'text-brand-400' },
                       { label: 'Completed', value: crmDb.demos.filter(d => d.status === 'Completed').length, color: 'text-emerald-400' }
                     ].map(s => (
-                      <div key={s.label} className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3">
+                      <div key={s.label} className="bg-white/40 border border-slate-200/50 rounded-xl p-3">
                         <span className={`text-xl font-black block ${s.color}`}>{s.value}</span>
                         <span className="text-slate-500 text-[9px] uppercase font-bold">{s.label}</span>
                       </div>
                     ))}
                   </div>
-                  <div className="overflow-x-auto rounded-xl border border-[#23324C]/50">
-                    <table className="w-full text-[10px] text-slate-350">
-                      <thead className="bg-[#161F30]/60 text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                  <div className="overflow-x-auto rounded-xl border border-slate-200/50">
+                    <table className="w-full text-[10px] text-slate-500">
+                      <thead className="bg-slate-50/60 text-slate-500 uppercase font-black border-b border-slate-200/50">
                         <tr>
                           <th className="p-2.5 text-left">Company</th>
                           <th className="p-2.5 text-left">Presenter</th>
@@ -2915,9 +2915,9 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                       </thead>
                       <tbody className="divide-y divide-[#23324C]/30">
                         {crmDb.demos.map(d => (
-                          <tr key={d.id} className="hover:bg-slate-800/20">
-                            <td className="p-2.5 font-bold text-white">{d.company}</td>
-                            <td className="p-2.5 text-slate-400">{d.presenter}</td>
+                          <tr key={d.id} className="hover:bg-white/20">
+                            <td className="p-2.5 font-bold text-slate-900">{d.company}</td>
+                            <td className="p-2.5 text-slate-500">{d.presenter}</td>
                             <td className="p-2.5 text-mono">{d.date}</td>
                             <td className="p-2.5">{d.time}</td>
                             <td className="p-2.5 text-center">
@@ -2935,14 +2935,14 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
               {/* Trials Sub-Report */}
               {selectedSubReport === 'Trials' && (
                 <div className="space-y-4">
-                  <span className="text-[11px] font-black text-white uppercase tracking-wider block">Trial Workspaces Report</span>
+                  <span className="text-[11px] font-black text-slate-900 uppercase tracking-wider block">Trial Workspaces Report</span>
                   <div className="grid grid-cols-3 gap-3 text-center text-[10px]">
                     {[
                       { label: 'Active Trials', value: crmDb.trials.filter(t => t.status === 'Active').length, color: 'text-emerald-400' },
                       { label: 'Expired', value: crmDb.trials.filter(t => t.status === 'Expired').length, color: 'text-red-400' },
                       { label: 'Expiring Soon', value: crmDb.trials.filter(t => t.status === 'Active' && t.daysRemaining <= 3).length, color: 'text-amber-400' }
                     ].map(s => (
-                      <div key={s.label} className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3">
+                      <div key={s.label} className="bg-white/40 border border-slate-200/50 rounded-xl p-3">
                         <span className={`text-xl font-black block ${s.color}`}>{s.value}</span>
                         <span className="text-slate-500 text-[9px] uppercase font-bold">{s.label}</span>
                       </div>
@@ -2950,14 +2950,14 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                   </div>
                   <div className="space-y-3">
                     {crmDb.trials.map(t => (
-                      <div key={t.id} className="p-3 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl flex items-center justify-between gap-4">
+                      <div key={t.id} className="p-3 bg-white/40 border border-slate-200/50 rounded-xl flex items-center justify-between gap-4">
                         <div>
-                          <strong className="text-white text-xs block">{t.company}</strong>
+                          <strong className="text-slate-900 text-xs block">{t.company}</strong>
                           <span className="text-[9px] text-slate-450 block mt-0.5">Admin: {t.admin} • Plan: {t.currentPlan}</span>
                         </div>
                         <div className="flex items-center gap-4 text-[10px]">
                           <div className="w-24">
-                            <div className="flex justify-between text-slate-500 mb-1"><span>Days Left</span><span className="font-mono font-bold text-white">{t.daysRemaining}</span></div>
+                            <div className="flex justify-between text-slate-500 mb-1"><span>Days Left</span><span className="font-mono font-bold text-slate-900">{t.daysRemaining}</span></div>
                             <div className="w-full bg-slate-900 rounded-full h-1">
                               <div className={`h-full rounded-full ${t.daysRemaining <= 3 ? 'bg-red-500' : 'bg-brand-500'}`} style={{ width: `${Math.min(100, (t.daysRemaining / 14) * 100)}%` }} />
                             </div>
@@ -2973,23 +2973,23 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
               {/* Proposals Sub-Report */}
               {selectedSubReport === 'Proposals' && (
                 <div className="space-y-4">
-                  <span className="text-[11px] font-black text-white uppercase tracking-wider block">Proposal Issuances Report</span>
+                  <span className="text-[11px] font-black text-slate-900 uppercase tracking-wider block">Proposal Issuances Report</span>
                   <div className="grid grid-cols-4 gap-3 text-center text-[10px]">
                     {[
-                      { label: 'Total', value: crmDb.proposals.length, color: 'text-white' },
+                      { label: 'Total', value: crmDb.proposals.length, color: 'text-slate-900' },
                       { label: 'Sent', value: crmDb.proposals.filter(p => p.status === 'Sent').length, color: 'text-brand-400' },
                       { label: 'Accepted', value: crmDb.proposals.filter(p => p.status === 'Accepted').length, color: 'text-emerald-400' },
                       { label: 'Rejected', value: crmDb.proposals.filter(p => p.status === 'Rejected').length, color: 'text-red-400' }
                     ].map(s => (
-                      <div key={s.label} className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3">
+                      <div key={s.label} className="bg-white/40 border border-slate-200/50 rounded-xl p-3">
                         <span className={`text-xl font-black block ${s.color}`}>{s.value}</span>
                         <span className="text-slate-500 text-[9px] uppercase font-bold">{s.label}</span>
                       </div>
                     ))}
                   </div>
-                  <div className="overflow-x-auto rounded-xl border border-[#23324C]/50">
-                    <table className="w-full text-[10px] text-slate-350">
-                      <thead className="bg-[#161F30]/60 text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                  <div className="overflow-x-auto rounded-xl border border-slate-200/50">
+                    <table className="w-full text-[10px] text-slate-500">
+                      <thead className="bg-slate-50/60 text-slate-500 uppercase font-black border-b border-slate-200/50">
                         <tr>
                           <th className="p-2.5 text-left">Company</th>
                           <th className="p-2.5 text-left">Title</th>
@@ -3001,9 +3001,9 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                       </thead>
                       <tbody className="divide-y divide-[#23324C]/30">
                         {crmDb.proposals.map(p => (
-                          <tr key={p.id} className="hover:bg-slate-800/20">
-                            <td className="p-2.5 font-bold text-white">{p.company}</td>
-                            <td className="p-2.5 text-slate-400 truncate max-w-[160px]">{p.title}</td>
+                          <tr key={p.id} className="hover:bg-white/20">
+                            <td className="p-2.5 font-bold text-slate-900">{p.company}</td>
+                            <td className="p-2.5 text-slate-500 truncate max-w-[160px]">{p.title}</td>
                             <td className="p-2.5 text-right text-brand-400 font-black">${p.total?.toLocaleString()}</td>
                             <td className="p-2.5 text-center font-mono font-bold">{p.version || 'V1'}</td>
                             <td className="p-2.5 text-center">
@@ -3021,7 +3021,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
               {/* Rep Performance Sub-Report */}
               {selectedSubReport === 'Rep Performance' && (
                 <div className="space-y-4">
-                  <span className="text-[11px] font-black text-white uppercase tracking-wider block">Sales Representatives Performance Scorecard</span>
+                  <span className="text-[11px] font-black text-slate-900 uppercase tracking-wider block">Sales Representatives Performance Scorecard</span>
                   <div className="h-[200px]">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={repPerformanceData} margin={{ left: -10, right: 5, top: 5, bottom: 5 }}>
@@ -3034,9 +3034,9 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
-                  <div className="overflow-x-auto rounded-xl border border-[#23324C]/50">
-                    <table className="w-full text-[10px] text-slate-350">
-                      <thead className="bg-[#161F30]/60 text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                  <div className="overflow-x-auto rounded-xl border border-slate-200/50">
+                    <table className="w-full text-[10px] text-slate-500">
+                      <thead className="bg-slate-50/60 text-slate-500 uppercase font-black border-b border-slate-200/50">
                         <tr>
                           <th className="p-2.5 text-left">Rep Name</th>
                           <th className="p-2.5 text-center">Leads Assigned</th>
@@ -3050,8 +3050,8 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                           const assigned = crmDb.leads.filter(l => l.rep === rep.name).length;
                           const winRate = assigned > 0 ? Math.round((rep.won / assigned) * 100) : 0;
                           return (
-                            <tr key={rep.name} className="hover:bg-slate-800/20">
-                              <td className="p-2.5 font-bold text-white">{rep.name}</td>
+                            <tr key={rep.name} className="hover:bg-white/20">
+                              <td className="p-2.5 font-bold text-slate-900">{rep.name}</td>
                               <td className="p-2.5 text-center font-mono">{assigned}</td>
                               <td className="p-2.5 text-center font-mono text-emerald-400 font-black">{rep.won}</td>
                               <td className="p-2.5 text-right text-brand-400 font-black">${rep.revenue?.toLocaleString()}</td>
@@ -3075,19 +3075,19 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
               {/* Activities Sub-Report */}
               {selectedSubReport === 'Activities' && (
                 <div className="space-y-4">
-                  <span className="text-[11px] font-black text-white uppercase tracking-wider block">Sales Activities &amp; Touchpoints Log</span>
+                  <span className="text-[11px] font-black text-slate-900 uppercase tracking-wider block">Sales Activities &amp; Touchpoints Log</span>
                   <div className="space-y-2 max-h-[320px] overflow-y-auto scrollbar-none">
                     {crmDb.leads.flatMap(l => 
                       (l.timeline || []).map(t => ({ ...t, company: l.company, rep: l.rep }))
                     ).sort((a, b) => (b.date || '').localeCompare(a.date || '')).slice(0, 20).map((ev, idx) => (
-                      <div key={idx} className="flex gap-3 p-2.5 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl items-start">
+                      <div key={idx} className="flex gap-3 p-2.5 bg-white/40 border border-slate-200/50 rounded-xl items-start">
                         <div className="mt-1.5 flex-shrink-0">
                           <div className="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <strong className="text-white text-[11px]">{ev.company}</strong>
-                            <span className="text-[8px] bg-slate-900 border border-[#23324C]/50 text-slate-400 px-1.5 py-0.5 rounded font-mono">{ev.date}</span>
+                            <strong className="text-slate-900 text-[11px]">{ev.company}</strong>
+                            <span className="text-[8px] bg-slate-900 border border-slate-200/50 text-slate-500 px-1.5 py-0.5 rounded font-mono">{ev.date}</span>
                             <span className="text-[8px] bg-brand-500/10 text-brand-400 border border-brand-500/20 px-1.5 py-0.5 rounded font-bold">{ev.event}</span>
                           </div>
                           <p className="text-[10px] text-slate-450 mt-0.5 truncate">{ev.detail}</p>
@@ -3101,13 +3101,13 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
             </div>
           </div>
 
-          <div className="p-4 bg-[#111827]/40 border border-[#23324C]/60 rounded-xl flex items-center justify-between">
-            <span className="text-[10px] text-slate-400 font-bold">Export complete report decks:</span>
+          <div className="p-4 bg-white/40 border border-slate-200 rounded-xl flex items-center justify-between">
+            <span className="text-[10px] text-slate-500 font-bold">Export complete report decks:</span>
             <div className="flex gap-2">
-              <button onClick={handleExportPDF} className="px-3.5 py-2 bg-slate-900 border border-[#23324C]/65 hover:border-brand-500/40 rounded-xl text-[10px] font-black uppercase text-slate-350 hover:text-white cursor-pointer">
+              <button onClick={handleExportPDF} className="px-3.5 py-2 bg-slate-900 border border-slate-200/65 hover:border-brand-500/40 rounded-xl text-[10px] font-black uppercase text-slate-500 hover:text-slate-900 cursor-pointer">
                 Export PDF
               </button>
-              <button onClick={handleExportCSV} className="px-3.5 py-2 bg-slate-900 border border-[#23324C]/65 hover:border-brand-500/40 rounded-xl text-[10px] font-black uppercase text-slate-350 hover:text-white cursor-pointer">
+              <button onClick={handleExportCSV} className="px-3.5 py-2 bg-slate-900 border border-slate-200/65 hover:border-brand-500/40 rounded-xl text-[10px] font-black uppercase text-slate-500 hover:text-slate-900 cursor-pointer">
                 Export CSV / Excel
               </button>
             </div>
@@ -3123,10 +3123,10 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch text-left animate-fade-in">
           
           {/* Panel 1: Template Manager */}
-          <div className="lg:col-span-6 glass rounded-2xl p-5 border border-[#23324C]/60 flex flex-col justify-between">
+          <div className="lg:col-span-6 glass rounded-2xl p-5 border border-slate-200 flex flex-col justify-between">
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-extrabold text-white">Email & Touchpoint Templates</h3>
+                <h3 className="text-sm font-extrabold text-slate-900">Email & Touchpoint Templates</h3>
                 <p className="text-[10px] text-slate-500">Configure pre-formatted messages for demo slots and trial invites.</p>
               </div>
 
@@ -3145,12 +3145,12 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                 />
 
                 <div className="space-y-1.5">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Template Body Editor</label>
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Template Body Editor</label>
                   <textarea
                     rows={6}
                     value={settingsTemplateBody}
                     onChange={(e) => setSettingsTemplateBody(e.target.value)}
-                    className="w-full bg-[#0B0F19] border border-[#23324C]/60 text-slate-200 text-xs p-3.5 rounded-xl focus:outline-none focus:border-brand-500/50 font-mono resize-none"
+                    className="w-full bg-slate-50 border border-slate-200 text-slate-700 text-xs p-3.5 rounded-xl focus:outline-none focus:border-brand-500/50 font-mono resize-none"
                   />
                   <span className="text-[8px] text-slate-500 block">Available merge tags: <code>{"{{contact_name}}"}</code>, <code>{"{{company_name}}"}</code>, <code>{"{{rep_name}}"}</code></span>
                 </div>
@@ -3169,17 +3169,17 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
           <div className="lg:col-span-6 flex flex-col gap-6">
             
             {/* Pipeline Stage Editor */}
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 flex-1 flex flex-col justify-between">
+            <div className="glass rounded-2xl p-5 border border-slate-200 flex-1 flex flex-col justify-between">
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-sm font-extrabold text-white">Pipeline Stages</h3>
+                  <h3 className="text-sm font-extrabold text-slate-900">Pipeline Stages</h3>
                   <p className="text-[10px] text-slate-500">Add or manage stages defining your sales pipeline columns.</p>
                 </div>
 
                 <div className="space-y-2.5 max-h-[140px] overflow-y-auto pr-1">
                   {pipelineStages.map((stage) => (
-                    <div key={stage} className="flex justify-between items-center bg-[#111827]/40 border border-[#23324C]/50 rounded-xl px-3 py-1.5 text-xs">
-                      <span className="text-white font-semibold">{stage}</span>
+                    <div key={stage} className="flex justify-between items-center bg-white/40 border border-slate-200/50 rounded-xl px-3 py-1.5 text-xs">
+                      <span className="text-slate-900 font-semibold">{stage}</span>
                       {!['New Lead', 'Won', 'Lost'].includes(stage) && (
                         <button onClick={() => handleDeleteStage(stage)} className="text-slate-500 hover:text-red-400 cursor-pointer">
                           <Trash2 className="h-3.5 w-3.5" />
@@ -3196,11 +3196,11 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                   placeholder="New stage title..."
                   value={newStageInput}
                   onChange={(e) => setNewStageInput(e.target.value)}
-                  className="bg-[#0B0F19] border border-[#23324C]/60 text-slate-200 text-xs px-3.5 py-2 rounded-xl flex-grow focus:outline-none"
+                  className="bg-slate-50 border border-slate-200 text-slate-700 text-xs px-3.5 py-2 rounded-xl flex-grow focus:outline-none"
                 />
                 <button 
                   onClick={handleAddStage}
-                  className="px-4 bg-slate-900 border border-[#23324C]/65 text-brand-400 hover:text-white rounded-xl text-xs font-black cursor-pointer"
+                  className="px-4 bg-slate-900 border border-slate-200/65 text-brand-400 hover:text-slate-900 rounded-xl text-xs font-black cursor-pointer"
                 >
                   Add
                 </button>
@@ -3208,17 +3208,17 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
             </div>
 
             {/* Lead Sources Editor */}
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 flex-1 flex flex-col justify-between">
+            <div className="glass rounded-2xl p-5 border border-slate-200 flex-1 flex flex-col justify-between">
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-sm font-extrabold text-white">Lead Acquisition Sources</h3>
+                  <h3 className="text-sm font-extrabold text-slate-900">Lead Acquisition Sources</h3>
                   <p className="text-[10px] text-slate-500">Track and filter where inbound carrier queries originate.</p>
                 </div>
 
                 <div className="space-y-2.5 max-h-[140px] overflow-y-auto pr-1">
                   {leadSources.map((source) => (
-                    <div key={source} className="flex justify-between items-center bg-[#111827]/40 border border-[#23324C]/50 rounded-xl px-3 py-1.5 text-xs">
-                      <span className="text-white font-semibold">{source}</span>
+                    <div key={source} className="flex justify-between items-center bg-white/40 border border-slate-200/50 rounded-xl px-3 py-1.5 text-xs">
+                      <span className="text-slate-900 font-semibold">{source}</span>
                       <button onClick={() => handleDeleteLeadSource(source)} className="text-slate-500 hover:text-red-400 cursor-pointer">
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
@@ -3233,11 +3233,11 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                   placeholder="New acquisition source..."
                   value={newLeadSourceInput}
                   onChange={(e) => setNewLeadSourceInput(e.target.value)}
-                  className="bg-[#0B0F19] border border-[#23324C]/60 text-slate-200 text-xs px-3.5 py-2 rounded-xl flex-grow focus:outline-none"
+                  className="bg-slate-50 border border-slate-200 text-slate-700 text-xs px-3.5 py-2 rounded-xl flex-grow focus:outline-none"
                 />
                 <button 
                   onClick={handleAddLeadSource}
-                  className="px-4 bg-slate-900 border border-[#23324C]/65 text-brand-400 hover:text-white rounded-xl text-xs font-black cursor-pointer"
+                  className="px-4 bg-slate-900 border border-slate-200/65 text-brand-400 hover:text-slate-900 rounded-xl text-xs font-black cursor-pointer"
                 >
                   Add
                 </button>
@@ -3388,7 +3388,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
             <button 
               type="button"
               onClick={(e) => handleAddLeadSubmit(e, true)}
-              className="flex-grow bg-slate-800 hover:bg-slate-700 text-slate-200 border border-[#23324C] text-[11px] font-black py-2 rounded-xl text-center cursor-pointer"
+              className="flex-grow bg-white hover:bg-slate-700 text-slate-700 border border-slate-200 text-[11px] font-black py-2 rounded-xl text-center cursor-pointer"
             >
               Save & Book Demo
             </button>
@@ -3503,7 +3503,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
       <Modal isOpen={demoModalOpen} onClose={() => setDemoModalOpen(false)} title="Schedule ZOOM Product Walkthrough">
         {selectedLead && (
           <form onSubmit={handleBookDemoSubmit} className="space-y-4 text-left text-xs">
-            <p className="text-slate-400">Locking a demo schedule for {selectedLead.company}.</p>
+            <p className="text-slate-500">Locking a demo schedule for {selectedLead.company}.</p>
             
             <DatePicker 
               label="Select Date" 
@@ -3612,7 +3612,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
       <Modal isOpen={dragConfirmModalOpen} onClose={() => setDragConfirmModalOpen(false)} title="Confirm Stage transition">
         {draggedLead && (
           <div className="space-y-4 text-left text-xs">
-            <p className="text-slate-350">You are dragging lead <strong>{draggedLead.company}</strong> to the stage <strong>{targetDragStage}</strong>.</p>
+            <p className="text-slate-500">You are dragging lead <strong>{draggedLead.company}</strong> to the stage <strong>{targetDragStage}</strong>.</p>
             
             <TextInput 
               label="Transition Reason / Action Note" 
@@ -3631,7 +3631,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
               </button>
               <button 
                 onClick={() => setDragConfirmModalOpen(false)}
-                className="px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold py-2 rounded-xl text-center cursor-pointer"
+                className="px-4 bg-white hover:bg-slate-700 text-slate-700 text-[11px] font-bold py-2 rounded-xl text-center cursor-pointer"
               >
                 Cancel
               </button>
@@ -3667,7 +3667,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                   setExtendTrialModalOpen(false);
                   triggerToast(`Extension complete (+30 days) for ${selectedTrial.company}`);
                 }}
-                className={`flex-grow bg-slate-800 text-slate-200 text-[11px] font-bold py-2.5 rounded-xl cursor-pointer border border-[#23324C] ${
+                className={`flex-grow bg-white text-slate-700 text-[11px] font-bold py-2.5 rounded-xl cursor-pointer border border-slate-200 ${
                   verifyPermission('extend_trial_over_30', true) ? 'hover:bg-slate-750' : 'opacity-40 cursor-not-allowed'
                 }`}
               >
@@ -3707,7 +3707,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                 onChange={(e) => setContactForm(prev => ({ ...prev, isPrimary: e.target.checked }))} 
                 className="cursor-pointer"
               />
-              <label htmlFor="contactPrimaryCheck" className="text-slate-350 cursor-pointer select-none">Set as Primary contact person</label>
+              <label htmlFor="contactPrimaryCheck" className="text-slate-500 cursor-pointer select-none">Set as Primary contact person</label>
             </div>
 
             <Button type="submit" variant="primary" className="w-full">
@@ -3770,12 +3770,12 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
             <TextInput label="Email Subject" required value={emailForm.subject} onChange={(e) => setEmailForm({ ...emailForm, subject: e.target.value })} />
             
             <div className="space-y-1">
-              <label className="text-slate-400 font-bold">Message Body</label>
+              <label className="text-slate-500 font-bold">Message Body</label>
               <textarea 
                 rows={6} 
                 value={emailForm.body} 
                 onChange={(e) => setEmailForm({ ...emailForm, body: e.target.value })}
-                className="w-full bg-[#0B0F19]/50 border border-[#23324C] text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:ring-1 focus:ring-brand-500 font-sans"
+                className="w-full bg-slate-50/50 border border-slate-200 text-slate-700 text-xs rounded-xl p-3 focus:outline-none focus:ring-1 focus:ring-brand-500 font-sans"
               />
             </div>
 
@@ -3871,11 +3871,11 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
         {selectedDocument && (
           <div className="space-y-4 text-left text-xs bg-slate-900 border border-slate-700 rounded-xl p-4">
             <div className="flex justify-between items-center border-b border-slate-750 pb-2">
-              <strong className="text-white text-sm">{selectedDocument.name}</strong>
+              <strong className="text-slate-900 text-sm">{selectedDocument.name}</strong>
               <span className="text-[10px] text-slate-500 font-mono">Format: PDF • Size: {selectedDocument.size}</span>
             </div>
             
-            <p className="text-slate-400 leading-relaxed font-sans text-xs">
+            <p className="text-slate-500 leading-relaxed font-sans text-xs">
               This represents a secure sandbox mockup visualization of the document <strong>{selectedDocument.name}</strong>. Inside a production CRM environment, the system displays PDF confirming records, DOT certificate files, and W-9 tax documents directly inline inside a web worker wrapper.
             </p>
 
@@ -3898,7 +3898,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
           <div className="space-y-6 text-left text-xs">
             
             {/* Stepper Progress bar */}
-            <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-450 border-b border-[#23324C]/60 pb-3">
+            <div className="flex justify-between items-center text-[10px] font-black uppercase text-slate-450 border-b border-slate-200 pb-3">
               <span className={wizardStep === 1 ? 'text-brand-400 font-black' : ''}>1. Tier</span>
               <span className={wizardStep === 2 ? 'text-brand-400 font-black' : ''}>2. Company</span>
               <span className={wizardStep === 3 ? 'text-brand-400 font-black' : ''}>3. Admin</span>
@@ -3917,11 +3917,11 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                       key={tier} 
                       onClick={() => setWizardForm({ ...wizardForm, tier })}
                       className={`p-3 border rounded-xl cursor-pointer text-center space-y-2 ${
-                        wizardForm.tier === tier ? 'bg-brand-500/10 border-brand-500' : 'bg-slate-900 border-[#23324C]'
+                        wizardForm.tier === tier ? 'bg-brand-500/10 border-brand-500' : 'bg-slate-900 border-slate-200'
                       }`}
                     >
-                      <strong className="text-white text-xs block">{tier}</strong>
-                      <span className="text-[10px] text-slate-400">${tier === 'Starter' ? '199' : (tier === 'Professional' ? '499' : '1,299')}/mo</span>
+                      <strong className="text-slate-900 text-xs block">{tier}</strong>
+                      <span className="text-[10px] text-slate-500">${tier === 'Starter' ? '199' : (tier === 'Professional' ? '499' : '1,299')}/mo</span>
                     </div>
                   ))}
                 </div>
@@ -3973,22 +3973,22 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
             {wizardStep === 5 && (
               <div className="space-y-4">
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Review Workspace Specifications</span>
-                <div className="bg-[#111827]/40 border border-[#23324C]/60 rounded-xl p-3.5 space-y-2 text-xs">
+                <div className="bg-white/40 border border-slate-200 rounded-xl p-3.5 space-y-2 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Subscription:</span>
-                    <strong className="text-white">{wizardForm.tier} Plan ({wizardForm.frequency})</strong>
+                    <span className="text-slate-500">Subscription:</span>
+                    <strong className="text-slate-900">{wizardForm.tier} Plan ({wizardForm.frequency})</strong>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Company:</span>
-                    <strong className="text-white">{wizardForm.legalName}</strong>
+                    <span className="text-slate-500">Company:</span>
+                    <strong className="text-slate-900">{wizardForm.legalName}</strong>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Admin User:</span>
-                    <strong className="text-white">{wizardForm.adminName} ({wizardForm.adminEmail})</strong>
+                    <span className="text-slate-500">Admin User:</span>
+                    <strong className="text-slate-900">{wizardForm.adminName} ({wizardForm.adminEmail})</strong>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-400">Depot Allocation:</span>
-                    <strong className="text-white">{wizardForm.branch}</strong>
+                    <span className="text-slate-500">Depot Allocation:</span>
+                    <strong className="text-slate-900">{wizardForm.branch}</strong>
                   </div>
                 </div>
               </div>
@@ -3999,14 +3999,14 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                 {provisioningLoading ? (
                   <div className="space-y-3.5">
                     <div className="w-10 h-10 border-t-2 border-brand-500 rounded-full animate-spin mx-auto"></div>
-                    <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400 block">{provisioningStatusText}</span>
+                    <span className="text-[11px] font-bold uppercase tracking-widest text-slate-500 block">{provisioningStatusText}</span>
                   </div>
                 ) : (
                   <div className="space-y-4 bg-emerald-500/5 border border-emerald-500/20 rounded-xl p-6">
                     <CheckCircle2 className="h-12 w-12 text-emerald-400 mx-auto animate-bounce" />
                     <div>
-                      <h4 className="text-white text-base font-extrabold">Company Workspace Provision Complete!</h4>
-                      <p className="text-[11px] text-slate-400 mt-1">Tenant profile successfully registered inside global administrative databases.</p>
+                      <h4 className="text-slate-900 text-base font-extrabold">Company Workspace Provision Complete!</h4>
+                      <p className="text-[11px] text-slate-500 mt-1">Tenant profile successfully registered inside global administrative databases.</p>
                     </div>
                     <button 
                       onClick={handleWizardLoginAsCompany}
@@ -4020,7 +4020,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
             )}
 
             {wizardStep < 6 && (
-              <div className="flex gap-2 border-t border-[#23324C]/60 pt-4">
+              <div className="flex gap-2 border-t border-slate-200 pt-4">
                 <button 
                   onClick={handleProceedWizard}
                   className="flex-grow bg-brand-500 hover:bg-brand-600 text-slate-950 text-[11px] font-black py-2 rounded-xl text-center cursor-pointer"
@@ -4030,7 +4030,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                 {wizardStep > 1 && (
                   <button 
                     onClick={() => setWizardStep(prev => prev - 1)}
-                    className="px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold py-2 rounded-xl text-center cursor-pointer"
+                    className="px-4 bg-white hover:bg-slate-700 text-slate-700 text-[11px] font-bold py-2 rounded-xl text-center cursor-pointer"
                   >
                     Back
                   </button>
@@ -4045,12 +4045,12 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
       {/* 14. Full Inspect Drawer Upgraded to Lead 360° */}
       <Drawer isOpen={inspectDrawerOpen} onClose={() => setInspectDrawerOpen(false)} title="Lead 360° Profile Inspector">
         {selectedLead && (
-          <div className="space-y-6 text-left text-slate-300 text-xs sm:text-sm h-full flex flex-col justify-between">
+          <div className="space-y-6 text-left text-slate-600 text-xs sm:text-sm h-full flex flex-col justify-between">
             
             {/* Header info */}
-            <div className="border-b border-[#23324C]/60 pb-3 flex justify-between items-start gap-4">
+            <div className="border-b border-slate-200 pb-3 flex justify-between items-start gap-4">
               <div>
-                <h4 className="text-base font-extrabold text-white mb-1">{selectedLead.company}</h4>
+                <h4 className="text-base font-extrabold text-slate-900 mb-1">{selectedLead.company}</h4>
                 <div className="flex flex-wrap gap-1.5 items-center mt-1">
                   <span className="bg-brand-500/10 border border-brand-500/20 text-brand-400 px-2 py-0.5 rounded text-[9px] uppercase font-bold tracking-wider">{selectedLead.stage}</span>
                   <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
@@ -4060,20 +4060,20 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
               </div>
               
               <div className="flex gap-1.5">
-                <button onClick={() => handleOpenDemoModal(selectedLead)} className="p-1.5 bg-slate-900 border border-[#23324C]/60 rounded-lg cursor-pointer" title="Book Demo"><Calendar className="h-3.5 w-3.5" /></button>
-                <button onClick={() => handleStartTrial(selectedLead)} className="p-1.5 bg-slate-900 border border-[#23324C]/60 rounded-lg cursor-pointer" title="Start Trial"><Play className="h-3.5 w-3.5" /></button>
-                <button onClick={() => handleOpenProposalModal(selectedLead)} className="p-1.5 bg-slate-900 border border-[#23324C]/60 rounded-lg cursor-pointer" title="Send Proposal"><FileText className="h-3.5 w-3.5" /></button>
+                <button onClick={() => handleOpenDemoModal(selectedLead)} className="p-1.5 bg-slate-900 border border-slate-200 rounded-lg cursor-pointer" title="Book Demo"><Calendar className="h-3.5 w-3.5" /></button>
+                <button onClick={() => handleStartTrial(selectedLead)} className="p-1.5 bg-slate-900 border border-slate-200 rounded-lg cursor-pointer" title="Start Trial"><Play className="h-3.5 w-3.5" /></button>
+                <button onClick={() => handleOpenProposalModal(selectedLead)} className="p-1.5 bg-slate-900 border border-slate-200 rounded-lg cursor-pointer" title="Send Proposal"><FileText className="h-3.5 w-3.5" /></button>
               </div>
             </div>
 
             {/* Scrollable sub-tabs horizontal bar */}
-            <div className="flex gap-2 border-b border-[#23324C]/45 pb-2 overflow-x-auto scrollbar-none text-[10px] uppercase font-black tracking-wider text-slate-400">
+            <div className="flex gap-2 border-b border-slate-200/45 pb-2 overflow-x-auto scrollbar-none text-[10px] uppercase font-black tracking-wider text-slate-500">
               {['Overview', 'Timeline', 'Contacts', 'Meetings', 'Calls', 'Emails', 'Tasks', 'Notes', 'Documents', 'Demos', 'Trial', 'Proposals', 'Audits'].map(t => (
                 <button
                   key={t}
                   onClick={() => setDrawerActiveTab(t)}
                   className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer whitespace-nowrap ${
-                    drawerActiveTab === t ? 'bg-brand-500 text-slate-950 font-black' : 'hover:bg-slate-800 text-slate-400 hover:text-slate-200'
+                    drawerActiveTab === t ? 'bg-brand-500 text-slate-950 font-black' : 'hover:bg-white text-slate-500 hover:text-slate-700'
                   }`}
                 >
                   {t}
@@ -4086,17 +4086,17 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
               
               {drawerActiveTab === 'Overview' && (
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4 text-xs bg-[#111827]/45 border border-[#23324C]/50 rounded-xl p-3.5">
+                  <div className="grid grid-cols-2 gap-4 text-xs bg-white/45 border border-slate-200/50 rounded-xl p-3.5">
                     <div>
                       <span className="text-[9px] text-slate-500 uppercase font-black block">Primary Evaluator</span>
-                      <strong className="text-slate-200 block mt-1">{selectedLead.name}</strong>
+                      <strong className="text-slate-700 block mt-1">{selectedLead.name}</strong>
                       <span className="text-[9px] text-slate-500 font-mono mt-0.5 block">{selectedLead.email}</span>
                       <span className="text-[9px] text-slate-500 font-mono mt-0.5 block">{selectedLead.phone}</span>
                       
                       {/* Rep assignment dropdown inside Drawer */}
-                      <div className="mt-3 flex items-center gap-1 bg-slate-900 border border-[#23324C]/60 rounded-xl px-2 py-1 w-max">
+                      <div className="mt-3 flex items-center gap-1 bg-slate-900 border border-slate-200 rounded-xl px-2 py-1 w-max">
                         <User className="h-3 w-3 text-brand-400" />
-                        <span className="text-[8px] text-slate-400 font-bold">Rep:</span>
+                        <span className="text-[8px] text-slate-500 font-bold">Rep:</span>
                         <select
                           value={selectedLead.rep}
                           onChange={(e) => {
@@ -4112,12 +4112,12 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                             setSelectedLead(crmRepository.getLeadById(selectedLead.id));
                             triggerToast(`Re-assigned representative to ${e.target.value}`);
                           }}
-                          className="bg-transparent text-slate-200 text-[9px] font-bold focus:outline-none cursor-pointer"
+                          className="bg-transparent text-slate-700 text-[9px] font-bold focus:outline-none cursor-pointer"
                         >
-                          <option value="Alex Wright" className="bg-[#161F30]">Alex Wright</option>
-                          <option value="Sarah K." className="bg-[#161F30]">Sarah K.</option>
-                          <option value="Michael Scott" className="bg-[#161F30]">Michael Scott</option>
-                          <option value="Jan Levinson" className="bg-[#161F30]">Jan Levinson</option>
+                          <option value="Alex Wright" className="bg-slate-50">Alex Wright</option>
+                          <option value="Sarah K." className="bg-slate-50">Sarah K.</option>
+                          <option value="Michael Scott" className="bg-slate-50">Michael Scott</option>
+                          <option value="Jan Levinson" className="bg-slate-50">Jan Levinson</option>
                         </select>
                       </div>
                     </div>
@@ -4129,28 +4129,28 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                     </div>
                   </div>
 
-                  <div className="bg-slate-900/60 border border-[#23324C]/45 rounded-xl p-3 space-y-2">
+                  <div className="bg-slate-900/60 border border-slate-200/45 rounded-xl p-3 space-y-2">
                     <span className="text-[9px] text-slate-500 uppercase font-black block">Sales Aging Parameters</span>
                     <div className="grid grid-cols-2 gap-2 text-[10px]">
                       <div>
                         <span className="text-slate-450 block">Days in Current Stage:</span>
-                        <strong className="text-slate-200">{selectedLead.stageDays} Days</strong>
+                        <strong className="text-slate-700">{selectedLead.stageDays} Days</strong>
                       </div>
                       <div>
                         <span className="text-slate-450 block">Last Contact:</span>
-                        <strong className="text-slate-200">{selectedLead.lastContact}</strong>
+                        <strong className="text-slate-700">{selectedLead.lastContact}</strong>
                       </div>
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
                     <span className="text-[9px] text-slate-500 uppercase font-black block">Client pain point details</span>
-                    <p className="p-3 bg-slate-900/60 border border-[#23324C]/45 rounded-xl text-slate-300 italic leading-relaxed">
+                    <p className="p-3 bg-slate-900/60 border border-slate-200/45 rounded-xl text-slate-600 italic leading-relaxed">
                       "{selectedLead.painPoints}"
                     </p>
                   </div>
 
-                  <div className="border-t border-[#23324C]/45 pt-3 space-y-2">
+                  <div className="border-t border-slate-200/45 pt-3 space-y-2">
                     <span className="text-[9px] text-slate-500 uppercase font-black tracking-wider block">Lead Direct Actions</span>
                     <div className="flex flex-wrap gap-2">
                       <button
@@ -4194,7 +4194,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                           });
                           setFollowupModalOpen(true);
                         }}
-                        className="bg-slate-900 hover:bg-slate-800 border border-[#23324C] text-slate-200 text-[10px] font-bold px-2.5 py-1 rounded-xl cursor-pointer"
+                        className="bg-slate-900 hover:bg-white border border-slate-200 text-slate-700 text-[10px] font-bold px-2.5 py-1 rounded-xl cursor-pointer"
                       >
                         Schedule Follow-Up
                       </button>
@@ -4212,8 +4212,8 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                       </div>
                       <div className="space-y-0.5">
                         <div className="flex items-center gap-1.5">
-                          <strong className="text-slate-200">{t.event}</strong>
-                          <span className="text-[9px] bg-slate-800 text-slate-400 px-1 rounded font-mono">{t.date}</span>
+                          <strong className="text-slate-700">{t.event}</strong>
+                          <span className="text-[9px] bg-white text-slate-500 px-1 rounded font-mono">{t.date}</span>
                         </div>
                         <p className="text-[10px] text-slate-450 leading-normal">{t.detail}</p>
                       </div>
@@ -4239,11 +4239,11 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                   </div>
                   <div className="space-y-2">
                     {(selectedLead.contacts || []).map(c => (
-                      <div key={c.id} className="p-3 bg-[#111827]/40 border border-[#23324C]/60 rounded-xl flex justify-between items-center">
+                      <div key={c.id} className="p-3 bg-white/40 border border-slate-200 rounded-xl flex justify-between items-center">
                         <div>
                           <div className="flex items-center gap-1.5">
-                            <strong className="text-white font-bold">{c.name}</strong>
-                            <span className="text-[9px] bg-slate-900 text-slate-450 border border-[#23324C]/60 px-1 py-0.2 rounded font-mono">{c.role}</span>
+                            <strong className="text-slate-900 font-bold">{c.name}</strong>
+                            <span className="text-[9px] bg-slate-900 text-slate-450 border border-slate-200 px-1 py-0.2 rounded font-mono">{c.role}</span>
                             {c.isPrimary && <span className="bg-brand-500/10 text-brand-400 text-[8px] font-bold px-1 rounded">Primary</span>}
                           </div>
                           <span className="text-[10px] text-slate-455 block mt-0.5">{c.email} • {c.phone}</span>
@@ -4255,7 +4255,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                               setCallForm({ duration: '2m', outcome: 'Connected', notes: `Call with ${c.name} regarding roster changes.` });
                               setCallModalOpen(true);
                             }}
-                            className="p-1 text-slate-400 hover:text-white cursor-pointer"
+                            className="p-1 text-slate-500 hover:text-slate-900 cursor-pointer"
                             title="Call Contact"
                           >
                             <Phone className="h-3.5 w-3.5" />
@@ -4265,7 +4265,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                               setSelectedLead(selectedLead);
                               setEmailModalOpen(true);
                             }}
-                            className="p-1 text-slate-400 hover:text-white cursor-pointer"
+                            className="p-1 text-slate-500 hover:text-slate-900 cursor-pointer"
                             title="Email Contact"
                           >
                             <Mail className="h-3.5 w-3.5" />
@@ -4276,7 +4276,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                               setContactForm({ name: c.name, role: c.role, email: c.email, phone: c.phone, isPrimary: c.isPrimary });
                               setContactModalOpen(true);
                             }}
-                            className="p-1 text-slate-400 hover:text-white cursor-pointer"
+                            className="p-1 text-slate-500 hover:text-slate-900 cursor-pointer"
                             title="Edit"
                           >
                             <Edit className="h-3.5 w-3.5" />
@@ -4298,9 +4298,9 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                   </div>
                   <div className="space-y-2">
                     {crmDb.demos.filter(d => d.leadId === selectedLead.id).map(d => (
-                      <div key={d.id} className="p-3 bg-[#111827]/40 border border-[#23324C]/65 rounded-xl flex justify-between items-center text-xs">
+                      <div key={d.id} className="p-3 bg-white/40 border border-slate-200/65 rounded-xl flex justify-between items-center text-xs">
                         <div>
-                          <strong className="text-white block">{d.date} at {d.time}</strong>
+                          <strong className="text-slate-900 block">{d.date} at {d.time}</strong>
                           <span className="text-[10px] text-slate-450 block mt-0.5">Presenter: {d.presenter} • Notes: {d.notes}</span>
                         </div>
                         <span className={`px-2 py-0.5 rounded text-[8px] font-bold ${
@@ -4324,10 +4324,10 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                     {(selectedLead.calls || []).map(c => {
                       const isPlaying = playingCallId === c.id;
                       return (
-                        <div key={c.id} className="p-3 bg-[#111827]/40 border border-[#23324C]/60 rounded-xl space-y-2">
+                        <div key={c.id} className="p-3 bg-white/40 border border-slate-200 rounded-xl space-y-2">
                           <div className="flex justify-between items-start text-xs">
                             <div>
-                              <strong className="text-white font-bold block">{c.type} Call - {c.outcome}</strong>
+                              <strong className="text-slate-900 font-bold block">{c.type} Call - {c.outcome}</strong>
                               <span className="text-[9px] text-slate-450 block mt-0.5">{c.date} at {c.time} • Duration: {c.duration}</span>
                             </div>
                             
@@ -4341,7 +4341,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                           
                           {/* Simulated audio waveform */}
                           {isPlaying && (
-                            <div className="space-y-2 bg-[#0B0F19] rounded-lg p-2.5 flex items-center gap-2">
+                            <div className="space-y-2 bg-slate-50 rounded-lg p-2.5 flex items-center gap-2">
                               <div className="flex gap-0.5 flex-1 items-center h-4">
                                 {Array.from({ length: 24 }).map((_, waveIdx) => {
                                   const heights = [10, 16, 24, 8, 12, 28, 16, 20, 32, 10, 14, 22, 18, 26, 8, 16, 24, 12, 14, 28, 10, 12, 16, 8];
@@ -4356,11 +4356,11 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                                   );
                                 })}
                               </div>
-                              <span className="font-mono text-[8px] text-slate-400">00:0{Math.floor(playProgress / 20)} / 00:05</span>
+                              <span className="font-mono text-[8px] text-slate-500">00:0{Math.floor(playProgress / 20)} / 00:05</span>
                             </div>
                           )}
 
-                          <p className="text-[10px] text-slate-400 italic">"{c.notes}"</p>
+                          <p className="text-[10px] text-slate-500 italic">"{c.notes}"</p>
                         </div>
                       );
                     })}
@@ -4378,15 +4378,15 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                   </div>
                   <div className="space-y-2">
                     {(selectedLead.emails || []).map(em => (
-                      <div key={em.id} className="p-3 bg-[#111827]/40 border border-[#23324C]/60 rounded-xl space-y-1">
+                      <div key={em.id} className="p-3 bg-white/40 border border-slate-200 rounded-xl space-y-1">
                         <div className="flex justify-between items-start text-xs">
                           <div>
-                            <strong className="text-white block">{em.subject}</strong>
+                            <strong className="text-slate-900 block">{em.subject}</strong>
                             <span className="text-[9px] text-slate-450 block mt-0.5">{em.date} at {em.time}</span>
                           </div>
-                          <span className="text-[9px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded font-mono font-bold uppercase">{em.status}</span>
+                          <span className="text-[9px] bg-white text-slate-500 px-2 py-0.5 rounded font-mono font-bold uppercase">{em.status}</span>
                         </div>
-                        <p className="text-[10px] text-slate-400 leading-normal font-sans pt-1 border-t border-[#23324C]/30 whitespace-pre-wrap">{em.body}</p>
+                        <p className="text-[10px] text-slate-500 leading-normal font-sans pt-1 border-t border-slate-200 whitespace-pre-wrap">{em.body}</p>
                       </div>
                     ))}
                   </div>
@@ -4406,19 +4406,19 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                       <div 
                         key={tk.id} 
                         onClick={() => handleToggleTaskStatus(tk.id)}
-                        className="p-3 bg-[#111827]/40 border border-[#23324C]/60 rounded-xl flex items-center justify-between cursor-pointer hover:border-brand-500/25 transition-all text-xs"
+                        className="p-3 bg-white/40 border border-slate-200 rounded-xl flex items-center justify-between cursor-pointer hover:border-brand-500/25 transition-all text-xs"
                       >
                         <div className="flex items-center gap-2.5">
                           <button className="text-slate-500">
                             {tk.status === 'Completed' ? <CheckCircle2 className="h-5 w-5 text-emerald-400" /> : <Square className="h-5 w-5 text-slate-650" />}
                           </button>
                           <div>
-                            <span className={`font-semibold ${tk.status === 'Completed' ? 'text-slate-500 line-through' : 'text-slate-200'}`}>{tk.title}</span>
+                            <span className={`font-semibold ${tk.status === 'Completed' ? 'text-slate-500 line-through' : 'text-slate-700'}`}>{tk.title}</span>
                             <span className="text-[9px] text-slate-450 block mt-0.5">Due: {tk.dueDate} • Type: {tk.type}</span>
                           </div>
                         </div>
                         <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold ${
-                          tk.priority === 'High' ? 'bg-red-500/15 text-red-400 border border-red-500/25' : 'bg-slate-800 text-slate-400'
+                          tk.priority === 'High' ? 'bg-red-500/15 text-red-400 border border-red-500/25' : 'bg-white text-slate-500'
                         }`}>{tk.priority}</span>
                       </div>
                     ))}
@@ -4431,8 +4431,8 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                   <span className="text-[10px] font-bold text-slate-500 block">Lead Internal Notes</span>
                   <div className="space-y-2">
                     {(selectedLead.notes || []).map(n => (
-                      <div key={n.id} className="p-3 bg-[#111827]/40 border border-[#23324C]/60 rounded-xl space-y-1">
-                        <p className="text-slate-300 leading-normal font-sans text-xs">"{n.text}"</p>
+                      <div key={n.id} className="p-3 bg-white/40 border border-slate-200 rounded-xl space-y-1">
+                        <p className="text-slate-600 leading-normal font-sans text-xs">"{n.text}"</p>
                         <span className="text-[9px] text-slate-450 block text-right font-mono font-bold">- {n.author} on {n.date}</span>
                       </div>
                     ))}
@@ -4445,17 +4445,17 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                   <span className="text-[10px] font-bold text-slate-500 block">Lead Attachments</span>
                   <div className="space-y-2">
                     {(selectedLead.documents || []).map(doc => (
-                      <div key={doc.id} className="p-3 bg-[#111827]/40 border border-[#23324C]/65 rounded-xl flex justify-between items-center text-xs">
+                      <div key={doc.id} className="p-3 bg-white/40 border border-slate-200/65 rounded-xl flex justify-between items-center text-xs">
                         <div className="flex items-center gap-2">
                           <FileText className="h-5 w-5 text-brand-400" />
                           <div>
-                            <strong className="text-white font-bold block">{doc.name}</strong>
+                            <strong className="text-slate-900 font-bold block">{doc.name}</strong>
                             <span className="text-[9px] text-slate-450 block font-mono">Format: PDF • Size: {doc.size}</span>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <button onClick={() => handlePreviewDocument(doc)} className="text-brand-400 hover:text-brand-300 font-bold text-[9px] uppercase cursor-pointer">Preview</button>
-                          <button onClick={() => handleReplaceDocument(doc.id)} className="text-slate-400 hover:text-white font-bold text-[9px] uppercase cursor-pointer">Replace</button>
+                          <button onClick={() => handleReplaceDocument(doc.id)} className="text-slate-500 hover:text-slate-900 font-bold text-[9px] uppercase cursor-pointer">Replace</button>
                           <button onClick={() => handleDeleteDocument(doc.id)} className="text-red-400/80 hover:text-red-400 font-bold text-[9px] uppercase cursor-pointer">Delete</button>
                         </div>
                       </div>
@@ -4469,9 +4469,9 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                   <span className="text-[10px] font-bold text-slate-500 block">Scheduled presentation history</span>
                   <div className="space-y-2">
                     {crmDb.demos.filter(d => d.leadId === selectedLead.id).map(d => (
-                      <div key={d.id} className="p-3 bg-[#111827]/40 border border-[#23324C]/65 rounded-xl flex justify-between items-center">
+                      <div key={d.id} className="p-3 bg-white/40 border border-slate-200/65 rounded-xl flex justify-between items-center">
                         <div>
-                          <strong className="text-white text-xs block">{d.date} at {d.time}</strong>
+                          <strong className="text-slate-900 text-xs block">{d.date} at {d.time}</strong>
                           <span className="text-[9px] text-slate-450 block mt-0.5">Presenter: {d.presenter} • Zoom meeting link setup</span>
                         </div>
                         <span className={`px-2 py-0.5 rounded text-[8px] font-mono font-bold ${
@@ -4490,13 +4490,13 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                     (() => {
                       const t = crmDb.trials.find(tr => tr.leadId === selectedLead.id);
                       return (
-                        <div className="p-3 bg-[#111827]/40 border border-[#23324C]/60 rounded-xl space-y-3">
+                        <div className="p-3 bg-white/40 border border-slate-200 rounded-xl space-y-3">
                           <div className="flex justify-between">
-                            <span className="text-slate-400 font-bold">Expiration:</span>
-                            <strong className="text-white">{t.daysRemaining} Days left (Expires {t.expiryDate})</strong>
+                            <span className="text-slate-500 font-bold">Expiration:</span>
+                            <strong className="text-slate-900">{t.daysRemaining} Days left (Expires {t.expiryDate})</strong>
                           </div>
                           <div className="space-y-1">
-                            <div className="flex justify-between text-[10px] text-slate-400">
+                            <div className="flex justify-between text-[10px] text-slate-500">
                               <span>Storage Utilization</span>
                               <span>{t.storage} ({t.usage}%)</span>
                             </div>
@@ -4518,10 +4518,10 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                   <span className="text-[10px] font-bold text-slate-500 block">Issued Licensing Proposals & Versions</span>
                   <div className="space-y-2">
                     {crmDb.proposals.filter(p => p.leadId === selectedLead.id).map(p => (
-                      <div key={p.id} className="p-3 bg-[#111827]/40 border border-[#23324C]/65 rounded-xl space-y-3">
+                      <div key={p.id} className="p-3 bg-white/40 border border-slate-200/65 rounded-xl space-y-3">
                         <div className="flex justify-between items-start text-xs">
                           <div>
-                            <strong className="text-white font-extrabold block">{p.title}</strong>
+                            <strong className="text-slate-900 font-extrabold block">{p.title}</strong>
                             <span className="text-[9px] text-slate-450 block mt-0.5">Total proposed: ${p.total.toLocaleString()}/mo • Validity: {p.validity}</span>
                           </div>
                           <span className={`px-2 py-0.5 rounded text-[8px] font-bold ${
@@ -4531,13 +4531,13 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
 
                         {/* Versions checklist */}
                         {p.versionsList && (
-                          <div className="space-y-1.5 border-t border-[#23324C]/35 pt-2 text-[9px] text-slate-450 font-bold">
+                          <div className="space-y-1.5 border-t border-slate-200/35 pt-2 text-[9px] text-slate-450 font-bold">
                             <span className="block text-[8px] uppercase tracking-wider text-slate-500 mb-1">Proposal History Versions</span>
                             {p.versionsList.map((ver, vIdx) => (
-                              <div key={vIdx} className="flex justify-between items-center p-1 bg-slate-900/60 rounded border border-[#23324C]/30">
+                              <div key={vIdx} className="flex justify-between items-center p-1 bg-slate-900/60 rounded border border-slate-200">
                                 <span>Version {ver.version} - Value: ${ver.total.toLocaleString()}/mo ({ver.date})</span>
                                 <span className={`text-[7px] font-mono px-1 rounded ${
-                                  ver.status === 'Accepted' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-slate-800 text-slate-400'
+                                  ver.status === 'Accepted' ? 'bg-emerald-500/15 text-emerald-400' : 'bg-white text-slate-500'
                                 }`}>{ver.status}</span>
                               </div>
                             ))}
@@ -4554,8 +4554,8 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                   <span className="text-[10px] font-bold text-slate-500 block">Row Modification Audit Log</span>
                   <div className="space-y-2">
                     {(selectedLead.auditLogs || []).map((audit, idx) => (
-                      <div key={idx} className="p-2.5 bg-[#111827]/40 border border-[#23324C]/60 rounded-xl text-[10px] text-slate-400 font-semibold space-y-1">
-                        <div className="flex justify-between items-center text-white">
+                      <div key={idx} className="p-2.5 bg-white/40 border border-slate-200 rounded-xl text-[10px] text-slate-500 font-semibold space-y-1">
+                        <div className="flex justify-between items-center text-slate-900">
                           <strong>{audit.action}</strong>
                           <span className="font-mono text-[9px] font-normal text-slate-500">{audit.date} at {audit.time}</span>
                         </div>
@@ -4573,7 +4573,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
             </div>
 
             {/* Note logging bar */}
-            <div className="border-t border-[#23324C]/60 pt-3 flex gap-2">
+            <div className="border-t border-slate-200 pt-3 flex gap-2">
               <input 
                 type="text" 
                 placeholder="Log activity details inside timeline..."
@@ -4595,11 +4595,11 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                     triggerToast('Added activity note.');
                   }
                 }}
-                className="flex-grow bg-[#0B0F19]/50 border border-[#23324C] text-slate-200 text-xs rounded-xl px-3 py-1.5 focus:outline-none"
+                className="flex-grow bg-slate-50/50 border border-slate-200 text-slate-700 text-xs rounded-xl px-3 py-1.5 focus:outline-none"
               />
             </div>
 
-            <div className="flex gap-2 border-t border-[#23324C]/50 pt-3">
+            <div className="flex gap-2 border-t border-slate-200/50 pt-3">
               {selectedLead.stage === 'Won' && (
                 <button 
                   onClick={() => {
@@ -4611,7 +4611,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                   Convert to Company Account
                 </button>
               )}
-              <button onClick={() => setInspectDrawerOpen(false)} className="px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-bold py-2 rounded-lg cursor-pointer">Close</button>
+              <button onClick={() => setInspectDrawerOpen(false)} className="px-4 bg-white hover:bg-slate-700 text-slate-700 text-[11px] font-bold py-2 rounded-lg cursor-pointer">Close</button>
             </div>
 
           </div>
@@ -4620,9 +4620,9 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
 
       {/* 15. CRM Notification Center Drawer */}
       <Drawer isOpen={crmNotificationsOpen} onClose={() => setCrmNotificationsOpen(false)} title="CRM Real-Time Activity Log">
-        <div className="space-y-4 text-left text-slate-300 text-xs h-full flex flex-col justify-between">
+        <div className="space-y-4 text-left text-slate-600 text-xs h-full flex flex-col justify-between">
           <div className="space-y-4 flex-grow overflow-y-auto pr-2 scrollbar-none">
-            <div className="flex justify-between items-center border-b border-[#23324C]/60 pb-3">
+            <div className="flex justify-between items-center border-b border-slate-200 pb-3">
               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Touchpoint Actions & System Triggers</span>
               <div className="flex gap-2">
                 <button
@@ -4672,7 +4672,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                   }}
                   className={`p-3 border rounded-xl flex gap-3 cursor-pointer transition-all duration-200 ${
                     notif.isRead 
-                      ? 'bg-[#111827]/30 border-[#23324C]/40 hover:bg-[#111827]/50' 
+                      ? 'bg-white/30 border-slate-200 hover:bg-white/50' 
                       : 'bg-brand-500/5 border-brand-500/35 hover:bg-brand-500/10'
                   }`}
                 >
@@ -4681,10 +4681,10 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-center">
-                      <span className="text-[8px] bg-slate-900 border border-[#23324C]/40 px-1 rounded text-slate-400 font-mono">{notif.time || 'Just now'}</span>
+                      <span className="text-[8px] bg-slate-900 border border-slate-200 px-1 rounded text-slate-500 font-mono">{notif.time || 'Just now'}</span>
                       {!notif.isRead && <span className="text-[8px] bg-brand-500 text-slate-950 font-black px-1.5 rounded uppercase tracking-wider">New</span>}
                     </div>
-                    <p className="text-white text-xs font-semibold mt-1">{notif.message}</p>
+                    <p className="text-slate-900 text-xs font-semibold mt-1">{notif.message}</p>
                     <span className="text-[8px] text-slate-500 block mt-1 font-mono uppercase tracking-widest">{notif.type}</span>
                   </div>
                 </div>
@@ -4703,8 +4703,8 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
           <div className="space-y-6 text-left text-xs">
             <div>
               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Lead Diagnosis</span>
-              <h4 className="text-white font-extrabold text-sm mt-1">{selectedLead.company}</h4>
-              <p className="text-slate-400 mt-1">Fleet Size: <strong>{selectedLead.fleetSize} Trucks</strong> • Current Software: <strong>{selectedLead.currentSoftware}</strong></p>
+              <h4 className="text-slate-900 font-extrabold text-sm mt-1">{selectedLead.company}</h4>
+              <p className="text-slate-500 mt-1">Fleet Size: <strong>{selectedLead.fleetSize} Trucks</strong> • Current Software: <strong>{selectedLead.currentSoftware}</strong></p>
             </div>
 
             <div className="space-y-3.5">
@@ -4738,22 +4738,22 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                     className={`p-4 border rounded-2xl flex flex-col justify-between transition-all duration-200 ${
                       plan.isRec 
                         ? 'bg-brand-500/5 border-brand-500 shadow-lg shadow-brand-500/5 scale-102 ring-1 ring-brand-500/30' 
-                        : 'bg-slate-900 border-[#23324C] opacity-75 hover:opacity-100'
+                        : 'bg-slate-900 border-slate-200 opacity-75 hover:opacity-100'
                     }`}
                   >
                     <div>
                       <div className="flex justify-between items-start">
-                        <strong className="text-white text-sm block font-extrabold">{plan.tier}</strong>
+                        <strong className="text-slate-900 text-sm block font-extrabold">{plan.tier}</strong>
                         {plan.isRec && (
                           <span className="bg-brand-500 text-slate-950 text-[7px] font-black uppercase px-1.5 py-0.5 rounded tracking-wider">Recommended</span>
                         )}
                       </div>
-                      <span className="text-slate-400 text-[10px] block mt-1">{plan.desc}</span>
-                      <div className="my-3 text-white">
+                      <span className="text-slate-500 text-[10px] block mt-1">{plan.desc}</span>
+                      <div className="my-3 text-slate-900">
                         <span className="text-base font-black">${plan.price}</span>
                         <span className="text-[10px] text-slate-500 font-bold">/mo</span>
                       </div>
-                      <ul className="space-y-1.5 text-[9px] text-slate-400 font-semibold border-t border-[#23324C]/40 pt-2.5">
+                      <ul className="space-y-1.5 text-[9px] text-slate-500 font-semibold border-t border-slate-200 pt-2.5">
                         {plan.checks.map((c, cIdx) => (
                           <li key={cIdx} className="flex items-center gap-1.5">
                             <Check className="h-2.5 w-2.5 text-brand-400" />
@@ -4784,7 +4784,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
                       className={`w-full mt-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider cursor-pointer transition-all ${
                         plan.isRec 
                           ? 'bg-brand-500 hover:bg-brand-600 text-slate-950 shadow-md shadow-brand-500/10' 
-                          : 'bg-slate-800 hover:bg-slate-700 text-slate-200'
+                          : 'bg-white hover:bg-slate-700 text-slate-700'
                       }`}
                     >
                       Apply {plan.tier} Plan
@@ -4801,7 +4801,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
       <Modal isOpen={followupModalOpen} onClose={() => setFollowupModalOpen(false)} title="Schedule Follow-Up Touchpoint">
         {selectedLead && (
           <form onSubmit={handleCreateFollowup} className="space-y-4 text-left text-xs">
-            <p className="text-slate-400">Scheduling a follow-up action for prospect <strong>{selectedLead.company}</strong>.</p>
+            <p className="text-slate-500">Scheduling a follow-up action for prospect <strong>{selectedLead.company}</strong>.</p>
             
             <div className="grid grid-cols-2 gap-3">
               <SelectInput 
@@ -4861,7 +4861,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
       <Modal isOpen={onboardingTaskModalOpen} onClose={() => setOnboardingTaskModalOpen(false)} title="Create Onboarding Task">
         {selectedOnboarding && (
           <form onSubmit={handleCreateOnboardingTask} className="space-y-4 text-left text-xs">
-            <p className="text-slate-400">Add a custom task to the onboarding checklist for <strong>{selectedOnboarding.company}</strong>.</p>
+            <p className="text-slate-500">Add a custom task to the onboarding checklist for <strong>{selectedOnboarding.company}</strong>.</p>
             
             <TextInput 
               label="Task Name" 
@@ -4882,7 +4882,7 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
       <Modal isOpen={onboardingHandoverModalOpen} onClose={() => setOnboardingHandoverModalOpen(false)} title="Onboarding Handover package dispatch">
         {selectedOnboarding && (
           <form onSubmit={handleSendOnboardingHandover} className="space-y-4 text-left text-xs">
-            <p className="text-slate-400">Dispatch legal details and setup parameters to the logistics operations desk for <strong>{selectedOnboarding.company}</strong>.</p>
+            <p className="text-slate-500">Dispatch legal details and setup parameters to the logistics operations desk for <strong>{selectedOnboarding.company}</strong>.</p>
             
             <SelectInput 
               label="Target Representative" 
@@ -4897,14 +4897,14 @@ export default function SalesDashboard({ activeTab = 'overview' }) {
             />
 
             <div className="space-y-1">
-              <label className="text-slate-400 font-bold block">Handover Notes / Instructions</label>
+              <label className="text-slate-500 font-bold block">Handover Notes / Instructions</label>
               <textarea 
                 rows={4} 
                 required
                 placeholder="Provide billing integration info, special customer SLA rules..." 
                 value={onboardingHandoverForm.notes} 
                 onChange={(e) => setOnboardingHandoverForm({ ...onboardingHandoverForm, notes: e.target.value })}
-                className="w-full bg-[#0B0F19]/50 border border-[#23324C] text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:ring-1 focus:ring-brand-500 font-sans"
+                className="w-full bg-slate-50/50 border border-slate-200 text-slate-700 text-xs rounded-xl p-3 focus:outline-none focus:ring-1 focus:ring-brand-500 font-sans"
               />
             </div>
 

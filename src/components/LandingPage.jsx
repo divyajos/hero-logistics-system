@@ -84,39 +84,39 @@ export default function LandingPage({ setView }) {
       title: 'Global Fleet Performance Control Room',
       desc: 'Get a 360-degree operational view of active loads, revenue runs, dispatch maps, and driver utilization stats.',
       preview: (
-        <div className="bg-[#111827] h-full w-full rounded-lg p-4 font-mono text-[10px] text-slate-300 flex flex-col justify-between">
-          <div className="flex justify-between items-center border-b border-[#23324C] pb-2.5">
-            <span className="font-extrabold text-white">HERO // ADMIN PANEL</span>
+        <div className="bg-white h-full w-full rounded-lg p-4 font-mono text-[10px] text-slate-600 flex flex-col justify-between">
+          <div className="flex justify-between items-center border-b border-slate-200 pb-2.5">
+            <span className="font-extrabold text-slate-900">HERO // ADMIN PANEL</span>
             <div className="flex gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
               <span className="w-2.5 h-2.5 rounded-full bg-brand-500"></span>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-2.5 my-3 text-center">
-            <div className="bg-[#161F30] p-2 border border-[#23324C] rounded-lg">
+            <div className="bg-slate-50 p-2 border border-slate-200 rounded-lg">
               <span className="text-slate-500 block">ACTIVE LOADS</span>
-              <span className="text-white text-sm font-bold">142</span>
+              <span className="text-slate-900 text-sm font-bold">142</span>
             </div>
-            <div className="bg-[#161F30] p-2 border border-[#23324C] rounded-lg">
+            <div className="bg-slate-50 p-2 border border-slate-200 rounded-lg">
               <span className="text-slate-500 block">TOTAL REVENUE</span>
               <span className="text-emerald-400 text-sm font-bold">$42,910</span>
             </div>
-            <div className="bg-[#161F30] p-2 border border-[#23324C] rounded-lg">
+            <div className="bg-slate-50 p-2 border border-slate-200 rounded-lg">
               <span className="text-slate-500 block">DRIVERS ACTIVE</span>
               <span className="text-brand-400 text-sm font-bold">94%</span>
             </div>
           </div>
-          <div className="bg-[#161F30] p-2.5 border border-[#23324C] rounded-lg h-24 overflow-hidden space-y-1.5">
-            <div className="flex justify-between text-slate-400 border-b border-[#23324C] pb-1">
+          <div className="bg-slate-50 p-2.5 border border-slate-200 rounded-lg h-24 overflow-hidden space-y-1.5">
+            <div className="flex justify-between text-slate-500 border-b border-slate-200 pb-1">
               <span>LOAD ID</span><span>STATUS</span><span>ETA</span>
             </div>
-            <div className="flex justify-between text-slate-300">
+            <div className="flex justify-between text-slate-600">
               <span>#LD-9410</span><span className="text-emerald-400">IN TRANSIT</span><span>10:45 AM</span>
             </div>
-            <div className="flex justify-between text-slate-300">
+            <div className="flex justify-between text-slate-600">
               <span>#LD-9411</span><span className="text-brand-400">DISPATCHED</span><span>11:30 AM</span>
             </div>
-            <div className="flex justify-between text-slate-300">
+            <div className="flex justify-between text-slate-600">
               <span>#LD-9412</span><span className="text-yellow-400">PENDING</span><span>02:15 PM</span>
             </div>
           </div>
@@ -128,21 +128,21 @@ export default function LandingPage({ setView }) {
       title: 'Smart Dispatch Board',
       desc: 'Drag, drop, and match loads to drivers instantly based on weight, locations, and hours of service rules.',
       preview: (
-        <div className="bg-[#111827] h-full w-full rounded-lg p-4 font-mono text-[10px] text-slate-300 flex flex-col justify-between">
-          <div className="flex justify-between items-center border-b border-[#23324C] pb-2">
-            <span className="font-extrabold text-white">DISPATCH BOARD // HQ</span>
+        <div className="bg-white h-full w-full rounded-lg p-4 font-mono text-[10px] text-slate-600 flex flex-col justify-between">
+          <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+            <span className="font-extrabold text-slate-900">DISPATCH BOARD // HQ</span>
             <span className="text-brand-400 bg-brand-500/10 px-2 py-0.5 rounded text-[8px]">ROUTING AUTO-ON</span>
           </div>
           <div className="flex gap-2.5 my-3 h-full">
-            <div className="w-1/2 bg-[#161F30] p-2.5 border border-[#23324C] rounded-lg space-y-1.5">
-              <span className="text-slate-500 font-bold block border-b border-[#23324C] pb-1">UNASSIGNED LOADS</span>
+            <div className="w-1/2 bg-slate-50 p-2.5 border border-slate-200 rounded-lg space-y-1.5">
+              <span className="text-slate-500 font-bold block border-b border-slate-200 pb-1">UNASSIGNED LOADS</span>
               <div className="bg-brand-500/10 p-1.5 rounded border border-brand-500/20 text-brand-400">LD-9402 [42k lbs]</div>
               <div className="bg-brand-500/10 p-1.5 rounded border border-brand-500/20 text-brand-400">LD-9403 [12k lbs]</div>
             </div>
-            <div className="w-1/2 bg-[#161F30] p-2.5 border border-[#23324C] rounded-lg space-y-1.5">
-              <span className="text-slate-500 font-bold block border-b border-[#23324C] pb-1">ACTIVE FLEET (CHICAGO)</span>
-              <div className="bg-[#111827] p-1.5 rounded border border-[#23324C] text-slate-300">Driver: John D. [ELD: 2.5h]</div>
-              <div className="bg-[#111827] p-1.5 rounded border border-[#23324C] text-slate-300">Driver: Sarah R. [ELD: 5.0h]</div>
+            <div className="w-1/2 bg-slate-50 p-2.5 border border-slate-200 rounded-lg space-y-1.5">
+              <span className="text-slate-500 font-bold block border-b border-slate-200 pb-1">ACTIVE FLEET (CHICAGO)</span>
+              <div className="bg-white p-1.5 rounded border border-slate-200 text-slate-600">Driver: John D. [ELD: 2.5h]</div>
+              <div className="bg-white p-1.5 rounded border border-slate-200 text-slate-600">Driver: Sarah R. [ELD: 5.0h]</div>
             </div>
           </div>
         </div>
@@ -153,20 +153,20 @@ export default function LandingPage({ setView }) {
       title: 'Mobile App For Truck Drivers',
       desc: 'A robust mobile interface with offline scanning, route details, and customer signature upload.',
       preview: (
-        <div className="bg-[#111827] h-full w-full rounded-lg p-4 font-mono text-[10px] text-slate-300 flex justify-center">
-          <div className="w-48 bg-[#161F30] border-4 border-slate-700 rounded-2xl p-2.5 flex flex-col justify-between shadow-lg">
-            <div className="text-center border-b border-[#23324C] pb-1 text-[8px]">
+        <div className="bg-white h-full w-full rounded-lg p-4 font-mono text-[10px] text-slate-600 flex justify-center">
+          <div className="w-48 bg-slate-50 border-4 border-slate-700 rounded-2xl p-2.5 flex flex-col justify-between shadow-lg">
+            <div className="text-center border-b border-slate-200 pb-1 text-[8px]">
               <span className="text-emerald-400 font-extrabold">● LIVE CONNECTED</span>
             </div>
             <div className="my-2.5 space-y-1.5">
               <span className="text-slate-500 font-bold block text-[7px]">ACTIVE DELIVERY</span>
-              <div className="bg-[#111827] p-2 rounded border border-[#23324C]">
-                <h5 className="text-[8px] text-white font-extrabold">Chicago Auto Hub</h5>
-                <p className="text-[7px] text-slate-400">Loads: 4 Car Carriers</p>
+              <div className="bg-white p-2 rounded border border-slate-200">
+                <h5 className="text-[8px] text-slate-900 font-extrabold">Chicago Auto Hub</h5>
+                <p className="text-[7px] text-slate-500">Loads: 4 Car Carriers</p>
                 <div className="mt-1.5 text-[6px] text-brand-400 flex items-center">📍 12 miles to destination</div>
               </div>
             </div>
-            <button className="w-full py-1.5 bg-emerald-500 hover:bg-emerald-600 rounded text-[8px] font-bold text-white text-center">
+            <button className="w-full py-1.5 bg-emerald-500 hover:bg-emerald-600 rounded text-[8px] font-bold text-slate-900 text-center">
               SUBMIT POD SIGNATURE
             </button>
           </div>
@@ -178,9 +178,9 @@ export default function LandingPage({ setView }) {
       title: 'Warehouse Stock Control',
       desc: 'Perform bin allocation inventories, scan incoming pallets, and organize barcode manifests.',
       preview: (
-        <div className="bg-[#111827] h-full w-full rounded-lg p-4 font-mono text-[10px] text-slate-300 flex flex-col justify-between">
-          <div className="flex justify-between items-center border-b border-[#23324C] pb-2">
-            <span className="font-extrabold text-white">WAREHOUSE // INVENTORY</span>
+        <div className="bg-white h-full w-full rounded-lg p-4 font-mono text-[10px] text-slate-600 flex flex-col justify-between">
+          <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+            <span className="font-extrabold text-slate-900">WAREHOUSE // INVENTORY</span>
             <span className="text-slate-500">Bay 4 Depot</span>
           </div>
           <div className="grid grid-cols-4 gap-1.5 my-3 text-center">
@@ -189,9 +189,9 @@ export default function LandingPage({ setView }) {
             <div className="bg-red-500/10 border border-red-500/30 p-1.5 rounded text-red-400">BIN B1 [12%]</div>
             <div className="bg-yellow-500/10 border border-yellow-500/30 p-1.5 rounded text-yellow-400">BIN B2 [60%]</div>
           </div>
-          <div className="bg-[#161F30] p-2 border border-[#23324C] rounded-lg">
+          <div className="bg-slate-50 p-2 border border-slate-200 rounded-lg">
             <span className="text-slate-500 font-bold block mb-1">SCAN ACTIONS LOG</span>
-            <div className="text-slate-400 text-[8px]">
+            <div className="text-slate-500 text-[8px]">
               * [11:15 AM] Item #PLT-901 scanned into BIN A1<br />
               * [10:42 AM] Item #PLT-905 moved to Dock 2
             </div>
@@ -204,28 +204,28 @@ export default function LandingPage({ setView }) {
       title: 'Automated Freight Accounts',
       desc: 'Verify driver payroll sheets, export factored invoices, and check revenue margins.',
       preview: (
-        <div className="bg-[#111827] h-full w-full rounded-lg p-4 font-mono text-[10px] text-slate-300 flex flex-col justify-between">
-          <div className="flex justify-between items-center border-b border-[#23324C] pb-2">
-            <span className="font-extrabold text-white">LEDGER // PAYROLL & BILLING</span>
+        <div className="bg-white h-full w-full rounded-lg p-4 font-mono text-[10px] text-slate-600 flex flex-col justify-between">
+          <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+            <span className="font-extrabold text-slate-900">LEDGER // PAYROLL & BILLING</span>
             <span className="text-emerald-400 font-bold">REVENUE ON TRACK</span>
           </div>
           <div className="my-2.5 space-y-1.5 text-left">
-            <div className="flex justify-between border-b border-[#23324C]/60 pb-1 text-[8px] text-slate-500">
+            <div className="flex justify-between border-b border-slate-200 pb-1 text-[8px] text-slate-500">
               <span>PAYEE</span><span>LOAD BASIS</span><span>NET PAYOUT</span>
             </div>
-            <div className="flex justify-between text-slate-300">
+            <div className="flex justify-between text-slate-600">
               <span>Driver: Donald S.</span><span>3 Deliveries</span><span>$1,420.00</span>
             </div>
-            <div className="flex justify-between text-slate-300">
+            <div className="flex justify-between text-slate-600">
               <span>Driver: Jessica K.</span><span>4 Deliveries</span><span>$1,890.00</span>
             </div>
-            <div className="flex justify-between text-slate-300">
+            <div className="flex justify-between text-slate-600">
               <span>Brokerage Split</span><span>Carrier Match</span><span>$2,310.00</span>
             </div>
           </div>
           <div className="bg-emerald-500/10 border border-emerald-500/30 p-2 rounded-lg flex items-center justify-between">
             <span className="text-[8px] text-emerald-400 font-bold">Quick Export: QUICKBOOKS / SAGE</span>
-            <button className="bg-emerald-500 text-white font-extrabold text-[8px] px-2 py-0.5 rounded">EXPORT NOW</button>
+            <button className="bg-emerald-500 text-slate-900 font-extrabold text-[8px] px-2 py-0.5 rounded">EXPORT NOW</button>
           </div>
         </div>
       )
@@ -235,20 +235,20 @@ export default function LandingPage({ setView }) {
       title: 'Shipper & Customer Portal',
       desc: 'Enable your shipper clients to check transit maps, view load histories, and download invoices directly.',
       preview: (
-        <div className="bg-[#111827] h-full w-full rounded-lg p-4 font-mono text-[10px] text-slate-300 flex flex-col justify-between">
-          <div className="flex justify-between items-center border-b border-[#23324C] pb-2">
-            <span className="font-extrabold text-white">CUSTOMER SHIPMENT HUB</span>
+        <div className="bg-white h-full w-full rounded-lg p-4 font-mono text-[10px] text-slate-600 flex flex-col justify-between">
+          <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+            <span className="font-extrabold text-slate-900">CUSTOMER SHIPMENT HUB</span>
             <span className="text-slate-500">Client ID: global-retail</span>
           </div>
-          <div className="my-2.5 bg-[#161F30] p-2.5 border border-[#23324C] rounded-lg">
+          <div className="my-2.5 bg-slate-50 p-2.5 border border-slate-200 rounded-lg">
             <span className="text-slate-500 block">ACTIVE FREIGHT TRANSIT MAP</span>
-            <div className="h-14 bg-[#111827] border border-[#23324C] rounded my-1.5 flex items-center justify-center relative overflow-hidden">
+            <div className="h-14 bg-white border border-slate-200 rounded my-1.5 flex items-center justify-center relative overflow-hidden">
               <div className="absolute inset-0 bg-[radial-gradient(#23324c_1px,transparent_1px)] [background-size:16px_16px] opacity-40"></div>
-              <span className="text-[8px] text-slate-400">Map Route Preview</span>
+              <span className="text-[8px] text-slate-500">Map Route Preview</span>
               <div className="absolute top-1/2 left-1/4 w-2 h-2 bg-brand-500 rounded-full animate-ping"></div>
               <div className="absolute top-1/3 right-1/4 w-2 h-2 bg-emerald-500 rounded-full"></div>
             </div>
-            <div className="flex justify-between text-[8px] text-slate-400 mt-1">
+            <div className="flex justify-between text-[8px] text-slate-500 mt-1">
               <span>Origin: Memphis TN</span><span>Dest: Dallas TX</span>
             </div>
           </div>
@@ -328,7 +328,7 @@ export default function LandingPage({ setView }) {
   };
 
   return (
-    <div className="bg-[#0B0F19] relative w-full overflow-x-hidden">
+    <div className="bg-slate-50 relative w-full overflow-x-hidden">
       {/* Background Spotlight Cursor Effect */}
       <div 
         className="pointer-events-none fixed inset-0 z-30 transition-opacity duration-300"
@@ -354,14 +354,14 @@ export default function LandingPage({ setView }) {
               SaaS Operational Portal
             </div>
             
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-[1.08]">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-slate-900 leading-[1.08]">
               Complete Logistics <br className="hidden sm:inline" />
               <span className="bg-gradient-to-r from-brand-500 via-brand-500 to-brand-600 bg-clip-text text-transparent">
                 Operating System
               </span>
             </h1>
             
-            <p className="text-slate-400 text-base sm:text-lg leading-relaxed max-w-xl">
+            <p className="text-slate-500 text-base sm:text-lg leading-relaxed max-w-xl">
               Manage Loads, Dispatch, Drivers, Warehouses, Billing, Payroll and Customer Tracking from one powerful, modern platform.
             </p>
 
@@ -375,9 +375,9 @@ export default function LandingPage({ setView }) {
               </button>
               <a 
                 href="#contact"
-                className="px-8 py-4 bg-[#161F30] hover:bg-[#1f2a3f] font-semibold text-slate-300 hover:text-white rounded-xl border border-[#23324C] hover:border-brand-500/30 transition-all text-sm flex items-center justify-center gap-2 cursor-pointer"
+                className="px-8 py-4 bg-slate-50 hover:bg-[#1f2a3f] font-semibold text-slate-600 hover:text-slate-900 rounded-xl border border-slate-200 hover:border-brand-500/30 transition-all text-sm flex items-center justify-center gap-2 cursor-pointer"
               >
-                <Calendar className="h-4.5 w-4.5 text-slate-400" />
+                <Calendar className="h-4.5 w-4.5 text-slate-500" />
                 Book Live Demo
               </a>
             </div>
@@ -395,32 +395,32 @@ export default function LandingPage({ setView }) {
           {/* Graphics Mockups area */}
           <ScrollReveal direction="left" delay={0.2} duration={1.8} className="lg:col-span-6 relative flex items-center justify-center">
             {/* Primary Large Dashboard Mockup */}
-            <div className="w-full max-w-[500px] h-[340px] bg-[#161F30]/80 backdrop-blur-md border border-[#23324C] rounded-2xl p-4 shadow-2xl relative overflow-hidden flex flex-col justify-between hover:scale-[1.01] transition-transform duration-300">
-              <div className="flex justify-between items-center border-b border-[#23324C]/60 pb-2">
+            <div className="w-full max-w-[500px] h-[340px] bg-slate-50/80 backdrop-blur-md border border-slate-200 rounded-2xl p-4 shadow-2xl relative overflow-hidden flex flex-col justify-between hover:scale-[1.01] transition-transform duration-300">
+              <div className="flex justify-between items-center border-b border-slate-200 pb-2">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-brand-500 animate-pulse"></div>
-                  <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider">Logistics Dispatch Center</span>
+                  <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Logistics Dispatch Center</span>
                 </div>
                 <span className="text-[9px] text-slate-500">PORTAL LIVE // SECURE</span>
               </div>
               <div className="my-4 h-full flex flex-col justify-between">
-                <div className="grid grid-cols-4 gap-2 text-center text-[8px] font-bold text-slate-400">
-                  <div className="bg-[#0B0F19] p-2 rounded-lg border border-[#23324C]">Loads: <span className="text-white">42</span></div>
-                  <div className="bg-[#0B0F19] p-2 rounded-lg border border-[#23324C]">Fleet: <span className="text-white">96%</span></div>
-                  <div className="bg-[#0B0F19] p-2 rounded-lg border border-[#23324C]">Transit: <span className="text-brand-400">18</span></div>
-                  <div className="bg-[#0B0F19] p-2 rounded-lg border border-[#23324C]">Issues: <span className="text-red-400">0</span></div>
+                <div className="grid grid-cols-4 gap-2 text-center text-[8px] font-bold text-slate-500">
+                  <div className="bg-slate-50 p-2 rounded-lg border border-slate-200">Loads: <span className="text-slate-900">42</span></div>
+                  <div className="bg-slate-50 p-2 rounded-lg border border-slate-200">Fleet: <span className="text-slate-900">96%</span></div>
+                  <div className="bg-slate-50 p-2 rounded-lg border border-slate-200">Transit: <span className="text-brand-400">18</span></div>
+                  <div className="bg-slate-50 p-2 rounded-lg border border-slate-200">Issues: <span className="text-red-400">0</span></div>
                 </div>
-                <div className="bg-[#0B0F19] border border-[#23324C] rounded-lg p-2.5 h-32 flex flex-col justify-between">
-                  <div className="flex justify-between text-[8px] text-slate-500 border-b border-[#23324C] pb-1">
+                <div className="bg-slate-50 border border-slate-200 rounded-lg p-2.5 h-32 flex flex-col justify-between">
+                  <div className="flex justify-between text-[8px] text-slate-500 border-b border-slate-200 pb-1">
                     <span>ROUTE ORIGIN / DESTINATION</span><span>SHIPPED</span><span>ETA STATUS</span>
                   </div>
-                  <div className="flex justify-between text-[8px] text-slate-300">
+                  <div className="flex justify-between text-[8px] text-slate-600">
                     <span>Houston TX ➔ Atlanta GA</span><span>1,200 lbs</span><span className="text-emerald-400">ON TIME</span>
                   </div>
-                  <div className="flex justify-between text-[8px] text-slate-300">
+                  <div className="flex justify-between text-[8px] text-slate-600">
                     <span>Chicago IL ➔ Dallas TX</span><span>42,000 lbs</span><span className="text-brand-400">TRANSIT</span>
                   </div>
-                  <div className="flex justify-between text-[8px] text-slate-300">
+                  <div className="flex justify-between text-[8px] text-slate-600">
                     <span>Seattle WA ➔ Portland OR</span><span>8,500 lbs</span><span className="text-emerald-400">DELIVERED</span>
                   </div>
                 </div>
@@ -428,15 +428,15 @@ export default function LandingPage({ setView }) {
             </div>
 
             {/* Overlapping Floating Driver App Panel */}
-            <div className="hidden sm:flex absolute -bottom-6 -left-4 w-44 bg-[#161F30] border border-[#23324C]/80 rounded-2xl p-3 shadow-2xl flex-col justify-between hover:translate-y-[-5px] transition-transform duration-300 animate-float">
-              <div className="text-[8px] text-slate-400 font-bold border-b border-[#23324C] pb-1 flex justify-between items-center">
+            <div className="hidden sm:flex absolute -bottom-6 -left-4 w-44 bg-slate-50 border border-slate-200/80 rounded-2xl p-3 shadow-2xl flex-col justify-between hover:translate-y-[-5px] transition-transform duration-300 animate-float">
+              <div className="text-[8px] text-slate-500 font-bold border-b border-slate-200 pb-1 flex justify-between items-center">
                 <span>DRIVER: DONALD S.</span>
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
               </div>
               <div className="my-2 space-y-1">
                 <span className="text-[7px] text-slate-500">ACTIVE TASK</span>
-                <p className="text-[8px] text-white font-extrabold">Delivery: Dallas Terminal</p>
-                <p className="text-[7px] text-slate-400">Load ID: #LD-9411</p>
+                <p className="text-[8px] text-slate-900 font-extrabold">Delivery: Dallas Terminal</p>
+                <p className="text-[7px] text-slate-500">Load ID: #LD-9411</p>
               </div>
               <span className="block text-center py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-extrabold text-[8px] rounded-lg">
                 SIGNED & UPLOADED POD
@@ -444,12 +444,12 @@ export default function LandingPage({ setView }) {
             </div>
 
             {/* Overlapping Floating GPS Path Panel */}
-            <div className="hidden sm:flex absolute -top-6 -right-4 w-48 bg-[#161F30] border border-[#23324C]/80 rounded-2xl p-3 shadow-2xl flex-col justify-between hover:translate-y-[-5px] transition-transform duration-300 animate-float animate-delay-300">
-              <div className="text-[8px] text-slate-400 font-bold border-b border-[#23324C] pb-1 flex justify-between items-center">
+            <div className="hidden sm:flex absolute -top-6 -right-4 w-48 bg-slate-50 border border-slate-200/80 rounded-2xl p-3 shadow-2xl flex-col justify-between hover:translate-y-[-5px] transition-transform duration-300 animate-float animate-delay-300">
+              <div className="text-[8px] text-slate-500 font-bold border-b border-slate-200 pb-1 flex justify-between items-center">
                 <span>📍 LIVE GPS ROUTE</span>
                 <span className="text-[7px] text-brand-400">ETA 12 MIN</span>
               </div>
-              <div className="h-16 bg-[#0B0F19] rounded-lg border border-[#23324C] my-2 relative overflow-hidden flex items-center justify-center">
+              <div className="h-16 bg-slate-50 rounded-lg border border-slate-200 my-2 relative overflow-hidden flex items-center justify-center">
                 <div className="absolute inset-0 bg-[radial-gradient(#23324c_1px,transparent_1px)] [background-size:12px_12px] opacity-40"></div>
                 <div className="w-10 h-0.5 bg-brand-500/50 absolute rotate-12"></div>
                 <div className="w-1.5 h-1.5 bg-brand-500 rounded-full absolute top-1/3 left-1/3 animate-ping"></div>
@@ -465,27 +465,27 @@ export default function LandingPage({ setView }) {
       {/* ======================================================== */}
       {/* 2. TRUSTED BY SECTION */}
       {/* ======================================================== */}
-      <section className="border-y border-[#23324C]/50 bg-[#0B0F19] py-10 px-4">
+      <section className="border-y border-slate-200/50 bg-slate-50 py-10 px-4">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-8">
-          <ScrollReveal direction="up" className="text-slate-400 font-bold text-xs uppercase tracking-widest text-center lg:text-left lg:max-w-xs">
+          <ScrollReveal direction="up" className="text-slate-500 font-bold text-xs uppercase tracking-widest text-center lg:text-left lg:max-w-xs">
             Trusted by leading dispatch and transit fleets nationwide
           </ScrollReveal>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 w-full lg:w-auto">
             <div className="text-center">
-              <span className="block text-2xl sm:text-3xl font-black text-white">1,200+</span>
-              <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Active Companies</span>
+              <span className="block text-2xl sm:text-3xl font-black text-slate-900">1,200+</span>
+              <span className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Active Companies</span>
             </div>
             <div className="text-center">
-              <span className="block text-2xl sm:text-3xl font-black text-white">15,000+</span>
-              <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Active Drivers</span>
+              <span className="block text-2xl sm:text-3xl font-black text-slate-900">15,000+</span>
+              <span className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Active Drivers</span>
             </div>
             <div className="text-center">
-              <span className="block text-2xl sm:text-3xl font-black text-white">5,000,000+</span>
-              <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Loads Dispatched</span>
+              <span className="block text-2xl sm:text-3xl font-black text-slate-900">5,000,000+</span>
+              <span className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Loads Dispatched</span>
             </div>
             <div className="text-center">
-              <span className="block text-2xl sm:text-3xl font-black text-white">4.9/5 ★</span>
-              <span className="text-xs text-slate-400 uppercase tracking-wider font-semibold">Customer Ratings</span>
+              <span className="block text-2xl sm:text-3xl font-black text-slate-900">4.9/5 ★</span>
+              <span className="text-xs text-slate-500 uppercase tracking-wider font-semibold">Customer Ratings</span>
             </div>
           </div>
         </div>
@@ -499,10 +499,10 @@ export default function LandingPage({ setView }) {
 
         <div className="max-w-7xl mx-auto relative z-10">
           <ScrollReveal direction="up" className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-4">
               Everything Needed to Run Modern Logistics
             </h2>
-            <p className="text-slate-400 text-sm sm:text-base leading-relaxed">
+            <p className="text-slate-500 text-sm sm:text-base leading-relaxed">
               We replace individual, siloed apps with one integrated cloud-based portal. Scalable features designed for operational growth.
             </p>
           </ScrollReveal>
@@ -516,8 +516,8 @@ export default function LandingPage({ setView }) {
                   <div className="w-12 h-12 rounded-xl bg-brand-500/10 flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform">
                     {feat.icon}
                   </div>
-                  <h3 className="text-lg font-bold text-white mb-2">{feat.title}</h3>
-                  <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">{feat.desc}</p>
+                  <h3 className="text-lg font-bold text-slate-900 mb-2">{feat.title}</h3>
+                  <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">{feat.desc}</p>
                 </div>
               </ScrollReveal>
             ))}
@@ -528,13 +528,13 @@ export default function LandingPage({ setView }) {
       {/* ======================================================== */}
       {/* 4. SOLUTIONS SECTION */}
       {/* ======================================================== */}
-      <section id="solutions" className="py-24 bg-[#0B0F19] border-t border-[#23324C]/40 px-4 overflow-hidden">
+      <section id="solutions" className="py-24 bg-slate-50 border-t border-slate-200 px-4 overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-4">
               Tailored Industry Solutions
             </h2>
-            <p className="text-slate-400 text-sm">
+            <p className="text-slate-500 text-sm">
               Hero Logistics adapts dynamically to support your specific shipping niche or pipeline operations.
             </p>
           </div>
@@ -548,7 +548,7 @@ export default function LandingPage({ setView }) {
                 className={`px-5 py-2.5 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
                   activeSolution === sol.name
                     ? 'bg-brand-500 border-brand-400 text-slate-950 font-black shadow-lg shadow-brand-500/20'
-                    : 'bg-[#161F30] border-[#23324C] text-slate-400 hover:text-white'
+                    : 'bg-slate-50 border-slate-200 text-slate-500 hover:text-slate-900'
                 }`}
               >
                 {sol.name}
@@ -557,18 +557,18 @@ export default function LandingPage({ setView }) {
           </div>
 
           {/* Solution Body */}
-          <div className="glass card-3d hover-lift rounded-2xl p-6 sm:p-10 max-w-4xl mx-auto flex flex-col md:flex-row gap-8 items-center text-left border border-[#23324C]/80 animate-fade-in">
+          <div className="glass card-3d hover-lift rounded-2xl p-6 sm:p-10 max-w-4xl mx-auto flex flex-col md:flex-row gap-8 items-center text-left border border-slate-200/80 animate-fade-in">
             <div className="md:w-3/5 space-y-5 animate-slide-in-left">
-              <h3 className="text-2xl font-bold text-white flex items-center gap-2">
+              <h3 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
                 <span className="w-1.5 h-6 bg-brand-500 rounded-full"></span>
                 {activeSolution} Suite
               </h3>
-              <p className="text-slate-400 text-sm leading-relaxed">
+              <p className="text-slate-500 text-sm leading-relaxed">
                 {solutions.find(s => s.name === activeSolution)?.desc}
               </p>
               <ul className="space-y-2.5 pt-2">
                 {solutions.find(s => s.name === activeSolution)?.points.map((pt, i) => (
-                  <li key={i} className="flex items-center text-xs text-slate-300 font-semibold">
+                  <li key={i} className="flex items-center text-xs text-slate-600 font-semibold">
                     <CheckCircle2 className="h-4.5 w-4.5 text-emerald-400 mr-2.5 flex-shrink-0" />
                     {pt}
                   </li>
@@ -581,11 +581,11 @@ export default function LandingPage({ setView }) {
                 Get started with {activeSolution} <ArrowRight className="h-4 w-4 ml-1.5 group-hover:translate-x-0.5 transition-transform" />
               </button>
             </div>
-            <div className="md:w-2/5 w-full flex items-center justify-center p-6 bg-[#0B0F19]/60 border border-[#23324C] rounded-xl h-60 relative overflow-hidden animate-slide-in-right">
+            <div className="md:w-2/5 w-full flex items-center justify-center p-6 bg-slate-50/60 border border-slate-200 rounded-xl h-60 relative overflow-hidden animate-slide-in-right">
               <div className="absolute inset-0 bg-[radial-gradient(#23324c_1px,transparent_1px)] [background-size:16px_16px] opacity-25"></div>
               <div className="text-center space-y-3 z-10 animate-fade-in-up">
                 <Navigation className="h-10 w-10 text-brand-500 mx-auto animate-bounce" />
-                <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Interactive Fleet Map</span>
+                <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest">Interactive Fleet Map</span>
                 <span className="block text-[8px] px-2 py-1 bg-brand-500/10 border border-brand-500/20 text-brand-400 rounded-md">Live GPS Enabled</span>
               </div>
             </div>
@@ -596,13 +596,13 @@ export default function LandingPage({ setView }) {
       {/* ======================================================== */}
       {/* 5. SCREENSHOTS GALLERY */}
       {/* ======================================================== */}
-      <section className="py-24 bg-[#0B0F19] border-t border-[#23324C]/40 px-4 overflow-hidden">
+      <section className="py-24 bg-slate-50 border-t border-slate-200 px-4 overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-4">
               Explore Our Interfaces
             </h2>
-            <p className="text-slate-400 text-sm">
+            <p className="text-slate-500 text-sm">
               See the exact control panels built for each department in your organization.
             </p>
           </div>
@@ -615,7 +615,7 @@ export default function LandingPage({ setView }) {
                 className={`py-2 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
                   activeScreenshot === screen.name
                     ? 'bg-brand-500/10 border-brand-500/40 text-brand-400'
-                    : 'bg-[#161F30] border-[#23324C] text-slate-400 hover:text-white'
+                    : 'bg-slate-50 border-slate-200 text-slate-500 hover:text-slate-900'
                 }`}
               >
                 {screen.name.split(' ')[0]}
@@ -624,11 +624,11 @@ export default function LandingPage({ setView }) {
           </div>
 
           {/* Screenshot active display */}
-          <div className="max-w-4xl mx-auto bg-[#161F30]/40 border border-[#23324C] rounded-2xl p-6 sm:p-8 flex flex-col lg:flex-row items-center gap-8 shadow-2xl relative">
+          <div className="max-w-4xl mx-auto bg-slate-50/40 border border-slate-200 rounded-2xl p-6 sm:p-8 flex flex-col lg:flex-row items-center gap-8 shadow-2xl relative">
             <div className="lg:w-1/3 text-left space-y-4 animate-slide-in-left">
               <span className="text-[10px] font-bold tracking-widest text-brand-400 uppercase">Operational View</span>
-              <h3 className="text-xl font-bold text-white">{screenshots.find(s => s.name === activeScreenshot)?.title}</h3>
-              <p className="text-slate-400 text-xs leading-relaxed">{screenshots.find(s => s.name === activeScreenshot)?.desc}</p>
+              <h3 className="text-xl font-bold text-slate-900">{screenshots.find(s => s.name === activeScreenshot)?.title}</h3>
+              <p className="text-slate-500 text-xs leading-relaxed">{screenshots.find(s => s.name === activeScreenshot)?.desc}</p>
               <button 
                 onClick={() => setView('register')}
                 className="px-4 py-2 bg-brand-500 hover:bg-brand-600 rounded-lg text-xs font-black text-slate-950 transition-all cursor-pointer"
@@ -637,7 +637,7 @@ export default function LandingPage({ setView }) {
               </button>
             </div>
             
-            <div className="lg:w-2/3 w-full bg-[#0B0F19] border border-[#23324C] rounded-xl h-64 p-3 overflow-hidden shadow-inner flex items-center justify-center animate-slide-in-right">
+            <div className="lg:w-2/3 w-full bg-slate-50 border border-slate-200 rounded-xl h-64 p-3 overflow-hidden shadow-inner flex items-center justify-center animate-slide-in-right">
               {screenshots.find(s => s.name === activeScreenshot)?.preview}
             </div>
           </div>
@@ -647,13 +647,13 @@ export default function LandingPage({ setView }) {
       {/* ======================================================== */}
       {/* 6. PRICING SECTION */}
       {/* ======================================================== */}
-      <section id="pricing" className="py-24 bg-[#0B0F19] border-t border-[#23324C]/40 px-4 overflow-hidden">
+      <section id="pricing" className="py-24 bg-slate-50 border-t border-slate-200 px-4 overflow-hidden">
         <div className="max-w-7xl mx-auto">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-4">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-4">
               Transparent, Scalable Pricing
             </h2>
-            <p className="text-slate-400 text-sm">
+            <p className="text-slate-500 text-sm">
               All plans include access to standard driver mobile views. Choose a tier based on fleet size.
             </p>
           </div>
@@ -662,10 +662,10 @@ export default function LandingPage({ setView }) {
             {pricingPlans.map((plan, i) => (
               <ScrollReveal direction="up" delay={i * 0.15} key={plan.name}>
                 <div 
-                  className={`glass card-3d hover-lift p-8 bg-[#161F30]/80 border rounded-2xl flex flex-col justify-between text-left relative h-full ${
+                  className={`glass card-3d hover-lift p-8 bg-slate-50/80 border rounded-2xl flex flex-col justify-between text-left relative h-full ${
                     plan.popular 
                       ? 'border-brand-500 shadow-xl shadow-brand-500/5 scale-[1.02] md:scale-[1.04] z-10' 
-                      : 'border-[#23324C]'
+                      : 'border-slate-200'
                   }`}
                 >
                   {plan.popular && (
@@ -675,16 +675,16 @@ export default function LandingPage({ setView }) {
                   )}
                   
                   <div>
-                    <h4 className="text-slate-400 font-bold uppercase tracking-wider text-xs mb-1.5">{plan.name}</h4>
+                    <h4 className="text-slate-500 font-bold uppercase tracking-wider text-xs mb-1.5">{plan.name}</h4>
                     <div className="flex items-baseline gap-1 mb-4">
-                      <span className="text-3xl sm:text-4xl font-extrabold text-white">{plan.price}</span>
+                      <span className="text-3xl sm:text-4xl font-extrabold text-slate-900">{plan.price}</span>
                       {plan.price !== 'Custom' && <span className="text-slate-500 text-xs">/month</span>}
                     </div>
-                    <p className="text-slate-400 text-xs sm:text-sm leading-relaxed mb-6 border-b border-[#23324C]/60 pb-5">
+                    <p className="text-slate-500 text-xs sm:text-sm leading-relaxed mb-6 border-b border-slate-200 pb-5">
                       {plan.desc}
                     </p>
                     
-                    <ul className="space-y-3.5 mb-8 text-xs text-slate-300 font-medium">
+                    <ul className="space-y-3.5 mb-8 text-xs text-slate-600 font-medium">
                       {plan.features.map((feat, i) => (
                         <li key={i} className="flex items-center">
                           <Check className="h-4.5 w-4.5 text-brand-500 mr-2 flex-shrink-0" />
@@ -699,7 +699,7 @@ export default function LandingPage({ setView }) {
                     className={`w-full py-3 px-4 font-black text-sm rounded-xl transition-all cursor-pointer ${
                       plan.popular
                         ? 'bg-brand-500 hover:bg-brand-600 text-slate-950 shadow-lg shadow-brand-500/25'
-                        : 'bg-slate-800/40 hover:bg-slate-800 text-slate-300 hover:text-white border border-[#23324C]'
+                        : 'bg-white/40 hover:bg-white text-slate-600 hover:text-slate-900 border border-slate-200'
                     }`}
                   >
                     {plan.name === 'Enterprise' ? 'Contact Sales' : 'Start Trial'}
@@ -714,19 +714,19 @@ export default function LandingPage({ setView }) {
       {/* ======================================================== */}
       {/* 7. INTEGRATIONS SECTION */}
       {/* ======================================================== */}
-      <section id="integrations" className="py-20 bg-[#0B0F19] border-t border-[#23324C]/40 px-4 overflow-hidden">
+      <section id="integrations" className="py-20 bg-slate-50 border-t border-slate-200 px-4 overflow-hidden">
         <div className="max-w-7xl mx-auto text-center">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-4">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-4">
             Supported Integrations
           </h2>
-          <p className="text-slate-400 text-sm max-w-md mx-auto mb-10">
+          <p className="text-slate-500 text-sm max-w-md mx-auto mb-10">
             We sync automatically with leading routing, SMS alert alerts, payments, and mapping APIs.
           </p>
 
           <div className="flex flex-wrap justify-center gap-6 max-w-4xl mx-auto">
             {['Google Maps', 'Stripe Payments', 'Razorpay Sync', 'WhatsApp API', 'Twilio SMS Gateway', 'Telematics Providers'].map((int, i) => (
               <ScrollReveal direction="up" delay={i * 0.1} key={int}>
-                <div className="px-6 py-4 bg-[#161F30]/60 border border-[#23324C] hover:border-brand-500/35 rounded-xl text-slate-300 font-bold text-xs hover:scale-105 transition-all shadow-md">
+                <div className="px-6 py-4 bg-slate-50/60 border border-slate-200 hover:border-brand-500/35 rounded-xl text-slate-600 font-bold text-xs hover:scale-105 transition-all shadow-md">
                   {int}
                 </div>
               </ScrollReveal>
@@ -738,22 +738,22 @@ export default function LandingPage({ setView }) {
       {/* ======================================================== */}
       {/* 8. TESTIMONIALS SECTION */}
       {/* ======================================================== */}
-      <section className="py-24 bg-[#0B0F19] border-t border-[#23324C]/40 px-4 overflow-hidden">
+      <section className="py-24 bg-slate-50 border-t border-slate-200 px-4 overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <ScrollReveal direction="up" className="text-3xl font-extrabold text-white text-center mb-16">
+          <ScrollReveal direction="up" className="text-3xl font-extrabold text-slate-900 text-center mb-16">
             Tested & Trusted in Action
           </ScrollReveal>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             <ScrollReveal direction="up" delay={0.1}>
-              <div className="p-6 bg-[#161F30]/40 border border-[#23324C]/80 rounded-2xl text-left space-y-4">
-                <p className="text-slate-400 text-xs sm:text-sm italic leading-relaxed">
+              <div className="p-6 bg-slate-50/40 border border-slate-200/80 rounded-2xl text-left space-y-4">
+                <p className="text-slate-500 text-xs sm:text-sm italic leading-relaxed">
                   "Hero Logistics doubled our dispatch efficiency in 2 months. We went from handling 12 shipments to 30+ daily without adding office staff."
                 </p>
-                <div className="flex items-center gap-3 border-t border-[#23324C]/60 pt-4">
+                <div className="flex items-center gap-3 border-t border-slate-200 pt-4">
                   <div className="w-8 h-8 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold text-xs">RK</div>
                   <div>
-                    <h4 className="text-white text-xs font-bold">Rajesh K.</h4>
+                    <h4 className="text-slate-900 text-xs font-bold">Rajesh K.</h4>
                     <span className="text-[10px] text-slate-500">CEO, Falcon Logistics</span>
                   </div>
                 </div>
@@ -761,14 +761,14 @@ export default function LandingPage({ setView }) {
             </ScrollReveal>
 
             <ScrollReveal direction="up" delay={0.2}>
-              <div className="p-6 bg-[#161F30]/40 border border-[#23324C]/80 rounded-2xl text-left space-y-4">
-                <p className="text-slate-400 text-xs sm:text-sm italic leading-relaxed">
+              <div className="p-6 bg-slate-50/40 border border-slate-200/80 rounded-2xl text-left space-y-4">
+                <p className="text-slate-500 text-xs sm:text-sm italic leading-relaxed">
                   "The driver app is so simple that our older operators picked it up instantly. Electronic POD signatures sync immediately to back-office accounting."
                 </p>
-                <div className="flex items-center gap-3 border-t border-[#23324C]/60 pt-4">
+                <div className="flex items-center gap-3 border-t border-slate-200 pt-4">
                   <div className="w-8 h-8 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold text-xs">SM</div>
                   <div>
-                    <h4 className="text-white text-xs font-bold">Sarah M.</h4>
+                    <h4 className="text-slate-900 text-xs font-bold">Sarah M.</h4>
                     <span className="text-[10px] text-slate-500">Dispatch Director, SwiftTrans</span>
                   </div>
                 </div>
@@ -776,14 +776,14 @@ export default function LandingPage({ setView }) {
             </ScrollReveal>
 
             <ScrollReveal direction="up" delay={0.3}>
-              <div className="p-6 bg-[#161F30]/40 border border-[#23324C]/80 rounded-2xl text-left space-y-4">
-                <p className="text-slate-400 text-xs sm:text-sm italic leading-relaxed">
+              <div className="p-6 bg-slate-50/40 border border-slate-200/80 rounded-2xl text-left space-y-4">
+                <p className="text-slate-500 text-xs sm:text-sm italic leading-relaxed">
                   "Accounts dashboards saved us 10+ hours a week in invoice calculations. Driver payroll audits are now finished with a single click."
                 </p>
-                <div className="flex items-center gap-3 border-t border-[#23324C]/60 pt-4">
+                <div className="flex items-center gap-3 border-t border-slate-200 pt-4">
                   <div className="w-8 h-8 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center font-bold text-xs">AS</div>
                   <div>
-                    <h4 className="text-white text-xs font-bold">Amit S.</h4>
+                    <h4 className="text-slate-900 text-xs font-bold">Amit S.</h4>
                     <span className="text-[10px] text-slate-500">CFO, RedExpress 3PL</span>
                   </div>
                 </div>
@@ -796,9 +796,9 @@ export default function LandingPage({ setView }) {
       {/* ======================================================== */}
       {/* 9. FAQ SECTION */}
       {/* ======================================================== */}
-      <section id="faq" className="py-24 bg-[#0B0F19] border-t border-[#23324C]/40 px-4 overflow-hidden">
+      <section id="faq" className="py-24 bg-slate-50 border-t border-slate-200 px-4 overflow-hidden">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-extrabold text-white text-center mb-12">
+          <h2 className="text-3xl font-extrabold text-slate-900 text-center mb-12">
             Frequently Asked Questions
           </h2>
 
@@ -806,19 +806,19 @@ export default function LandingPage({ setView }) {
             {faqs.map((faq, i) => (
               <ScrollReveal direction="up" delay={i * 0.1} key={i}>
                 <div 
-                  className="bg-[#161F30]/40 border border-[#23324C] rounded-xl overflow-hidden transition-colors"
+                  className="bg-slate-50/40 border border-slate-200 rounded-xl overflow-hidden transition-colors"
                 >
                   <button
                     onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                    className="w-full px-5 py-4 flex items-center justify-between text-slate-200 hover:text-white font-bold text-sm cursor-pointer"
+                    className="w-full px-5 py-4 flex items-center justify-between text-slate-700 hover:text-slate-900 font-bold text-sm cursor-pointer"
                   >
                     <span>{faq.q}</span>
                     <ChevronDown className={`h-4 w-4 text-brand-400 transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
                   </button>
                   <div className={`transition-all overflow-hidden duration-300 ${
-                    openFaq === i ? 'max-h-40 border-t border-[#23324C]/60 p-5' : 'max-h-0'
+                    openFaq === i ? 'max-h-40 border-t border-slate-200 p-5' : 'max-h-0'
                   }`}>
-                    <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">{faq.a}</p>
+                    <p className="text-slate-500 text-xs sm:text-sm leading-relaxed">{faq.a}</p>
                   </div>
                 </div>
               </ScrollReveal>
@@ -830,20 +830,20 @@ export default function LandingPage({ setView }) {
       {/* ======================================================== */}
       {/* 10. CONTACT & LEAD GEN SECTION */}
       {/* ======================================================== */}
-      <section id="contact" className="py-24 bg-[#0B0F19] border-t border-[#23324C]/40 px-4 relative overflow-hidden">
+      <section id="contact" className="py-24 bg-slate-50 border-t border-slate-200 px-4 relative overflow-hidden">
         <div className="absolute bottom-10 left-10 w-96 h-96 bg-brand-500/5 rounded-full blur-[100px] pointer-events-none"></div>
 
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 relative z-10">
           
           <ScrollReveal direction="right" className="lg:col-span-5 text-left space-y-5 flex flex-col justify-center">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
               Get in Touch with Us
             </h2>
-            <p className="text-slate-400 text-sm leading-relaxed">
+            <p className="text-slate-500 text-sm leading-relaxed">
               Talk to our logistics experts or book a personalized screen demonstration to see how our dispatch boards solve your fleet delays.
             </p>
 
-            <div className="space-y-4 pt-4 text-xs font-semibold text-slate-300">
+            <div className="space-y-4 pt-4 text-xs font-semibold text-slate-600">
               <div className="flex items-center gap-3">
                 <span className="p-2.5 bg-brand-500/10 border border-brand-500/25 rounded-lg text-brand-400">
                   <Mail className="h-4.5 w-4.5" />
@@ -860,12 +860,12 @@ export default function LandingPage({ setView }) {
           </ScrollReveal>
 
           <ScrollReveal direction="left" className="lg:col-span-7">
-            <div className="glass rounded-2xl p-6 sm:p-8 shadow-xl text-left border border-[#23324C]">
+            <div className="glass rounded-2xl p-6 sm:p-8 shadow-xl text-left border border-slate-200">
               {formSubmitted ? (
                 <div className="py-12 text-center animate-fade-in">
                   <CheckCircle2 className="h-14 w-14 text-emerald-400 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-2">Inquiry Submitted Successfully!</h3>
-                  <p className="text-slate-400 text-xs max-w-sm mx-auto">
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">Inquiry Submitted Successfully!</h3>
+                  <p className="text-slate-500 text-xs max-w-sm mx-auto">
                     Thank you. A logistics product specialist will reach out to schedule your live demo.
                   </p>
                 </div>
@@ -873,7 +873,7 @@ export default function LandingPage({ setView }) {
                 <form onSubmit={handleContactSubmit} className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Full Name</label>
+                      <label className="block text-xs font-semibold text-slate-500 uppercase mb-1.5">Full Name</label>
                       <div className="relative">
                         <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500"><User className="h-4 w-4" /></span>
                         <input
@@ -882,12 +882,12 @@ export default function LandingPage({ setView }) {
                           value={formData.name}
                           onChange={(e) => setFormData({...formData, name: e.target.value})}
                           placeholder="e.g. John Doe"
-                          className="block w-full pl-9 pr-3 py-2.5 bg-[#111827]/80 border border-[#23324C] focus:border-brand-500 rounded-xl text-slate-200 text-xs focus:outline-none"
+                          className="block w-full pl-9 pr-3 py-2.5 bg-white/80 border border-slate-200 focus:border-brand-500 rounded-xl text-slate-700 text-xs focus:outline-none"
                         />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Company Name</label>
+                      <label className="block text-xs font-semibold text-slate-500 uppercase mb-1.5">Company Name</label>
                       <div className="relative">
                         <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500"><Building className="h-4 w-4" /></span>
                         <input
@@ -896,7 +896,7 @@ export default function LandingPage({ setView }) {
                           value={formData.company}
                           onChange={(e) => setFormData({...formData, company: e.target.value})}
                           placeholder="e.g. Apex Cargo"
-                          className="block w-full pl-9 pr-3 py-2.5 bg-[#111827]/80 border border-[#23324C] focus:border-brand-500 rounded-xl text-slate-200 text-xs focus:outline-none"
+                          className="block w-full pl-9 pr-3 py-2.5 bg-white/80 border border-slate-200 focus:border-brand-500 rounded-xl text-slate-700 text-xs focus:outline-none"
                         />
                       </div>
                     </div>
@@ -904,7 +904,7 @@ export default function LandingPage({ setView }) {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Email Address</label>
+                      <label className="block text-xs font-semibold text-slate-500 uppercase mb-1.5">Email Address</label>
                       <div className="relative">
                         <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500"><Mail className="h-4 w-4" /></span>
                         <input
@@ -913,12 +913,12 @@ export default function LandingPage({ setView }) {
                           value={formData.email}
                           onChange={(e) => setFormData({...formData, email: e.target.value})}
                           placeholder="e.g. john@apexcargo.com"
-                          className="block w-full pl-9 pr-3 py-2.5 bg-[#111827]/80 border border-[#23324C] focus:border-brand-500 rounded-xl text-slate-200 text-xs focus:outline-none"
+                          className="block w-full pl-9 pr-3 py-2.5 bg-white/80 border border-slate-200 focus:border-brand-500 rounded-xl text-slate-700 text-xs focus:outline-none"
                         />
                       </div>
                     </div>
                     <div>
-                      <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Phone Number</label>
+                      <label className="block text-xs font-semibold text-slate-500 uppercase mb-1.5">Phone Number</label>
                       <div className="relative">
                         <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500"><Phone className="h-4 w-4" /></span>
                         <input
@@ -927,14 +927,14 @@ export default function LandingPage({ setView }) {
                           value={formData.phone}
                           onChange={(e) => setFormData({...formData, phone: e.target.value})}
                           placeholder="e.g. +1 (555) 0199"
-                          className="block w-full pl-9 pr-3 py-2.5 bg-[#111827]/80 border border-[#23324C] focus:border-brand-500 rounded-xl text-slate-200 text-xs focus:outline-none"
+                          className="block w-full pl-9 pr-3 py-2.5 bg-white/80 border border-slate-200 focus:border-brand-500 rounded-xl text-slate-700 text-xs focus:outline-none"
                         />
                       </div>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Message / Requirements</label>
+                    <label className="block text-xs font-semibold text-slate-500 uppercase mb-1.5">Message / Requirements</label>
                     <div className="relative">
                       <span className="absolute top-3.5 left-3 text-slate-500"><MessageSquare className="h-4 w-4" /></span>
                       <textarea
@@ -943,7 +943,7 @@ export default function LandingPage({ setView }) {
                         value={formData.message}
                         onChange={(e) => setFormData({...formData, message: e.target.value})}
                         placeholder="Tell us about your fleet size, dispatcher count, and goals..."
-                        className="block w-full pl-9 pr-3 py-2.5 bg-[#111827]/80 border border-[#23324C] focus:border-brand-500 rounded-xl text-slate-200 text-xs focus:outline-none"
+                        className="block w-full pl-9 pr-3 py-2.5 bg-white/80 border border-slate-200 focus:border-brand-500 rounded-xl text-slate-700 text-xs focus:outline-none"
                       ></textarea>
                     </div>
                   </div>
@@ -958,7 +958,7 @@ export default function LandingPage({ setView }) {
                     <button
                       type="button"
                       onClick={() => setFormSubmitted(true)}
-                      className="px-6 py-3 bg-slate-800/40 hover:bg-slate-800 text-slate-300 hover:text-white border border-[#23324C] rounded-xl transition-all text-xs cursor-pointer flex-1 text-center"
+                      className="px-6 py-3 bg-white/40 hover:bg-white text-slate-600 hover:text-slate-900 border border-slate-200 rounded-xl transition-all text-xs cursor-pointer flex-1 text-center"
                     >
                       Book Live Demo
                     </button>

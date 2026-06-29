@@ -226,21 +226,21 @@ export default function SearchResultsDashboard({ setActiveTab }) {
       )}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#23324C]/60 pb-5 text-left">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5 text-left">
         <div>
-          <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
             <Search className="h-6 w-6 text-brand-500" /> Enterprise Global Search
           </h2>
-          <p className="text-xs text-slate-400">Search across Loads, Drivers, Vehicles, Customers, Warehouses, Invoices, and Custody Transfers.</p>
+          <p className="text-xs text-slate-500">Search across Loads, Drivers, Vehicles, Customers, Warehouses, Invoices, and Custody Transfers.</p>
         </div>
       </div>
 
       {/* Main Search Panel */}
-      <div className="glass rounded-2xl p-5 border border-[#23324C]/60 space-y-4">
+      <div className="glass rounded-2xl p-5 border border-slate-200 space-y-4">
         {/* Search Bar */}
         <div className="relative flex items-center gap-3">
           <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500 pointer-events-none">
-            <Search className="h-5 w-5 text-slate-400" />
+            <Search className="h-5 w-5 text-slate-500" />
           </span>
           <input
             ref={inputRef}
@@ -249,12 +249,12 @@ export default function SearchResultsDashboard({ setActiveTab }) {
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Search VIN/rego, driver name, invoice, transfer ID..."
-            className="w-full pl-11 pr-12 py-3 bg-[#0B0F19]/60 border border-[#23324C] hover:border-brand-500/30 text-slate-200 text-sm rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 transition-all placeholder:text-slate-500"
+            className="w-full pl-11 pr-12 py-3 bg-slate-50/60 border border-slate-200 hover:border-brand-500/30 text-slate-700 text-sm rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 transition-all placeholder:text-slate-500"
           />
           {searchQuery && (
             <button 
               onClick={() => setSearchQuery('')}
-              className="absolute right-3.5 p-1 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
+              className="absolute right-3.5 p-1 text-slate-500 hover:text-slate-900 rounded-lg transition-colors cursor-pointer"
             >
               <X className="h-4 w-4" />
             </button>
@@ -262,7 +262,7 @@ export default function SearchResultsDashboard({ setActiveTab }) {
         </div>
 
         {/* Categories filters */}
-        <div className="flex gap-2 pb-1 overflow-x-auto scrollbar-none text-[10px] font-black uppercase tracking-wider text-slate-400">
+        <div className="flex gap-2 pb-1 overflow-x-auto scrollbar-none text-[10px] font-black uppercase tracking-wider text-slate-500">
           {['All', 'Loads', 'Drivers', 'Vehicles', 'Customers', 'Warehouses', 'Invoices', 'Transfers'].map(f => (
             <button
               key={f}
@@ -270,7 +270,7 @@ export default function SearchResultsDashboard({ setActiveTab }) {
               className={`px-3.5 py-2 rounded-xl transition-all cursor-pointer border ${
                 activeFilter === f 
                   ? 'bg-brand-500 border-brand-500 text-slate-950 font-black' 
-                  : 'bg-slate-900/40 border-[#23324C]/60 hover:bg-[#111827] text-slate-400 hover:text-slate-200'
+                  : 'bg-slate-900/40 border-slate-200 hover:bg-white text-slate-500 hover:text-slate-700'
               }`}
             >
               {f}
@@ -286,7 +286,7 @@ export default function SearchResultsDashboard({ setActiveTab }) {
               <button 
                 key={idx}
                 onClick={() => setSearchQuery(term)}
-                className="px-2.5 py-1 bg-slate-900/60 hover:bg-slate-800 border border-[#23324C]/40 rounded-lg text-slate-400 hover:text-slate-200 transition-colors text-[10px] font-mono cursor-pointer"
+                className="px-2.5 py-1 bg-slate-900/60 hover:bg-white border border-slate-200 rounded-lg text-slate-500 hover:text-slate-700 transition-colors text-[10px] font-mono cursor-pointer"
               >
                 {term}
               </button>
@@ -296,8 +296,8 @@ export default function SearchResultsDashboard({ setActiveTab }) {
       </div>
 
       {/* Results Section */}
-      <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-        <div className="flex justify-between items-center text-xs text-slate-400 font-bold border-b border-[#23324C]/45 pb-2">
+      <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
+        <div className="flex justify-between items-center text-xs text-slate-500 font-bold border-b border-slate-200/45 pb-2">
           <span>Found {filteredResults.length} records</span>
           <span className="text-[10px] font-mono text-slate-500">Use ↑↓ keys and ↵ Enter to navigate</span>
         </div>
@@ -320,22 +320,22 @@ export default function SearchResultsDashboard({ setActiveTab }) {
                   className={`p-4 rounded-xl border transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
                     isSelected 
                       ? 'bg-brand-500/10 border-brand-500 shadow-md shadow-brand-500/5' 
-                      : 'bg-[#111827]/40 border-[#23324C]/40 hover:bg-[#111827]/80'
+                      : 'bg-white/40 border-slate-200 hover:bg-white/80'
                   }`}
                 >
                   <div className="flex items-start gap-3">
                     <div className={`p-2.5 rounded-xl border flex-shrink-0 ${
                       isSelected 
                         ? 'bg-brand-500/25 border-brand-500 text-brand-400' 
-                        : 'bg-slate-900 border-[#23324C] text-slate-400'
+                        : 'bg-slate-900 border-slate-200 text-slate-500'
                     }`}>
                       <Icon className="h-5 w-5" />
                     </div>
 
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-extrabold text-white text-xs">{item.title}</span>
-                        <span className="text-[9px] font-mono font-bold bg-[#111827]/80 text-slate-400 px-2 py-0.5 rounded border border-[#23324C]/50 uppercase tracking-wider">
+                        <span className="font-extrabold text-slate-900 text-xs">{item.title}</span>
+                        <span className="text-[9px] font-mono font-bold bg-white/80 text-slate-500 px-2 py-0.5 rounded border border-slate-200/50 uppercase tracking-wider">
                           {item.category}
                         </span>
                         <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
@@ -343,12 +343,12 @@ export default function SearchResultsDashboard({ setActiveTab }) {
                             ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                             : item.status === 'Overdue' 
                             ? 'bg-red-500/10 text-red-400 border border-red-500/20'
-                            : 'bg-slate-500/10 text-slate-400 border border-slate-500/20'
+                            : 'bg-slate-500/10 text-slate-500 border border-slate-500/20'
                         }`}>
                           {item.status}
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-300 font-medium">{item.desc}</p>
+                      <p className="text-[11px] text-slate-600 font-medium">{item.desc}</p>
                       <p className="text-[10px] text-slate-500 font-medium">{item.detail}</p>
                     </div>
                   </div>
@@ -358,7 +358,7 @@ export default function SearchResultsDashboard({ setActiveTab }) {
                       className={`px-3 py-1.5 text-xs rounded-xl font-bold transition-all flex items-center gap-1.5 cursor-pointer ${
                         isSelected 
                           ? 'bg-brand-500 hover:bg-brand-600 text-slate-950 shadow-md shadow-brand-500/10 font-black' 
-                          : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-[#23324C]'
+                          : 'bg-white hover:bg-slate-700 text-slate-700 border border-slate-200'
                       }`}
                     >
                       View Details

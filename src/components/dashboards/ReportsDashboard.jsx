@@ -103,10 +103,10 @@ export default function ReportsDashboard({ activeTab = 'overview' }) {
   };
 
   const renderFilters = () => (
-    <div className="flex flex-wrap items-center gap-3 bg-[#111827]/60 p-4 border-b border-[#23324C]/60 rounded-t-2xl">
+    <div className="flex flex-wrap items-center gap-3 bg-white/60 p-4 border-b border-slate-200 rounded-t-2xl">
       <div className="flex items-center space-x-2 mr-2">
-        <Filter className="h-4 w-4 text-slate-400" />
-        <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">Filters:</span>
+        <Filter className="h-4 w-4 text-slate-500" />
+        <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Filters:</span>
       </div>
       <SelectInput 
         value={filters.dateRange} 
@@ -147,10 +147,10 @@ export default function ReportsDashboard({ activeTab = 'overview' }) {
       )}
 
       {/* Header controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#23324C]/60 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
-          <h2 className="text-xl sm:text-2xl font-black text-white capitalize">Reports & Analytics Center</h2>
-          <p className="text-xs text-slate-400">Generate, export, and visualize system-wide logistics performance metrics.</p>
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 capitalize">Reports & Analytics Center</h2>
+          <p className="text-xs text-slate-500">Generate, export, and visualize system-wide logistics performance metrics.</p>
         </div>
       </div>
 
@@ -163,11 +163,11 @@ export default function ReportsDashboard({ activeTab = 'overview' }) {
       </div>
 
       {/* Reports Workspace */}
-      <div className="glass rounded-2xl border border-[#23324C]/60 text-left flex flex-col">
+      <div className="glass rounded-2xl border border-slate-200 text-left flex flex-col">
         
         {renderFilters()}
         
-        <div className="border-b border-[#23324C]/60 px-5 pt-4">
+        <div className="border-b border-slate-200 px-5 pt-4">
           <Tabs 
             tabs={[
               { id: 'revenue', label: 'Revenue Trends', icon: Building2 },
@@ -185,8 +185,8 @@ export default function ReportsDashboard({ activeTab = 'overview' }) {
         <div className="p-6">
           {reportTab === 'revenue' && (
             <div className="space-y-6 animate-fade-in">
-              <h3 className="text-sm font-extrabold text-white mb-2">Revenue vs Expenses Flow</h3>
-              <div className="h-80 w-full bg-[#0B0F19] rounded-xl border border-[#23324C] p-4 flex items-center justify-center">
+              <h3 className="text-sm font-extrabold text-slate-900 mb-2">Revenue vs Expenses Flow</h3>
+              <div className="h-80 w-full bg-slate-50 rounded-xl border border-slate-200 p-4 flex items-center justify-center">
                 <LineChartWidget data={data.revenueTrends} dataKey1="revenue" dataKey2="expenses" color1="#0ea0ea" color2="#f43f5e" />
               </div>
               <DataTable columns={[
@@ -200,8 +200,8 @@ export default function ReportsDashboard({ activeTab = 'overview' }) {
 
           {reportTab === 'driver' && (
             <div className="space-y-6 animate-fade-in">
-              <h3 className="text-sm font-extrabold text-white mb-2">Driver Distance & Trips Metrics</h3>
-              <div className="h-80 w-full bg-[#0B0F19] rounded-xl border border-[#23324C] p-4 flex items-center justify-center">
+              <h3 className="text-sm font-extrabold text-slate-900 mb-2">Driver Distance & Trips Metrics</h3>
+              <div className="h-80 w-full bg-slate-50 rounded-xl border border-slate-200 p-4 flex items-center justify-center">
                 <BarChartWidget data={data.driverPerformance} dataKey="distance" color="#10b981" />
               </div>
               <DataTable columns={[
@@ -217,17 +217,17 @@ export default function ReportsDashboard({ activeTab = 'overview' }) {
             <div className="space-y-6 animate-fade-in">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
                 <div>
-                  <h3 className="text-sm font-extrabold text-white mb-2">Fleet Status Distribution</h3>
-                  <div className="h-80 w-full bg-[#0B0F19] rounded-xl border border-[#23324C] p-4 flex items-center justify-center">
+                  <h3 className="text-sm font-extrabold text-slate-900 mb-2">Fleet Status Distribution</h3>
+                  <div className="h-80 w-full bg-slate-50 rounded-xl border border-slate-200 p-4 flex items-center justify-center">
                     <PieChartWidget data={data.vehicleUtilization} height={280} />
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <h4 className="text-xs font-bold text-slate-400 uppercase">Status Breakdown</h4>
+                  <h4 className="text-xs font-bold text-slate-500 uppercase">Status Breakdown</h4>
                   <div className="divide-y divide-[#23324C]/40">
                     {data.vehicleUtilization.map((v, idx) => (
                       <div key={idx} className="py-3 flex justify-between items-center text-xs">
-                        <span className="text-white font-bold">{v.name}</span>
+                        <span className="text-slate-900 font-bold">{v.name}</span>
                         <span className="font-mono text-brand-400">{v.value}% of Fleet</span>
                       </div>
                     ))}
@@ -239,8 +239,8 @@ export default function ReportsDashboard({ activeTab = 'overview' }) {
 
           {reportTab === 'customer' && (
             <div className="space-y-6 animate-fade-in">
-              <h3 className="text-sm font-extrabold text-white mb-2">Client Acquisition vs Output</h3>
-              <div className="h-80 w-full bg-[#0B0F19] rounded-xl border border-[#23324C] p-4 flex items-center justify-center">
+              <h3 className="text-sm font-extrabold text-slate-900 mb-2">Client Acquisition vs Output</h3>
+              <div className="h-80 w-full bg-slate-50 rounded-xl border border-slate-200 p-4 flex items-center justify-center">
                 <LineChartWidget data={data.customerGrowth} dataKey1="newCustomers" dataKey2="activeLoads" color1="#8b5cf6" color2="#0ea0ea" />
               </div>
               <DataTable columns={[
@@ -253,15 +253,15 @@ export default function ReportsDashboard({ activeTab = 'overview' }) {
 
           {reportTab === 'warehouse' && (
             <div className="space-y-6 animate-fade-in">
-              <h3 className="text-sm font-extrabold text-white mb-2">Storage Bay Occupancy Rate</h3>
-              <div className="h-80 w-full bg-[#0B0F19] rounded-xl border border-[#23324C] p-4 flex items-center justify-center">
+              <h3 className="text-sm font-extrabold text-slate-900 mb-2">Storage Bay Occupancy Rate</h3>
+              <div className="h-80 w-full bg-slate-50 rounded-xl border border-slate-200 p-4 flex items-center justify-center">
                 <BarChartWidget data={data.warehouseCapacity} dataKey="used" color="#f59e0b" />
               </div>
               <DataTable columns={[
                 { key: 'name', label: 'Warehouse Zone' },
                 { key: 'used', label: 'Capacity Utilization', render: (row) => (
                   <div className="w-full max-w-[200px] flex items-center gap-2">
-                    <div className="flex-1 bg-slate-800 rounded-full h-1.5 relative overflow-hidden">
+                    <div className="flex-1 bg-white rounded-full h-1.5 relative overflow-hidden">
                       <div className="absolute top-0 left-0 bottom-0 bg-yellow-500 rounded-full" style={{ width: `${row.used}%` }}></div>
                     </div>
                     <span className="font-mono text-xs">{row.used}%</span>

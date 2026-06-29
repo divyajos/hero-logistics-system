@@ -1305,11 +1305,11 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
   );
 
   const columns = [
-    { key: 'name', label: 'Company Workspace', render: (row) => <span className="font-extrabold text-white">{row.name}</span> },
-    { key: 'plan', label: 'Plan Level', render: (row) => <span className="font-bold text-slate-300">{row.plan}</span> },
+    { key: 'name', label: 'Company Workspace', render: (row) => <span className="font-extrabold text-slate-900">{row.name}</span> },
+    { key: 'plan', label: 'Plan Level', render: (row) => <span className="font-bold text-slate-600">{row.plan}</span> },
     { key: 'status', label: 'Account State', render: (row) => <StatusBadge status={row.status} /> },
     { key: 'drivers', label: 'Fleet Drivers', render: (row) => <span className="font-mono">{row.drivers || 0}</span> },
-    { key: 'joined', label: 'Date Joined', render: (row) => <span className="text-slate-400 font-medium">{row.joined}</span> },
+    { key: 'joined', label: 'Date Joined', render: (row) => <span className="text-slate-500 font-medium">{row.joined}</span> },
     {
       key: 'actions',
       label: 'Actions',
@@ -1351,10 +1351,10 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
       )}
 
       {/* Header Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#23324C]/60 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
-          <h2 className="text-xl sm:text-2xl font-black text-white capitalize">Super Admin • {activeTab.replace('-', ' ')}</h2>
-          <p className="text-xs text-slate-400">Configure global licensing rules, audit tenant margins, and resolve support tickets.</p>
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 capitalize">Super Admin • {activeTab.replace('-', ' ')}</h2>
+          <p className="text-xs text-slate-500">Configure global licensing rules, audit tenant margins, and resolve support tickets.</p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -1394,25 +1394,25 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                 {/* Left Area (MRR and Tenant Overview Table) */}
                 <div className="lg:col-span-8 space-y-6">
                   {/* MRR Revenue Chart */}
-                  <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left">
-                    <h3 className="text-sm font-extrabold text-white mb-3">MRR Revenue Timeline (USD)</h3>
+                  <div className="glass rounded-2xl p-5 border border-slate-200 text-left">
+                    <h3 className="text-sm font-extrabold text-slate-900 mb-3">MRR Revenue Timeline (USD)</h3>
                     <MiniChart type="line" data={monthlyRevenueTrend} labels={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']} />
                   </div>
 
                   {/* Tenant Overview Table */}
-                  <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                  <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
                     <div>
-                      <h3 className="text-sm font-extrabold text-white">Tenant Overview</h3>
+                      <h3 className="text-sm font-extrabold text-slate-900">Tenant Overview</h3>
                       <p className="text-[10px] text-slate-500">Live summary of platform subscriber performance.</p>
                     </div>
                     <DataTable tableName="sa_overview_list" columns={[
-                      { key: 'name', label: 'Company', render: (row) => <span className="font-extrabold text-white">{row.name}</span> },
-                      { key: 'plan', label: 'Subscription Plan', render: (row) => <span className="font-bold text-slate-350">{row.plan}</span> },
+                      { key: 'name', label: 'Company', render: (row) => <span className="font-extrabold text-slate-900">{row.name}</span> },
+                      { key: 'plan', label: 'Subscription Plan', render: (row) => <span className="font-bold text-slate-500">{row.plan}</span> },
                       { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> },
                       { key: 'activeUsers', label: 'Active Users', render: (row) => <span className="font-mono">{row.users || (row.id % 2 === 0 ? 5 : 3)}</span> },
                       { key: 'monthlyRevenue', label: 'Monthly Revenue', render: (row) => <span className="font-bold text-emerald-400">{row.revenue !== undefined ? `$${row.revenue.toLocaleString()}` : (row.plan === 'Starter' ? '$199.00' : (row.plan === 'Professional' ? '$499.00' : '$1,299.00'))}</span> },
-                      { key: 'trialExpiry', label: 'Trial Expiry', render: (row) => <span className="text-slate-400">{row.trialExpiry || (row.plan === 'Starter' ? '07/15/2026' : 'N/A')}</span> },
-                      { key: 'lastLogin', label: 'Last Login', render: (row) => <span className="text-slate-400">{row.lastLogin || 'Today, 03:24 PM'}</span> },
+                      { key: 'trialExpiry', label: 'Trial Expiry', render: (row) => <span className="text-slate-500">{row.trialExpiry || (row.plan === 'Starter' ? '07/15/2026' : 'N/A')}</span> },
+                      { key: 'lastLogin', label: 'Last Login', render: (row) => <span className="text-slate-500">{row.lastLogin || 'Today, 03:24 PM'}</span> },
                       { key: 'actions', label: 'Actions', render: (row) => (
                         <div className="flex flex-wrap gap-1.5">
                           <Button size="sm" variant="secondary" onClick={() => { setSelectedCompany(row); setCompanyDetailsTab('overview'); setDetailsDrawerOpen(true); }}>View</Button>
@@ -1433,8 +1433,8 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                 <div className="lg:col-span-4 space-y-6">
                   
                   {/* Dedicated Platform Actions Quick Panel */}
-                  <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left">
-                    <h3 className="text-sm font-extrabold text-white mb-1">Platform Actions</h3>
+                  <div className="glass rounded-2xl p-5 border border-slate-200 text-left">
+                    <h3 className="text-sm font-extrabold text-slate-900 mb-1">Platform Actions</h3>
                     <p className="text-[10px] text-slate-500 mb-3.5">Quick administrative platform workflows.</p>
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <Button size="sm" variant="primary" icon={Plus} onClick={() => setProvisionModalOpen(true)}>Add Company</Button>
@@ -1474,81 +1474,81 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                   </div>
 
                   {/* Platform Health Center */}
-                  <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                  <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
                     <div>
-                      <h3 className="text-sm font-extrabold text-white mb-1">Platform Health Center</h3>
+                      <h3 className="text-sm font-extrabold text-slate-900 mb-1">Platform Health Center</h3>
                       <p className="text-[10px] text-slate-500 font-medium">Live platform status & system metrics.</p>
                     </div>
                     
                     <div className="space-y-2.5">
-                      <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">System Status</h4>
+                      <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">System Status</h4>
                       <div className="space-y-2">
                         <div className="flex justify-between items-center text-xs">
-                          <span className="text-slate-400 font-semibold">API Health</span>
+                          <span className="text-slate-500 font-semibold">API Health</span>
                           <span className="flex items-center gap-1.5 font-bold text-emerald-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 99.98%</span>
                         </div>
                         <div className="flex justify-between items-center text-xs">
-                          <span className="text-slate-400 font-semibold">Database Health</span>
+                          <span className="text-slate-500 font-semibold">Database Health</span>
                           <span className="flex items-center gap-1.5 font-bold text-emerald-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Synced</span>
                         </div>
                         <div className="flex justify-between items-center text-xs">
-                          <span className="text-slate-400 font-semibold">Storage Health</span>
+                          <span className="text-slate-500 font-semibold">Storage Health</span>
                           <span className="flex items-center gap-1.5 font-bold text-emerald-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> {((10 - calculatedStorage) / 10 * 100).toFixed(1)}% Free</span>
                         </div>
                         <div className="flex justify-between items-center text-xs">
-                          <span className="text-slate-400 font-semibold">Queue Health</span>
+                          <span className="text-slate-500 font-semibold">Queue Health</span>
                           <span className="flex items-center gap-1.5 font-bold text-emerald-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 0 pending</span>
                         </div>
                         <div className="flex justify-between items-center text-xs">
-                          <span className="text-slate-400 font-semibold">AI Processing Health</span>
+                          <span className="text-slate-500 font-semibold">AI Processing Health</span>
                           <span className="flex items-center gap-1.5 font-bold text-emerald-400"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Active</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="space-y-2.5 pt-3.5 border-t border-[#23324C]/40">
-                      <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Usage Metrics</h4>
+                    <div className="space-y-2.5 pt-3.5 border-t border-slate-200">
+                      <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Usage Metrics</h4>
                       <div className="space-y-2">
                         <div className="flex justify-between items-center text-xs">
-                          <span className="text-slate-400 font-semibold">Active Sessions</span>
-                          <span className="font-mono font-bold text-white">42 active</span>
+                          <span className="text-slate-500 font-semibold">Active Sessions</span>
+                          <span className="font-mono font-bold text-slate-900">42 active</span>
                         </div>
                         <div className="flex justify-between items-center text-xs">
-                          <span className="text-slate-400 font-semibold">Requests Per Minute</span>
-                          <span className="font-mono font-bold text-white">1,250 RPM</span>
+                          <span className="text-slate-500 font-semibold">Requests Per Minute</span>
+                          <span className="font-mono font-bold text-slate-900">1,250 RPM</span>
                         </div>
                         <div className="flex justify-between items-center text-xs">
-                          <span className="text-slate-400 font-semibold">Storage Consumption</span>
-                          <span className="font-mono font-bold text-white">{calculatedStorage.toFixed(2)} TB / 10 TB</span>
+                          <span className="text-slate-500 font-semibold">Storage Consumption</span>
+                          <span className="font-mono font-bold text-slate-900">{calculatedStorage.toFixed(2)} TB / 10 TB</span>
                         </div>
                         <div className="flex justify-between items-center text-xs">
-                          <span className="text-slate-400 font-semibold">AI Jobs Processed</span>
-                          <span className="font-mono font-bold text-white">14,850 runs</span>
+                          <span className="text-slate-500 font-semibold">AI Jobs Processed</span>
+                          <span className="font-mono font-bold text-slate-900">14,850 runs</span>
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Support Queue Widget */}
-                  <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                  <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
                     <div>
-                      <h3 className="text-sm font-extrabold text-white mb-1">Support Queue Status</h3>
+                      <h3 className="text-sm font-extrabold text-slate-900 mb-1">Support Queue Status</h3>
                       <p className="text-[10px] text-slate-500">Inbound support tickets metric status.</p>
                     </div>
                     <div className="grid grid-cols-2 gap-2 my-2 text-xs">
-                      <div className="bg-[#111827] border border-[#23324C] rounded-xl p-2.5 text-center">
+                      <div className="bg-white border border-slate-200 rounded-xl p-2.5 text-center">
                         <span className="text-[10px] text-slate-500 block font-semibold">Open Tickets</span>
                         <strong className="text-lg font-black text-brand-400">{tickets.filter(t => t.status === 'Open').length}</strong>
                       </div>
-                      <div className="bg-[#111827] border border-[#23324C] rounded-xl p-2.5 text-center">
+                      <div className="bg-white border border-slate-200 rounded-xl p-2.5 text-center">
                         <span className="text-[10px] text-slate-500 block font-semibold">High Priority</span>
                         <strong className="text-lg font-black text-red-400">{tickets.filter(t => t.priority === 'High' && t.status === 'Open').length}</strong>
                       </div>
-                      <div className="bg-[#111827] border border-[#23324C] rounded-xl p-2.5 text-center">
+                      <div className="bg-white border border-slate-200 rounded-xl p-2.5 text-center">
                         <span className="text-[10px] text-slate-500 block font-semibold">Waiting Customer</span>
                         <strong className="text-lg font-black text-blue-400">{tickets.filter(t => t.status === 'Open' && t.replies?.length > 0).length}</strong>
                       </div>
-                      <div className="bg-[#111827] border border-[#23324C] rounded-xl p-2.5 text-center">
+                      <div className="bg-white border border-slate-200 rounded-xl p-2.5 text-center">
                         <span className="text-[10px] text-slate-500 block font-semibold">Waiting Internal</span>
                         <strong className="text-lg font-black text-purple-400">{tickets.filter(t => t.status === 'Open' && (!t.replies || t.replies.length === 0)).length}</strong>
                       </div>
@@ -1561,26 +1561,26 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                   </div>
 
                   {/* Subscription Monitoring Widget */}
-                  <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                  <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
                     <div>
-                      <h3 className="text-sm font-extrabold text-white mb-1">Subscription Monitoring</h3>
+                      <h3 className="text-sm font-extrabold text-slate-900 mb-1">Subscription Monitoring</h3>
                       <p className="text-[10px] text-slate-500 font-medium">Monitor plans lifecycle metrics.</p>
                     </div>
                     <div className="space-y-2 text-xs">
                       <div className="flex justify-between items-center">
-                        <span className="text-slate-400 font-semibold">Active Plans</span>
-                        <strong className="text-white">{tenants.filter(t => t.status === 'Active').length} active</strong>
+                        <span className="text-slate-500 font-semibold">Active Plans</span>
+                        <strong className="text-slate-900">{tenants.filter(t => t.status === 'Active').length} active</strong>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-slate-400 font-semibold">Expiring This Month</span>
+                        <span className="text-slate-500 font-semibold">Expiring This Month</span>
                         <strong className="text-amber-400">1 plan</strong>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-slate-400 font-semibold">Overdue Payments</span>
+                        <span className="text-slate-500 font-semibold">Overdue Payments</span>
                         <strong className="text-emerald-400">0 overdue</strong>
                       </div>
                       <div className="flex justify-between items-center">
-                        <span className="text-slate-400 font-semibold">Upgrade Opportunities</span>
+                        <span className="text-slate-500 font-semibold">Upgrade Opportunities</span>
                         <strong className="text-brand-400">2 accounts</strong>
                       </div>
                     </div>
@@ -1598,16 +1598,16 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                   </div>
 
                   {/* Recent Activity Feed */}
-                  <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                  <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
                     <div>
-                      <h3 className="text-sm font-extrabold text-white mb-1">Recent Platform Activity</h3>
+                      <h3 className="text-sm font-extrabold text-slate-900 mb-1">Recent Platform Activity</h3>
                       <p className="text-[10px] text-slate-500 font-medium">Real-time SaaS system administrative actions audit feed.</p>
                     </div>
                     <div className="space-y-3 max-h-64 overflow-y-auto scrollbar-none text-xs">
                       {auditLogs && auditLogs.length > 0 ? (
                         auditLogs.map((log) => (
-                          <div key={log.id} className="border-b border-[#23324C]/30 pb-2.5 last:border-b-0 last:pb-0">
-                            <p className="text-slate-300 leading-relaxed font-semibold">
+                          <div key={log.id} className="border-b border-slate-200 pb-2.5 last:border-b-0 last:pb-0">
+                            <p className="text-slate-600 leading-relaxed font-semibold">
                               <strong>{log.action}</strong>: {log.detail} {log.companyName ? `(${log.companyName})` : ''}
                             </p>
                             <span className="text-[9px] text-slate-500 font-mono block mt-1">{log.time}</span>
@@ -1642,7 +1642,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
               </div>
 
               {/* Companies Data Workspace */}
-              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
                 
                 {/* Search, Filter Toggles, and Exports */}
                 <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
@@ -1663,13 +1663,13 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
 
                 {/* Advanced Filters Panel */}
                 {showAdvancedFilters && (
-                  <div className="p-4 bg-[#111827] border border-[#23324C] rounded-xl grid grid-cols-2 md:grid-cols-4 gap-3 text-xs animate-fade-in">
+                  <div className="p-4 bg-white border border-slate-200 rounded-xl grid grid-cols-2 md:grid-cols-4 gap-3 text-xs animate-fade-in">
                     <div>
                       <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Subscription Plan</label>
                       <select 
                         value={filters.plan} 
                         onChange={(e) => setFilters(prev => ({ ...prev, plan: e.target.value }))}
-                        className="w-full bg-[#0B0F19] border border-[#23324C] rounded-lg p-2 text-slate-300 outline-none"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-slate-600 outline-none"
                       >
                         <option value="">All Tiers</option>
                         <option value="Starter">Starter Tier</option>
@@ -1683,7 +1683,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                       <select 
                         value={filters.status} 
                         onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
-                        className="w-full bg-[#0B0F19] border border-[#23324C] rounded-lg p-2 text-slate-300 outline-none"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-slate-600 outline-none"
                       >
                         <option value="">All States</option>
                         <option value="Active">Active</option>
@@ -1696,7 +1696,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                       <select 
                         value={filters.revenueRange} 
                         onChange={(e) => setFilters(prev => ({ ...prev, revenueRange: e.target.value }))}
-                        className="w-full bg-[#0B0F19] border border-[#23324C] rounded-lg p-2 text-slate-300 outline-none"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-slate-600 outline-none"
                       >
                         <option value="">All Ranges</option>
                         <option value="under_500">Under $500/mo</option>
@@ -1710,7 +1710,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                       <select 
                         value={filters.companySize} 
                         onChange={(e) => setFilters(prev => ({ ...prev, companySize: e.target.value }))}
-                        className="w-full bg-[#0B0F19] border border-[#23324C] rounded-lg p-2 text-slate-300 outline-none"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-slate-600 outline-none"
                       >
                         <option value="">All Sizes</option>
                         <option value="small">Small (1-10 drivers)</option>
@@ -1724,7 +1724,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                       <select 
                         value={filters.trialStatus} 
                         onChange={(e) => setFilters(prev => ({ ...prev, trialStatus: e.target.value }))}
-                        className="w-full bg-[#0B0F19] border border-[#23324C] rounded-lg p-2 text-slate-300 outline-none"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-slate-600 outline-none"
                       >
                         <option value="">All Contracts</option>
                         <option value="trial">Active Trial</option>
@@ -1737,7 +1737,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                       <select 
                         value={filters.country} 
                         onChange={(e) => setFilters(prev => ({ ...prev, country: e.target.value }))}
-                        className="w-full bg-[#0B0F19] border border-[#23324C] rounded-lg p-2 text-slate-300 outline-none"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-slate-600 outline-none"
                       >
                         <option value="">All Regions</option>
                         <option value="USA">United States</option>
@@ -1750,7 +1750,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                       <select 
                         value={filters.lastLogin} 
                         onChange={(e) => setFilters(prev => ({ ...prev, lastLogin: e.target.value }))}
-                        className="w-full bg-[#0B0F19] border border-[#23324C] rounded-lg p-2 text-slate-300 outline-none"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-slate-600 outline-none"
                       >
                         <option value="">All Times</option>
                         <option value="today">Logged in today</option>
@@ -1765,11 +1765,11 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                         type="date"
                         value={filters.dateCreated} 
                         onChange={(e) => setFilters(prev => ({ ...prev, dateCreated: e.target.value }))}
-                        className="w-full bg-[#0B0F19] border border-[#23324C] rounded-lg p-1.5 text-slate-300 outline-none"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-lg p-1.5 text-slate-600 outline-none"
                       />
                     </div>
 
-                    <div className="col-span-4 flex items-center justify-end gap-2 pt-2 border-t border-[#23324C]/45 mt-1">
+                    <div className="col-span-4 flex items-center justify-end gap-2 pt-2 border-t border-slate-200/45 mt-1">
                       <Button size="sm" variant="secondary" onClick={() => setFilters({ plan: '', status: '', revenueRange: '', companySize: '', trialStatus: '', country: '', lastLogin: '', dateCreated: '' })}>
                         Reset
                       </Button>
@@ -1814,7 +1814,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                                 setSelectedCompanyIds([]);
                               }
                             }}
-                            className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-4 w-4 cursor-pointer" 
+                            className="rounded bg-slate-50 border-slate-200 text-brand-500 h-4 w-4 cursor-pointer" 
                           />
                         ),
                         render: (row) => (
@@ -1828,13 +1828,13 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                                 setSelectedCompanyIds(prev => prev.filter(id => id !== row.id));
                               }
                             }}
-                            className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-4 w-4 cursor-pointer" 
+                            className="rounded bg-slate-50 border-slate-200 text-brand-500 h-4 w-4 cursor-pointer" 
                           />
                         )
                       },
-                      { key: 'name', label: 'Company Name', render: (row) => <span className="font-extrabold text-white">{row.name}</span> },
-                      { key: 'id', label: 'Company ID', render: (row) => <span className="font-mono text-slate-400 font-bold">#TEN-{row.id}</span> },
-                      { key: 'plan', label: 'Subscription Plan', render: (row) => <span className="font-bold text-slate-350">{row.plan}</span> },
+                      { key: 'name', label: 'Company Name', render: (row) => <span className="font-extrabold text-slate-900">{row.name}</span> },
+                      { key: 'id', label: 'Company ID', render: (row) => <span className="font-mono text-slate-500 font-bold">#TEN-{row.id}</span> },
+                      { key: 'plan', label: 'Subscription Plan', render: (row) => <span className="font-bold text-slate-500">{row.plan}</span> },
                       { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> },
                       { key: 'branches', label: 'Branches', render: (row) => <span>{row.branches !== undefined ? row.branches : 1}</span> },
                       { key: 'users', label: 'Users', render: (row) => <span>{row.users !== undefined ? row.users : 1}</span> },
@@ -1843,8 +1843,8 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                       { key: 'activeLoads', label: 'Active Loads', render: (row) => <span>{row.activeLoads !== undefined ? row.activeLoads : 0}</span> },
                       { key: 'revenue', label: 'Monthly Revenue', render: (row) => <span className="font-bold text-emerald-400">{row.revenue !== undefined ? `$${row.revenue.toLocaleString()}` : (row.plan === 'Starter' ? '$199.00' : (row.plan === 'Professional' ? '$499.00' : '$1,299.00'))}</span> },
                       { key: 'lastLogin', label: 'Last Login', render: (row) => <span>{row.lastLogin || 'Today, 03:24 PM'}</span> },
-                      { key: 'trialExpiry', label: 'Trial Expiry', render: (row) => <span className="text-slate-400">{row.trialExpiry || (row.plan === 'Starter' ? '07/15/2026' : 'N/A')}</span> },
-                      { key: 'joined', label: 'Created Date', render: (row) => <span className="text-slate-400 font-medium">{row.joined}</span> },
+                      { key: 'trialExpiry', label: 'Trial Expiry', render: (row) => <span className="text-slate-500">{row.trialExpiry || (row.plan === 'Starter' ? '07/15/2026' : 'N/A')}</span> },
+                      { key: 'joined', label: 'Created Date', render: (row) => <span className="text-slate-500 font-medium">{row.joined}</span> },
                       { key: 'manager', label: 'Account Manager', render: (row) => <span>{row.manager || 'Alex W.'}</span> },
                       {
                         key: 'actions',
@@ -1861,22 +1861,22 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                             {activeActionsRowId === row.id && (
                               <>
                                 <div className="fixed inset-0 z-40" onClick={() => setActiveActionsRowId(null)}></div>
-                                <div className="absolute right-0 mt-1 w-56 bg-[#161F30] border border-[#23324C] rounded-xl shadow-2xl py-2.5 z-50 text-xs">
-                                  <button onClick={() => { setActiveActionsRowId(null); setSelectedCompany(row); setCompanyDetailsTab('overview'); setDetailsDrawerOpen(true); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-slate-355 hover:text-white font-semibold">View Company</button>
-                                  <button onClick={() => { setActiveActionsRowId(null); handleOpenEdit(row); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-slate-355 hover:text-white font-semibold">Edit Company</button>
+                                <div className="absolute right-0 mt-1 w-56 bg-slate-50 border border-slate-200 rounded-xl shadow-2xl py-2.5 z-50 text-xs">
+                                  <button onClick={() => { setActiveActionsRowId(null); setSelectedCompany(row); setCompanyDetailsTab('overview'); setDetailsDrawerOpen(true); }} className="w-full text-left px-4 py-2 hover:bg-white/40 text-slate-355 hover:text-slate-900 font-semibold">View Company</button>
+                                  <button onClick={() => { setActiveActionsRowId(null); handleOpenEdit(row); }} className="w-full text-left px-4 py-2 hover:bg-white/40 text-slate-355 hover:text-slate-900 font-semibold">Edit Company</button>
                                   {row.status !== 'Hold' ? (
-                                    <button onClick={() => { setActiveActionsRowId(null); setSelectedCompanyIdToSuspend(String(row.id)); setSuspendModalOpen(true); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-red-400 hover:text-red-300 font-semibold">Suspend Company</button>
+                                    <button onClick={() => { setActiveActionsRowId(null); setSelectedCompanyIdToSuspend(String(row.id)); setSuspendModalOpen(true); }} className="w-full text-left px-4 py-2 hover:bg-white/40 text-red-400 hover:text-red-300 font-semibold">Suspend Company</button>
                                   ) : (
-                                    <button onClick={() => { setActiveActionsRowId(null); setSelectedCompanyIdToReactivate(String(row.id)); setReactivateModalOpen(true); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-emerald-400 hover:text-emerald-300 font-semibold">Reactivate Company</button>
+                                    <button onClick={() => { setActiveActionsRowId(null); setSelectedCompanyIdToReactivate(String(row.id)); setReactivateModalOpen(true); }} className="w-full text-left px-4 py-2 hover:bg-white/40 text-emerald-400 hover:text-emerald-300 font-semibold">Reactivate Company</button>
                                   )}
-                                  <button onClick={() => { setActiveActionsRowId(null); setSelectedCompanyIdToLoginAs(String(row.id)); setLoginAsModalOpen(true); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-slate-355 hover:text-white font-semibold">Login as Company Admin</button>
-                                  <button onClick={() => { setActiveActionsRowId(null); handleChangeSubscription(row); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-slate-355 hover:text-white font-semibold">Change Subscription</button>
-                                  <button onClick={() => { setActiveActionsRowId(null); handleManageFeatures(row); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-slate-355 hover:text-white font-semibold">Manage Features</button>
-                                  <button onClick={() => { setActiveActionsRowId(null); handleViewBilling(row); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-slate-355 hover:text-white font-semibold">View Billing</button>
-                                  <button onClick={() => { setActiveActionsRowId(null); handleResetPassword(row.id, row.name); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-slate-355 hover:text-white font-semibold">Reset Password</button>
-                                  <button onClick={() => { setActiveActionsRowId(null); handleSendNotification(row); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-slate-355 hover:text-white font-semibold">Send Notification</button>
-                                  <div className="border-t border-[#23324C]/60 my-1.5"></div>
-                                  <button onClick={() => { setActiveActionsRowId(null); handleDeleteCompany(row.id, row.name); }} className="w-full text-left px-4 py-2 hover:bg-slate-800 text-red-500 hover:text-red-400 font-bold">Delete Company</button>
+                                  <button onClick={() => { setActiveActionsRowId(null); setSelectedCompanyIdToLoginAs(String(row.id)); setLoginAsModalOpen(true); }} className="w-full text-left px-4 py-2 hover:bg-white/40 text-slate-355 hover:text-slate-900 font-semibold">Login as Company Admin</button>
+                                  <button onClick={() => { setActiveActionsRowId(null); handleChangeSubscription(row); }} className="w-full text-left px-4 py-2 hover:bg-white/40 text-slate-355 hover:text-slate-900 font-semibold">Change Subscription</button>
+                                  <button onClick={() => { setActiveActionsRowId(null); handleManageFeatures(row); }} className="w-full text-left px-4 py-2 hover:bg-white/40 text-slate-355 hover:text-slate-900 font-semibold">Manage Features</button>
+                                  <button onClick={() => { setActiveActionsRowId(null); handleViewBilling(row); }} className="w-full text-left px-4 py-2 hover:bg-white/40 text-slate-355 hover:text-slate-900 font-semibold">View Billing</button>
+                                  <button onClick={() => { setActiveActionsRowId(null); handleResetPassword(row.id, row.name); }} className="w-full text-left px-4 py-2 hover:bg-white/40 text-slate-355 hover:text-slate-900 font-semibold">Reset Password</button>
+                                  <button onClick={() => { setActiveActionsRowId(null); handleSendNotification(row); }} className="w-full text-left px-4 py-2 hover:bg-white/40 text-slate-355 hover:text-slate-900 font-semibold">Send Notification</button>
+                                  <div className="border-t border-slate-200 my-1.5"></div>
+                                  <button onClick={() => { setActiveActionsRowId(null); handleDeleteCompany(row.id, row.name); }} className="w-full text-left px-4 py-2 hover:bg-white text-red-500 hover:text-red-400 font-bold">Delete Company</button>
                                 </div>
                               </>
                             )}
@@ -1908,24 +1908,24 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
 
               {/* Revenue Analytics Section */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                <div className="lg:col-span-8 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 flex flex-col justify-between">
-                  <h4 className="text-sm font-extrabold text-white">MRR & ARR Performance Analytics</h4>
+                <div className="lg:col-span-8 glass rounded-2xl p-5 border border-slate-200 text-left space-y-4 flex flex-col justify-between">
+                  <h4 className="text-sm font-extrabold text-slate-900">MRR & ARR Performance Analytics</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow">
                     <div>
-                      <span className="text-xs text-slate-400 font-bold block mb-2">Monthly Revenue Trend (USD)</span>
+                      <span className="text-xs text-slate-500 font-bold block mb-2">Monthly Revenue Trend (USD)</span>
                       <MiniChart type="line" data={monthlyRevenueTrend} labels={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']} />
                     </div>
                     <div>
-                      <span className="text-xs text-slate-400 font-bold block mb-2">Annual Projection (USD)</span>
+                      <span className="text-xs text-slate-500 font-bold block mb-2">Annual Projection (USD)</span>
                       <MiniChart type="bar" data={annualProjectionTrend} labels={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']} />
                     </div>
                   </div>
                 </div>
 
-                <div className="lg:col-span-4 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 flex flex-col justify-between">
-                  <h4 className="text-sm font-extrabold text-white">Churn & Plan Shifts</h4>
+                <div className="lg:col-span-4 glass rounded-2xl p-5 border border-slate-200 text-left space-y-4 flex flex-col justify-between">
+                  <h4 className="text-sm font-extrabold text-slate-900">Churn & Plan Shifts</h4>
                   <div className="grid grid-cols-2 gap-4 flex-grow">
-                    <div className="bg-[#111827] border border-[#23324C] rounded-xl p-3.5 text-center flex flex-col justify-center">
+                    <div className="bg-white border border-slate-200 rounded-xl p-3.5 text-center flex flex-col justify-center">
                       <span className="text-[10px] text-slate-500 block font-semibold uppercase">Upgrades</span>
                       <strong className="text-lg font-black text-emerald-400">
                         {(() => {
@@ -1937,7 +1937,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                         })()}
                       </strong>
                     </div>
-                    <div className="bg-[#111827] border border-[#23324C] rounded-xl p-3.5 text-center flex flex-col justify-center">
+                    <div className="bg-white border border-slate-200 rounded-xl p-3.5 text-center flex flex-col justify-center">
                       <span className="text-[10px] text-slate-500 block font-semibold uppercase">Downgrades</span>
                       <strong className="text-lg font-black text-amber-400">
                         {(() => {
@@ -1949,7 +1949,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                         })()}
                       </strong>
                     </div>
-                    <div className="bg-[#111827] border border-[#23324C] rounded-xl p-3.5 text-center flex flex-col justify-center">
+                    <div className="bg-white border border-slate-200 rounded-xl p-3.5 text-center flex flex-col justify-center">
                       <span className="text-[10px] text-slate-500 block font-semibold uppercase">Churn Rate</span>
                       <strong className="text-lg font-black text-red-400">
                         {(() => {
@@ -1961,7 +1961,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                         })()}
                       </strong>
                     </div>
-                    <div className="bg-[#111827] border border-[#23324C] rounded-xl p-3.5 text-center flex flex-col justify-center">
+                    <div className="bg-white border border-slate-200 rounded-xl p-3.5 text-center flex flex-col justify-center">
                       <span className="text-[10px] text-slate-500 block font-semibold uppercase">Sub Growth</span>
                       <strong className="text-lg font-black text-brand-400">
                         {(() => {
@@ -1975,7 +1975,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
               </div>
 
               {/* Subscriptions Data Table Workspace */}
-              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
                 
                 {/* Search & Filter Toggles */}
                 <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
@@ -1986,7 +1986,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                     <select 
                       value={subPlanFilter} 
                       onChange={(e) => setSubPlanFilter(e.target.value)}
-                      className="bg-[#0B0F19] border border-[#23324C] rounded-lg p-2 text-xs text-slate-300 outline-none font-semibold cursor-pointer"
+                      className="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-600 outline-none font-semibold cursor-pointer"
                     >
                       <option value="">All Plans</option>
                       <option value="Starter">Starter</option>
@@ -1997,7 +1997,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                     <select 
                       value={subStatusFilter} 
                       onChange={(e) => setSubStatusFilter(e.target.value)}
-                      className="bg-[#0B0F19] border border-[#23324C] rounded-lg p-2 text-xs text-slate-300 outline-none font-semibold cursor-pointer"
+                      className="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-600 outline-none font-semibold cursor-pointer"
                     >
                       <option value="">All Statuses</option>
                       <option value="Active">Active</option>
@@ -2064,9 +2064,9 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                   return (
                     <div className="space-y-4">
                       {/* Subscriptions Plain Table — all columns always visible */}
-                      <div className="border border-[#23324C] rounded-2xl overflow-x-auto bg-[#161F30]/30">
+                      <div className="border border-slate-200 rounded-2xl overflow-x-auto bg-slate-50/30">
                         <table className="min-w-full text-left border-collapse text-xs">
-                          <thead className="bg-[#161F30] border-b border-[#23324C] text-[10px] font-bold tracking-wider uppercase text-slate-400 sticky top-0 z-10">
+                          <thead className="bg-slate-50 border-b border-slate-200 text-[10px] font-bold tracking-wider uppercase text-slate-500 sticky top-0 z-10">
                             <tr>
                               <th className="p-3 w-10 text-center">
                                 <input
@@ -2079,16 +2079,16 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                                       setSelectedSubIds([]);
                                     }
                                   }}
-                                  className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-4 w-4 cursor-pointer"
+                                  className="rounded bg-slate-50 border-slate-200 text-brand-500 h-4 w-4 cursor-pointer"
                                 />
                               </th>
                               <th className="p-3">
-                                <button onClick={() => { setSubSortField('id'); setSubSortOrder(subSortOrder === 'asc' ? 'desc' : 'asc'); }} className="flex items-center gap-1 font-extrabold text-slate-400 hover:text-white focus:outline-none whitespace-nowrap">
+                                <button onClick={() => { setSubSortField('id'); setSubSortOrder(subSortOrder === 'asc' ? 'desc' : 'asc'); }} className="flex items-center gap-1 font-extrabold text-slate-500 hover:text-slate-900 focus:outline-none whitespace-nowrap">
                                   Subscription ID{subSortField === 'id' && (subSortOrder === 'asc' ? ' ▲' : ' ▼')}
                                 </button>
                               </th>
                               <th className="p-3">
-                                <button onClick={() => { setSubSortField('name'); setSubSortOrder(subSortOrder === 'asc' ? 'desc' : 'asc'); }} className="flex items-center gap-1 font-extrabold text-slate-400 hover:text-white focus:outline-none whitespace-nowrap">
+                                <button onClick={() => { setSubSortField('name'); setSubSortOrder(subSortOrder === 'asc' ? 'desc' : 'asc'); }} className="flex items-center gap-1 font-extrabold text-slate-500 hover:text-slate-900 focus:outline-none whitespace-nowrap">
                                   Company{subSortField === 'name' && (subSortOrder === 'asc' ? ' ▲' : ' ▼')}
                                 </button>
                               </th>
@@ -2097,12 +2097,12 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                               <th className="p-3 whitespace-nowrap">Billing Period</th>
                               <th className="p-3 whitespace-nowrap">Start Date</th>
                               <th className="p-3">
-                                <button onClick={() => { setSubSortField('renewal'); setSubSortOrder(subSortOrder === 'asc' ? 'desc' : 'asc'); }} className="flex items-center gap-1 font-extrabold text-slate-400 hover:text-white focus:outline-none whitespace-nowrap">
+                                <button onClick={() => { setSubSortField('renewal'); setSubSortOrder(subSortOrder === 'asc' ? 'desc' : 'asc'); }} className="flex items-center gap-1 font-extrabold text-slate-500 hover:text-slate-900 focus:outline-none whitespace-nowrap">
                                   Next Renewal{subSortField === 'renewal' && (subSortOrder === 'asc' ? ' ▲' : ' ▼')}
                                 </button>
                               </th>
                               <th className="p-3">
-                                <button onClick={() => { setSubSortField('amount'); setSubSortOrder(subSortOrder === 'asc' ? 'desc' : 'asc'); }} className="flex items-center gap-1 font-extrabold text-slate-400 hover:text-white focus:outline-none whitespace-nowrap">
+                                <button onClick={() => { setSubSortField('amount'); setSubSortOrder(subSortOrder === 'asc' ? 'desc' : 'asc'); }} className="flex items-center gap-1 font-extrabold text-slate-500 hover:text-slate-900 focus:outline-none whitespace-nowrap">
                                   Amount{subSortField === 'amount' && (subSortOrder === 'asc' ? ' ▲' : ' ▼')}
                                 </button>
                               </th>
@@ -2114,7 +2114,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                             {paginated.map((row, rIdx) => (
                               <tr
                                 key={rIdx}
-                                className={`transition-colors hover:bg-slate-800/10 ${selectedSubIds.includes(row.id) ? 'bg-brand-500/5' : ''}`}
+                                className={`transition-colors hover:bg-white/10 ${selectedSubIds.includes(row.id) ? 'bg-brand-500/5' : ''}`}
                               >
                                 <td className="p-3 text-center">
                                   <input
@@ -2127,15 +2127,15 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                                         setSelectedSubIds(prev => prev.filter(id => id !== row.id));
                                       }
                                     }}
-                                    className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-4 w-4 cursor-pointer"
+                                    className="rounded bg-slate-50 border-slate-200 text-brand-500 h-4 w-4 cursor-pointer"
                                   />
                                 </td>
                                 <td className="p-3">
-                                  <span className="font-mono text-slate-400 font-bold">{row.subscriptionId || `SUB-${row.id}`}</span>
+                                  <span className="font-mono text-slate-500 font-bold">{row.subscriptionId || `SUB-${row.id}`}</span>
                                 </td>
                                 <td className="p-3">
                                   <div className="space-y-1">
-                                    <span className="font-extrabold text-white block">{row.name}</span>
+                                    <span className="font-extrabold text-slate-900 block">{row.name}</span>
                                     {validatePlanLimits(row).length > 0 && (
                                       <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-red-500/10 text-red-400 border border-red-500/20">
                                         <AlertCircle className="h-2.5 w-2.5" /> Limit Overflow: {validatePlanLimits(row).join(', ')}
@@ -2144,25 +2144,25 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                                   </div>
                                 </td>
                                 <td className="p-3">
-                                  <span className="font-bold text-slate-300">{row.plan}</span>
+                                  <span className="font-bold text-slate-600">{row.plan}</span>
                                 </td>
                                 <td className="p-3">
                                   <StatusBadge status={row.status} />
                                 </td>
                                 <td className="p-3">
-                                  <span className="text-slate-300">{row.billingPeriod || 'Monthly'}</span>
+                                  <span className="text-slate-600">{row.billingPeriod || 'Monthly'}</span>
                                 </td>
                                 <td className="p-3">
-                                  <span className="text-slate-400 font-medium font-mono whitespace-nowrap">{row.startDate || row.joined}</span>
+                                  <span className="text-slate-500 font-medium font-mono whitespace-nowrap">{row.startDate || row.joined}</span>
                                 </td>
                                 <td className="p-3">
-                                  <span className="text-slate-300 font-bold font-mono whitespace-nowrap">{row.nextRenewalDate || '07/24/2026'}</span>
+                                  <span className="text-slate-600 font-bold font-mono whitespace-nowrap">{row.nextRenewalDate || '07/24/2026'}</span>
                                 </td>
                                 <td className="p-3">
                                   <span className="font-bold text-emerald-400 font-mono">${row.revenue !== undefined ? row.revenue : (row.plan === 'Starter' ? 199 : (row.plan === 'Professional' ? 499 : 1299))}</span>
                                 </td>
                                 <td className="p-3">
-                                  <span className="font-semibold text-slate-300">{row.autoRenewal !== false ? 'Yes' : 'No'}</span>
+                                  <span className="font-semibold text-slate-600">{row.autoRenewal !== false ? 'Yes' : 'No'}</span>
                                 </td>
                                 <td className="p-3">
                                   <div className="relative">
@@ -2176,19 +2176,19 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                                     {activeActionsRowId === row.id && (
                                       <>
                                         <div className="fixed inset-0 z-40" onClick={() => setActiveActionsRowId(null)}></div>
-                                        <div className="absolute right-0 mt-1 w-56 bg-[#161F30] border border-[#23324C] rounded-xl shadow-2xl py-2.5 z-50 text-xs text-left">
-                                          <button onClick={() => { setActiveActionsRowId(null); setSelectedCompany(row); setCompanyDetailsTab('overview'); setDetailsDrawerOpen(true); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-slate-300 hover:text-white font-semibold">View Subscription</button>
-                                          <button onClick={() => { setActiveActionsRowId(null); setTempCompany(row); setEditSubRenewalDate(row.nextRenewalDate || '07/24/2026'); setEditSubAutoRenewal(row.autoRenewal !== false); setEditSubModalOpen(true); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-slate-300 hover:text-white font-semibold">Edit Subscription</button>
-                                          <button onClick={() => { setActiveActionsRowId(null); handleUpgradeSubscription(row.id, row.plan, row.name); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-emerald-400 hover:text-emerald-300 font-semibold" disabled={row.plan === 'Enterprise'}>Upgrade Subscription</button>
-                                          <button onClick={() => { setActiveActionsRowId(null); handleDowngradeSubscription(row.id, row.plan, row.name); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-amber-400 hover:text-amber-300 font-semibold" disabled={row.plan === 'Starter'}>Downgrade Subscription</button>
-                                          <button onClick={() => { setActiveActionsRowId(null); handlePauseSubscription(row.id, row.name); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-red-400 hover:text-red-300 font-semibold" disabled={row.status === 'Hold'}>Pause Subscription</button>
-                                          <button onClick={() => { setActiveActionsRowId(null); handleResumeSubscription(row.id, row.name); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-emerald-400 hover:text-emerald-300 font-semibold" disabled={row.status === 'Active'}>Resume Subscription</button>
-                                          <button onClick={() => { setActiveActionsRowId(null); handleCancelSubscription(row.id, row.name); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-red-500 hover:text-red-400 font-bold" disabled={!row.autoRenewal}>Cancel Auto-Renewal</button>
-                                          <button onClick={() => { setActiveActionsRowId(null); handleRenewSubscription(row.id, row.name); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-slate-300 hover:text-white font-semibold">Renew Manually</button>
-                                          <button onClick={() => { setActiveActionsRowId(null); setTempCompany(row); setNewSubPlan(row.plan); setChangeSubModalOpen(true); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-slate-300 hover:text-white font-semibold">Assign Plan</button>
-                                          <button onClick={() => { setActiveActionsRowId(null); setSelectedCompany(row); setCompanyDetailsTab('invoices'); setDetailsDrawerOpen(true); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-slate-300 hover:text-white font-semibold">Billing History</button>
-                                          <button onClick={() => { setActiveActionsRowId(null); setTempCompany(row); setInvoiceAmount(String(row.plan === 'Starter' ? 199 : (row.plan === 'Professional' ? 499 : 1299))); setInvoicePeriod('Custom Administrative Invoice'); setInvoiceModalOpen(true); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-slate-300 hover:text-white font-semibold">Generate Invoice</button>
-                                          <button onClick={() => { setActiveActionsRowId(null); handleSendReminder(row.id, row.name); }} className="w-full text-left px-4 py-2 hover:bg-slate-800/40 text-slate-300 hover:text-white font-semibold">Send Reminder</button>
+                                        <div className="absolute right-0 mt-1 w-56 bg-slate-50 border border-slate-200 rounded-xl shadow-2xl py-2.5 z-50 text-xs text-left">
+                                          <button onClick={() => { setActiveActionsRowId(null); setSelectedCompany(row); setCompanyDetailsTab('overview'); setDetailsDrawerOpen(true); }} className="w-full text-left px-4 py-2 hover:bg-white/40 text-slate-600 hover:text-slate-900 font-semibold">View Subscription</button>
+                                          <button onClick={() => { setActiveActionsRowId(null); setTempCompany(row); setEditSubRenewalDate(row.nextRenewalDate || '07/24/2026'); setEditSubAutoRenewal(row.autoRenewal !== false); setEditSubModalOpen(true); }} className="w-full text-left px-4 py-2 hover:bg-white/40 text-slate-600 hover:text-slate-900 font-semibold">Edit Subscription</button>
+                                          <button onClick={() => { setActiveActionsRowId(null); handleUpgradeSubscription(row.id, row.plan, row.name); }} className="w-full text-left px-4 py-2 hover:bg-white/40 text-emerald-400 hover:text-emerald-300 font-semibold" disabled={row.plan === 'Enterprise'}>Upgrade Subscription</button>
+                                          <button onClick={() => { setActiveActionsRowId(null); handleDowngradeSubscription(row.id, row.plan, row.name); }} className="w-full text-left px-4 py-2 hover:bg-white/40 text-amber-400 hover:text-amber-300 font-semibold" disabled={row.plan === 'Starter'}>Downgrade Subscription</button>
+                                          <button onClick={() => { setActiveActionsRowId(null); handlePauseSubscription(row.id, row.name); }} className="w-full text-left px-4 py-2 hover:bg-white/40 text-red-400 hover:text-red-300 font-semibold" disabled={row.status === 'Hold'}>Pause Subscription</button>
+                                          <button onClick={() => { setActiveActionsRowId(null); handleResumeSubscription(row.id, row.name); }} className="w-full text-left px-4 py-2 hover:bg-white/40 text-emerald-400 hover:text-emerald-300 font-semibold" disabled={row.status === 'Active'}>Resume Subscription</button>
+                                          <button onClick={() => { setActiveActionsRowId(null); handleCancelSubscription(row.id, row.name); }} className="w-full text-left px-4 py-2 hover:bg-white/40 text-red-500 hover:text-red-400 font-bold" disabled={!row.autoRenewal}>Cancel Auto-Renewal</button>
+                                          <button onClick={() => { setActiveActionsRowId(null); handleRenewSubscription(row.id, row.name); }} className="w-full text-left px-4 py-2 hover:bg-white/40 text-slate-600 hover:text-slate-900 font-semibold">Renew Manually</button>
+                                          <button onClick={() => { setActiveActionsRowId(null); setTempCompany(row); setNewSubPlan(row.plan); setChangeSubModalOpen(true); }} className="w-full text-left px-4 py-2 hover:bg-white/40 text-slate-600 hover:text-slate-900 font-semibold">Assign Plan</button>
+                                          <button onClick={() => { setActiveActionsRowId(null); setSelectedCompany(row); setCompanyDetailsTab('invoices'); setDetailsDrawerOpen(true); }} className="w-full text-left px-4 py-2 hover:bg-white/40 text-slate-600 hover:text-slate-900 font-semibold">Billing History</button>
+                                          <button onClick={() => { setActiveActionsRowId(null); setTempCompany(row); setInvoiceAmount(String(row.plan === 'Starter' ? 199 : (row.plan === 'Professional' ? 499 : 1299))); setInvoicePeriod('Custom Administrative Invoice'); setInvoiceModalOpen(true); }} className="w-full text-left px-4 py-2 hover:bg-white/40 text-slate-600 hover:text-slate-900 font-semibold">Generate Invoice</button>
+                                          <button onClick={() => { setActiveActionsRowId(null); handleSendReminder(row.id, row.name); }} className="w-full text-left px-4 py-2 hover:bg-white/40 text-slate-600 hover:text-slate-900 font-semibold">Send Reminder</button>
                                         </div>
                                       </>
                                     )}
@@ -2244,26 +2244,26 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
               </div>
 
               {/* Revenue Chart */}
-              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left">
-                <h3 className="text-sm font-extrabold text-white mb-3">Monthly Revenue Trend (USD)</h3>
+              <div className="glass rounded-2xl p-5 border border-slate-200 text-left">
+                <h3 className="text-sm font-extrabold text-slate-900 mb-3">Monthly Revenue Trend (USD)</h3>
                 <MiniChart type="line" data={monthlyRevenueTrend} labels={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']} />
               </div>
 
               {/* Billing Sub-Tabs */}
-              <div className="glass rounded-2xl border border-[#23324C]/60 overflow-hidden">
-                <div className="flex gap-1 border-b border-[#23324C]/50 p-3 overflow-x-auto scrollbar-none">
+              <div className="glass rounded-2xl border border-slate-200 overflow-hidden">
+                <div className="flex gap-1 border-b border-slate-200/50 p-3 overflow-x-auto scrollbar-none">
                   {['Invoices', 'Payments', 'Failed Payments', 'Tax / GST Summary'].map(tab => (
                     <button key={tab} onClick={() => setBillingSubTab(tab)} className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wide whitespace-nowrap transition-all cursor-pointer ${
-                      billingSubTab === tab ? 'bg-brand-500 text-slate-950 shadow-md' : 'bg-[#111827]/40 border border-[#23324C]/50 text-slate-400 hover:text-slate-200'
+                      billingSubTab === tab ? 'bg-brand-500 text-slate-950 shadow-md' : 'bg-white/40 border border-slate-200/50 text-slate-500 hover:text-slate-700'
                     }`}>{tab}</button>
                   ))}
                 </div>
                 <div className="p-5 text-xs">
 
                   {billingSubTab === 'Invoices' && (
-                    <div className="overflow-x-auto rounded-xl border border-[#23324C]/50">
-                      <table className="w-full text-xs text-slate-350">
-                        <thead className="bg-[#161F30]/60 text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                    <div className="overflow-x-auto rounded-xl border border-slate-200/50">
+                      <table className="w-full text-xs text-slate-500">
+                        <thead className="bg-slate-50/60 text-slate-500 uppercase font-black border-b border-slate-200/50">
                           <tr>
                             <th className="p-3 text-left">Invoice ID</th>
                             <th className="p-3 text-left">Company</th>
@@ -2281,17 +2281,17 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                             </tr>
                           ) : (
                             allInvoices.map((inv) => (
-                              <tr key={inv.id} className="hover:bg-slate-800/20">
-                                <td className="p-3 font-mono font-bold text-slate-400">#{inv.id}</td>
-                                <td className="p-3 font-bold text-white">{inv.tenantName}</td>
-                                <td className="p-3 text-slate-300">{inv.tenantPlan}</td>
+                              <tr key={inv.id} className="hover:bg-white/20">
+                                <td className="p-3 font-mono font-bold text-slate-500">#{inv.id}</td>
+                                <td className="p-3 font-bold text-slate-900">{inv.tenantName}</td>
+                                <td className="p-3 text-slate-600">{inv.tenantPlan}</td>
                                 <td className="p-3 text-right font-bold text-emerald-400">${parseFloat(inv.amount || 0).toFixed(2)}</td>
                                 <td className="p-3 text-center">
                                   <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
                                     inv.status === 'Paid' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
                                   }`}>{inv.status}</span>
                                 </td>
-                                <td className="p-3 text-slate-400 font-mono text-[10px]">{inv.date}</td>
+                                <td className="p-3 text-slate-500 font-mono text-[10px]">{inv.date}</td>
                                 <td className="p-3 text-center">
                                   <div className="flex gap-1 justify-center">
                                     <Button size="sm" variant="secondary" onClick={() => triggerToast(`Invoice #${inv.id} PDF generated.`)}>Download</Button>
@@ -2307,9 +2307,9 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                   )}
 
                   {billingSubTab === 'Payments' && (
-                    <div className="overflow-x-auto rounded-xl border border-[#23324C]/50">
-                      <table className="w-full text-xs text-slate-350">
-                        <thead className="bg-[#161F30]/60 text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                    <div className="overflow-x-auto rounded-xl border border-slate-200/50">
+                      <table className="w-full text-xs text-slate-500">
+                        <thead className="bg-slate-50/60 text-slate-500 uppercase font-black border-b border-slate-200/50">
                           <tr>
                             <th className="p-3 text-left">Payment ID</th>
                             <th className="p-3 text-left">Company</th>
@@ -2321,12 +2321,12 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                         </thead>
                         <tbody className="divide-y divide-[#23324C]/30">
                           {tenants.filter(t => t.status === 'Active').map((row, idx) => (
-                            <tr key={row.id} className="hover:bg-slate-800/20">
-                              <td className="p-3 font-mono font-bold text-slate-400">#PAY-{2000 + idx + 1}</td>
-                              <td className="p-3 font-bold text-white">{row.name}</td>
-                              <td className="p-3 text-slate-400">Stripe Card ····{4000 + idx}</td>
+                            <tr key={row.id} className="hover:bg-white/20">
+                              <td className="p-3 font-mono font-bold text-slate-500">#PAY-{2000 + idx + 1}</td>
+                              <td className="p-3 font-bold text-slate-900">{row.name}</td>
+                              <td className="p-3 text-slate-500">Stripe Card ····{4000 + idx}</td>
                               <td className="p-3 text-right font-bold text-emerald-400">{row.plan === 'Starter' ? '$199.00' : row.plan === 'Professional' ? '$499.00' : '$1,299.00'}</td>
-                              <td className="p-3 text-slate-400 font-mono text-[10px]">06/{String(idx + 1).padStart(2, '0')}/2026</td>
+                              <td className="p-3 text-slate-500 font-mono text-[10px]">06/{String(idx + 1).padStart(2, '0')}/2026</td>
                               <td className="p-3 text-center"><span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full text-[9px] font-bold">Successful</span></td>
                             </tr>
                           ))}
@@ -2340,9 +2340,9 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                       {tenants.filter(t => t.status === 'Hold').length === 0 ? (
                         <div className="text-center py-12 text-slate-500 text-xs italic">✅ No failed payments detected. Gateway is healthy.</div>
                       ) : (
-                        <div className="overflow-x-auto rounded-xl border border-[#23324C]/50">
-                          <table className="w-full text-xs text-slate-350">
-                            <thead className="bg-[#161F30]/60 text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                        <div className="overflow-x-auto rounded-xl border border-slate-200/50">
+                          <table className="w-full text-xs text-slate-500">
+                            <thead className="bg-slate-50/60 text-slate-500 uppercase font-black border-b border-slate-200/50">
                               <tr>
                                 <th className="p-3 text-left">Company</th>
                                 <th className="p-3 text-right">Amount</th>
@@ -2352,10 +2352,10 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                             </thead>
                             <tbody className="divide-y divide-[#23324C]/30">
                               {tenants.filter(t => t.status === 'Hold').map(row => (
-                                <tr key={row.id} className="hover:bg-slate-800/20">
-                                  <td className="p-3 font-bold text-white">{row.name}</td>
+                                <tr key={row.id} className="hover:bg-white/20">
+                                  <td className="p-3 font-bold text-slate-900">{row.name}</td>
                                   <td className="p-3 text-right font-bold text-red-400">{row.plan === 'Starter' ? '$199.00' : row.plan === 'Professional' ? '$499.00' : '$1,299.00'}</td>
-                                  <td className="p-3 text-slate-400">Card Declined — Insufficient Funds</td>
+                                  <td className="p-3 text-slate-500">Card Declined — Insufficient Funds</td>
                                   <td className="p-3 text-center">
                                     <div className="flex gap-1 justify-center">
                                       <Button size="sm" variant="outline" onClick={() => triggerToast(`Retrying payment for ${row.name}...`)}>Retry</Button>
@@ -2376,19 +2376,19 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center text-[10px]">
                         {[
                           { label: 'Total Tax Collected', value: `$${Math.round(calculatedMrrVal * 0.1).toLocaleString()}`, color: 'text-brand-400' },
-                          { label: 'GST Rate', value: '10%', color: 'text-white' },
+                          { label: 'GST Rate', value: '10%', color: 'text-slate-900' },
                           { label: 'Tax Filing Period', value: 'Q2 2026', color: 'text-emerald-400' },
                           { label: 'Nexus States', value: '8 States', color: 'text-amber-400' }
                         ].map(s => (
-                          <div key={s.label} className="bg-[#111827]/40 border border-[#23324C]/50 rounded-xl p-3">
+                          <div key={s.label} className="bg-white/40 border border-slate-200/50 rounded-xl p-3">
                             <span className={`text-sm font-black block ${s.color}`}>{s.value}</span>
                             <span className="text-slate-500 text-[9px] uppercase font-bold">{s.label}</span>
                           </div>
                         ))}
                       </div>
-                      <div className="overflow-x-auto rounded-xl border border-[#23324C]/50">
-                        <table className="w-full text-xs text-slate-350">
-                          <thead className="bg-[#161F30]/60 text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                      <div className="overflow-x-auto rounded-xl border border-slate-200/50">
+                        <table className="w-full text-xs text-slate-500">
+                          <thead className="bg-slate-50/60 text-slate-500 uppercase font-black border-b border-slate-200/50">
                             <tr>
                               <th className="p-3 text-left">Company</th>
                               <th className="p-3 text-right">Invoice Amount</th>
@@ -2402,10 +2402,10 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                               const base = row.plan === 'Starter' ? 199 : row.plan === 'Professional' ? 499 : 1299;
                               const tax = Math.round(base * 0.1 * 100) / 100;
                               return (
-                                <tr key={row.id} className="hover:bg-slate-800/20">
-                                  <td className="p-3 font-bold text-white">{row.name}</td>
-                                  <td className="p-3 text-right text-slate-300 font-mono">${base.toFixed(2)}</td>
-                                  <td className="p-3 text-right text-slate-400">10%</td>
+                                <tr key={row.id} className="hover:bg-white/20">
+                                  <td className="p-3 font-bold text-slate-900">{row.name}</td>
+                                  <td className="p-3 text-right text-slate-600 font-mono">${base.toFixed(2)}</td>
+                                  <td className="p-3 text-right text-slate-500">10%</td>
                                   <td className="p-3 text-right text-amber-400 font-bold font-mono">${tax.toFixed(2)}</td>
                                   <td className="p-3 text-right text-emerald-400 font-black font-mono">${(base + tax).toFixed(2)}</td>
                                 </tr>
@@ -2421,8 +2421,8 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
               </div>
 
               {/* Export Actions */}
-              <div className="p-4 bg-[#111827]/40 border border-[#23324C]/60 rounded-xl flex items-center justify-between">
-                <span className="text-[10px] text-slate-400 font-bold">Export billing records:</span>
+              <div className="p-4 bg-white/40 border border-slate-200 rounded-xl flex items-center justify-between">
+                <span className="text-[10px] text-slate-500 font-bold">Export billing records:</span>
                 <div className="flex gap-2">
                   <Button size="sm" variant="outline" onClick={() => triggerToast('Exporting billing PDF report...')}>PDF Report</Button>
                   <Button size="sm" variant="outline" onClick={() => triggerToast('Exporting billing CSV...')}>CSV Export</Button>
@@ -2448,22 +2448,22 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
 
               {/* Revenue + Company Growth Charts */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                <div className="lg:col-span-8 glass rounded-2xl p-5 border border-[#23324C]/60 text-left">
-                  <h3 className="text-sm font-extrabold text-white mb-1">Platform Revenue Analytics (USD)</h3>
+                <div className="lg:col-span-8 glass rounded-2xl p-5 border border-slate-200 text-left">
+                  <h3 className="text-sm font-extrabold text-slate-900 mb-1">Platform Revenue Analytics (USD)</h3>
                   <p className="text-[10px] text-slate-500 mb-4">Monthly MRR vs Annual projection baseline.</p>
                   <MiniChart type="line" data={monthlyRevenueTrend} labels={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']} />
                 </div>
-                <div className="lg:col-span-4 glass rounded-2xl p-5 border border-[#23324C]/60 text-left">
-                  <h3 className="text-sm font-extrabold text-white mb-1">Company Growth</h3>
+                <div className="lg:col-span-4 glass rounded-2xl p-5 border border-slate-200 text-left">
+                  <h3 className="text-sm font-extrabold text-slate-900 mb-1">Company Growth</h3>
                   <p className="text-[10px] text-slate-500 mb-4">New tenants provisioned per month.</p>
                   <MiniChart type="bar" data={[1, 2, 1, 3, 2, tenants.length]} labels={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']} />
                 </div>
               </div>
 
               {/* Module Usage Analytics */}
-              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
                 <div>
-                  <h3 className="text-sm font-extrabold text-white">Module Usage Analytics</h3>
+                  <h3 className="text-sm font-extrabold text-slate-900">Module Usage Analytics</h3>
                   <p className="text-[10px] text-slate-500">Most accessed platform modules across all tenants.</p>
                 </div>
                 <div className="space-y-3">
@@ -2478,11 +2478,11 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                     { module: 'Customer Portal', usage: 48, color: 'bg-orange-500' }
                   ].map(item => (
                     <div key={item.module} className="flex items-center gap-3 text-xs">
-                      <span className="text-slate-400 font-semibold w-52 flex-shrink-0">{item.module}</span>
+                      <span className="text-slate-500 font-semibold w-52 flex-shrink-0">{item.module}</span>
                       <div className="flex-1 bg-slate-900 rounded-full h-2">
                         <div className={`${item.color} h-full rounded-full transition-all`} style={{ width: `${item.usage}%` }} />
                       </div>
-                      <span className="font-mono font-bold text-white w-10 text-right">{item.usage}%</span>
+                      <span className="font-mono font-bold text-slate-900 w-10 text-right">{item.usage}%</span>
                     </div>
                   ))}
                 </div>
@@ -2490,16 +2490,16 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
 
               {/* API Usage & Storage */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
-                  <h3 className="text-sm font-extrabold text-white">API Usage Timeline</h3>
+                <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-3">
+                  <h3 className="text-sm font-extrabold text-slate-900">API Usage Timeline</h3>
                   <p className="text-[10px] text-slate-500">API requests processed per day.</p>
                   <MiniChart type="line" data={[980, 1120, 1050, 1300, 1200, 1250]} labels={['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Today']} />
                 </div>
-                <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
-                  <h3 className="text-sm font-extrabold text-white">Storage Usage per Company</h3>
+                <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-3">
+                  <h3 className="text-sm font-extrabold text-slate-900">Storage Usage per Company</h3>
                   <div className="overflow-x-auto">
-                    <table className="w-full text-[10px] text-slate-350">
-                      <thead className="text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                    <table className="w-full text-[10px] text-slate-500">
+                      <thead className="text-slate-500 uppercase font-black border-b border-slate-200/50">
                         <tr><th className="pb-2 text-left">Company</th><th className="pb-2 text-right">Storage</th><th className="pb-2 text-right">% of Limit</th></tr>
                       </thead>
                       <tbody className="divide-y divide-[#23324C]/20">
@@ -2508,8 +2508,8 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                           const pct = Math.min(100, storage * 100);
                           return (
                             <tr key={t.id}>
-                              <td className="py-2 font-bold text-white">{t.name}</td>
-                              <td className="py-2 text-right font-mono text-slate-300">{storage.toFixed(2)} TB</td>
+                              <td className="py-2 font-bold text-slate-900">{t.name}</td>
+                              <td className="py-2 text-right font-mono text-slate-600">{storage.toFixed(2)} TB</td>
                               <td className="py-2 text-right">
                                 <div className="flex items-center gap-2 justify-end">
                                   <div className="w-16 bg-slate-900 rounded-full h-1">
@@ -2528,11 +2528,11 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
               </div>
 
               {/* Login Analytics */}
-              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
-                <h3 className="text-sm font-extrabold text-white">Login Analytics</h3>
+              <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-3">
+                <h3 className="text-sm font-extrabold text-slate-900">Login Analytics</h3>
                 <div className="overflow-x-auto">
-                  <table className="w-full text-xs text-slate-350">
-                    <thead className="bg-[#161F30]/60 text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                  <table className="w-full text-xs text-slate-500">
+                    <thead className="bg-slate-50/60 text-slate-500 uppercase font-black border-b border-slate-200/50">
                       <tr>
                         <th className="p-3 text-left">Company</th>
                         <th className="p-3 text-center">Monthly Logins</th>
@@ -2543,11 +2543,11 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                     </thead>
                     <tbody className="divide-y divide-[#23324C]/30">
                       {tenants.map((t, i) => (
-                        <tr key={t.id} className="hover:bg-slate-800/20">
-                          <td className="p-3 font-bold text-white">{t.name}</td>
+                        <tr key={t.id} className="hover:bg-white/20">
+                          <td className="p-3 font-bold text-slate-900">{t.name}</td>
                           <td className="p-3 text-center font-mono">{(t.users || 3) * 14 + i * 2}</td>
                           <td className="p-3 text-center font-mono text-brand-400 font-bold">{t.users || 3}</td>
-                          <td className="p-3 text-slate-400 font-mono text-[10px]">{t.lastLogin || 'Today, 03:24 PM'}</td>
+                          <td className="p-3 text-slate-500 font-mono text-[10px]">{t.lastLogin || 'Today, 03:24 PM'}</td>
                           <td className="p-3 text-center">
                             <div className="flex items-center gap-2 justify-center">
                               <div className="w-16 bg-slate-900 rounded-full h-1.5">
@@ -2577,15 +2577,15 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
               </div>
 
               {/* Transfer Registry */}
-              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
                 <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-extrabold text-white">Inter-Company Transfer Registry</h3>
+                    <h3 className="text-sm font-extrabold text-slate-900">Inter-Company Transfer Registry</h3>
                     <p className="text-[10px] text-slate-500">Full audit log of all platform asset and load transfers.</p>
                   </div>
                   <div className="flex gap-3 items-center">
                     <SearchInput value={transferSearchQuery} onChange={(e) => setTransferSearchQuery(e.target.value)} onClear={() => setTransferSearchQuery('')} placeholder="Search transfers..." className="w-full sm:max-w-[180px]" />
-                    <select value={transferStatusFilter} onChange={(e) => setTransferStatusFilter(e.target.value)} className="bg-[#0B0F19] border border-[#23324C] rounded-lg p-2 text-xs text-slate-300 outline-none font-semibold cursor-pointer">
+                    <select value={transferStatusFilter} onChange={(e) => setTransferStatusFilter(e.target.value)} className="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-600 outline-none font-semibold cursor-pointer">
                       <option value="">All Statuses</option>
                       <option value="Completed">Completed</option>
                       <option value="Transit">In Transit</option>
@@ -2602,11 +2602,11 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                     const matchStatus = !transferStatusFilter || t.status === transferStatusFilter;
                     return matchSearch && matchStatus;
                   }).map(transfer => (
-                    <div key={transfer.id} className="border border-[#23324C]/60 rounded-xl overflow-hidden">
-                      <div className="flex items-center justify-between p-4 bg-[#111827]/30">
+                    <div key={transfer.id} className="border border-slate-200 rounded-xl overflow-hidden">
+                      <div className="flex items-center justify-between p-4 bg-white/30">
                         <div>
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="font-mono font-bold text-slate-400 text-[10px]">#{transfer.id}</span>
+                            <span className="font-mono font-bold text-slate-500 text-[10px]">#{transfer.id}</span>
                             <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
                               transfer.status === 'Completed' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
                               transfer.status === 'Transit' ? 'bg-brand-500/10 text-brand-400 border border-brand-500/20' :
@@ -2614,11 +2614,11 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                               'bg-red-500/10 text-red-400 border border-red-500/20'
                             }`}>{transfer.status}</span>
                           </div>
-                          <p className="text-xs font-bold text-white">{transfer.item}</p>
+                          <p className="text-xs font-bold text-slate-900">{transfer.item}</p>
                           <p className="text-[10px] text-slate-500 mt-0.5">
-                            <span className="text-slate-300">{transfer.from}</span>
+                            <span className="text-slate-600">{transfer.from}</span>
                             <span className="mx-2">→</span>
-                            <span className="text-slate-300">{transfer.to}</span>
+                            <span className="text-slate-600">{transfer.to}</span>
                             <span className="ml-3 font-mono">{transfer.date}</span>
                           </p>
                         </div>
@@ -2634,7 +2634,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                           {transfer.status === 'Pending' && (
                             <Button size="sm" variant="danger" onClick={() => { logAuditAction('Transfer Rejected', `Transfer ${transfer.id} rejected.`); triggerToast(`Transfer ${transfer.id} rejected.`, 'warning'); }}>Reject</Button>
                           )}
-                          <button onClick={() => setTransferExpandedId(transferExpandedId === transfer.id ? null : transfer.id)} className="p-1.5 text-slate-400 hover:text-white cursor-pointer">
+                          <button onClick={() => setTransferExpandedId(transferExpandedId === transfer.id ? null : transfer.id)} className="p-1.5 text-slate-500 hover:text-slate-900 cursor-pointer">
                             {transferExpandedId === transfer.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                           </button>
                         </div>
@@ -2642,14 +2642,14 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
 
                       {/* Transfer Chain Viewer */}
                       {transferExpandedId === transfer.id && (
-                        <div className="border-t border-[#23324C]/50 p-4 bg-[#0B0F19]/30">
-                          <p className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-3">Transfer Chain Viewer</p>
+                        <div className="border-t border-slate-200/50 p-4 bg-slate-50/30">
+                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-wider mb-3">Transfer Chain Viewer</p>
                           <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-2">
                             {transfer.chain.map((node, nIdx) => (
                               <React.Fragment key={nIdx}>
-                                <div className="flex-shrink-0 bg-[#111827] border border-[#23324C]/60 rounded-xl px-3 py-2 text-center min-w-[120px]">
+                                <div className="flex-shrink-0 bg-white border border-slate-200 rounded-xl px-3 py-2 text-center min-w-[120px]">
                                   <div className={`w-2 h-2 rounded-full mx-auto mb-1.5 ${nIdx < transfer.chain.length - 1 || transfer.status === 'Completed' ? 'bg-emerald-400' : 'bg-amber-400 animate-pulse'}`} />
-                                  <p className="text-[9px] font-bold text-white">{node}</p>
+                                  <p className="text-[9px] font-bold text-slate-900">{node}</p>
                                   <p className="text-[8px] text-slate-500 mt-0.5">{nIdx === 0 ? 'Origin' : nIdx === transfer.chain.length - 1 ? 'Destination' : 'Transit Hub'}</p>
                                 </div>
                                 {nIdx < transfer.chain.length - 1 && <ArrowRight className="h-4 w-4 text-slate-500 flex-shrink-0" />}
@@ -2657,8 +2657,8 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                             ))}
                           </div>
                           <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2 text-[10px]">
-                            <div><span className="text-slate-500 block">Requested By</span><span className="font-bold text-white">{transfer.requestedBy}</span></div>
-                            <div><span className="text-slate-500 block">Transfer Date</span><span className="font-bold text-white font-mono">{transfer.date}</span></div>
+                            <div><span className="text-slate-500 block">Requested By</span><span className="font-bold text-slate-900">{transfer.requestedBy}</span></div>
+                            <div><span className="text-slate-500 block">Transfer Date</span><span className="font-bold text-slate-900 font-mono">{transfer.date}</span></div>
                             <div><span className="text-slate-500 block">Transfer ID</span><span className="font-mono font-bold text-brand-400">{transfer.id}</span></div>
                             <div><span className="text-slate-500 block">Status</span><StatusBadge status={transfer.status} /></div>
                           </div>
@@ -2669,21 +2669,21 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                 </div>
 
                 {/* Transfer Permissions Matrix */}
-                <div className="pt-4 border-t border-[#23324C]/40 space-y-3">
-                  <h4 className="text-xs font-black text-slate-400 uppercase tracking-wider">Company Transfer Permissions Matrix</h4>
+                <div className="pt-4 border-t border-slate-200 space-y-3">
+                  <h4 className="text-xs font-black text-slate-500 uppercase tracking-wider">Company Transfer Permissions Matrix</h4>
                   <div className="overflow-x-auto">
-                    <table className="w-full text-[10px] text-slate-350">
-                      <thead className="text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                    <table className="w-full text-[10px] text-slate-500">
+                      <thead className="text-slate-500 uppercase font-black border-b border-slate-200/50">
                         <tr><th className="pb-2 text-left">Company</th><th className="pb-2 text-center">Can Send</th><th className="pb-2 text-center">Can Receive</th><th className="pb-2 text-center">Auto-Approve</th></tr>
                       </thead>
                       <tbody className="divide-y divide-[#23324C]/20">
                         {tenants.slice(0, 5).map((t, i) => (
                           <tr key={t.id}>
-                            <td className="py-2 font-bold text-white">{t.name}</td>
+                            <td className="py-2 font-bold text-slate-900">{t.name}</td>
                             <td className="py-2 text-center"><span className={i % 3 !== 0 ? 'text-emerald-400 font-bold' : 'text-red-400 font-bold'}>{i % 3 !== 0 ? '✓ Yes' : '✗ No'}</span></td>
                             <td className="py-2 text-center"><span className="text-emerald-400 font-bold">✓ Yes</span></td>
                             <td className="py-2 text-center">
-                              <button onClick={() => triggerToast(`Auto-approve toggled for ${t.name}.`)} className="text-[9px] px-2 py-0.5 rounded font-bold cursor-pointer border border-[#23324C]/60 hover:border-brand-500/40 text-slate-400 hover:text-slate-200">{i % 2 === 0 ? 'Enabled' : 'Disabled'}</button>
+                              <button onClick={() => triggerToast(`Auto-approve toggled for ${t.name}.`)} className="text-[9px] px-2 py-0.5 rounded font-bold cursor-pointer border border-slate-200 hover:border-brand-500/40 text-slate-500 hover:text-slate-700">{i % 2 === 0 ? 'Enabled' : 'Disabled'}</button>
                             </td>
                           </tr>
                         ))}
@@ -2709,16 +2709,16 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 {/* AI Feature Toggles */}
-                <div className="lg:col-span-5 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                <div className="lg:col-span-5 glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
                   <div>
-                    <h3 className="text-sm font-extrabold text-white">AI Feature Enable / Disable</h3>
+                    <h3 className="text-sm font-extrabold text-slate-900">AI Feature Enable / Disable</h3>
                     <p className="text-[10px] text-slate-500">Control which AI modules are active globally.</p>
                   </div>
                   <div className="space-y-3">
                     {Object.entries(aiFeatureToggles).map(([feature, enabled]) => (
-                      <div key={feature} className="flex items-center justify-between p-3 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl">
+                      <div key={feature} className="flex items-center justify-between p-3 bg-white/40 border border-slate-200/50 rounded-xl">
                         <div>
-                          <span className="text-xs font-bold text-white block">{feature}</span>
+                          <span className="text-xs font-bold text-slate-900 block">{feature}</span>
                           <span className={`text-[9px] font-bold ${enabled ? 'text-emerald-400' : 'text-slate-500'}`}>{enabled ? '● Active' : '○ Inactive'}</span>
                         </div>
                         <button
@@ -2746,9 +2746,9 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
 
                 {/* AI Config + Activity Logs */}
                 <div className="lg:col-span-7 space-y-6">
-                  <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+                  <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
                     <div>
-                      <h3 className="text-sm font-extrabold text-white">AI Model Configuration & Limits</h3>
+                      <h3 className="text-sm font-extrabold text-slate-900">AI Model Configuration & Limits</h3>
                       <p className="text-[10px] text-slate-500">Configure confidence thresholds and daily processing limits.</p>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
@@ -2759,9 +2759,9 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                         { key: 'dailyCalls', label: 'Daily API Call Limit', unit: '/day' }
                       ].map(field => (
                         <div key={field.key} className="space-y-1.5">
-                          <label className="text-[10px] text-slate-400 font-bold block">{field.label}</label>
+                          <label className="text-[10px] text-slate-500 font-bold block">{field.label}</label>
                           <div className="flex items-center gap-1">
-                            <input type="number" value={aiLimits[field.key]} onChange={(e) => setAiLimits(prev => ({ ...prev, [field.key]: e.target.value }))} className="flex-1 bg-[#0B0F19]/50 border border-[#23324C] hover:border-brand-500/20 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                            <input type="number" value={aiLimits[field.key]} onChange={(e) => setAiLimits(prev => ({ ...prev, [field.key]: e.target.value }))} className="flex-1 bg-slate-50/50 border border-slate-200 hover:border-brand-500/20 text-slate-700 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand-500" />
                             <span className="text-[10px] text-slate-500 font-mono">{field.unit}</span>
                           </div>
                         </div>
@@ -2770,9 +2770,9 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                     <Button variant="primary" size="sm" onClick={() => { logAuditAction('AI Config Saved', 'AI model thresholds and limits updated.'); triggerToast('AI model configuration saved successfully.'); }}>Save AI Configuration</Button>
                   </div>
 
-                  <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
+                  <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-3">
                     <div>
-                      <h3 className="text-sm font-extrabold text-white">AI Activity Logs</h3>
+                      <h3 className="text-sm font-extrabold text-slate-900">AI Activity Logs</h3>
                       <p className="text-[10px] text-slate-500">Recent AI model events and processing history.</p>
                     </div>
                     <div className="space-y-2 max-h-52 overflow-y-auto scrollbar-none">
@@ -2784,11 +2784,11 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                         { feature: 'ETA Prediction', event: 'Model retrained — accuracy improved to 94.2%', time: '2026-06-25 22:10', type: 'success' },
                         ...((auditLogs || []).filter(l => l.action?.includes('AI')).slice(0, 3).map(l => ({ feature: 'Platform', event: l.detail, time: l.time, type: 'info' })))
                       ].slice(0, 8).map((log, idx) => (
-                        <div key={idx} className="flex gap-3 p-2.5 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl items-start">
+                        <div key={idx} className="flex gap-3 p-2.5 bg-white/40 border border-slate-200/50 rounded-xl items-start">
                           <div className={`mt-1.5 w-1.5 h-1.5 rounded-full flex-shrink-0 ${log.type === 'success' ? 'bg-emerald-400' : log.type === 'error' ? 'bg-red-400' : log.type === 'warning' ? 'bg-amber-400' : 'bg-brand-400'}`} />
                           <div className="flex-1">
-                            <p className="text-[10px] text-white font-bold">{log.feature}</p>
-                            <p className="text-[10px] text-slate-400">{log.event}</p>
+                            <p className="text-[10px] text-slate-900 font-bold">{log.feature}</p>
+                            <p className="text-[10px] text-slate-500">{log.event}</p>
                           </div>
                           <span className="text-[9px] text-slate-500 font-mono flex-shrink-0">{log.time}</span>
                         </div>
@@ -2799,18 +2799,18 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
               </div>
 
               {/* AI Usage Analytics */}
-              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
-                <h3 className="text-sm font-extrabold text-white">AI Usage Analytics — Requests by Feature</h3>
+              <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-3">
+                <h3 className="text-sm font-extrabold text-slate-900">AI Usage Analytics — Requests by Feature</h3>
                 <div className="space-y-2.5">
                   {Object.entries(aiFeatureToggles).map(([feature, enabled], i) => {
                     const requests = enabled ? ([1200, 980, 840, 620, 480, 320][i] || 200) : 0;
                     return (
                       <div key={feature} className="flex items-center gap-3 text-xs">
-                        <span className="text-slate-400 font-semibold w-44 flex-shrink-0">{feature}</span>
+                        <span className="text-slate-500 font-semibold w-44 flex-shrink-0">{feature}</span>
                         <div className="flex-1 bg-slate-900 rounded-full h-2">
                           <div className={`h-full rounded-full transition-all ${enabled ? 'bg-brand-500' : 'bg-slate-700'}`} style={{ width: enabled ? `${(requests / 1200) * 100}%` : '3%' }} />
                         </div>
-                        <span className="font-mono font-bold text-white w-16 text-right">{requests.toLocaleString()} req</span>
+                        <span className="font-mono font-bold text-slate-900 w-16 text-right">{requests.toLocaleString()} req</span>
                       </div>
                     );
                   })}
@@ -2821,8 +2821,8 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
 
           {activeTab === 'settings' && (
             <div className="space-y-6 text-left">
-              <div className="glass rounded-2xl border border-[#23324C]/60 overflow-hidden">
-                <div className="flex gap-1 border-b border-[#23324C]/50 p-3 overflow-x-auto scrollbar-none">
+              <div className="glass rounded-2xl border border-slate-200 overflow-hidden">
+                <div className="flex gap-1 border-b border-slate-200/50 p-3 overflow-x-auto scrollbar-none">
                   {[
                     { id: 'general', label: 'General' },
                     { id: 'smtp', label: 'SMTP / Email' },
@@ -2833,7 +2833,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                     { id: 'auditlogs', label: 'Audit Logs' }
                   ].map(tab => (
                     <button key={tab.id} onClick={() => setSettingsSubTab(tab.id)} className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wide whitespace-nowrap transition-all cursor-pointer ${
-                      settingsSubTab === tab.id ? 'bg-brand-500 text-slate-950 shadow-md' : 'bg-[#111827]/40 border border-[#23324C]/50 text-slate-400 hover:text-slate-200'
+                      settingsSubTab === tab.id ? 'bg-brand-500 text-slate-950 shadow-md' : 'bg-white/40 border border-slate-200/50 text-slate-500 hover:text-slate-700'
                     }`}>{tab.label}</button>
                   ))}
                 </div>
@@ -2842,7 +2842,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                   {settingsSubTab === 'general' && (
                     <div className="space-y-5 max-w-2xl">
                       <div>
-                        <h3 className="text-sm font-extrabold text-white">Platform General Settings</h3>
+                        <h3 className="text-sm font-extrabold text-slate-900">Platform General Settings</h3>
                         <p className="text-[10px] text-slate-500 mt-1">Configure core platform parameters and default behaviors.</p>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2853,9 +2853,9 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                         <TextInput label="Default Language" defaultValue="en-US" />
                         <TextInput label="Platform Version" defaultValue="v4.1.0-enterprise" />
                       </div>
-                      <div className="p-3 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl flex items-center justify-between">
+                      <div className="p-3 bg-white/40 border border-slate-200/50 rounded-xl flex items-center justify-between">
                         <div>
-                          <span className="text-xs font-bold text-white block">Maintenance Mode</span>
+                          <span className="text-xs font-bold text-slate-900 block">Maintenance Mode</span>
                           <span className="text-[9px] text-slate-500">Prevents non-admin logins during maintenance windows.</span>
                         </div>
                         <button onClick={() => { setMaintenanceMode(!maintenanceMode); logAuditAction('Maintenance Mode', `Maintenance mode ${!maintenanceMode ? 'enabled' : 'disabled'}.`); triggerToast(`Maintenance mode ${!maintenanceMode ? 'enabled' : 'disabled'}.`, !maintenanceMode ? 'warning' : 'success'); }} className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer focus:outline-none ${maintenanceMode ? 'bg-amber-500' : 'bg-slate-700'}`}>
@@ -2869,7 +2869,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                   {settingsSubTab === 'smtp' && (
                     <div className="space-y-5 max-w-2xl">
                       <div>
-                        <h3 className="text-sm font-extrabold text-white">SMTP / Email Configuration</h3>
+                        <h3 className="text-sm font-extrabold text-slate-900">SMTP / Email Configuration</h3>
                         <p className="text-[10px] text-slate-500 mt-1">Configure outbound email delivery settings.</p>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2881,13 +2881,13 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                           { key: 'fromEmail', label: 'From Email', type: 'email' }
                         ].map(field => (
                           <div key={field.key} className="space-y-1.5">
-                            <label className="text-[10px] text-slate-400 font-bold block uppercase">{field.label}</label>
-                            <input type={field.type} value={smtpSettings[field.key]} onChange={e => setSmtpSettings(p => ({ ...p, [field.key]: e.target.value }))} className="w-full bg-[#0B0F19]/50 border border-[#23324C] hover:border-brand-500/20 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                            <label className="text-[10px] text-slate-500 font-bold block uppercase">{field.label}</label>
+                            <input type={field.type} value={smtpSettings[field.key]} onChange={e => setSmtpSettings(p => ({ ...p, [field.key]: e.target.value }))} className="w-full bg-slate-50/50 border border-slate-200 hover:border-brand-500/20 text-slate-700 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand-500" />
                           </div>
                         ))}
                         <div className="space-y-1.5">
-                          <label className="text-[10px] text-slate-400 font-bold block uppercase">SMTP Password</label>
-                          <input type="password" defaultValue="••••••••••••" className="w-full bg-[#0B0F19]/50 border border-[#23324C] hover:border-brand-500/20 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                          <label className="text-[10px] text-slate-500 font-bold block uppercase">SMTP Password</label>
+                          <input type="password" defaultValue="••••••••••••" className="w-full bg-slate-50/50 border border-slate-200 hover:border-brand-500/20 text-slate-700 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand-500" />
                         </div>
                       </div>
                       <div className="flex gap-3">
@@ -2900,7 +2900,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                   {settingsSubTab === 'notifications' && (
                     <div className="space-y-5">
                       <div>
-                        <h3 className="text-sm font-extrabold text-white">Notification & Alert Configuration</h3>
+                        <h3 className="text-sm font-extrabold text-slate-900">Notification & Alert Configuration</h3>
                         <p className="text-[10px] text-slate-500 mt-1">Toggle platform-wide alert notifications.</p>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -2913,9 +2913,9 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                           { key: 'securityAlert', label: 'Security Alerts', desc: 'Notify on suspicious login activity or brute force.' },
                           { key: 'platformError', label: 'Platform Error Alerts', desc: 'Alert on 5xx server errors and database failures.' }
                         ].map(notif => (
-                          <div key={notif.key} className="flex items-center justify-between p-3 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl">
+                          <div key={notif.key} className="flex items-center justify-between p-3 bg-white/40 border border-slate-200/50 rounded-xl">
                             <div className="flex-1 pr-4">
-                              <span className="text-xs font-bold text-white block">{notif.label}</span>
+                              <span className="text-xs font-bold text-slate-900 block">{notif.label}</span>
                               <p className="text-[9px] text-slate-500 leading-normal mt-0.5">{notif.desc}</p>
                             </div>
                             <button onClick={() => { const updated = { ...notifToggles, [notif.key]: !notifToggles[notif.key] }; setNotifToggles(updated); triggerToast(`${notif.label} ${!notifToggles[notif.key] ? 'enabled' : 'disabled'}.`); }} className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors cursor-pointer flex-shrink-0 ${notifToggles[notif.key] ? 'bg-brand-500' : 'bg-slate-700'}`}>
@@ -2931,32 +2931,32 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                   {settingsSubTab === 'security' && (
                     <div className="space-y-5 max-w-2xl">
                       <div>
-                        <h3 className="text-sm font-extrabold text-white">Security Configuration</h3>
+                        <h3 className="text-sm font-extrabold text-slate-900">Security Configuration</h3>
                         <p className="text-[10px] text-slate-500 mt-1">Manage platform access security policies.</p>
                       </div>
                       <div className="space-y-3">
-                        <div className="p-3 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl flex items-center justify-between">
+                        <div className="p-3 bg-white/40 border border-slate-200/50 rounded-xl flex items-center justify-between">
                           <div>
-                            <span className="text-xs font-bold text-white block">Two-Factor Authentication</span>
+                            <span className="text-xs font-bold text-slate-900 block">Two-Factor Authentication</span>
                             <span className="text-[9px] text-slate-500">Enforce TOTP / SMS verification on every Super Admin login.</span>
                           </div>
                           <span className="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded text-[9px] font-bold">Enforced</span>
                         </div>
-                        <div className="p-3 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl space-y-2">
-                          <span className="text-xs font-black text-white">Session Timeout</span>
+                        <div className="p-3 bg-white/40 border border-slate-200/50 rounded-xl space-y-2">
+                          <span className="text-xs font-black text-slate-900">Session Timeout</span>
                           <div className="flex items-center gap-3">
-                            <label className="text-[10px] text-slate-400 font-bold w-36">Timeout (minutes)</label>
-                            <input type="number" value={sessionTimeout} onChange={e => setSessionTimeout(e.target.value)} className="w-24 bg-[#0B0F19]/50 border border-[#23324C] text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                            <label className="text-[10px] text-slate-500 font-bold w-36">Timeout (minutes)</label>
+                            <input type="number" value={sessionTimeout} onChange={e => setSessionTimeout(e.target.value)} className="w-24 bg-slate-50/50 border border-slate-200 text-slate-700 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-brand-500" />
                           </div>
                         </div>
-                        <div className="p-3 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl space-y-2">
-                          <span className="text-xs font-black text-white">IP Whitelist</span>
-                          <textarea rows={3} defaultValue={`192.168.1.0/24\n10.0.0.0/8\n203.45.12.0/24`} className="w-full bg-[#0B0F19]/50 border border-[#23324C] text-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:ring-1 focus:ring-brand-500 font-mono" />
+                        <div className="p-3 bg-white/40 border border-slate-200/50 rounded-xl space-y-2">
+                          <span className="text-xs font-black text-slate-900">IP Whitelist</span>
+                          <textarea rows={3} defaultValue={`192.168.1.0/24\n10.0.0.0/8\n203.45.12.0/24`} className="w-full bg-slate-50/50 border border-slate-200 text-slate-700 text-xs rounded-xl p-3 focus:outline-none focus:ring-1 focus:ring-brand-500 font-mono" />
                           <p className="text-[9px] text-slate-500">One CIDR block per line. Leave blank to allow all IPs.</p>
                         </div>
-                        <div className="p-3 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl flex items-center justify-between">
+                        <div className="p-3 bg-white/40 border border-slate-200/50 rounded-xl flex items-center justify-between">
                           <div>
-                            <span className="text-xs font-bold text-white block">Login Attempt Limit</span>
+                            <span className="text-xs font-bold text-slate-900 block">Login Attempt Limit</span>
                             <span className="text-[9px] text-slate-500">Lock account after 5 consecutive failed logins.</span>
                           </div>
                           <span className="bg-brand-500/10 text-brand-400 border border-brand-500/20 px-2 py-0.5 rounded text-[9px] font-bold">5 attempts</span>
@@ -2970,7 +2970,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                     <div className="space-y-5">
                       <div className="flex justify-between items-center">
                         <div>
-                          <h3 className="text-sm font-extrabold text-white">API Keys Management</h3>
+                          <h3 className="text-sm font-extrabold text-slate-900">API Keys Management</h3>
                           <p className="text-[10px] text-slate-500 mt-1">Manage platform API access credentials.</p>
                         </div>
                         <Button variant="primary" size="sm" icon={Plus} onClick={() => {
@@ -2983,12 +2983,12 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                       </div>
                       <div className="space-y-3">
                         {apiKeysList.map(apiKey => (
-                          <div key={apiKey.id} className="p-4 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl flex items-center justify-between gap-4">
+                          <div key={apiKey.id} className="p-4 bg-white/40 border border-slate-200/50 rounded-xl flex items-center justify-between gap-4">
                             <div className="flex-1">
-                              <span className="text-xs font-bold text-white block">{apiKey.name}</span>
+                              <span className="text-xs font-bold text-slate-900 block">{apiKey.name}</span>
                               <div className="flex items-center gap-2 mt-1">
-                                <span className="font-mono text-[10px] text-slate-400 bg-slate-900/60 px-2 py-0.5 rounded">{apiKey.key}</span>
-                                <button onClick={() => triggerToast('API key copied to clipboard.')} className="text-slate-500 hover:text-slate-300 cursor-pointer"><Copy className="h-3 w-3" /></button>
+                                <span className="font-mono text-[10px] text-slate-500 bg-slate-900/60 px-2 py-0.5 rounded">{apiKey.key}</span>
+                                <button onClick={() => triggerToast('API key copied to clipboard.')} className="text-slate-500 hover:text-slate-600 cursor-pointer"><Copy className="h-3 w-3" /></button>
                               </div>
                               <p className="text-[9px] text-slate-500 mt-1">Created: {apiKey.created} · Last used: {apiKey.lastUsed}</p>
                             </div>
@@ -3012,26 +3012,26 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                   {settingsSubTab === 'backup' && (
                     <div className="space-y-5">
                       <div>
-                        <h3 className="text-sm font-extrabold text-white">Backup & Restore</h3>
+                        <h3 className="text-sm font-extrabold text-slate-900">Backup & Restore</h3>
                         <p className="text-[10px] text-slate-500 mt-1">Manage platform data backup schedule and restore points.</p>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="p-4 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl space-y-3">
-                          <span className="text-xs font-black text-white uppercase tracking-wide">Backup Schedule</span>
+                        <div className="p-4 bg-white/40 border border-slate-200/50 rounded-xl space-y-3">
+                          <span className="text-xs font-black text-slate-900 uppercase tracking-wide">Backup Schedule</span>
                           <div className="space-y-2 text-xs">
                             {[['Frequency', 'Daily at 02:00 UTC'], ['Retention', '30 days'], ['Backup Type', 'Full Snapshot'], ['Storage Location', 'AWS S3 us-east-1'], ['Last Backup', '2026-06-26 02:01 UTC'], ['Backup Size', '2.34 GB']].map(([k, v]) => (
-                              <div key={k} className="flex justify-between"><span className="text-slate-400">{k}</span><span className={`font-bold ${k === 'Last Backup' ? 'text-emerald-400' : 'text-white'}`}>{v}</span></div>
+                              <div key={k} className="flex justify-between"><span className="text-slate-500">{k}</span><span className={`font-bold ${k === 'Last Backup' ? 'text-emerald-400' : 'text-slate-900'}`}>{v}</span></div>
                             ))}
                           </div>
                           <Button variant="primary" size="sm" className="w-full" onClick={() => triggerToast('Manual backup initiated. This may take a few minutes.')}>Run Manual Backup</Button>
                         </div>
-                        <div className="p-4 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl space-y-3">
-                          <span className="text-xs font-black text-white uppercase tracking-wide">Restore Points</span>
+                        <div className="p-4 bg-white/40 border border-slate-200/50 rounded-xl space-y-3">
+                          <span className="text-xs font-black text-slate-900 uppercase tracking-wide">Restore Points</span>
                           <div className="space-y-2">
                             {['2026-06-26 02:01 UTC', '2026-06-25 02:01 UTC', '2026-06-24 02:01 UTC', '2026-06-23 02:01 UTC'].map((date, i) => (
-                              <div key={i} className="flex items-center justify-between p-2 bg-[#0B0F19]/40 border border-[#23324C]/40 rounded-lg">
+                              <div key={i} className="flex items-center justify-between p-2 bg-slate-50/40 border border-slate-200 rounded-lg">
                                 <div>
-                                  <span className="text-xs font-bold text-white font-mono">{date}</span>
+                                  <span className="text-xs font-bold text-slate-900 font-mono">{date}</span>
                                   <span className="text-[9px] text-slate-500 block">Full snapshot · {(2.34 - i * 0.1).toFixed(2)} GB</span>
                                 </div>
                                 <Button size="sm" variant="danger" onClick={() => triggerToast(`Restore point ${date} initiated. Platform will restart.`, 'warning')}>Restore</Button>
@@ -3047,18 +3047,18 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                     <div className="space-y-4">
                       <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
                         <div>
-                          <h3 className="text-sm font-extrabold text-white">Platform Audit Logs</h3>
+                          <h3 className="text-sm font-extrabold text-slate-900">Platform Audit Logs</h3>
                           <p className="text-[10px] text-slate-500 mt-1">Complete record of all administrative actions.</p>
                         </div>
                         <div className="flex gap-3">
-                          <input type="text" placeholder="Filter by action..." value={auditLogsActionFilter} onChange={e => setAuditLogsActionFilter(e.target.value)} className="bg-[#0B0F19] border border-[#23324C] rounded-lg p-2 text-xs text-slate-300 outline-none w-36" />
-                          <input type="date" value={auditLogsDateFilter} onChange={e => setAuditLogsDateFilter(e.target.value)} className="bg-[#0B0F19] border border-[#23324C] rounded-lg p-2 text-xs text-slate-300 outline-none" />
+                          <input type="text" placeholder="Filter by action..." value={auditLogsActionFilter} onChange={e => setAuditLogsActionFilter(e.target.value)} className="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-600 outline-none w-36" />
+                          <input type="date" value={auditLogsDateFilter} onChange={e => setAuditLogsDateFilter(e.target.value)} className="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-600 outline-none" />
                           <Button size="sm" variant="outline" onClick={() => { setAuditLogsActionFilter(''); setAuditLogsDateFilter(''); }}>Reset</Button>
                         </div>
                       </div>
-                      <div className="overflow-x-auto rounded-xl border border-[#23324C]/50">
-                        <table className="w-full text-xs text-slate-350">
-                          <thead className="bg-[#161F30]/60 text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                      <div className="overflow-x-auto rounded-xl border border-slate-200/50">
+                        <table className="w-full text-xs text-slate-500">
+                          <thead className="bg-slate-50/60 text-slate-500 uppercase font-black border-b border-slate-200/50">
                             <tr>
                               <th className="p-3 text-left">Log ID</th>
                               <th className="p-3 text-left">Action</th>
@@ -3073,11 +3073,11 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                               const matchDate = !auditLogsDateFilter || (l.time || '').includes(auditLogsDateFilter);
                               return matchAction && matchDate;
                             }).slice(0, 25).map(log => (
-                              <tr key={log.id} className="hover:bg-slate-800/20">
+                              <tr key={log.id} className="hover:bg-white/20">
                                 <td className="p-3 font-mono text-slate-500 text-[10px]">#{log.id}</td>
-                                <td className="p-3 font-bold text-white">{log.action}</td>
-                                <td className="p-3 text-slate-400 max-w-[200px] truncate">{log.detail}</td>
-                                <td className="p-3 text-slate-400">{log.companyName || '—'}</td>
+                                <td className="p-3 font-bold text-slate-900">{log.action}</td>
+                                <td className="p-3 text-slate-500 max-w-[200px] truncate">{log.detail}</td>
+                                <td className="p-3 text-slate-500">{log.companyName || '—'}</td>
                                 <td className="p-3 text-slate-500 font-mono text-[10px]">{log.time}</td>
                               </tr>
                             ))}
@@ -3109,21 +3109,21 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
               </div>
 
               {/* Ticket Management Table */}
-              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
                 <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-extrabold text-white">Support Ticket Queue</h3>
+                    <h3 className="text-sm font-extrabold text-slate-900">Support Ticket Queue</h3>
                     <p className="text-[10px] text-slate-500">Manage inbound platform support requests.</p>
                   </div>
                   <div className="flex flex-wrap gap-3 items-center">
                     <SearchInput value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} onClear={() => setSearchQuery('')} placeholder="Search tickets..." className="w-full sm:max-w-[180px]" />
-                    <select value={supportPriorityFilter} onChange={(e) => setSupportPriorityFilter(e.target.value)} className="bg-[#0B0F19] border border-[#23324C] rounded-lg p-2 text-xs text-slate-300 outline-none font-semibold cursor-pointer">
+                    <select value={supportPriorityFilter} onChange={(e) => setSupportPriorityFilter(e.target.value)} className="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-600 outline-none font-semibold cursor-pointer">
                       <option value="">All Priorities</option>
                       <option value="High">High</option>
                       <option value="Medium">Medium</option>
                       <option value="Low">Low</option>
                     </select>
-                    <select value={supportStatusFilter} onChange={(e) => setSupportStatusFilter(e.target.value)} className="bg-[#0B0F19] border border-[#23324C] rounded-lg p-2 text-xs text-slate-300 outline-none font-semibold cursor-pointer">
+                    <select value={supportStatusFilter} onChange={(e) => setSupportStatusFilter(e.target.value)} className="bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs text-slate-600 outline-none font-semibold cursor-pointer">
                       <option value="">All Statuses</option>
                       <option value="Open">Open</option>
                       <option value="Resolved">Resolved</option>
@@ -3132,9 +3132,9 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                   </div>
                 </div>
 
-                <div className="overflow-x-auto rounded-xl border border-[#23324C]/50">
-                  <table className="w-full text-xs text-slate-350">
-                    <thead className="bg-[#161F30]/60 text-slate-500 uppercase font-black border-b border-[#23324C]/50">
+                <div className="overflow-x-auto rounded-xl border border-slate-200/50">
+                  <table className="w-full text-xs text-slate-500">
+                    <thead className="bg-slate-50/60 text-slate-500 uppercase font-black border-b border-slate-200/50">
                       <tr>
                         <th className="p-3 text-left">Ticket ID</th>
                         <th className="p-3 text-left">Company</th>
@@ -3154,19 +3154,19 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                         const matchStatus = !supportStatusFilter || t.status === supportStatusFilter;
                         return matchSearch && matchPriority && matchStatus;
                       }).map((t, idx) => (
-                        <tr key={t.id} className="hover:bg-slate-800/20">
-                          <td className="p-3 font-mono font-bold text-slate-400">#{t.id}</td>
-                          <td className="p-3 font-bold text-white">{t.company || tenants[idx % Math.max(tenants.length, 1)]?.name || 'Hero Platform'}</td>
-                          <td className="p-3 text-slate-300 max-w-[180px] truncate">{t.subject}</td>
+                        <tr key={t.id} className="hover:bg-white/20">
+                          <td className="p-3 font-mono font-bold text-slate-500">#{t.id}</td>
+                          <td className="p-3 font-bold text-slate-900">{t.company || tenants[idx % Math.max(tenants.length, 1)]?.name || 'Hero Platform'}</td>
+                          <td className="p-3 text-slate-600 max-w-[180px] truncate">{t.subject}</td>
                           <td className="p-3 text-center">
                             <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
                               t.priority === 'High' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
                               t.priority === 'Medium' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
-                              'bg-slate-800 text-slate-400 border border-slate-700'
+                              'bg-white text-slate-500 border border-slate-700'
                             }`}>{t.priority || 'Medium'}</span>
                           </td>
                           <td className="p-3 text-center"><StatusBadge status={t.status} /></td>
-                          <td className="p-3 text-slate-400">{t.assignedAgent || 'Unassigned'}</td>
+                          <td className="p-3 text-slate-500">{t.assignedAgent || 'Unassigned'}</td>
                           <td className="p-3 text-slate-500 font-mono text-[10px]">{t.createdAt || '2026-06-20'}</td>
                           <td className="p-3">
                             <div className="flex gap-1 justify-center flex-wrap">
@@ -3186,16 +3186,16 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
 
                 {/* Response History */}
                 {tickets.filter(t => t.replies && t.replies.length > 0).length > 0 && (
-                  <div className="space-y-2 pt-2 border-t border-[#23324C]/40">
-                    <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Recent Response History</h4>
+                  <div className="space-y-2 pt-2 border-t border-slate-200">
+                    <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">Recent Response History</h4>
                     <div className="space-y-2 max-h-48 overflow-y-auto scrollbar-none">
                       {tickets.filter(t => t.replies?.length > 0).flatMap(t => (t.replies || []).map(r => ({ ...r, ticketId: t.id, subject: t.subject }))).slice(0, 5).map((r, i) => (
-                        <div key={i} className="p-2.5 bg-[#111827]/40 border border-[#23324C]/50 rounded-xl text-xs">
+                        <div key={i} className="p-2.5 bg-white/40 border border-slate-200/50 rounded-xl text-xs">
                           <div className="flex justify-between mb-1">
-                            <span className="font-bold text-white">Ticket #{r.ticketId} — {r.subject}</span>
+                            <span className="font-bold text-slate-900">Ticket #{r.ticketId} — {r.subject}</span>
                             <span className="text-slate-500 font-mono text-[9px]">{r.time}</span>
                           </div>
-                          <p className="text-slate-400">{r.message}</p>
+                          <p className="text-slate-500">{r.message}</p>
                         </div>
                       ))}
                     </div>
@@ -3243,12 +3243,12 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
         {activeCompany && (() => {
           const selectedCompany = activeCompany;
           return (
-            <div className="space-y-4 text-left text-slate-300 text-xs sm:text-sm">
+            <div className="space-y-4 text-left text-slate-600 text-xs sm:text-sm">
               {/* Header info */}
-              <div className="border-b border-[#23324C]/60 pb-3 flex justify-between items-center">
+              <div className="border-b border-slate-200 pb-3 flex justify-between items-center">
                 <div>
-                  <h4 className="text-base font-black text-white">{selectedCompany.name}</h4>
-                  <span className="text-[10px] text-slate-400 font-mono">Workspace ID: #TEN-{selectedCompany.id}</span>
+                  <h4 className="text-base font-black text-slate-900">{selectedCompany.name}</h4>
+                  <span className="text-[10px] text-slate-500 font-mono">Workspace ID: #TEN-{selectedCompany.id}</span>
                 </div>
                 <StatusBadge status={selectedCompany.status} />
               </div>
@@ -3256,7 +3256,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
 
 
               {/* Details Tabs Selector */}
-              <div className="flex gap-1 overflow-x-auto pb-2 border-b border-[#23324C]/40 scrollbar-none">
+              <div className="flex gap-1 overflow-x-auto pb-2 border-b border-slate-200 scrollbar-none">
                 {(activeTab === 'subscriptions' 
                   ? [
                       { id: 'overview', label: 'Overview' },
@@ -3286,7 +3286,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                     className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-all ${
                       companyDetailsTab === tab.id 
                         ? 'bg-brand-500 text-slate-950 shadow-md shadow-brand-500/10' 
-                        : 'text-slate-450 hover:text-white hover:bg-slate-800/40'
+                        : 'text-slate-450 hover:text-slate-900 hover:bg-white/40'
                     }`}
                   >
                     {tab.label}
@@ -3297,36 +3297,36 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
               <div className="py-2 space-y-3 min-h-[300px]">
                 {companyDetailsTab === 'overview' && (
                   <div className="space-y-3 text-xs">
-                    <div className="bg-[#111827] p-3 border border-[#23324C]/50 rounded-xl space-y-2">
-                      <h5 className="font-extrabold text-white">General Information</h5>
-                      <div className="grid grid-cols-2 gap-2 text-slate-400">
-                        <div>Account Manager: <span className="text-white font-semibold">{selectedCompany.manager || 'Alex W.'}</span></div>
-                        <div>Region/Country: <span className="text-white font-semibold">{selectedCompany.country || 'USA'}</span></div>
-                        <div>Joined Date: <span className="text-white font-semibold">{selectedCompany.joined}</span></div>
-                        <div>Last Login: <span className="text-white font-semibold">{selectedCompany.lastLogin || 'Today, 03:24 PM'}</span></div>
+                    <div className="bg-white p-3 border border-slate-200/50 rounded-xl space-y-2">
+                      <h5 className="font-extrabold text-slate-900">General Information</h5>
+                      <div className="grid grid-cols-2 gap-2 text-slate-500">
+                        <div>Account Manager: <span className="text-slate-900 font-semibold">{selectedCompany.manager || 'Alex W.'}</span></div>
+                        <div>Region/Country: <span className="text-slate-900 font-semibold">{selectedCompany.country || 'USA'}</span></div>
+                        <div>Joined Date: <span className="text-slate-900 font-semibold">{selectedCompany.joined}</span></div>
+                        <div>Last Login: <span className="text-slate-900 font-semibold">{selectedCompany.lastLogin || 'Today, 03:24 PM'}</span></div>
                       </div>
                     </div>
-                    <div className="bg-[#111827] p-3 border border-[#23324C]/50 rounded-xl space-y-2">
-                      <h5 className="font-extrabold text-white">Resource Metrics</h5>
-                      <div className="grid grid-cols-2 gap-2 text-slate-400">
-                        <div>Active Users: <span className="text-white font-semibold font-mono">{selectedCompany.users !== undefined ? selectedCompany.users : 1}</span></div>
-                        <div>Total Drivers: <span className="text-white font-semibold font-mono">{selectedCompany.drivers || 0}</span></div>
-                        <div>Fleet Vehicles: <span className="text-white font-semibold font-mono">{selectedCompany.vehicles !== undefined ? selectedCompany.vehicles : 0}</span></div>
-                        <div>Branches count: <span className="text-white font-semibold font-mono">{selectedCompany.branches !== undefined ? selectedCompany.branches : 1}</span></div>
+                    <div className="bg-white p-3 border border-slate-200/50 rounded-xl space-y-2">
+                      <h5 className="font-extrabold text-slate-900">Resource Metrics</h5>
+                      <div className="grid grid-cols-2 gap-2 text-slate-500">
+                        <div>Active Users: <span className="text-slate-900 font-semibold font-mono">{selectedCompany.users !== undefined ? selectedCompany.users : 1}</span></div>
+                        <div>Total Drivers: <span className="text-slate-900 font-semibold font-mono">{selectedCompany.drivers || 0}</span></div>
+                        <div>Fleet Vehicles: <span className="text-slate-900 font-semibold font-mono">{selectedCompany.vehicles !== undefined ? selectedCompany.vehicles : 0}</span></div>
+                        <div>Branches count: <span className="text-slate-900 font-semibold font-mono">{selectedCompany.branches !== undefined ? selectedCompany.branches : 1}</span></div>
                       </div>
                     </div>
                   </div>
                 )}
 
                 {companyDetailsTab === 'subscription' && (
-                  <div className="space-y-3 text-xs bg-[#111827] p-3 border border-[#23324C]/50 rounded-xl">
-                    <h5 className="font-extrabold text-white">Subscription Licensing Contract</h5>
-                    <div className="space-y-2 text-slate-400">
+                  <div className="space-y-3 text-xs bg-white p-3 border border-slate-200/50 rounded-xl">
+                    <h5 className="font-extrabold text-slate-900">Subscription Licensing Contract</h5>
+                    <div className="space-y-2 text-slate-500">
                       <div>Current Tier Plan: <strong className="text-brand-400 font-extrabold">{selectedCompany.plan} Plan</strong></div>
-                      <div>Contract Billing Rate: <span className="text-white font-bold">{selectedCompany.revenue !== undefined ? `$${selectedCompany.revenue.toLocaleString()} / month` : (selectedCompany.plan === 'Starter' ? '$199.00 / month' : (selectedCompany.plan === 'Professional' ? '$499.00 / month' : '$1,299.00 / month'))}</span></div>
-                      <div>Billing Cycle Period: <span className="text-white font-semibold">Monthly Auto-Renewal recurring</span></div>
-                      <div>Next Renewal Invoice Date: <span className="text-white font-semibold">{selectedCompany.nextRenewalDate || '07/24/2026'}</span></div>
-                      <div>Trial Expiry: <span className="text-slate-350 font-semibold">{selectedCompany.trialExpiry || (selectedCompany.plan === 'Starter' ? '07/15/2026' : 'N/A')}</span></div>
+                      <div>Contract Billing Rate: <span className="text-slate-900 font-bold">{selectedCompany.revenue !== undefined ? `$${selectedCompany.revenue.toLocaleString()} / month` : (selectedCompany.plan === 'Starter' ? '$199.00 / month' : (selectedCompany.plan === 'Professional' ? '$499.00 / month' : '$1,299.00 / month'))}</span></div>
+                      <div>Billing Cycle Period: <span className="text-slate-900 font-semibold">Monthly Auto-Renewal recurring</span></div>
+                      <div>Next Renewal Invoice Date: <span className="text-slate-900 font-semibold">{selectedCompany.nextRenewalDate || '07/24/2026'}</span></div>
+                      <div>Trial Expiry: <span className="text-slate-500 font-semibold">{selectedCompany.trialExpiry || (selectedCompany.plan === 'Starter' ? '07/15/2026' : 'N/A')}</span></div>
                     </div>
                   </div>
                 )}
@@ -3334,17 +3334,17 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                 {companyDetailsTab === 'users' && (
                   <div className="space-y-2">
                     <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Registered Account Staff Members</span>
-                    <div className="bg-[#111827] border border-[#23324C]/45 rounded-xl divide-y divide-[#23324C]/30 text-xs">
+                    <div className="bg-white border border-slate-200/45 rounded-xl divide-y divide-[#23324C]/30 text-xs">
                       {(selectedCompany.usersList && selectedCompany.usersList.length > 0 ? selectedCompany.usersList : [
                         { name: selectedCompany.manager || 'Alexander Wright', role: 'Company Admin', email: selectedCompany.manager || 'admin@company.com', status: 'Active' }
                       ]).map((usr, i) => (
                         <div key={i} className="p-2.5 flex justify-between items-center">
                           <div className="text-left">
-                            <strong className="text-white block font-bold">{usr.name}</strong>
+                            <strong className="text-slate-900 block font-bold">{usr.name}</strong>
                             <span className="text-[10px] text-slate-500 font-mono">{usr.email}</span>
                           </div>
                           <div className="text-right">
-                            <span className="text-[10px] font-bold text-slate-300 block">{usr.role}</span>
+                            <span className="text-[10px] font-bold text-slate-600 block">{usr.role}</span>
                             <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-extrabold">{usr.status || 'Active'}</span>
                           </div>
                         </div>
@@ -3356,16 +3356,16 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                 {companyDetailsTab === 'branches' && (
                   <div className="space-y-2">
                     <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Active Branch Terminals</span>
-                    <div className="bg-[#111827] border border-[#23324C]/45 rounded-xl divide-y divide-[#23324C]/30 text-xs">
+                    <div className="bg-white border border-slate-200/45 rounded-xl divide-y divide-[#23324C]/30 text-xs">
                       {(selectedCompany.branchesList && selectedCompany.branchesList.length > 0 ? selectedCompany.branchesList : [
                         { name: 'Chicago HQ Terminal', city: 'Chicago, IL', staff: '8 Staff' }
                       ]).map((br, i) => (
                         <div key={i} className="p-2.5 flex justify-between items-center">
                           <div className="text-left">
-                            <strong className="text-white block font-bold">{br.name}</strong>
+                            <strong className="text-slate-900 block font-bold">{br.name}</strong>
                             <span className="text-[10px] text-slate-500">{br.city}</span>
                           </div>
-                          <span className="text-[10px] font-bold text-slate-400">{br.staff}</span>
+                          <span className="text-[10px] font-bold text-slate-500">{br.staff}</span>
                         </div>
                       ))}
                     </div>
@@ -3375,13 +3375,13 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                 {companyDetailsTab === 'fleet' && (
                   <div className="space-y-2">
                     <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Registered Fleet Asset Vehicles</span>
-                    <div className="bg-[#111827] border border-[#23324C]/45 rounded-xl divide-y divide-[#23324C]/30 text-xs">
+                    <div className="bg-white border border-slate-200/45 rounded-xl divide-y divide-[#23324C]/30 text-xs">
                       {(selectedCompany.vehiclesList && selectedCompany.vehiclesList.length > 0 ? selectedCompany.vehiclesList : [
                         { plate: 'TX-ROAD88', type: 'Semi-Truck', status: 'Active' }
                       ]).map((veh, i) => (
                         <div key={i} className="p-2.5 flex justify-between items-center">
                           <div className="text-left">
-                            <strong className="text-white block font-bold">{veh.plate}</strong>
+                            <strong className="text-slate-900 block font-bold">{veh.plate}</strong>
                             <span className="text-[10px] text-slate-500">{veh.type}</span>
                           </div>
                           <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-blue-500/10 text-blue-400 font-bold">{veh.status}</span>
@@ -3394,13 +3394,13 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                 {companyDetailsTab === 'loads' && (
                   <div className="space-y-2">
                     <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Loads Manifest Summary</span>
-                    <div className="bg-[#111827] border border-[#23324C]/45 rounded-xl divide-y divide-[#23324C]/30 text-xs">
+                    <div className="bg-white border border-slate-200/45 rounded-xl divide-y divide-[#23324C]/30 text-xs">
                       {(selectedCompany.loadsList && selectedCompany.loadsList.length > 0 ? selectedCompany.loadsList : [
                         { id: 'LD-9411', route: 'Chicago ➔ Dallas', cargo: 'Automotive Components', status: 'In Transit' }
                       ]).map((ld, i) => (
                         <div key={i} className="p-2.5 flex justify-between items-center">
                           <div className="text-left font-semibold">
-                            <span className="text-white block font-bold">Load {ld.id}</span>
+                            <span className="text-slate-900 block font-bold">Load {ld.id}</span>
                             <span className="text-[10px] text-slate-550">{ld.route} ({ld.cargo})</span>
                           </div>
                           <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-extrabold">{ld.status}</span>
@@ -3413,19 +3413,19 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                 {companyDetailsTab === 'billing' && (
                   <div className="space-y-2">
                     <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Billing Summary & Ledger</span>
-                    <div className="bg-[#111827] border border-[#23324C]/45 rounded-xl p-3 text-xs space-y-2 text-slate-400 mb-3">
+                    <div className="bg-white border border-slate-200/45 rounded-xl p-3 text-xs space-y-2 text-slate-500 mb-3">
                       <div className="flex justify-between"><span>Subscription Revenue:</span><strong className="text-emerald-400 font-mono">${selectedCompany.revenue || (selectedCompany.plan === 'Starter' ? 199 : (selectedCompany.plan === 'Professional' ? 499 : 1299))}/mo</strong></div>
-                      <div className="flex justify-between"><span>Annual Projected:</span><strong className="text-white font-mono">${(selectedCompany.revenue || (selectedCompany.plan === 'Starter' ? 199 : (selectedCompany.plan === 'Professional' ? 499 : 1299))) * 12}/yr</strong></div>
-                      <div className="flex justify-between"><span>Billing Cycle:</span><strong className="text-white">Monthly Recurring</strong></div>
+                      <div className="flex justify-between"><span>Annual Projected:</span><strong className="text-slate-900 font-mono">${(selectedCompany.revenue || (selectedCompany.plan === 'Starter' ? 199 : (selectedCompany.plan === 'Professional' ? 499 : 1299))) * 12}/yr</strong></div>
+                      <div className="flex justify-between"><span>Billing Cycle:</span><strong className="text-slate-900">Monthly Recurring</strong></div>
                       <div className="flex justify-between"><span>Auto Renewal:</span><strong className={selectedCompany.autoRenewal !== false ? 'text-emerald-400' : 'text-amber-400'}>{selectedCompany.autoRenewal !== false ? 'Enabled' : 'Disabled'}</strong></div>
                     </div>
-                    <div className="bg-[#111827] border border-[#23324C]/45 rounded-xl divide-y divide-[#23324C]/30 text-xs">
+                    <div className="bg-white border border-slate-200/45 rounded-xl divide-y divide-[#23324C]/30 text-xs">
                       {(selectedCompany.invoices && selectedCompany.invoices.length > 0 ? selectedCompany.invoices : [
                         { id: 'INV-402', plan: selectedCompany.plan, amount: selectedCompany.plan === 'Starter' ? 199 : (selectedCompany.plan === 'Professional' ? 499 : 1299), date: '06/01/2026', status: 'Paid', period: '06/01/2026 - 07/01/2026' }
                       ]).map((inv, i) => (
                         <div key={i} className="p-2.5 flex justify-between items-center">
                           <div className="text-left font-semibold">
-                            <span className="text-white block font-bold">Invoice #{inv.id}</span>
+                            <span className="text-slate-900 block font-bold">Invoice #{inv.id}</span>
                             <span className="text-[10px] text-slate-500">Period: {inv.period || inv.date}</span>
                           </div>
                           <div className="text-right">
@@ -3441,12 +3441,12 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                 {companyDetailsTab === 'support' && (
                   <div className="space-y-2">
                     <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Inbound Ticket Queries Raised</span>
-                    <div className="bg-[#111827] border border-[#23324C]/45 rounded-xl divide-y divide-[#23324C]/30 text-xs">
+                    <div className="bg-white border border-slate-200/45 rounded-xl divide-y divide-[#23324C]/30 text-xs">
                       {tickets && tickets.filter(t => t.tenantName === selectedCompany.name).length > 0 ? (
                         tickets.filter(t => t.tenantName === selectedCompany.name).map((tk, i) => (
                           <div key={i} className="p-2.5 flex justify-between items-center">
                             <div className="text-left font-semibold">
-                              <span className="text-white block font-bold">#{tk.id} • {tk.title || tk.subject}</span>
+                              <span className="text-slate-900 block font-bold">#{tk.id} • {tk.title || tk.subject}</span>
                               <span className="text-[9px] text-slate-500">Priority: {tk.priority}</span>
                             </div>
                             <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-amber-500/10 text-amber-400 font-extrabold">{tk.status}</span>
@@ -3463,23 +3463,23 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                 <div className="space-y-2">
                   <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Invoices Ledger</span>
                   {selectedCompany.invoices && selectedCompany.invoices.length > 0 ? (
-                    <div className="bg-[#111827] border border-[#23324C]/45 rounded-xl divide-y divide-[#23324C]/30 text-xs">
+                    <div className="bg-white border border-slate-200/45 rounded-xl divide-y divide-[#23324C]/30 text-xs">
                       {selectedCompany.invoices.map((inv, i) => (
                         <div key={i} className="p-2.5 flex justify-between items-center">
                           <div>
-                            <span className="text-white block font-bold">{inv.id}</span>
+                            <span className="text-slate-900 block font-bold">{inv.id}</span>
                             <span className="text-[10px] text-slate-500">Period: {inv.period || 'Subscription Term'}</span>
                             <span className="text-[9px] text-slate-455 block font-mono">Date: {inv.date}</span>
                           </div>
                           <div className="text-right">
-                            <span className="font-bold text-slate-300 block">${inv.amount}</span>
+                            <span className="font-bold text-slate-600 block">${inv.amount}</span>
                             <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-extrabold ${inv.status === 'Paid' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'}`}>{inv.status}</span>
                           </div>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="p-4 text-center text-slate-500 font-semibold bg-[#111827] rounded-xl border border-[#23324C]/45">No invoices found.</div>
+                    <div className="p-4 text-center text-slate-500 font-semibold bg-white rounded-xl border border-slate-200/45">No invoices found.</div>
                   )}
                 </div>
               )}
@@ -3488,11 +3488,11 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                 <div className="space-y-2">
                   <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Payment Transactions</span>
                   {selectedCompany.payments && selectedCompany.payments.length > 0 ? (
-                    <div className="bg-[#111827] border border-[#23324C]/45 rounded-xl divide-y divide-[#23324C]/30 text-xs">
+                    <div className="bg-white border border-slate-200/45 rounded-xl divide-y divide-[#23324C]/30 text-xs">
                       {selectedCompany.payments.map((pmt, i) => (
                         <div key={i} className="p-2.5 flex justify-between items-center">
                           <div>
-                            <span className="text-white block font-bold">{pmt.id}</span>
+                            <span className="text-slate-900 block font-bold">{pmt.id}</span>
                             <span className="text-[10px] text-slate-500">Method: {pmt.method}</span>
                             <span className="text-[9px] text-slate-455 block font-mono">Date: {pmt.date}</span>
                           </div>
@@ -3504,7 +3504,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                       ))}
                     </div>
                   ) : (
-                    <div className="p-4 text-center text-slate-500 font-semibold bg-[#111827] rounded-xl border border-[#23324C]/45">No payments recorded.</div>
+                    <div className="p-4 text-center text-slate-500 font-semibold bg-white rounded-xl border border-slate-200/45">No payments recorded.</div>
                   )}
                 </div>
               )}
@@ -3526,22 +3526,22 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                         {limitViolations.length > 0 && (
                           <div className="bg-red-500/10 border border-red-500/20 text-red-400 p-3 rounded-xl space-y-1 text-xs">
                             <strong className="flex items-center gap-1.5 font-bold"><AlertCircle className="h-4 w-4" /> Plan Limit Violations Detected</strong>
-                            <p className="text-[11px] text-slate-350">The current resource usage exceeds the limits defined by the {selectedCompany.plan} plan:</p>
+                            <p className="text-[11px] text-slate-500">The current resource usage exceeds the limits defined by the {selectedCompany.plan} plan:</p>
                             <ul className="list-disc pl-5 text-[11px] font-semibold">
                               {limitViolations.map((v, i) => <li key={i}>{v} exceeded</li>)}
                             </ul>
                           </div>
                         )}
                         
-                        <div className="bg-[#111827] border border-[#23324C]/45 rounded-xl p-3.5 text-xs space-y-3">
-                          <h5 className="font-extrabold text-white">Resource Metrics vs Plan Limits</h5>
+                        <div className="bg-white border border-slate-200/45 rounded-xl p-3.5 text-xs space-y-3">
+                          <h5 className="font-extrabold text-slate-900">Resource Metrics vs Plan Limits</h5>
                           
                           <div className="space-y-1.5">
                             <div className="flex justify-between font-bold">
                               <span>Users Usage</span>
                               <span>{users} / {userLimit}</span>
                             </div>
-                            <div className="h-1.5 w-full bg-[#0B0F19] rounded-full overflow-hidden">
+                            <div className="h-1.5 w-full bg-slate-50 rounded-full overflow-hidden">
                               <div 
                                 className={`h-full rounded-full ${userLimit !== 'Unlimited' && users > userLimit ? 'bg-red-500' : 'bg-brand-500'}`} 
                                 style={{ width: userLimit === 'Unlimited' ? '10%' : `${Math.min((users / userLimit) * 100, 100)}%` }}
@@ -3554,7 +3554,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                               <span>Drivers Usage</span>
                               <span>{drivers} / {driverLimit}</span>
                             </div>
-                            <div className="h-1.5 w-full bg-[#0B0F19] rounded-full overflow-hidden">
+                            <div className="h-1.5 w-full bg-slate-50 rounded-full overflow-hidden">
                               <div 
                                 className={`h-full rounded-full ${driverLimit !== 'Unlimited' && drivers > driverLimit ? 'bg-red-500' : 'bg-brand-500'}`} 
                                 style={{ width: driverLimit === 'Unlimited' ? '10%' : `${Math.min((drivers / driverLimit) * 100, 100)}%` }}
@@ -3567,7 +3567,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                               <span>Vehicles Usage</span>
                               <span>{vehicles} / {vehicleLimit}</span>
                             </div>
-                            <div className="h-1.5 w-full bg-[#0B0F19] rounded-full overflow-hidden">
+                            <div className="h-1.5 w-full bg-slate-50 rounded-full overflow-hidden">
                               <div 
                                 className={`h-full rounded-full ${vehicleLimit !== 'Unlimited' && vehicles > vehicleLimit ? 'bg-red-500' : 'bg-brand-500'}`} 
                                 style={{ width: vehicleLimit === 'Unlimited' ? '10%' : `${Math.min((vehicles / vehicleLimit) * 100, 100)}%` }}
@@ -3584,7 +3584,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
               {companyDetailsTab === 'features' && (
                 <div className="space-y-2">
                   <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Visual Feature Permissions</span>
-                  <div className="bg-[#111827] border border-[#23324C]/45 rounded-xl p-3 text-xs space-y-2">
+                  <div className="bg-white border border-slate-200/45 rounded-xl p-3 text-xs space-y-2">
                     <div className="flex justify-between items-center">
                       <span>Platform Dashboard</span>
                       <span className="text-emerald-400 font-bold">Enabled</span>
@@ -3621,24 +3621,24 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
                 <div className="space-y-2">
                   <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Subscription Audit Feed</span>
                   {selectedCompany.audits && selectedCompany.audits.length > 0 ? (
-                    <div className="bg-[#111827] border border-[#23324C]/45 rounded-xl p-3 text-[11px] space-y-2 max-h-56 overflow-y-auto">
+                    <div className="bg-white border border-slate-200/45 rounded-xl p-3 text-[11px] space-y-2 max-h-56 overflow-y-auto">
                       {selectedCompany.audits.map((log, i) => (
-                        <div key={i} className="border-b border-[#23324C]/30 pb-2 last:border-b-0 last:pb-0 mt-2 first:mt-0">
-                          <strong className="text-white font-bold block">{log.action}</strong>
-                          <p className="text-slate-400 leading-normal">{log.detail}</p>
+                        <div key={i} className="border-b border-slate-200 pb-2 last:border-b-0 last:pb-0 mt-2 first:mt-0">
+                          <strong className="text-slate-900 font-bold block">{log.action}</strong>
+                          <p className="text-slate-500 leading-normal">{log.detail}</p>
                           <span className="text-[9px] text-slate-500 font-mono block mt-1">{log.time}</span>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="bg-[#111827] border border-[#23324C]/45 rounded-xl p-3 text-[11px] text-slate-400 space-y-2">
+                    <div className="bg-white border border-slate-200/45 rounded-xl p-3 text-[11px] text-slate-500 space-y-2">
                       {[
                         { action: 'Company Created', detail: `${selectedCompany.name} provisioned successfully.`, date: selectedCompany.joined },
                         { action: 'Database Index Sync', detail: 'ElasticSearch keys auto-indexing rebuilt.', date: selectedCompany.joined }
                       ].map((log, i) => (
-                        <div key={i} className="border-b border-[#23324C]/30 pb-2 last:border-b-0 last:pb-0 mt-2 first:mt-0">
-                          <strong className="text-white font-bold block">{log.action}</strong>
-                          <p className="text-slate-400 leading-normal">{log.detail}</p>
+                        <div key={i} className="border-b border-slate-200 pb-2 last:border-b-0 last:pb-0 mt-2 first:mt-0">
+                          <strong className="text-slate-900 font-bold block">{log.action}</strong>
+                          <p className="text-slate-500 leading-normal">{log.detail}</p>
                           <span className="text-[9px] text-slate-500 font-mono block mt-1">{log.date}</span>
                         </div>
                       ))}
@@ -3649,7 +3649,7 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
             </div>
             
             {/* Action buttons */}
-            <div className="border-t border-[#23324C]/60 pt-4 flex flex-wrap gap-2">
+            <div className="border-t border-slate-200 pt-4 flex flex-wrap gap-2">
               {selectedCompany.status !== 'Hold' ? (
                 <Button variant="danger" size="sm" onClick={() => { setDetailsDrawerOpen(false); handleSuspendCompany(selectedCompany.id, selectedCompany.name); }}>
                   Suspend Workspace License
@@ -3674,18 +3674,18 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
       {/* Ticket Drawer */}
       <Drawer isOpen={ticketDrawerOpen} onClose={() => setTicketDrawerOpen(false)} title="Support Ticket Responder">
         {selectedTicket && (
-          <div className="space-y-5 text-left text-slate-300 text-xs sm:text-sm">
-            <div className="border-b border-[#23324C]/60 pb-3">
+          <div className="space-y-5 text-left text-slate-600 text-xs sm:text-sm">
+            <div className="border-b border-slate-200 pb-3">
               <div className="flex justify-between items-center">
                 <span className="text-[10px] text-slate-500 font-mono">Ticket #{selectedTicket.id}</span>
                 <StatusBadge status={selectedTicket.status} />
               </div>
-              <h4 className="text-base font-extrabold text-white mt-1">{selectedTicket.subject}</h4>
+              <h4 className="text-base font-extrabold text-slate-900 mt-1">{selectedTicket.subject}</h4>
             </div>
 
             <div className="space-y-2">
               <span className="text-[10px] text-slate-500 block uppercase font-bold">Query details</span>
-              <p className="p-3 bg-[#0B0F19] border border-[#23324C] rounded-xl text-slate-300 leading-relaxed text-xs">
+              <p className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-600 leading-relaxed text-xs">
                 "{selectedTicket.message}"
               </p>
             </div>
@@ -3693,14 +3693,14 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
             {selectedTicket.status === 'Open' ? (
               <form onSubmit={handleTicketReplySubmit} className="space-y-3 pt-2">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Reply Message Payload</label>
+                  <label className="block text-xs font-semibold text-slate-500 uppercase mb-1.5">Reply Message Payload</label>
                   <textarea
                     required
                     rows={4}
                     value={ticketReply}
                     onChange={(e) => setTicketReply(e.target.value)}
                     placeholder="Provide developer / administrative instructions..."
-                    className="block w-full px-4 py-3 bg-[#111827] border border-[#23324C] focus:border-brand-500 rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500"
+                    className="block w-full px-4 py-3 bg-white border border-slate-200 focus:border-brand-500 rounded-xl text-slate-700 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500"
                   />
                 </div>
                 <Button type="submit" variant="primary" className="w-full">
@@ -3738,22 +3738,22 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
       {/* Manage Features Modal */}
       <Modal isOpen={manageFeaturesModalOpen} onClose={() => setManageFeaturesModalOpen(false)} title={`Manage Feature Access for ${tempCompany?.name}`}>
         <form onSubmit={handleManageFeaturesSubmit} className="space-y-4 text-left">
-          <p className="text-xs text-slate-400">Configure custom granular policies for the company workspace instance.</p>
+          <p className="text-xs text-slate-500">Configure custom granular policies for the company workspace instance.</p>
           <div className="space-y-2.5">
-            <label className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-              <input type="checkbox" defaultChecked={true} className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-4 w-4" />
+            <label className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+              <input type="checkbox" defaultChecked={true} className="rounded bg-slate-50 border-slate-200 text-brand-500 h-4 w-4" />
               <span>GPS Geofencing Mapping</span>
             </label>
-            <label className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-              <input type="checkbox" defaultChecked={true} className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-4 w-4" />
+            <label className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+              <input type="checkbox" defaultChecked={true} className="rounded bg-slate-50 border-slate-200 text-brand-500 h-4 w-4" />
               <span>AI Route Dispatch Automation</span>
             </label>
-            <label className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-              <input type="checkbox" defaultChecked={true} className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-4 w-4" />
+            <label className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+              <input type="checkbox" defaultChecked={true} className="rounded bg-slate-50 border-slate-200 text-brand-500 h-4 w-4" />
               <span>ELD Compliance Forms</span>
             </label>
-            <label className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-              <input type="checkbox" defaultChecked={false} className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-4 w-4" />
+            <label className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+              <input type="checkbox" defaultChecked={false} className="rounded bg-slate-50 border-slate-200 text-brand-500 h-4 w-4" />
               <span>SMS Carrier Alerts</span>
             </label>
           </div>
@@ -3767,14 +3767,14 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
       <Modal isOpen={sendNotificationModalOpen} onClose={() => setSendNotificationModalOpen(false)} title={`Broadcast Notification to ${tempCompany?.name}`}>
         <form onSubmit={handleSendNotificationSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Notification Payload Message</label>
+            <label className="block text-xs font-semibold text-slate-500 uppercase mb-1.5">Notification Payload Message</label>
             <textarea
               required
               rows={3}
               value={notificationMsg}
               onChange={(e) => setNotificationMsg(e.target.value)}
               placeholder="Type announcement message..."
-              className="block w-full px-4 py-3 bg-[#111827] border border-[#23324C] focus:border-brand-500 rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="block w-full px-4 py-3 bg-white border border-slate-200 focus:border-brand-500 rounded-xl text-slate-700 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </div>
           <Button type="submit" variant="primary" className="w-full">
@@ -3824,9 +3824,9 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
               id="edit-sub-autorenew"
               checked={editSubAutoRenewal} 
               onChange={(e) => setEditSubAutoRenewal(e.target.checked)} 
-              className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-4 w-4 cursor-pointer focus:ring-brand-500" 
+              className="rounded bg-slate-50 border-slate-200 text-brand-500 h-4 w-4 cursor-pointer focus:ring-brand-500" 
             />
-            <label htmlFor="edit-sub-autorenew" className="text-xs font-semibold text-slate-300 cursor-pointer">
+            <label htmlFor="edit-sub-autorenew" className="text-xs font-semibold text-slate-600 cursor-pointer">
               Enable Auto-Renewal recurring billing
             </label>
           </div>
@@ -4056,19 +4056,19 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
             onChange={(e) => setBrandName(e.target.value)} 
           />
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Accent Theme Color</label>
+            <label className="block text-xs font-semibold text-slate-500 uppercase mb-2">Accent Theme Color</label>
             <div className="flex gap-2">
               <input 
                 type="color" 
                 value={brandColor} 
                 onChange={(e) => setBrandColor(e.target.value)} 
-                className="h-10 w-12 rounded-xl bg-transparent cursor-pointer border border-[#23324C] focus:outline-none" 
+                className="h-10 w-12 rounded-xl bg-transparent cursor-pointer border border-slate-200 focus:outline-none" 
               />
               <input 
                 type="text" 
                 value={brandColor} 
                 onChange={(e) => setBrandColor(e.target.value)} 
-                className="flex-1 px-3 py-2 bg-[#111827] text-slate-200 text-xs rounded-xl border border-[#23324C] focus:outline-none" 
+                className="flex-1 px-3 py-2 bg-white text-slate-700 text-xs rounded-xl border border-slate-200 focus:outline-none" 
               />
             </div>
           </div>
@@ -4149,14 +4149,14 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
             onChange={(e) => setNewTicketSubject(e.target.value)}
           />
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Detailed Message Payload</label>
+            <label className="block text-xs font-semibold text-slate-500 uppercase mb-1.5">Detailed Message Payload</label>
             <textarea
               required
               rows={4}
               value={newTicketMessage}
               onChange={(e) => setNewTicketMessage(e.target.value)}
               placeholder="Describe the issue or request in detail..."
-              className="block w-full px-4 py-3 bg-[#111827] border border-[#23324C] focus:border-brand-500 rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="block w-full px-4 py-3 bg-white border border-slate-200 focus:border-brand-500 rounded-xl text-slate-700 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </div>
           <Button type="submit" variant="primary" className="w-full">
@@ -4216,13 +4216,13 @@ export default function SuperAdminDashboard({ activeTab = 'overview', setActiveT
             }
           />
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Resolution Note (Optional)</label>
+            <label className="block text-xs font-semibold text-slate-500 uppercase mb-1.5">Resolution Note (Optional)</label>
             <textarea
               rows={3}
               value={resolveResolution}
               onChange={(e) => setResolveResolution(e.target.value)}
               placeholder="Provide summary of resolution or notes for the customer..."
-              className="block w-full px-4 py-3 bg-[#111827] border border-[#23324C] focus:border-brand-500 rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500"
+              className="block w-full px-4 py-3 bg-white border border-slate-200 focus:border-brand-500 rounded-xl text-slate-700 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500"
             />
           </div>
           <Button type="submit" variant="success" className="w-full">

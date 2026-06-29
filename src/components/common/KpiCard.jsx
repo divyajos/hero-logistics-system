@@ -5,7 +5,7 @@ export default function KpiCard({ title, value, icon: Icon, trend, trendDirectio
   const getTrendColor = (dir) => {
     if (dir === 'up') return 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
     if (dir === 'down') return 'text-red-400 bg-red-500/10 border-red-500/20';
-    return 'text-slate-400 bg-slate-500/10 border-slate-500/20';
+    return 'text-slate-500 bg-slate-500/10 border-slate-500/20';
   };
 
   const getTrendIcon = (dir) => {
@@ -15,13 +15,13 @@ export default function KpiCard({ title, value, icon: Icon, trend, trendDirectio
   };
 
   return (
-    <div className="glass-light hover:border-brand-500/30 rounded-2xl p-5 border border-[#23324C]/60 transition-all duration-300 flex flex-col justify-between hover:shadow-lg shadow-black/10">
+    <div className="glass-light bg-white hover:border-brand-500/30 rounded-2xl p-5 border border-slate-200 transition-all duration-300 flex flex-col justify-between hover:shadow-lg shadow-black/5">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 block mb-1">
+          <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 block mb-1">
             {title}
           </span>
-          <strong className="text-xl sm:text-2xl font-black text-white leading-tight">
+          <strong className="text-xl sm:text-2xl font-black text-slate-900 leading-tight">
             {value}
           </strong>
         </div>
@@ -41,7 +41,7 @@ export default function KpiCard({ title, value, icon: Icon, trend, trendDirectio
           </span>
         )}
         {description && (
-          <span className="text-slate-400 text-[10px] sm:text-xs font-medium truncate">
+          <span className="text-slate-500 text-[10px] sm:text-xs font-medium truncate">
             {description}
           </span>
         )}

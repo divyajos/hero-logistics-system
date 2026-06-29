@@ -11,7 +11,7 @@ export default function Pagination({
   if (totalPages <= 1) return null;
 
   return (
-    <div className={`flex items-center justify-between px-4 py-3 border-t border-[#23324C]/40 bg-[#0f1624]/20 rounded-b-xl gap-4 ${className}`}>
+    <div className={`flex items-center justify-between px-4 py-3 border-t border-slate-200 bg-[#0f1624]/20 rounded-b-xl gap-4 ${className}`}>
       <span className="text-[10px] text-slate-500 font-semibold font-mono">
         PAGE {currentPage} OF {totalPages}
       </span>
@@ -35,8 +35,8 @@ export default function Pagination({
               className={`
                 h-7 w-7 rounded-lg text-[10px] font-bold font-mono transition-all cursor-pointer
                 ${isActive 
-                  ? 'bg-brand-500 text-white shadow-md shadow-brand-500/10' 
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-[#1F2937]/50 border border-[#23324C]'
+                  ? 'bg-brand-500 text-slate-900 shadow-md shadow-brand-500/10' 
+                  : 'text-slate-500 hover:text-slate-700 hover:bg-[#1F2937]/50 border border-slate-200'
                 }
               `}
             >

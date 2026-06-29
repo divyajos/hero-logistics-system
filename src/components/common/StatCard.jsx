@@ -12,16 +12,16 @@ export default function StatCard({
   const trendColors = {
     up: 'text-emerald-400',
     down: 'text-red-400',
-    neutral: 'text-slate-400'
+    neutral: 'text-slate-500'
   };
 
   return (
-    <div className={`glass card-3d hover-lift rounded-2xl p-5 border border-[#23324C]/60 text-left relative overflow-hidden flex flex-col justify-between ${className}`}>
+    <div className={`glass-light card-3d hover-lift rounded-2xl p-5 border border-slate-200 text-left relative overflow-hidden flex flex-col justify-between bg-white ${className}`}>
       <div className="space-y-1.5">
         <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
           {title}
         </span>
-        <h4 className="text-xl sm:text-2xl font-black text-white tracking-tight">
+        <h4 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
           {value}
         </h4>
       </div>
@@ -29,7 +29,7 @@ export default function StatCard({
       <div className="mt-4 space-y-2">
         {progress !== null && (
           <div className="space-y-1">
-            <div className="w-full bg-slate-800 rounded-full h-1">
+            <div className="w-full bg-slate-200 rounded-full h-1">
               <div 
                 className="bg-brand-500 h-full rounded-full transition-all duration-300"
                 style={{ width: `${progress}%` }}
@@ -42,7 +42,7 @@ export default function StatCard({
           </div>
         )}
 
-        <div className="flex items-center justify-between text-[10px] font-semibold text-slate-400">
+        <div className="flex items-center justify-between text-[10px] font-semibold text-slate-500">
           <span className="truncate">{description}</span>
           {trend && (
             <span className={`font-bold font-mono ${trendColors[trendDirection]}`}>

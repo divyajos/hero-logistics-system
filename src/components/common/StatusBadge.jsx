@@ -25,7 +25,7 @@ export default function StatusBadge({ status = '' }) {
     }
     
     // Default Gray
-    return 'bg-slate-500/10 border-slate-500/25 text-slate-400';
+    return 'bg-slate-500/10 border-slate-500/25 text-slate-500';
   };
 
   return (

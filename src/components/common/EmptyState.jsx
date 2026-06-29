@@ -11,14 +11,14 @@ export default function EmptyState({
   className = '',
 }) {
   return (
-    <div className={`glass rounded-2xl p-10 border border-[#23324C]/60 text-center flex flex-col items-center justify-center space-y-4 max-w-lg mx-auto ${className}`}>
-      <div className="p-4 bg-slate-800/10 rounded-2xl border border-[#23324C]/60 text-slate-500">
+    <div className={`glass rounded-2xl p-10 border border-slate-200 text-center flex flex-col items-center justify-center space-y-4 max-w-lg mx-auto ${className}`}>
+      <div className="p-4 bg-white/10 rounded-2xl border border-slate-200 text-slate-500">
         <Icon className="h-7 w-7" />
       </div>
 
       <div className="space-y-1">
-        <h4 className="text-sm font-extrabold text-white">{title}</h4>
-        <p className="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed">{description}</p>
+        <h4 className="text-sm font-extrabold text-slate-900">{title}</h4>
+        <p className="text-xs text-slate-500 max-w-xs mx-auto leading-relaxed">{description}</p>
       </div>
 
       {actionLabel && onAction && (

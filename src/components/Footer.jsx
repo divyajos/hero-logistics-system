@@ -32,30 +32,30 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-[#0B0B0B] border-t border-[#2E2E2E]/60 pt-16 pb-8">
+    <footer className="bg-[#0B0B0B] border-t border-slate-200/60 pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 mb-12">
           {/* Logo & Description */}
           <div className="lg:col-span-2">
             <div className="flex items-center mb-4">
-              <div className="mr-2.5 px-2 py-1 bg-neutral-900 border border-[#2E2E2E] rounded-xl flex items-center justify-center shadow-lg shadow-black/20 hover:scale-105 transition-transform duration-300">
+              <div className="mr-2.5 px-2 py-1 bg-neutral-900 border border-slate-200 rounded-xl flex items-center justify-center shadow-lg shadow-black/20 hover:scale-105 transition-transform duration-300">
                 <img src={heroLogo} alt="Hero Logistics Logo" className="h-8 w-auto object-contain" />
               </div>
-              <span className="font-extrabold text-lg tracking-tight text-white">
+              <span className="font-extrabold text-lg tracking-tight text-slate-900">
                 HERO<span className="text-brand-500 font-medium">LOGISTICS</span>
               </span>
             </div>
-            <p className="text-slate-400 text-sm leading-relaxed mb-6 max-w-sm">
+            <p className="text-slate-500 text-sm leading-relaxed mb-6 max-w-sm">
               The complete logistics operating system. Streamline your dispatching, routing, drivers, billing, and fleet tracking under one secure, cloud-based platform.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="p-2 bg-slate-800/40 hover:bg-brand-500/20 text-slate-400 hover:text-brand-400 rounded-lg transition-all">
+              <a href="#" className="p-2 bg-white/40 hover:bg-brand-500/20 text-slate-500 hover:text-brand-400 rounded-lg transition-all">
                 <TwitterIcon className="h-4.5 w-4.5" />
               </a>
-              <a href="#" className="p-2 bg-slate-800/40 hover:bg-brand-500/20 text-slate-400 hover:text-brand-400 rounded-lg transition-all">
+              <a href="#" className="p-2 bg-white/40 hover:bg-brand-500/20 text-slate-500 hover:text-brand-400 rounded-lg transition-all">
                 <LinkedinIcon className="h-4.5 w-4.5" />
               </a>
-              <a href="#" className="p-2 bg-slate-800/40 hover:bg-brand-500/20 text-slate-400 hover:text-brand-400 rounded-lg transition-all">
+              <a href="#" className="p-2 bg-white/40 hover:bg-brand-500/20 text-slate-500 hover:text-brand-400 rounded-lg transition-all">
                 <GithubIcon className="h-4.5 w-4.5" />
               </a>
             </div>
@@ -63,33 +63,33 @@ export default function Footer() {
 
           {/* Product links */}
           <div>
-            <h4 className="text-slate-200 font-semibold text-sm tracking-wider uppercase mb-4">Product</h4>
+            <h4 className="text-slate-700 font-semibold text-sm tracking-wider uppercase mb-4">Product</h4>
             <ul className="space-y-2.5 text-sm">
-              <li><a href="#features" className="text-slate-400 hover:text-white transition-colors">Features</a></li>
-              <li><a href="#pricing" className="text-slate-400 hover:text-white transition-colors">Pricing Plans</a></li>
-              <li><a href="#integrations" className="text-slate-400 hover:text-white transition-colors">Integrations</a></li>
-              <li><a href="#" className="text-slate-400 hover:text-white transition-colors">Developer API</a></li>
+              <li><a href="#features" className="text-slate-500 hover:text-slate-900 transition-colors">Features</a></li>
+              <li><a href="#pricing" className="text-slate-500 hover:text-slate-900 transition-colors">Pricing Plans</a></li>
+              <li><a href="#integrations" className="text-slate-500 hover:text-slate-900 transition-colors">Integrations</a></li>
+              <li><a href="#" className="text-slate-500 hover:text-slate-900 transition-colors">Developer API</a></li>
             </ul>
           </div>
 
           {/* Solutions links */}
           <div>
-            <h4 className="text-slate-200 font-semibold text-sm tracking-wider uppercase mb-4">Solutions</h4>
+            <h4 className="text-slate-700 font-semibold text-sm tracking-wider uppercase mb-4">Solutions</h4>
             <ul className="space-y-2.5 text-sm">
-              <li><a href="#solutions" className="text-slate-400 hover:text-white transition-colors">General Freight</a></li>
-              <li><a href="#solutions" className="text-slate-400 hover:text-white transition-colors">Car Carrying</a></li>
-              <li><a href="#solutions" className="text-slate-400 hover:text-white transition-colors">Courier Fleets</a></li>
-              <li><a href="#solutions" className="text-slate-400 hover:text-white transition-colors">3PL Logistics</a></li>
+              <li><a href="#solutions" className="text-slate-500 hover:text-slate-900 transition-colors">General Freight</a></li>
+              <li><a href="#solutions" className="text-slate-500 hover:text-slate-900 transition-colors">Car Carrying</a></li>
+              <li><a href="#solutions" className="text-slate-500 hover:text-slate-900 transition-colors">Courier Fleets</a></li>
+              <li><a href="#solutions" className="text-slate-500 hover:text-slate-900 transition-colors">3PL Logistics</a></li>
             </ul>
           </div>
 
           {/* Resources links */}
           <div>
-            <h4 className="text-slate-200 font-semibold text-sm tracking-wider uppercase mb-4">Resources</h4>
+            <h4 className="text-slate-700 font-semibold text-sm tracking-wider uppercase mb-4">Resources</h4>
             <ul className="space-y-2.5 text-sm">
-              <li><a href="#" className="text-slate-400 hover:text-white transition-colors">Documentation</a></li>
-              <li><a href="#" className="text-slate-400 hover:text-white transition-colors">System Status</a></li>
-              <li><a href="#" className="text-slate-400 hover:text-white transition-colors">Help & Support</a></li>
+              <li><a href="#" className="text-slate-500 hover:text-slate-900 transition-colors">Documentation</a></li>
+              <li><a href="#" className="text-slate-500 hover:text-slate-900 transition-colors">System Status</a></li>
+              <li><a href="#" className="text-slate-500 hover:text-slate-900 transition-colors">Help & Support</a></li>
               <li>
                 <a 
                   href="/login" 
@@ -104,14 +104,14 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-[#2E2E2E]/40 pt-8 mt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <div className="border-t border-slate-200/40 pt-8 mt-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div>
             &copy; {currentYear} Hero Systems Inc. All rights reserved. Built for logistics excellence.
           </div>
           <div className="flex space-x-6">
-            <a href="#" className="hover:text-slate-300 transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-slate-300 transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-slate-300 transition-colors">Security Rules</a>
+            <a href="#" className="hover:text-slate-600 transition-colors">Privacy Policy</a>
+            <a href="#" className="hover:text-slate-600 transition-colors">Terms of Service</a>
+            <a href="#" className="hover:text-slate-600 transition-colors">Security Rules</a>
           </div>
         </div>
       </div>

@@ -140,7 +140,6 @@ input[type=number] {
 
 /* Light mode overrides for hardcoded dark classes */
 .light header,
-.light aside,
 .light footer,
 .light .bg-\[\#161F30\],
 .light .bg-\[\#111827\],
@@ -182,19 +181,11 @@ input[type=number] {
 }
 
 
-.light .bg-\[\#1F1F1F\],
-.light.bg-\[\#1F1F1F\],
 .light .bg-slate-800 {
   background-color: #f1f5f9 !important;
 }
 
-.light .hover\:bg-\[\#2E2E2E\]:hover {
-  background-color: #e2e8f0 !important;
-}
 
-.light .border-\[\#2E2E2E\] {
-  border-color: #e2e8f0 !important;
-}
 
 
 

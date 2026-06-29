@@ -92,11 +92,11 @@ export default function TopNavbar({ onNotificationClick, notificationCount = 3, 
   if (!user) return null;
 
   return (
-    <header className="bg-[#161F30] border-b border-[#23324C] h-16 flex items-center justify-between px-6 sticky top-0 z-40">
+    <header className="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 sticky top-0 z-40">
       {/* Mobile Sidebar Hamburger Toggle */}
       <button
         onClick={onMenuClick}
-        className="p-2 text-slate-400 hover:text-white rounded-lg md:hidden mr-2 transition-all cursor-pointer flex items-center justify-center"
+        className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg md:hidden mr-2 transition-all cursor-pointer flex items-center justify-center"
         title="Toggle Menu"
       >
         <Menu className="h-5 w-5" />
@@ -120,7 +120,7 @@ export default function TopNavbar({ onNotificationClick, notificationCount = 3, 
             onBlur={() => setTimeout(() => setSearchFocused(false), 250)}
             onKeyDown={(e) => { if (e.key === 'Enter') handleSearchSubmit(); }}
             placeholder="Search loads, drivers, or fleet plates..."
-            className="w-full pl-9 pr-4 py-2 bg-[#0B0F19]/50 border border-[#23324C] hover:border-brand-500/30 text-slate-200 text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 transition-all placeholder:text-slate-500 font-sans"
+            className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 hover:border-brand-500/30 text-slate-900 text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 transition-all placeholder:text-slate-400 font-sans"
           />
         </div>
 
@@ -172,23 +172,12 @@ export default function TopNavbar({ onNotificationClick, notificationCount = 3, 
       <div className="flex items-center space-x-4">
 
 
-        {/* Theme Switcher */}
-        <button
-          onClick={toggleTheme}
-          className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 rounded-xl transition-all cursor-pointer flex items-center justify-center"
-          title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-        >
-          {isDark ? (
-            <Sun className="h-4.5 w-4.5 text-amber-400" />
-          ) : (
-            <Moon className="h-4.5 w-4.5 text-indigo-400" />
-          )}
-        </button>
+
 
         {/* Help docs link */}
         <a 
           href="#docs" 
-          className="p-2 text-slate-400 hover:text-white hover:bg-slate-800/40 rounded-xl transition-all hidden sm:block"
+          className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all hidden sm:block"
           title="Documentation"
         >
           <HelpCircle className="h-4.5 w-4.5" />
@@ -197,7 +186,7 @@ export default function TopNavbar({ onNotificationClick, notificationCount = 3, 
         {/* Notifications Trigger */}
         <button
           onClick={onNotificationClick}
-          className="p-2 text-slate-400 hover:text-white hover:bg-slate-800/40 rounded-xl relative transition-all cursor-pointer"
+          className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl relative transition-all cursor-pointer"
           title="System Logs"
         >
           <Bell className="h-4.5 w-4.5" />
@@ -206,19 +195,19 @@ export default function TopNavbar({ onNotificationClick, notificationCount = 3, 
           )}
         </button>
 
-        <div className="h-5 w-[1px] bg-[#23324C]"></div>
+        <div className="h-5 w-[1px] bg-slate-200"></div>
 
         {/* Profile Dropdown */}
         <div className="relative">
           <button
             onClick={() => setProfileOpen(!profileOpen)}
-            className="flex items-center space-x-2 text-left cursor-pointer group p-1.5 hover:bg-slate-800/30 rounded-xl transition-all"
+            className="flex items-center space-x-2 text-left cursor-pointer group p-1.5 hover:bg-slate-100 rounded-xl transition-all"
           >
             <div className="w-8 h-8 rounded-lg bg-brand-500/10 border border-brand-500/20 text-brand-400 flex items-center justify-center font-bold text-xs">
               {user.name.charAt(0)}
             </div>
             <div className="hidden sm:block">
-              <h5 className="text-xs font-bold text-slate-200 group-hover:text-white">
+              <h5 className="text-xs font-bold text-slate-700 group-hover:text-slate-900">
                 {user.role === 'Super Admin' ? 'Role: Super Admin' : user.name}
               </h5>
               <span className="text-[9px] text-slate-500 font-semibold uppercase">

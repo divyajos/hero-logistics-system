@@ -21,19 +21,18 @@ export default function Modal({ isOpen, onClose, title, children }) {
     <div className="fixed inset-0 h-screen max-h-screen z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 backdrop-blur-xs transition-opacity" 
-        style={{ backgroundColor: 'rgba(11, 15, 25, 0.8)' }}
+        className="fixed inset-0 bg-slate-50/80 backdrop-blur-sm transition-opacity" 
         onClick={onClose}
       ></div>
  
       {/* Modal Dialog Content */}
-      <div className="bg-[#161F30] border border-[#23324C] rounded-2xl w-full max-w-lg shadow-2xl relative z-10 animate-fade-in overflow-hidden flex flex-col max-h-full md:max-h-[90vh]">
+      <div className="bg-slate-50 border border-slate-200 rounded-2xl w-full max-w-lg shadow-2xl relative z-10 animate-fade-in overflow-hidden flex flex-col max-h-full md:max-h-[90vh]">
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-[#23324C]/60 bg-[#0f1624]/40 flex-shrink-0">
-          <h3 className="text-sm sm:text-base font-extrabold text-white">{title}</h3>
+        <div className="flex items-center justify-between p-5 border-b border-slate-200 bg-[#0f1624]/40 flex-shrink-0">
+          <h3 className="text-sm sm:text-base font-extrabold text-slate-900">{title}</h3>
           <button 
             onClick={onClose}
-            className="p-1.5 hover:bg-slate-800/40 rounded-lg text-slate-400 hover:text-white transition-all cursor-pointer"
+            className="p-1.5 hover:bg-white/40 rounded-lg text-slate-500 hover:text-slate-900 transition-all cursor-pointer"
           >
             <X className="h-4.5 w-4.5" />
           </button>

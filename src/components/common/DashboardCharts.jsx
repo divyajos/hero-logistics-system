@@ -21,10 +21,10 @@ import { useTheme } from '../../context/ThemeContext';
 // Standard loader overlay
 function ChartLoader() {
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-[#0B0F19]/20 dark:bg-black/10 backdrop-blur-xs z-10 rounded-2xl">
+    <div className="absolute inset-0 flex items-center justify-center bg-slate-50/20 dark:bg-black/10 backdrop-blur-xs z-10 rounded-2xl">
       <div className="flex flex-col items-center gap-2">
         <div className="w-8 h-8 border-t-2 border-brand-500 rounded-full animate-spin"></div>
-        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Loading Analytics...</span>
+        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Loading Analytics...</span>
       </div>
     </div>
   );
@@ -212,7 +212,7 @@ export function KPITrendChart({ data = [], height = 65, loading = false, positiv
   
   return (
     <div className="relative w-full overflow-hidden" style={{ height }}>
-      {loading && <div className="absolute inset-0 bg-slate-800/10 animate-pulse rounded-lg" />}
+      {loading && <div className="absolute inset-0 bg-white/10 animate-pulse rounded-lg" />}
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 2, right: 2, left: 2, bottom: 2 }}>
           <defs>

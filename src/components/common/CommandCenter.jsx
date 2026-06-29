@@ -263,16 +263,16 @@ export default function CommandCenter({ setActiveTab }) {
     <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] px-4">
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-[#0B0F19]/80 dark:bg-black/75 backdrop-blur-xs transition-opacity" 
+        className="fixed inset-0 bg-slate-50/80 dark:bg-black/75 backdrop-blur-xs transition-opacity" 
         onClick={() => setIsOpen(false)}
       ></div>
 
       {/* Main Command Box Panel */}
-      <div className="bg-white dark:bg-[#161F30] border border-slate-200 dark:border-[#23324C] rounded-2xl w-full max-w-xl shadow-2xl relative z-10 animate-fade-in overflow-hidden">
+      <div className="bg-white dark:bg-slate-50 border border-slate-200 dark:border-slate-200 rounded-2xl w-full max-w-xl shadow-2xl relative z-10 animate-fade-in overflow-hidden">
         
         {/* Search Input Box */}
-        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-slate-200 dark:border-[#23324C]/60 bg-slate-50 dark:bg-[#0f1624]/40">
-          <Search className="h-5 w-5 text-slate-400 dark:text-slate-500 flex-shrink-0" />
+        <div className="flex items-center gap-3 px-4 py-3.5 border-b border-slate-200 dark:border-slate-200 bg-slate-50 ">
+          <Search className="h-5 w-5 text-slate-500  flex-shrink-0" />
           <input
             ref={inputRef}
             type="text"
@@ -283,21 +283,21 @@ export default function CommandCenter({ setActiveTab }) {
             }}
             onKeyDown={handleKeyDown}
             placeholder="Search leads, proposals, zooms, loads, drivers, vehicles..."
-            className="w-full bg-transparent text-slate-800 dark:text-slate-200 text-xs focus:outline-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
+            className="w-full bg-transparent text-slate-800  text-xs focus:outline-none placeholder:text-slate-500 dark:placeholder:text-slate-500"
           />
-          <span className="text-[10px] font-bold font-mono text-slate-400 border border-slate-200 dark:border-slate-800 px-1.5 py-0.5 rounded-lg select-none flex-shrink-0">
+          <span className="text-[10px] font-bold font-mono text-slate-500 border border-slate-200 dark:border-slate-800 px-1.5 py-0.5 rounded-lg select-none flex-shrink-0">
             ESC
           </span>
         </div>
 
         {/* Category Filters Bar */}
-        <div className="flex gap-1.5 px-4 py-2 border-b border-slate-100 dark:border-[#23324C]/40 bg-slate-50/50 dark:bg-[#0f1624]/20 overflow-x-auto scrollbar-none text-[9px] font-extrabold uppercase tracking-wider text-slate-400">
+        <div className="flex gap-1.5 px-4 py-2 border-b border-slate-100 dark:border-slate-200 bg-slate-50/50  overflow-x-auto scrollbar-none text-[9px] font-extrabold uppercase tracking-wider text-slate-500">
           {['All', 'Pages', 'Leads', 'Proposals', 'Demos', 'Loads', 'Drivers', 'Vehicles', 'Customers', 'Warehouses', 'Invoices', 'Transfers'].map(f => (
             <button
               key={f}
               onClick={() => { setActiveFilter(f); setSelectedIndex(0); }}
               className={`px-2 py-1 rounded transition-colors cursor-pointer ${
-                activeFilter === f ? 'bg-brand-500 text-slate-950 font-black' : 'hover:bg-slate-200 dark:hover:bg-[#1f2937] text-slate-400 hover:text-slate-200'
+                activeFilter === f ? 'bg-brand-500 text-slate-950 font-black' : 'hover:bg-slate-200  text-slate-500 hover:text-slate-700'
               }`}
             >
               {f}
@@ -307,10 +307,10 @@ export default function CommandCenter({ setActiveTab }) {
 
         {/* Recent Searches */}
         {recentSearches.length > 0 && !searchQuery && (
-          <div className="px-4 py-2 border-b border-slate-100 dark:border-[#23324C]/25 text-[10px] font-bold text-slate-400 flex items-center gap-2">
+          <div className="px-4 py-2 border-b border-slate-100 dark:border-slate-200/25 text-[10px] font-bold text-slate-500 flex items-center gap-2">
             <span>Recent:</span>
             {recentSearches.map((term, i) => (
-              <span key={i} className="px-2 py-0.5 bg-slate-100 dark:bg-slate-800 rounded text-slate-300 font-mono text-[9px]">{term}</span>
+              <span key={i} className="px-2 py-0.5 bg-slate-100 dark:bg-white rounded text-slate-600 font-mono text-[9px]">{term}</span>
             ))}
           </div>
         )}
@@ -318,7 +318,7 @@ export default function CommandCenter({ setActiveTab }) {
         {/* Results List */}
         <div className="p-2.5 max-h-80 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/20">
           {filteredResults.length === 0 ? (
-            <div className="py-8 text-center text-xs text-slate-400 font-bold uppercase tracking-wider">
+            <div className="py-8 text-center text-xs text-slate-500 font-bold uppercase tracking-wider">
               No matching records resolved.
             </div>
           ) : (
@@ -333,13 +333,13 @@ export default function CommandCenter({ setActiveTab }) {
                   className={`w-full flex items-center justify-between p-3 rounded-xl transition-all text-left cursor-pointer select-none gap-4 ${
                     isSelected 
                       ? 'bg-brand-500 text-slate-950 shadow-md shadow-brand-500/15' 
-                      : 'hover:bg-slate-50 dark:hover:bg-[#0b0f19]/40 text-slate-700 dark:text-slate-300'
+                      : 'hover:bg-slate-50  text-slate-700 '
                   }`}
                   onMouseEnter={() => setSelectedIndex(idx)}
                 >
                   <div className="flex items-center gap-3">
                     <CategoryIcon className={`h-4.5 w-4.5 flex-shrink-0 ${
-                      isSelected ? 'text-slate-950' : 'text-slate-400 dark:text-slate-500'
+                      isSelected ? 'text-slate-950' : 'text-slate-500 '
                     }`} />
                     <div className="text-xs">
                       <span className="font-extrabold block leading-tight">{item.title}</span>
@@ -348,7 +348,7 @@ export default function CommandCenter({ setActiveTab }) {
                   <span className={`text-[9px] font-bold font-mono uppercase tracking-wider px-2 py-0.5 rounded-md ${
                     isSelected 
                       ? 'bg-slate-950/15 text-slate-950' 
-                      : 'bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500'
+                      : 'bg-slate-100 dark:bg-white text-slate-500 '
                   }`}>
                     {item.category}
                   </span>
@@ -359,7 +359,7 @@ export default function CommandCenter({ setActiveTab }) {
         </div>
 
         {/* Shortcuts Hints Footer */}
-        <div className="border-t border-slate-200 dark:border-[#23324C]/60 bg-slate-50 dark:bg-[#0f1624]/40 p-3 px-4 flex items-center justify-between text-[9px] font-bold text-slate-400 dark:text-slate-500 select-none font-mono">
+        <div className="border-t border-slate-200 dark:border-slate-200 bg-slate-50  p-3 px-4 flex items-center justify-between text-[9px] font-bold text-slate-500  select-none font-mono">
           <div className="flex items-center gap-3">
             <span>↑↓ Navigate</span>
             <span>↵ Select</span>

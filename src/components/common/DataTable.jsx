@@ -165,15 +165,15 @@ export default function DataTable({
         <div className="flex items-center gap-3 ml-auto relative">
           
           {/* Density Toggle */}
-          <div className="flex bg-slate-100 dark:bg-[#111827] rounded-lg p-0.5 border border-slate-200 dark:border-[#23324C]/60 text-[10px] font-bold">
+          <div className="flex bg-slate-100 dark:bg-white rounded-lg p-0.5 border border-slate-200 dark:border-slate-200 text-[10px] font-bold">
             {['compact', 'default', 'relaxed'].map(d => (
               <button
                 key={d}
                 onClick={() => setDensity(d)}
                 className={`px-2.5 py-1 rounded-md uppercase tracking-wide cursor-pointer transition-all ${
                   density === d 
-                    ? 'bg-brand-500 text-white shadow-sm' 
-                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-300'
+                    ? 'bg-brand-500 text-slate-900 shadow-sm' 
+                    : 'text-slate-500  hover:text-slate-600'
                 }`}
               >
                 {d}
@@ -185,7 +185,7 @@ export default function DataTable({
           <div className="relative">
             <button
               onClick={() => setColDropdownOpen(!colDropdownOpen)}
-              className="p-2 bg-slate-100 dark:bg-[#161F30] border border-slate-200 dark:border-[#23324C] hover:border-brand-500/30 text-slate-500 dark:text-slate-300 rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
+              className="p-2 bg-slate-100 dark:bg-slate-50 border border-slate-200 dark:border-slate-200 hover:border-brand-500/30 text-slate-500  rounded-xl transition-all cursor-pointer flex items-center gap-1.5"
               title="Configure Columns"
             >
               <Settings className="h-4.5 w-4.5" />
@@ -195,21 +195,21 @@ export default function DataTable({
             {colDropdownOpen && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setColDropdownOpen(false)}></div>
-                <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-[#161F30] border border-slate-200 dark:border-[#23324C] rounded-2xl shadow-2xl py-3 px-4 z-50 animate-fade-in text-xs">
-                  <span className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block mb-2">Column Visibility</span>
+                <div className="absolute right-0 mt-2 w-52 bg-white dark:bg-slate-50 border border-slate-200 dark:border-slate-200 rounded-2xl shadow-2xl py-3 px-4 z-50 animate-fade-in text-xs">
+                  <span className="text-[10px] font-black text-slate-500  uppercase tracking-widest block mb-2">Column Visibility</span>
                   <div className="space-y-1.5 max-h-56 overflow-y-auto">
                     {columns.map(col => {
                       const isVisible = visibleKeys.includes(col.key);
                       return (
                         <label 
                           key={col.key}
-                          className="flex items-center gap-2.5 p-1.5 hover:bg-slate-50 dark:hover:bg-[#0b0f19]/40 rounded-lg cursor-pointer text-slate-600 dark:text-slate-300 font-semibold"
+                          className="flex items-center gap-2.5 p-1.5 hover:bg-slate-50  rounded-lg cursor-pointer text-slate-600  font-semibold"
                         >
                           <input 
                             type="checkbox"
                             checked={isVisible}
                             onChange={() => toggleColumn(col.key)}
-                            className="h-3.5 w-3.5 rounded text-brand-500 focus:ring-brand-500 border-slate-300 dark:border-[#23324C] bg-transparent cursor-pointer"
+                            className="h-3.5 w-3.5 rounded text-brand-500 focus:ring-brand-500 border-slate-300 dark:border-slate-200 bg-transparent cursor-pointer"
                           />
                           <span>{col.label}</span>
                         </label>
@@ -225,15 +225,15 @@ export default function DataTable({
       </div>
 
       {/* Main Table Container (Sticky Header and Height Caps) */}
-      <div className="border border-slate-200 dark:border-[#23324C] rounded-2xl overflow-x-auto overflow-y-auto bg-white dark:bg-[#161F30]/30 shadow-sm dark:shadow-inner max-h-[500px] relative">
-        <table className="min-w-full text-left border-collapse text-slate-600 dark:text-slate-300">
-          <thead className="bg-slate-100 dark:bg-[#161F30] border-b border-slate-200 dark:border-[#23324C] text-[10px] font-bold tracking-wider uppercase text-slate-500 dark:text-slate-400 sticky top-0 z-20">
+      <div className="border border-slate-200 dark:border-slate-200 rounded-2xl overflow-x-auto overflow-y-auto bg-white dark:bg-slate-50/30 shadow-sm dark:shadow-inner max-h-[500px] relative">
+        <table className="min-w-full text-left border-collapse text-slate-600 ">
+          <thead className="bg-slate-100 dark:bg-slate-50 border-b border-slate-200 dark:border-slate-200 text-[10px] font-bold tracking-wider uppercase text-slate-500  sticky top-0 z-20">
             <tr>
               {/* Select All Checkbox Header */}
               <th className="p-4 w-10 text-center">
                 <button 
                   onClick={toggleSelectAll}
-                  className="text-slate-400 hover:text-brand-500 transition-colors cursor-pointer"
+                  className="text-slate-500 hover:text-brand-500 transition-colors cursor-pointer"
                 >
                   {isAllSelected ? (
                     <CheckSquare className="h-4.5 w-4.5 text-brand-500" />
@@ -253,14 +253,14 @@ export default function DataTable({
           <tbody className="divide-y divide-slate-200/60 dark:divide-[#23324C]/40">
             {loading ? (
               <tr>
-                <td colSpan={activeColumns.length + 1} className="p-10 text-center text-slate-400">
+                <td colSpan={activeColumns.length + 1} className="p-10 text-center text-slate-500">
                   <div className="w-7 h-7 border-t-2 border-brand-500 rounded-full animate-spin mx-auto mb-3"></div>
                   <span className="text-xs font-bold uppercase tracking-wider">Syncing database node...</span>
                 </td>
               </tr>
             ) : paginatedData.length === 0 ? (
               <tr>
-                <td colSpan={activeColumns.length + 1} className="p-10 text-center text-slate-400 font-bold uppercase tracking-wide text-xs">
+                <td colSpan={activeColumns.length + 1} className="p-10 text-center text-slate-500 font-bold uppercase tracking-wide text-xs">
                   No records resolved.
                 </td>
               </tr>
@@ -272,7 +272,7 @@ export default function DataTable({
                 return (
                   <tr 
                     key={rIdx} 
-                    className={`transition-colors border-slate-200 dark:border-[#23324C]/30 hover:bg-slate-50/50 dark:hover:bg-slate-800/10 ${
+                    className={`transition-colors border-slate-200 dark:border-slate-200 hover:bg-slate-50/50 dark:hover:bg-white/10 ${
                       isSelected ? 'bg-brand-500/5 dark:bg-brand-500/5' : ''
                     }`}
                   >
@@ -280,7 +280,7 @@ export default function DataTable({
                     <td className="p-4 text-center">
                       <button 
                         onClick={() => toggleSelectRow(rowId)}
-                        className="text-slate-400 hover:text-brand-500 transition-colors cursor-pointer"
+                        className="text-slate-500 hover:text-brand-500 transition-colors cursor-pointer"
                       >
                         {isSelected ? (
                           <CheckSquare className="h-4.5 w-4.5 text-brand-500" />
@@ -291,7 +291,7 @@ export default function DataTable({
                     </td>
 
                     {activeColumns.map((col) => (
-                      <td key={col.key} className={`${densityStyles[density]} font-semibold text-slate-700 dark:text-slate-300`}>
+                      <td key={col.key} className={`${densityStyles[density]} font-semibold text-slate-700 `}>
                         {col.render ? col.render(row) : row[col.key]}
                       </td>
                     ))}
@@ -305,11 +305,11 @@ export default function DataTable({
 
       {/* Pagination Footer */}
       {!loading && totalPages > 1 && (
-        <div className="border-t border-slate-200 dark:border-[#23324C] bg-slate-50 dark:bg-[#161F30]/50 p-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold rounded-b-2xl text-center sm:text-left">
-          <span className="text-slate-500 dark:text-slate-400 font-semibold font-mono">
-            Showing <strong className="text-slate-700 dark:text-slate-200">{(currentPage - 1) * itemsPerPage + 1}</strong> to{' '}
-            <strong className="text-slate-700 dark:text-slate-200">{Math.min(currentPage * itemsPerPage, data.length)}</strong> of{' '}
-            <strong className="text-slate-700 dark:text-slate-200">{data.length}</strong> items
+        <div className="border-t border-slate-200 dark:border-slate-200 bg-slate-50 dark:bg-slate-50/50 p-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-semibold rounded-b-2xl text-center sm:text-left">
+          <span className="text-slate-500  font-semibold font-mono">
+            Showing <strong className="text-slate-700 ">{(currentPage - 1) * itemsPerPage + 1}</strong> to{' '}
+            <strong className="text-slate-700 ">{Math.min(currentPage * itemsPerPage, data.length)}</strong> of{' '}
+            <strong className="text-slate-700 ">{data.length}</strong> items
           </span>
 
           <div className="flex items-center space-x-1.5">
@@ -330,8 +330,8 @@ export default function DataTable({
                   onClick={() => setCurrentPage(pageNum)}
                   className={`h-7 w-7 rounded-lg text-[10px] font-bold font-mono transition-all cursor-pointer ${
                     isActive 
-                      ? 'bg-brand-500 text-white shadow-sm' 
-                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-200 border border-slate-200 dark:border-[#23324C]'
+                      ? 'bg-brand-500 text-slate-900 shadow-sm' 
+                      : 'text-slate-500  hover:text-slate-700 border border-slate-200 dark:border-slate-200'
                   }`}
                 >
                   {pageNum}

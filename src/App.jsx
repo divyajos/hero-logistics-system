@@ -31,7 +31,7 @@ function PublicLayout() {
   }, []);
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-[#0B0F19] text-slate-100 flex flex-col justify-between selection:bg-brand-500 selection:text-white">
+    <div className="min-h-screen w-full overflow-x-hidden bg-slate-50 text-slate-100 flex flex-col justify-between selection:bg-brand-500 selection:text-slate-900">
       <Navbar />
       <div className="flex-grow">
         <Outlet />
@@ -94,7 +94,7 @@ function App() {
             }
           />
           <Route
-            path="/dispatch/*"
+            path="/dispatcher-dashboard/*"
             element={
               <ProtectedRoute allowedRoles={['Dispatcher']}>
                 <DashboardLayout role="Dispatcher" />

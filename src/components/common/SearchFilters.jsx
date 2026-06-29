@@ -13,7 +13,7 @@ export default function SearchFilters({ onSearchChange, onFilterChange, filters 
           type="search"
           placeholder={searchPlaceholder}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="w-full pl-9.5 pr-4 py-2.5 bg-[#161F30]/40 border border-[#23324C] focus:border-brand-500 rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500 transition-all placeholder:text-slate-500"
+          className="w-full pl-9.5 pr-4 py-2.5 bg-slate-50/40 border border-slate-200 focus:border-brand-500 rounded-xl text-slate-700 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500 transition-all placeholder:text-slate-500"
         />
       </div>
 
@@ -24,11 +24,11 @@ export default function SearchFilters({ onSearchChange, onFilterChange, filters 
             <select
               key={f.key}
               onChange={(e) => onFilterChange(f.key, e.target.value)}
-              className="px-3.5 py-2.5 bg-[#161F30] border border-[#23324C] hover:border-brand-500/30 text-slate-300 hover:text-white text-xs rounded-xl focus:outline-none cursor-pointer transition-all"
+              className="px-3.5 py-2.5 bg-slate-50 border border-slate-200 hover:border-brand-500/30 text-slate-600 hover:text-slate-900 text-xs rounded-xl focus:outline-none cursor-pointer transition-all"
             >
               <option value="">{f.placeholder || `Filter by ${f.key}`}</option>
               {f.options.map((opt) => (
-                <option key={opt.value} value={opt.value} className="bg-[#161F30]">
+                <option key={opt.value} value={opt.value} className="bg-slate-50">
                   {opt.label}
                 </option>
               ))}

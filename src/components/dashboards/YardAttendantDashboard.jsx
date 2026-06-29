@@ -436,26 +436,26 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
       )}
 
       {/* Header controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#23324C]/60 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
-          <h2 className="text-xl sm:text-2xl font-black text-white capitalize">Yard Attendant • {activeTab.replace(/-/g, ' ')}</h2>
-          <p className="text-xs text-slate-400">Perform gate checks, inspect trailers, and log spotted containers.</p>
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 capitalize">Yard Attendant • {activeTab.replace(/-/g, ' ')}</h2>
+          <p className="text-xs text-slate-500">Perform gate checks, inspect trailers, and log spotted containers.</p>
         </div>
         <div className="flex flex-wrap gap-2 items-center">
           {/* Notifications Bell */}
-          <button type="button" onClick={() => setNotifModal(true)} className="relative p-2 rounded-xl bg-[#111827]/60 border border-[#23324C] hover:border-brand-500/40 transition-colors">
-            <Bell className="h-4 w-4 text-slate-300" />
+          <button type="button" onClick={() => setNotifModal(true)} className="relative p-2 rounded-xl bg-white/60 border border-slate-200 hover:border-brand-500/40 transition-colors">
+            <Bell className="h-4 w-4 text-slate-600" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-[9px] font-black text-white flex items-center justify-center">{unreadCount}</span>
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-[9px] font-black text-slate-900 flex items-center justify-center">{unreadCount}</span>
             )}
           </button>
           {/* Yard Map */}
-          <button type="button" onClick={() => setYardMapModal(true)} className="p-2 rounded-xl bg-[#111827]/60 border border-[#23324C] hover:border-brand-500/40 transition-colors" title="Yard Map">
-            <MapPin className="h-4 w-4 text-slate-300" />
+          <button type="button" onClick={() => setYardMapModal(true)} className="p-2 rounded-xl bg-white/60 border border-slate-200 hover:border-brand-500/40 transition-colors" title="Yard Map">
+            <MapPin className="h-4 w-4 text-slate-600" />
           </button>
           {/* QR Scan */}
-          <button type="button" onClick={() => setQrScanModal(true)} className="p-2 rounded-xl bg-[#111827]/60 border border-[#23324C] hover:border-brand-500/40 transition-colors" title="QR / Barcode Scan">
-            <QrCode className="h-4 w-4 text-slate-300" />
+          <button type="button" onClick={() => setQrScanModal(true)} className="p-2 rounded-xl bg-white/60 border border-slate-200 hover:border-brand-500/40 transition-colors" title="QR / Barcode Scan">
+            <QrCode className="h-4 w-4 text-slate-600" />
           </button>
           {/* Incident */}
           <button type="button" onClick={() => setIncidentModal(true)} className="p-2 rounded-xl bg-red-500/10 border border-red-500/20 hover:border-red-500/40 transition-colors" title="Report Incident">
@@ -487,12 +487,12 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
               { label: 'Lane Assignment', sub: 'Spot trailers to load lanes', icon: MapPin, color: 'yellow', onClick: () => setYardMapModal(true) },
               { label: 'Report Issue', sub: 'Log damage or missing items', icon: AlertTriangle, color: 'red', onClick: () => setIncidentModal(true) },
             ].map(({ label, sub, icon: Icon, color, onClick }) => (
-              <div key={label} className="glass rounded-2xl p-5 border border-[#23324C]/60 text-center flex flex-col items-center gap-3 hover:border-brand-500/40 transition-colors cursor-pointer group" onClick={onClick}>
-                <div className={`w-12 h-12 rounded-xl bg-slate-800 border border-[#23324C] flex items-center justify-center group-hover:bg-slate-700/50 transition-colors`}>
+              <div key={label} className="glass rounded-2xl p-5 border border-slate-200 text-center flex flex-col items-center gap-3 hover:border-brand-500/40 transition-colors cursor-pointer group" onClick={onClick}>
+                <div className={`w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center group-hover:bg-slate-700/50 transition-colors`}>
                   <Icon className="h-6 w-6 text-brand-400" />
                 </div>
                 <div>
-                  <strong className="text-white text-xs block font-extrabold">{label}</strong>
+                  <strong className="text-slate-900 text-xs block font-extrabold">{label}</strong>
                   <p className="text-[10px] text-slate-500 mt-0.5">{sub}</p>
                 </div>
                 <ArrowRight className="h-4 w-4 text-slate-500 group-hover:text-brand-400 transition-colors" />
@@ -501,16 +501,16 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
           </div>
 
           {/* Shift Control Row */}
-          <div className="glass rounded-2xl p-4 border border-[#23324C]/60">
+          <div className="glass rounded-2xl p-4 border border-slate-200">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className={`w-3 h-3 rounded-full ${shiftState.isWorking ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`} />
                 <div>
-                  <strong className="text-white text-xs block">
+                  <strong className="text-slate-900 text-xs block">
                     {shiftState.isWorking ? `Shift In Progress (${currentStatus})` : `Shift Off Duty (${currentStatus})`}
                   </strong>
                   {shiftState.isWorking && (
-                    <span className="text-[10px] text-slate-400 font-mono">
+                    <span className="text-[10px] text-slate-500 font-mono">
                       {Math.floor(shiftState.totalSeconds / 3600).toString().padStart(2,'0')}:{Math.floor((shiftState.totalSeconds % 3600) / 60).toString().padStart(2,'0')}:{(shiftState.totalSeconds % 60).toString().padStart(2,'0')} elapsed
                     </span>
                   )}
@@ -529,9 +529,9 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
           </div>
 
           {/* Task Queue */}
-          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+          <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
             <div className="flex justify-between items-center">
-              <h3 className="text-sm font-extrabold text-white">Spotted Relocator Task Queue</h3>
+              <h3 className="text-sm font-extrabold text-slate-900">Spotted Relocator Task Queue</h3>
               <Button size="sm" variant="outline" onClick={() => setTasksModalOpen(true)}>View All Tasks</Button>
             </div>
             <div className="divide-y divide-[#23324C]/40">
@@ -539,10 +539,10 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
                 <div key={task.id} className="py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <strong className="text-white text-xs">{task.title}</strong>
+                      <strong className="text-slate-900 text-xs">{task.title}</strong>
                       <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold border ${task.priority === 'High' ? 'text-red-400 border-red-500/30 bg-red-500/5' : 'text-yellow-400 border-yellow-500/30 bg-yellow-500/5'}`}>{task.priority}</span>
                     </div>
-                    <p className="text-slate-400 text-xs">{task.desc}</p>
+                    <p className="text-slate-500 text-xs">{task.desc}</p>
                     <p className="text-[10px] text-slate-500 font-mono">Due: {task.dueTime} | Gate: {task.gate} | {task.trailer}</p>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -571,8 +571,8 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
       {/* ─── Move Asset Tab ───────────────────────────────────────────────── */}
       {activeTab === 'move-asset' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-          <div className="lg:col-span-5 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-            <h3 className="text-sm font-extrabold text-white">Relocate spotted container</h3>
+          <div className="lg:col-span-5 glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
+            <h3 className="text-sm font-extrabold text-slate-900">Relocate spotted container</h3>
             <form onSubmit={handleMoveTrailer} className="space-y-4">
               <TextInput label="Trailer Container plate ID" required placeholder="e.g. TR-9410" value={relocateTrailer} onChange={(e) => setRelocateTrailer(e.target.value)} />
               <TextInput label="Origin Spot Lane" required value={relocateOrigin} onChange={(e) => setRelocateOrigin(e.target.value)} />
@@ -580,12 +580,12 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
               <Button type="submit" variant="primary" className="w-full">Relocate spotted container</Button>
             </form>
           </div>
-          <div className="lg:col-span-7 glass rounded-2xl p-5 border border-[#23324C]/60 text-left flex flex-col justify-between h-[360px] lg:h-auto min-h-[300px]">
+          <div className="lg:col-span-7 glass rounded-2xl p-5 border border-slate-200 text-left flex flex-col justify-between h-[360px] lg:h-auto min-h-[300px]">
             <div>
-              <h3 className="text-sm font-extrabold text-white mb-1">Visual Spotting Map Preview</h3>
+              <h3 className="text-sm font-extrabold text-slate-900 mb-1">Visual Spotting Map Preview</h3>
               <p className="text-[10px] text-slate-500">Live container parking grid zones.</p>
             </div>
-            <div className="flex-grow bg-[#0B0F19] border border-[#23324C] rounded-xl flex items-center justify-center my-4 relative overflow-hidden min-h-[220px]">
+            <div className="flex-grow bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center my-4 relative overflow-hidden min-h-[220px]">
               <div className="absolute inset-0 bg-[radial-gradient(#23324c_1px,transparent_1px)] [background-size:16px_16px] opacity-40"></div>
               <button type="button" onClick={() => setYardMapModal(true)} className="absolute inset-0 flex items-center justify-center hover:bg-brand-500/5 transition-colors">
                 <div className="text-center">
@@ -601,8 +601,8 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
       {/* ─── Gate Scan Tab ────────────────────────────────────────────────── */}
       {activeTab === 'scan' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-          <div className="lg:col-span-5 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-            <h3 className="text-sm font-extrabold text-white">Log Gate container event</h3>
+          <div className="lg:col-span-5 glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
+            <h3 className="text-sm font-extrabold text-slate-900">Log Gate container event</h3>
             <form onSubmit={handleGateScanAction} className="space-y-4">
               <TextInput label="Trailer Container plate ID" required placeholder="e.g. TR-9410" value={trailerPlate} onChange={(e) => setTrailerPlate(e.target.value)} />
               <TextInput label="Hauling Driver Name" required placeholder="e.g. John D." value={driverName} onChange={(e) => setDriverName(e.target.value)} />
@@ -613,13 +613,13 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
               </div>
             </form>
           </div>
-          <div className="lg:col-span-7 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-            <h3 className="text-sm font-extrabold text-white">Recent Gate Events Log</h3>
+          <div className="lg:col-span-7 glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
+            <h3 className="text-sm font-extrabold text-slate-900">Recent Gate Events Log</h3>
             <DataTable columns={[
               { key: 'event', label: 'Event', render: (row) => <span className={`font-extrabold ${row.event === 'Gate-In' ? 'text-brand-400' : 'text-purple-400'}`}>{row.event}</span> },
-              { key: 'trailer', label: 'Trailer', render: (row) => <span className="font-mono font-extrabold text-white">{row.trailer}</span> },
-              { key: 'driver', label: 'Driver', render: (row) => <span className="text-slate-300 font-semibold">{row.driver}</span> },
-              { key: 'time', label: 'Time', render: (row) => <span className="text-slate-400 font-mono text-[11px]">{row.time}</span> },
+              { key: 'trailer', label: 'Trailer', render: (row) => <span className="font-mono font-extrabold text-slate-900">{row.trailer}</span> },
+              { key: 'driver', label: 'Driver', render: (row) => <span className="text-slate-600 font-semibold">{row.driver}</span> },
+              { key: 'time', label: 'Time', render: (row) => <span className="text-slate-500 font-mono text-[11px]">{row.time}</span> },
               { key: 'status', label: 'Inspection', render: (row) => <StatusBadge status={row.status} /> }
             ]} data={gateLogs} />
           </div>
@@ -629,8 +629,8 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
       {/* ─── Inspections Tab ──────────────────────────────────────────────── */}
       {activeTab === 'inspections' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-          <div className="lg:col-span-5 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-            <h3 className="text-sm font-extrabold text-white">Log Safety Inspection Report</h3>
+          <div className="lg:col-span-5 glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
+            <h3 className="text-sm font-extrabold text-slate-900">Log Safety Inspection Report</h3>
             <form onSubmit={handleAddInspectionReport} className="space-y-4">
               <SelectInput label="Report Issue Category" value={issueType} onChange={(e) => setIssueType(e.target.value)} options={[
                 { value: 'Damage', label: 'Container Damage Report' },
@@ -645,35 +645,35 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
               ]} />
               {/* Checklist */}
               <div>
-                <label className="block text-slate-400 font-bold uppercase text-[9px] mb-2">Inspection Checklist</label>
+                <label className="block text-slate-500 font-bold uppercase text-[9px] mb-2">Inspection Checklist</label>
                 <div className="space-y-2">
                   {Object.entries(inspectionChecklist).map(([key, checked]) => (
                     <label key={key} className="flex items-center gap-2 cursor-pointer group">
                       <input type="checkbox" checked={checked} onChange={() => setInspectionChecklist(prev => ({...prev, [key]: !prev[key]}))} className="w-4 h-4 accent-yellow-400" />
-                      <span className="text-xs text-slate-300 capitalize group-hover:text-white transition-colors">{key.charAt(0).toUpperCase() + key.slice(1)} checked</span>
+                      <span className="text-xs text-slate-600 capitalize group-hover:text-slate-900 transition-colors">{key.charAt(0).toUpperCase() + key.slice(1)} checked</span>
                     </label>
                   ))}
                 </div>
               </div>
               <FileUploader label="Upload Inspections photo evidence" onUploadSuccess={() => triggerToast('Photo evidence uploaded.')} />
-              <div className="flex gap-2 pt-2 border-t border-[#23324C]/40">
+              <div className="flex gap-2 pt-2 border-t border-slate-200">
                 <Button type="button" variant="warning" className="flex-1" onClick={handleReportMissingItem}>Report Missing Item</Button>
                 <Button type="submit" variant="primary" className="flex-1">Submit Inspection</Button>
               </div>
             </form>
           </div>
 
-          <div className="lg:col-span-7 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-            <h3 className="text-sm font-extrabold text-white">Active Safety Issues Index</h3>
+          <div className="lg:col-span-7 glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
+            <h3 className="text-sm font-extrabold text-slate-900">Active Safety Issues Index</h3>
             <div className="divide-y divide-[#23324C]/40">
               {reports.map(rep => (
                 <div key={rep.id} className="py-3 flex flex-col sm:flex-row justify-between sm:items-center text-xs gap-4">
                   <div className="space-y-1">
                     <div className="flex gap-2 items-center">
                       <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${rep.type === 'Damage' ? 'bg-red-500/10 text-red-400' : 'bg-yellow-500/10 text-yellow-400'}`}>{rep.type}</span>
-                      <strong className="text-white">Trailer: {rep.trailer}</strong>
+                      <strong className="text-slate-900">Trailer: {rep.trailer}</strong>
                     </div>
-                    <p className="text-slate-400">{rep.details}</p>
+                    <p className="text-slate-500">{rep.details}</p>
                     <span className="text-[9px] text-slate-500 font-semibold font-mono block">Logged date: {rep.date}</span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -689,17 +689,17 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
 
       {/* ─── Start/Finish Work Tab ────────────────────────────────────────── */}
       {activeTab === 'start-finish' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6 max-w-md mx-auto">
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-6 max-w-md mx-auto">
           <div className="text-center space-y-2">
             <Clock className="h-12 w-12 text-brand-400 mx-auto animate-pulse" />
-            <h3 className="text-lg font-extrabold text-white">Attendant Time Clock</h3>
-            <p className="text-xs text-slate-400">Clock in/out to log operational hours, feed payroll data, and calculate costing.</p>
+            <h3 className="text-lg font-extrabold text-slate-900">Attendant Time Clock</h3>
+            <p className="text-xs text-slate-500">Clock in/out to log operational hours, feed payroll data, and calculate costing.</p>
           </div>
-          <div className="p-4 bg-[#111827]/60 border border-[#23324C] rounded-xl text-center space-y-3">
+          <div className="p-4 bg-white/60 border border-slate-200 rounded-xl text-center space-y-3">
             {shiftState.isWorking ? (
               <>
                 <span className="text-[10px] text-brand-400 font-bold uppercase tracking-wider block">Active Shift In Progress</span>
-                <strong className="text-2xl font-black text-white font-mono block">
+                <strong className="text-2xl font-black text-slate-900 font-mono block">
                   {Math.floor(shiftState.totalSeconds / 3600).toString().padStart(2, '0')}:
                   {Math.floor((shiftState.totalSeconds % 3600) / 60).toString().padStart(2, '0')}:
                   {(shiftState.totalSeconds % 60).toString().padStart(2, '0')}
@@ -710,7 +710,7 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
             ) : (
               <>
                 <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Not Clocked In</span>
-                <strong className="text-xl font-bold text-slate-400 block py-1">Shift Off-Duty</strong>
+                <strong className="text-xl font-bold text-slate-500 block py-1">Shift Off-Duty</strong>
                 <Button variant="primary" className="w-full mt-2 font-black" onClick={handleStartWork}>Start Work</Button>
               </>
             )}
@@ -720,10 +720,10 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
 
       {/* ─── Scan Button Tab ──────────────────────────────────────────────── */}
       {activeTab === 'scan-btn' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6">
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-6">
           <div>
-            <h3 className="text-sm font-extrabold text-white">Barcode & Asset Scanner</h3>
-            <p className="text-xs text-slate-400 mt-1">Select code type and scan physical items in the yard.</p>
+            <h3 className="text-sm font-extrabold text-slate-900">Barcode & Asset Scanner</h3>
+            <p className="text-xs text-slate-500 mt-1">Select code type and scan physical items in the yard.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
@@ -731,9 +731,9 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
               { label: 'Scan VIN', desc: 'Scan vehicle windshield barcode tags to resolve VIN stock numbers.', type: 'Vehicle' },
               { label: 'Scan Barcode', desc: 'Scan standard cargo labels, supplier shipping tags, or BOLs.', type: 'Container' },
             ].map(({ label, desc, type }) => (
-              <div key={label} className="p-5 bg-[#111827]/40 border border-[#23324C] rounded-2xl flex flex-col items-center text-center space-y-4">
-                <strong className="text-xs text-slate-200 block">{label}</strong>
-                <p className="text-[11px] text-slate-400 flex-1">{desc}</p>
+              <div key={label} className="p-5 bg-white/40 border border-slate-200 rounded-2xl flex flex-col items-center text-center space-y-4">
+                <strong className="text-xs text-slate-700 block">{label}</strong>
+                <p className="text-[11px] text-slate-500 flex-1">{desc}</p>
                 <Button variant="primary" icon={QrCode} className="w-full" onClick={() => { setScanType(type); setQrScanModal(true); }}>
                   {label}
                 </Button>
@@ -745,13 +745,13 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
 
       {/* ─── Scan In Tab ──────────────────────────────────────────────────── */}
       {activeTab === 'scan-in' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6">
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-6">
           <div>
-            <h3 className="text-sm font-extrabold text-white">Scan Inward Custody</h3>
-            <p className="text-xs text-slate-400 mt-1">Confirm inward receipt of containers, cars, or pallets into yard locations.</p>
+            <h3 className="text-sm font-extrabold text-slate-900">Scan Inward Custody</h3>
+            <p className="text-xs text-slate-500 mt-1">Confirm inward receipt of containers, cars, or pallets into yard locations.</p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <form onSubmit={handleInventoryScanIn} className="lg:col-span-5 p-5 bg-[#111827]/60 border border-[#23324C] rounded-2xl space-y-4">
+            <form onSubmit={handleInventoryScanIn} className="lg:col-span-5 p-5 bg-white/60 border border-slate-200 rounded-2xl space-y-4">
               <TextInput label="Scan Container / Asset ID" placeholder="e.g. CTR-4402" value={scanInAsset} onChange={(e) => setScanInAsset(e.target.value)} required />
               <TextInput label="Assign Location Spot" placeholder="e.g. A3" value={scanInLocation} onChange={(e) => setScanInLocation(e.target.value)} required />
               <div className="flex gap-2">
@@ -759,11 +759,11 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
                 <Button type="submit" variant="primary" className="flex-grow">Scan In</Button>
               </div>
             </form>
-            <div className="lg:col-span-7 p-4 bg-[#111827]/20 border border-[#23324C] rounded-2xl text-xs space-y-2">
-              <strong className="text-white block">Active Yard Inward Manifest</strong>
-              <p className="text-slate-400">Review items waiting for spot check-in validation.</p>
+            <div className="lg:col-span-7 p-4 bg-white/20 border border-slate-200 rounded-2xl text-xs space-y-2">
+              <strong className="text-slate-900 block">Active Yard Inward Manifest</strong>
+              <p className="text-slate-500">Review items waiting for spot check-in validation.</p>
               <DataTable columns={[
-                { key: 'item', label: 'Item ID', render: (row) => <span className="font-mono font-bold text-white">{row.item}</span> },
+                { key: 'item', label: 'Item ID', render: (row) => <span className="font-mono font-bold text-slate-900">{row.item}</span> },
                 { key: 'desc', label: 'Description', render: (row) => <span>{row.desc}</span> },
                 { key: 'status', label: 'Status', render: (row) => <span className={row.status === 'Completed' ? 'text-brand-400 font-bold' : 'text-yellow-400 font-bold'}>{row.status}</span> }
               ]} data={inwardManifest} />
@@ -774,13 +774,13 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
 
       {/* ─── Scan Out Tab ─────────────────────────────────────────────────── */}
       {activeTab === 'scan-out' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6">
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-6">
           <div>
-            <h3 className="text-sm font-extrabold text-white">Scan Outward Gate</h3>
-            <p className="text-xs text-slate-400 mt-1">Scan containers, cars, or pallets outbound to driver transport trailers.</p>
+            <h3 className="text-sm font-extrabold text-slate-900">Scan Outward Gate</h3>
+            <p className="text-xs text-slate-500 mt-1">Scan containers, cars, or pallets outbound to driver transport trailers.</p>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <form onSubmit={handleInventoryScanOut} className="lg:col-span-5 p-5 bg-[#111827]/60 border border-[#23324C] rounded-2xl space-y-4">
+            <form onSubmit={handleInventoryScanOut} className="lg:col-span-5 p-5 bg-white/60 border border-slate-200 rounded-2xl space-y-4">
               <TextInput label="Scan Container / Asset ID" placeholder="e.g. CTR-009" value={scanOutAsset} onChange={(e) => setScanOutAsset(e.target.value)} required />
               <TextInput label="Release Gate / Dock ID" placeholder="e.g. Gate 4" value={scanOutGate} onChange={(e) => setScanOutGate(e.target.value)} required />
               <div className="flex gap-2">
@@ -788,10 +788,10 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
                 <Button type="submit" variant="primary" className="flex-grow">Scan Out</Button>
               </div>
             </form>
-            <div className="lg:col-span-7 p-4 bg-[#111827]/20 border border-[#23324C] rounded-2xl text-xs space-y-2">
-              <strong className="text-white block">Outbound Loading Queue</strong>
+            <div className="lg:col-span-7 p-4 bg-white/20 border border-slate-200 rounded-2xl text-xs space-y-2">
+              <strong className="text-slate-900 block">Outbound Loading Queue</strong>
               <DataTable columns={[
-                { key: 'item', label: 'Item ID', render: (row) => <span className="font-mono font-bold text-white">{row.item}</span> },
+                { key: 'item', label: 'Item ID', render: (row) => <span className="font-mono font-bold text-slate-900">{row.item}</span> },
                 { key: 'desc', label: 'Description', render: (row) => <span>{row.desc}</span> },
                 { key: 'status', label: 'Status', render: (row) => <span className="text-brand-400 font-bold">{row.status}</span> }
               ]} data={outboundQueue} />
@@ -802,11 +802,11 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
 
       {/* ─── Lane Assignment Tab ──────────────────────────────────────────── */}
       {activeTab === 'lane-assignment' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6">
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h3 className="text-sm font-extrabold text-white">Load Lane & Spotting Assignment</h3>
-              <p className="text-xs text-slate-400 mt-1">Spot container trailers to load lanes, upload photo proof, and confirm loading operations.</p>
+              <h3 className="text-sm font-extrabold text-slate-900">Load Lane & Spotting Assignment</h3>
+              <p className="text-xs text-slate-500 mt-1">Spot container trailers to load lanes, upload photo proof, and confirm loading operations.</p>
             </div>
             <div className="flex flex-wrap gap-2">
               <Button size="sm" variant="secondary" onClick={() => {
@@ -826,8 +826,8 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
             </div>
           </div>
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <form onSubmit={handleLaneAssignmentSubmit} className="lg:col-span-5 p-5 bg-[#111827]/60 border border-[#23324C] rounded-2xl space-y-4">
-              <strong className="text-xs text-slate-200 block">Verify Load Status</strong>
+            <form onSubmit={handleLaneAssignmentSubmit} className="lg:col-span-5 p-5 bg-white/60 border border-slate-200 rounded-2xl space-y-4">
+              <strong className="text-xs text-slate-700 block">Verify Load Status</strong>
               <TextInput label="Trailer Container ID" placeholder="e.g. TR-9410" value={laneTrailerId} onChange={(e) => setLaneTrailerId(e.target.value)} required />
               <FileUploader label="Upload Spot Photo Proof" onUploadSuccess={() => triggerToast('Spot photo uploaded successfully.')} />
               <div className="flex gap-2">
@@ -841,10 +841,10 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
                 }}>Confirm Unloaded</Button>
               </div>
             </form>
-            <div className="lg:col-span-7 p-4 bg-[#111827]/20 border border-[#23324C] rounded-2xl text-xs space-y-2">
-              <strong className="text-white block font-bold">Yard Attendant Tasks List</strong>
+            <div className="lg:col-span-7 p-4 bg-white/20 border border-slate-200 rounded-2xl text-xs space-y-2">
+              <strong className="text-slate-900 block font-bold">Yard Attendant Tasks List</strong>
               <DataTable columns={[
-                { key: 'title', label: 'Task Description', render: (row) => <span className="font-semibold text-white">{row.title}</span> },
+                { key: 'title', label: 'Task Description', render: (row) => <span className="font-semibold text-slate-900">{row.title}</span> },
                 { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> }
               ]} data={tasks.filter(t => t.status !== 'Completed')} />
             </div>
@@ -863,16 +863,16 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
             <div className="p-4 bg-brand-500/10 border border-brand-500/20 rounded-xl space-y-3">
               <div className="flex justify-between items-center pb-2 border-b border-brand-500/20">
                 <span className="text-xs text-brand-400 font-extrabold uppercase tracking-wider">{shiftSummary.role}</span>
-                <span className="text-xs text-slate-400 font-mono font-bold">{new Date().toLocaleDateString()}</span>
+                <span className="text-xs text-slate-500 font-mono font-bold">{new Date().toLocaleDateString()}</span>
               </div>
               <div className="grid grid-cols-2 gap-4 text-xs">
                 <div>
                   <p className="text-slate-500 uppercase font-black text-[9px] mb-0.5">Start Time</p>
-                  <p className="text-white font-bold">{shiftSummary.startTime}</p>
+                  <p className="text-slate-900 font-bold">{shiftSummary.startTime}</p>
                 </div>
                 <div>
                   <p className="text-slate-500 uppercase font-black text-[9px] mb-0.5">End Time</p>
-                  <p className="text-white font-bold">{shiftSummary.endTime}</p>
+                  <p className="text-slate-900 font-bold">{shiftSummary.endTime}</p>
                 </div>
                 <div>
                   <p className="text-slate-500 uppercase font-black text-[9px] mb-0.5">Total Duration</p>
@@ -905,9 +905,9 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
                 { label: 'Shift Start', value: '06:00 AM' },
                 { label: 'Shift End', value: '02:00 PM' },
               ].map(({ label, value }) => (
-                <div key={label} className="bg-[#111827]/60 rounded-lg p-2.5">
+                <div key={label} className="bg-white/60 rounded-lg p-2.5">
                   <p className="text-[9px] text-slate-500 font-bold uppercase mb-0.5">{label}</p>
-                  <p className="text-white font-bold">{value}</p>
+                  <p className="text-slate-900 font-bold">{value}</p>
                 </div>
               ))}
             </div>
@@ -920,13 +920,13 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
                 { date: 'Jun 29, 2026', shift: '02:00 PM – 10:00 PM', gate: 'Gate 3', zone: 'Zone C' },
                 { date: 'Jun 30, 2026', shift: 'Rest Day', gate: '—', zone: '—' },
               ].map(({ date, shift, gate, zone }) => (
-                <div key={date} className="flex items-center justify-between p-3 bg-[#111827]/40 border border-[#23324C]/40 rounded-xl text-xs">
+                <div key={date} className="flex items-center justify-between p-3 bg-white/40 border border-slate-200 rounded-xl text-xs">
                   <div>
-                    <p className="font-bold text-white">{date}</p>
-                    <p className="text-slate-400">{shift}</p>
+                    <p className="font-bold text-slate-900">{date}</p>
+                    <p className="text-slate-500">{shift}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-slate-300 font-semibold">{gate}</p>
+                    <p className="text-slate-600 font-semibold">{gate}</p>
                     <p className="text-slate-500 text-[10px]">{zone}</p>
                   </div>
                 </div>
@@ -950,7 +950,7 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
             { value: 'Off Duty', label: '⚫ Off Duty' },
           ]} />
           <TextInput label="Notes (Optional)" placeholder="e.g. Inspecting trailer near Gate 4..." value={statusNote} onChange={e => setStatusNote(e.target.value)} />
-          <div className="flex justify-end gap-2 pt-4 border-t border-[#23324C]/40">
+          <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
             <Button type="button" variant="secondary" onClick={() => setStatusModalOpen(false)}>Cancel</Button>
             <Button type="submit" variant="primary">Update Status</Button>
           </div>
@@ -968,7 +968,7 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
               { label: 'Completed', count: tasks.filter(t => t.status === 'Completed').length, color: 'text-emerald-400' },
               { label: 'High Priority', count: tasks.filter(t => t.priority === 'High').length, color: 'text-red-400' },
             ].map(({ label, count, color }) => (
-              <div key={label} className="p-2 bg-[#111827]/60 rounded-xl border border-[#23324C]/40">
+              <div key={label} className="p-2 bg-white/60 rounded-xl border border-slate-200">
                 <p className={`text-lg font-black ${color}`}>{count}</p>
                 <p className="text-[9px] text-slate-500 font-bold">{label}</p>
               </div>
@@ -976,24 +976,24 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
           </div>
           <div className="space-y-2 max-h-96 overflow-y-auto scrollbar-hide">
             {tasks.map(task => (
-              <div key={task.id} className="p-3 bg-[#111827]/40 border border-[#23324C]/40 rounded-xl space-y-2">
+              <div key={task.id} className="p-3 bg-white/40 border border-slate-200 rounded-xl space-y-2">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-bold text-white text-xs">{task.title}</p>
+                      <p className="font-bold text-slate-900 text-xs">{task.title}</p>
                       <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold border ${task.priority === 'High' ? 'text-red-400 border-red-500/30 bg-red-500/5' : 'text-yellow-400 border-yellow-500/30 bg-yellow-500/5'}`}>{task.priority}</span>
                     </div>
-                    <p className="text-slate-400 text-[10px] mt-0.5">{task.desc}</p>
+                    <p className="text-slate-500 text-[10px] mt-0.5">{task.desc}</p>
                     <div className="flex gap-3 mt-1 text-[9px] text-slate-500 font-mono">
                       <span>⏰ {task.dueTime}</span>
                       <span>🚪 {task.gate}</span>
                       <span>🚛 {task.trailer}</span>
                     </div>
-                    {task.notes && <p className="text-[10px] text-slate-400 mt-1 italic">📝 {task.notes}</p>}
+                    {task.notes && <p className="text-[10px] text-slate-500 mt-1 italic">📝 {task.notes}</p>}
                   </div>
                   <StatusBadge status={task.status} />
                 </div>
-                <div className="flex flex-wrap gap-1.5 pt-2 border-t border-[#23324C]/30">
+                <div className="flex flex-wrap gap-1.5 pt-2 border-t border-slate-200">
                   {task.status === 'Pending' && <Button size="sm" variant="secondary" onClick={() => handleStartTask(task.id)}>Start Task</Button>}
                   {task.status === 'In Progress' && (
                     <>
@@ -1008,7 +1008,7 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
               </div>
             ))}
           </div>
-          <div className="flex justify-end pt-2 border-t border-[#23324C]/40">
+          <div className="flex justify-end pt-2 border-t border-slate-200">
             <Button variant="secondary" onClick={() => setTasksModalOpen(false)}>Close</Button>
           </div>
         </div>
@@ -1018,9 +1018,9 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
       {taskDetailModal && (
         <Modal isOpen={!!taskDetailModal} onClose={() => setTaskDetailModal(null)} title="Task Details">
           <div className="space-y-4 text-left">
-            <div className="p-4 bg-[#111827]/60 border border-[#23324C]/40 rounded-xl space-y-3">
-              <p className="font-bold text-white">{taskDetailModal.title}</p>
-              <p className="text-slate-300 text-sm">{taskDetailModal.desc}</p>
+            <div className="p-4 bg-white/60 border border-slate-200 rounded-xl space-y-3">
+              <p className="font-bold text-slate-900">{taskDetailModal.title}</p>
+              <p className="text-slate-600 text-sm">{taskDetailModal.desc}</p>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 {[
                   { label: 'Status', value: taskDetailModal.status },
@@ -1029,20 +1029,20 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
                   { label: 'Assigned Gate', value: taskDetailModal.gate },
                   { label: 'Assigned Trailer', value: taskDetailModal.trailer },
                 ].map(({ label, value }) => (
-                  <div key={label} className="bg-[#0B0F19] rounded-lg p-2">
+                  <div key={label} className="bg-slate-50 rounded-lg p-2">
                     <p className="text-[9px] text-slate-500 font-bold uppercase">{label}</p>
-                    <p className="text-white font-bold">{value}</p>
+                    <p className="text-slate-900 font-bold">{value}</p>
                   </div>
                 ))}
               </div>
               {taskDetailModal.notes && (
                 <div className="p-2 bg-brand-500/5 border border-brand-500/20 rounded-lg">
                   <p className="text-[9px] text-brand-400 font-bold uppercase mb-1">Notes</p>
-                  <p className="text-slate-300 text-xs">{taskDetailModal.notes}</p>
+                  <p className="text-slate-600 text-xs">{taskDetailModal.notes}</p>
                 </div>
               )}
             </div>
-            <div className="flex justify-end gap-2 pt-2 border-t border-[#23324C]/40">
+            <div className="flex justify-end gap-2 pt-2 border-t border-slate-200">
               {taskDetailModal.status === 'Pending' && <Button variant="secondary" onClick={() => { handleStartTask(taskDetailModal.id); setTaskDetailModal(null); }}>Start Task</Button>}
               {taskDetailModal.status === 'In Progress' && <Button variant="primary" onClick={() => { handleCompleteTask(taskDetailModal.id); setTaskDetailModal(null); }}>Complete Task</Button>}
               <Button variant="secondary" onClick={() => setTaskDetailModal(null)}>Close</Button>
@@ -1056,7 +1056,7 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
         <Modal isOpen={!!taskNotesModal} onClose={() => setTaskNotesModal(null)} title={`Add Notes — ${taskNotesModal.title}`}>
           <div className="space-y-4 text-left">
             <TextInput label="Notes" placeholder="Enter notes about this task..." value={laneNotes} onChange={e => setLaneNotes(e.target.value)} required />
-            <div className="flex justify-end gap-2 pt-4 border-t border-[#23324C]/40">
+            <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
               <Button variant="secondary" onClick={() => setTaskNotesModal(null)}>Cancel</Button>
               <Button variant="primary" onClick={handleSaveNote}>Save Notes</Button>
             </div>
@@ -1075,20 +1075,20 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
                 { label: 'Date Logged', value: inspectionModal.date },
                 { label: 'Trailer ID', value: inspectionModal.trailer },
               ].map(({ label, value }) => (
-                <div key={label} className="p-3 bg-[#111827]/60 border border-[#23324C]/40 rounded-xl">
+                <div key={label} className="p-3 bg-white/60 border border-slate-200 rounded-xl">
                   <p className="text-[9px] text-slate-500 font-bold uppercase">{label}</p>
-                  <p className="text-white font-bold">{value}</p>
+                  <p className="text-slate-900 font-bold">{value}</p>
                 </div>
               ))}
             </div>
-            <div className="p-3 bg-[#111827]/60 border border-[#23324C]/40 rounded-xl">
+            <div className="p-3 bg-white/60 border border-slate-200 rounded-xl">
               <p className="text-[9px] text-slate-500 font-bold uppercase mb-1">Details</p>
-              <p className="text-slate-300 text-sm">{inspectionModal.details}</p>
+              <p className="text-slate-600 text-sm">{inspectionModal.details}</p>
             </div>
             <div className="space-y-2">
               <FileUploader label="Upload Additional Photos" onUploadSuccess={() => triggerToast('Photo uploaded to report.')} />
             </div>
-            <div className="flex justify-end gap-2 pt-4 border-t border-[#23324C]/40">
+            <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
               <Button variant="secondary" onClick={() => setInspectionModal(null)}>Close</Button>
               <Button variant="primary" onClick={() => { triggerToast('Report resolved and archived.'); setInspectionModal(null); }}>Resolve Report</Button>
             </div>
@@ -1105,7 +1105,7 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
             { value: 'Vehicle', label: 'Vehicle' },
           ]} />
           {/* Simulated Camera View */}
-          <div className="w-full h-36 bg-[#0B0F19] border-2 border-dashed border-brand-500/40 rounded-xl flex items-center justify-center">
+          <div className="w-full h-36 bg-slate-50 border-2 border-dashed border-brand-500/40 rounded-xl flex items-center justify-center">
             <div className="text-center">
               <QrCode className="h-10 w-10 text-slate-700 mx-auto mb-2 animate-pulse" />
               <p className="text-xs text-slate-500">Camera viewfinder (simulated)</p>
@@ -1121,14 +1121,14 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
             <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl space-y-1">
               <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">✅ Scan Successful</p>
               <div className="grid grid-cols-2 gap-2 text-xs mt-2">
-                <div><p className="text-slate-500">Asset ID</p><p className="text-white font-bold">{scanResult.id}</p></div>
-                <div><p className="text-slate-500">Type</p><p className="text-white font-bold">{scanResult.type}</p></div>
-                <div><p className="text-slate-500">Location</p><p className="text-white font-bold">{scanResult.location}</p></div>
+                <div><p className="text-slate-500">Asset ID</p><p className="text-slate-900 font-bold">{scanResult.id}</p></div>
+                <div><p className="text-slate-500">Type</p><p className="text-slate-900 font-bold">{scanResult.type}</p></div>
+                <div><p className="text-slate-500">Location</p><p className="text-slate-900 font-bold">{scanResult.location}</p></div>
                 <div><p className="text-slate-500">Status</p><p className="text-emerald-400 font-bold">{scanResult.status}</p></div>
               </div>
             </div>
           )}
-          <div className="flex justify-end gap-2 pt-2 border-t border-[#23324C]/40">
+          <div className="flex justify-end gap-2 pt-2 border-t border-slate-200">
             <Button variant="secondary" onClick={() => { setQrScanModal(false); setScanResult(null); setScanInput(''); }}>Close</Button>
           </div>
         </div>
@@ -1152,7 +1152,7 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
             { value: 'Critical', label: '🚨 Critical — Emergency' },
           ]} />
           <FileUploader label="Upload Photos (Optional)" onUploadSuccess={() => triggerToast('Photo attached to incident.')} />
-          <div className="flex justify-end gap-2 pt-4 border-t border-[#23324C]/40">
+          <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
             <Button type="button" variant="secondary" onClick={() => setIncidentModal(false)}>Cancel</Button>
             <Button type="submit" variant="danger">Submit Report</Button>
           </div>
@@ -1162,17 +1162,17 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
       {/* ─── Contact Supervisor Modal ──────────────────────────────────────── */}
       <Modal isOpen={supervisorModalOpen} onClose={() => setSupervisorModalOpen(false)} title="Contact Shift Supervisor">
         <form onSubmit={handleContactSupervisorSubmit} className="space-y-4 text-left">
-          <div className="p-3 bg-[#111827] border border-[#23324C] rounded-xl flex items-center gap-3">
+          <div className="p-3 bg-white border border-slate-200 rounded-xl flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-brand-500/10 flex items-center justify-center border border-brand-500/20">
               <User className="h-5 w-5 text-brand-400" />
             </div>
             <div>
-              <p className="text-xs font-bold text-white">Michael Torres</p>
+              <p className="text-xs font-bold text-slate-900">Michael Torres</p>
               <p className="text-[10px] text-slate-500">Shift Yard Supervisor (Active)</p>
             </div>
           </div>
           <TextInput label="Message *" required placeholder="Type your message for the supervisor..." value={supervisorMessage} onChange={e => setSupervisorMessage(e.target.value)} />
-          <div className="flex justify-end gap-2 pt-4 border-t border-[#23324C]/40">
+          <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
             <Button type="button" variant="secondary" onClick={() => setSupervisorModalOpen(false)}>Cancel</Button>
             <Button type="submit" variant="primary">Send Message</Button>
           </div>
@@ -1183,22 +1183,22 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
       <Modal isOpen={notifModal} onClose={() => setNotifModal(false)} title="Notifications">
         <div className="space-y-3 text-left">
           <div className="flex justify-between items-center">
-            <span className="text-xs text-slate-400">{unreadCount} unread</span>
+            <span className="text-xs text-slate-500">{unreadCount} unread</span>
             <Button size="sm" variant="outline" onClick={markAllNotifRead}>Mark all read</Button>
           </div>
           <div className="space-y-2 max-h-80 overflow-y-auto scrollbar-hide">
             {notifications.map(n => (
-              <div key={n.id} className={`p-3 rounded-xl border text-xs cursor-pointer transition-colors ${n.read ? 'bg-[#111827]/20 border-[#23324C]/30' : n.type === 'emergency' ? 'bg-red-500/10 border-red-500/20' : 'bg-brand-500/5 border-brand-500/20'}`} onClick={() => setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, read: true } : x))}>
+              <div key={n.id} className={`p-3 rounded-xl border text-xs cursor-pointer transition-colors ${n.read ? 'bg-white/20 border-slate-200' : n.type === 'emergency' ? 'bg-red-500/10 border-red-500/20' : 'bg-brand-500/5 border-brand-500/20'}`} onClick={() => setNotifications(prev => prev.map(x => x.id === n.id ? { ...x, read: true } : x))}>
                 <div className="flex justify-between items-start mb-1">
-                  <p className={`font-bold ${n.type === 'emergency' ? 'text-red-400' : n.read ? 'text-slate-400' : 'text-white'}`}>{n.title}</p>
+                  <p className={`font-bold ${n.type === 'emergency' ? 'text-red-400' : n.read ? 'text-slate-500' : 'text-slate-900'}`}>{n.title}</p>
                   <span className="text-[9px] text-slate-500 ml-2 flex-shrink-0">{n.time}</span>
                 </div>
-                <p className="text-slate-400">{n.msg}</p>
+                <p className="text-slate-500">{n.msg}</p>
                 {!n.read && <div className="w-2 h-2 rounded-full bg-brand-500 mt-1"></div>}
               </div>
             ))}
           </div>
-          <div className="flex justify-end pt-2 border-t border-[#23324C]/40">
+          <div className="flex justify-end pt-2 border-t border-slate-200">
             <Button variant="secondary" onClick={() => setNotifModal(false)}>Close</Button>
           </div>
         </div>
@@ -1221,7 +1221,7 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
           <div className="grid grid-cols-5 gap-2">
             {yardSpots.map(spot => {
               const colorMap = { brand: 'bg-brand-500/20 border-brand-500/30 text-brand-400', blue: 'bg-blue-500/20 border-blue-500/30 text-blue-400', emerald: 'bg-emerald-500/20 border-emerald-500/30 text-emerald-400', yellow: 'bg-yellow-500/20 border-yellow-500/30 text-yellow-400', purple: 'bg-purple-500/20 border-purple-500/30 text-purple-400', red: 'bg-red-500/20 border-red-500/30 text-red-400', orange: 'bg-orange-500/20 border-orange-500/30 text-orange-400' };
-              const cls = spot.occupied ? (colorMap[spot.color] || 'bg-slate-700/40 border-slate-600/40 text-slate-400') : 'bg-[#111827]/40 border-[#23324C]/40 text-slate-600';
+              const cls = spot.occupied ? (colorMap[spot.color] || 'bg-slate-700/40 border-slate-600/40 text-slate-500') : 'bg-white/40 border-slate-200 text-slate-600';
               return (
                 <div key={spot.id} className={`p-2 rounded-lg border text-center cursor-pointer hover:opacity-80 transition-opacity ${cls}`} onClick={() => {
                   if (spot.occupied) {
@@ -1236,10 +1236,10 @@ export default function YardAttendantDashboard({ activeTab = 'overview' }) {
               );
             })}
           </div>
-          <div className="grid grid-cols-3 gap-2 text-center text-xs pt-2 border-t border-[#23324C]/40">
-            <div className="p-2 bg-[#111827]/60 rounded-lg"><p className="font-black text-white">{yardSpots.filter(s => s.occupied).length}</p><p className="text-slate-500 text-[9px]">Occupied</p></div>
-            <div className="p-2 bg-[#111827]/60 rounded-lg"><p className="font-black text-emerald-400">{yardSpots.filter(s => !s.occupied).length}</p><p className="text-slate-500 text-[9px]">Available</p></div>
-            <div className="p-2 bg-[#111827]/60 rounded-lg"><p className="font-black text-slate-200">{yardSpots.length}</p><p className="text-slate-500 text-[9px]">Total Bays</p></div>
+          <div className="grid grid-cols-3 gap-2 text-center text-xs pt-2 border-t border-slate-200">
+            <div className="p-2 bg-white/60 rounded-lg"><p className="font-black text-slate-900">{yardSpots.filter(s => s.occupied).length}</p><p className="text-slate-500 text-[9px]">Occupied</p></div>
+            <div className="p-2 bg-white/60 rounded-lg"><p className="font-black text-emerald-400">{yardSpots.filter(s => !s.occupied).length}</p><p className="text-slate-500 text-[9px]">Available</p></div>
+            <div className="p-2 bg-white/60 rounded-lg"><p className="font-black text-slate-700">{yardSpots.length}</p><p className="text-slate-500 text-[9px]">Total Bays</p></div>
           </div>
           <div className="flex justify-end">
             <Button variant="secondary" onClick={() => setYardMapModal(false)}>Close</Button>

@@ -440,55 +440,55 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
       
       {/* 8 Enterprise Dashboard KPIs Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="glass rounded-2xl p-4 border border-[#23324C]/60 flex flex-col justify-between hover:scale-[1.02] transition-all">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Total Licensed Features</span>
-          <strong className="text-xl sm:text-2xl font-black text-white mt-2 block">{totalFeatures}</strong>
+        <div className="glass rounded-2xl p-4 border border-slate-200 flex flex-col justify-between hover:scale-[1.02] transition-all">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Total Licensed Features</span>
+          <strong className="text-xl sm:text-2xl font-black text-slate-900 mt-2 block">{totalFeatures}</strong>
           <span className="text-[9px] font-semibold text-emerald-400 block mt-1.5">+2 templates added today</span>
         </div>
-        <div className="glass rounded-2xl p-4 border border-[#23324C]/60 flex flex-col justify-between hover:scale-[1.02] transition-all">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Active Features</span>
+        <div className="glass rounded-2xl p-4 border border-slate-200 flex flex-col justify-between hover:scale-[1.02] transition-all">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Active Features</span>
           <strong className="text-xl sm:text-2xl font-black text-emerald-400 mt-2 block">{activeFeatures}</strong>
           <span className="text-[9px] font-semibold text-slate-500 block mt-1.5">{disabledFeatures} features inactive</span>
         </div>
-        <div className="glass rounded-2xl p-4 border border-[#23324C]/60 flex flex-col justify-between hover:scale-[1.02] transition-all">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Premium Tier Modules</span>
-          <strong className="text-xl sm:text-2xl font-black text-white mt-2 block">{premiumFeatures}</strong>
+        <div className="glass rounded-2xl p-4 border border-slate-200 flex flex-col justify-between hover:scale-[1.02] transition-all">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Premium Tier Modules</span>
+          <strong className="text-xl sm:text-2xl font-black text-slate-900 mt-2 block">{premiumFeatures}</strong>
           <span className="text-[9px] font-semibold text-brand-400 block mt-1.5">{enterpriseFeatures} Enterprise only</span>
         </div>
-        <div className="glass rounded-2xl p-4 border border-[#23324C]/60 flex flex-col justify-between hover:scale-[1.02] transition-all">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Premium License Adopters</span>
+        <div className="glass rounded-2xl p-4 border border-slate-200 flex flex-col justify-between hover:scale-[1.02] transition-all">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Premium License Adopters</span>
           <strong className="text-xl sm:text-2xl font-black text-brand-400 mt-2 block">{companiesUsingPremium} Companies</strong>
           <span className="text-[9px] font-semibold text-emerald-400 block mt-1.5">CAC Payback: 10.4 months</span>
         </div>
-        <div className="glass rounded-2xl p-4 border border-[#23324C]/60 flex flex-col justify-between hover:scale-[1.02] transition-all">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Beta Modules</span>
-          <strong className="text-xl sm:text-2xl font-black text-white mt-2 block">
+        <div className="glass rounded-2xl p-4 border border-slate-200 flex flex-col justify-between hover:scale-[1.02] transition-all">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Beta Modules</span>
+          <strong className="text-xl sm:text-2xl font-black text-slate-900 mt-2 block">
             {features.filter(f => f.licensingType === 'Beta').length}
           </strong>
           <span className="text-[9px] font-semibold text-amber-500 block mt-1.5">Feedback loops operational</span>
         </div>
-        <div className="glass rounded-2xl p-4 border border-[#23324C]/60 flex flex-col justify-between hover:scale-[1.02] transition-all">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">License Utilization</span>
-          <strong className="text-xl sm:text-2xl font-black text-white mt-2 block">88.2%</strong>
+        <div className="glass rounded-2xl p-4 border border-slate-200 flex flex-col justify-between hover:scale-[1.02] transition-all">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">License Utilization</span>
+          <strong className="text-xl sm:text-2xl font-black text-slate-900 mt-2 block">88.2%</strong>
           <span className="text-[9px] font-semibold text-emerald-400 block mt-1.5">Optimal subscription density</span>
         </div>
-        <div className="glass rounded-2xl p-4 border border-[#23324C]/60 flex flex-col justify-between hover:scale-[1.02] transition-all">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Assigned Today</span>
-          <strong className="text-xl sm:text-2xl font-black text-white mt-2 block">4 Actions</strong>
+        <div className="glass rounded-2xl p-4 border border-slate-200 flex flex-col justify-between hover:scale-[1.02] transition-all">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Assigned Today</span>
+          <strong className="text-xl sm:text-2xl font-black text-slate-900 mt-2 block">4 Actions</strong>
           <span className="text-[9px] font-semibold text-emerald-400 block mt-1.5">Zero provisioning failures</span>
         </div>
-        <div className="glass rounded-2xl p-4 border border-[#23324C]/60 flex flex-col justify-between hover:scale-[1.02] transition-all">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Updated This Month</span>
-          <strong className="text-xl sm:text-2xl font-black text-white mt-2 block">6 Features</strong>
+        <div className="glass rounded-2xl p-4 border border-slate-200 flex flex-col justify-between hover:scale-[1.02] transition-all">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Updated This Month</span>
+          <strong className="text-xl sm:text-2xl font-black text-slate-900 mt-2 block">6 Features</strong>
           <span className="text-[9px] font-semibold text-emerald-400 block mt-1.5">SaaS registry version: v2.4.0</span>
         </div>
       </div>
 
       {/* Main Feature Workspace Tab Panels */}
-      <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+      <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
         
         {/* Sub Navigation tabs */}
-        <div className="flex gap-1.5 border-b border-[#23324C]/45 pb-3 overflow-x-auto scrollbar-none text-xs font-semibold">
+        <div className="flex gap-1.5 border-b border-slate-200/45 pb-3 overflow-x-auto scrollbar-none text-xs font-semibold">
           {[
             { id: 'matrix', label: 'Dynamic Features Matrix', icon: Shield },
             { id: 'analytics', label: 'Feature Usage Analytics', icon: Activity },
@@ -502,7 +502,7 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
                 className={`px-3 py-2 rounded-xl border flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
                   activeSubTab === tab.id
                     ? 'bg-brand-500 border-brand-500 text-slate-950 font-black shadow-md'
-                    : 'bg-slate-900/60 border-[#23324C]/70 text-slate-400 hover:text-slate-200 hover:bg-slate-800/30'
+                    : 'bg-slate-900/60 border-slate-200/70 text-slate-500 hover:text-slate-700 hover:bg-white/30'
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -540,14 +540,14 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
                   {showColDropdown && (
                     <>
                       <div className="fixed inset-0 z-30" onClick={() => setShowColDropdown(false)}></div>
-                      <div className="absolute left-0 mt-1 w-48 bg-[#161F30] border border-[#23324C] rounded-xl shadow-2xl p-2 z-40 text-xs text-slate-350">
+                      <div className="absolute left-0 mt-1 w-48 bg-slate-50 border border-slate-200 rounded-xl shadow-2xl p-2 z-40 text-xs text-slate-500">
                         {Object.keys(visibleColumns).map(col => (
-                          <label key={col} className="flex items-center gap-2 px-2.5 py-1.5 hover:bg-slate-800/40 rounded-lg cursor-pointer">
+                          <label key={col} className="flex items-center gap-2 px-2.5 py-1.5 hover:bg-white/40 rounded-lg cursor-pointer">
                             <input 
                               type="checkbox" 
                               checked={visibleColumns[col]} 
                               onChange={() => toggleColumn(col)}
-                              className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-3.5 w-3.5" 
+                              className="rounded bg-slate-50 border-slate-200 text-brand-500 h-3.5 w-3.5" 
                             />
                             <span className="capitalize">{col.replace(/([A-Z])/g, ' $1')}</span>
                           </label>
@@ -566,13 +566,13 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
 
             {/* Advanced Filters Block */}
             {showFilters && (
-              <div className="p-3 bg-[#111827] border border-[#23324C] rounded-xl grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs items-end animate-fade-in">
+              <div className="p-3 bg-white border border-slate-200 rounded-xl grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs items-end animate-fade-in">
                 <div>
                   <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Feature Category</label>
                   <select
                     value={filterCategory}
                     onChange={(e) => setFilterCategory(e.target.value)}
-                    className="w-full bg-[#0B0F19] border border-[#23324C] rounded-lg p-2 text-slate-300 outline-none"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-slate-600 outline-none"
                   >
                     <option value="All">All Categories</option>
                     {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -583,7 +583,7 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
                   <select
                     value={filterLicensingType}
                     onChange={(e) => setFilterLicensingType(e.target.value)}
-                    className="w-full bg-[#0B0F19] border border-[#23324C] rounded-lg p-2 text-slate-300 outline-none"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-slate-600 outline-none"
                   >
                     <option value="All">All Licensing Types</option>
                     {LICENSING_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
@@ -594,7 +594,7 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
                   <select
                     value={filterStatus}
                     onChange={(e) => setFilterStatus(e.target.value)}
-                    className="w-full bg-[#0B0F19] border border-[#23324C] rounded-lg p-2 text-slate-300 outline-none"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-slate-600 outline-none"
                   >
                     <option value="All">All Statuses</option>
                     {STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
@@ -609,7 +609,7 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
 
             {/* Bulk actions drawer */}
             {selectedFeatureIds.length > 0 && (
-              <div className="bg-[#111827] border border-[#23324C] rounded-xl p-3 flex justify-between items-center text-xs animate-fade-in">
+              <div className="bg-white border border-slate-200 rounded-xl p-3 flex justify-between items-center text-xs animate-fade-in">
                 <span className="text-brand-400 font-bold">{selectedFeatureIds.length} features selected for batch update</span>
                 <div className="flex gap-2">
                   <Button size="sm" variant="secondary" onClick={() => { setBulkAction('Enable'); setBulkModalOpen(true); }}>Bulk Enable</Button>
@@ -630,17 +630,17 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
                 const isCollapsed = collapsedCategories[category];
 
                 return (
-                  <div key={category} className="border border-[#23324C] rounded-2xl overflow-hidden bg-[#161F30]/10">
+                  <div key={category} className="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50/10">
                     
                     {/* Collapsible header */}
                     <button 
                       onClick={() => toggleCategoryCollapse(category)}
-                      className="w-full bg-[#161F30]/60 px-4 py-3 flex justify-between items-center text-xs font-bold border-b border-[#23324C]/60 hover:bg-[#161F30]/80 transition-all text-left"
+                      className="w-full bg-slate-50/60 px-4 py-3 flex justify-between items-center text-xs font-bold border-b border-slate-200 hover:bg-slate-50/80 transition-all text-left"
                     >
                       <div className="flex items-center gap-2">
-                        {isCollapsed ? <ChevronRight className="h-4 w-4 text-slate-400" /> : <ChevronDown className="h-4 w-4 text-white" />}
-                        <span className="text-white tracking-wide uppercase font-black">{category} Category</span>
-                        <span className="bg-[#111827] px-2 py-0.5 rounded-full text-[9px] text-slate-400 font-bold">{categoryFeats.length} features</span>
+                        {isCollapsed ? <ChevronRight className="h-4 w-4 text-slate-500" /> : <ChevronDown className="h-4 w-4 text-slate-900" />}
+                        <span className="text-slate-900 tracking-wide uppercase font-black">{category} Category</span>
+                        <span className="bg-white px-2 py-0.5 rounded-full text-[9px] text-slate-500 font-bold">{categoryFeats.length} features</span>
                       </div>
                       <span className="text-[10px] text-brand-400 hover:underline">Toggle Panel</span>
                     </button>
@@ -649,7 +649,7 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
                     {!isCollapsed && (
                       <div className="overflow-x-auto">
                         <table className="min-w-full text-left border-collapse text-xs">
-                          <thead className="bg-[#161F30]/40 border-b border-[#23324C]/40 text-[9px] font-bold tracking-wider uppercase text-slate-450">
+                          <thead className="bg-slate-50/40 border-b border-slate-200 text-[9px] font-bold tracking-wider uppercase text-slate-450">
                             <tr>
                               <th className="p-3 w-10 text-center">
                                 <input
@@ -662,7 +662,7 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
                                       setSelectedFeatureIds(prev => prev.filter(id => !categoryFeats.map(f => f.id).includes(id)));
                                     }
                                   }}
-                                  className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-4 w-4 cursor-pointer"
+                                  className="rounded bg-slate-50 border-slate-200 text-brand-500 h-4 w-4 cursor-pointer"
                                 />
                               </th>
                               {visibleColumns.name && <th className="p-3">Feature Name</th>}
@@ -679,11 +679,11 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
                               {visibleColumns.actions && <th className="p-3 text-right">Actions</th>}
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-[#23324C]/25 text-slate-350">
+                          <tbody className="divide-y divide-[#23324C]/25 text-slate-500">
                             {categoryFeats.map(feat => {
                               const isSelected = selectedFeatureIds.includes(feat.id);
                               return (
-                                <tr key={feat.id} className={`transition-colors hover:bg-slate-800/10 ${isSelected ? 'bg-brand-500/5' : ''}`}>
+                                <tr key={feat.id} className={`transition-colors hover:bg-white/10 ${isSelected ? 'bg-brand-500/5' : ''}`}>
                                   <td className="p-3 text-center">
                                     <input
                                       type="checkbox"
@@ -695,11 +695,11 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
                                           setSelectedFeatureIds(prev => prev.filter(id => id !== feat.id));
                                         }
                                       }}
-                                      className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-4 w-4 cursor-pointer"
+                                      className="rounded bg-slate-50 border-slate-200 text-brand-500 h-4 w-4 cursor-pointer"
                                     />
                                   </td>
                                   {visibleColumns.name && (
-                                    <td className="p-3 font-extrabold text-white">
+                                    <td className="p-3 font-extrabold text-slate-900">
                                       <button 
                                         onClick={() => { setSelectedFeature(feat); setDetailTab('metadata'); setDetailDrawerOpen(true); }}
                                         className="text-left hover:text-brand-400 transition-colors focus:outline-none"
@@ -725,7 +725,7 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
                                         type="checkbox"
                                         checked={feat.start}
                                         onChange={() => handleTogglePlanAccess(feat, 'start')}
-                                        className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-3.5 w-3.5 cursor-pointer focus:ring-0"
+                                        className="rounded bg-slate-50 border-slate-200 text-brand-500 h-3.5 w-3.5 cursor-pointer focus:ring-0"
                                       />
                                     </td>
                                   )}
@@ -736,7 +736,7 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
                                         type="checkbox"
                                         checked={feat.pro}
                                         onChange={() => handleTogglePlanAccess(feat, 'pro')}
-                                        className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-3.5 w-3.5 cursor-pointer focus:ring-0"
+                                        className="rounded bg-slate-50 border-slate-200 text-brand-500 h-3.5 w-3.5 cursor-pointer focus:ring-0"
                                       />
                                     </td>
                                   )}
@@ -747,7 +747,7 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
                                         type="checkbox"
                                         checked={feat.ent}
                                         onChange={() => handleTogglePlanAccess(feat, 'ent')}
-                                        className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-3.5 w-3.5 cursor-pointer focus:ring-0"
+                                        className="rounded bg-slate-50 border-slate-200 text-brand-500 h-3.5 w-3.5 cursor-pointer focus:ring-0"
                                       />
                                     </td>
                                   )}
@@ -758,7 +758,7 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
                                         type="checkbox"
                                         checked={feat.customEnt}
                                         onChange={() => handleTogglePlanAccess(feat, 'customEnt')}
-                                        className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-3.5 w-3.5 cursor-pointer focus:ring-0"
+                                        className="rounded bg-slate-50 border-slate-200 text-brand-500 h-3.5 w-3.5 cursor-pointer focus:ring-0"
                                       />
                                     </td>
                                   )}
@@ -776,7 +776,7 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
 
                                   {/* Licensing tag */}
                                   {visibleColumns.licensingType && (
-                                    <td className="p-3 font-semibold text-[10px] text-slate-400">
+                                    <td className="p-3 font-semibold text-[10px] text-slate-500">
                                       {feat.licensingType}
                                     </td>
                                   )}
@@ -787,7 +787,7 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
                                       <select
                                         value={feat.status}
                                         onChange={(e) => handleToggleFeatureStatus(feat, e.target.value)}
-                                        className={`bg-[#0B0F19] border border-[#23324C] rounded-lg p-1 text-[10px] font-bold outline-none cursor-pointer ${
+                                        className={`bg-slate-50 border border-slate-200 rounded-lg p-1 text-[10px] font-bold outline-none cursor-pointer ${
                                           feat.status === 'Enabled' ? 'text-emerald-400' :
                                           feat.status === 'Disabled' ? 'text-red-400' :
                                           feat.status === 'Archived' ? 'text-slate-500' : 'text-amber-500'
@@ -799,9 +799,9 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
                                   )}
 
                                   {/* Usage Stats */}
-                                  {visibleColumns.usage && <td className="p-3 text-center font-mono font-bold text-white">{feat.usageCount}</td>}
+                                  {visibleColumns.usage && <td className="p-3 text-center font-mono font-bold text-slate-900">{feat.usageCount}</td>}
                                   {visibleColumns.companies && (
-                                    <td className="p-3 text-center font-mono font-bold text-slate-400">
+                                    <td className="p-3 text-center font-mono font-bold text-slate-500">
                                       {feat.overrides?.length > 0 ? (
                                         <span className="text-brand-400 underline cursor-pointer" onClick={() => { setSelectedFeature(feat); setDetailTab('overrides'); setDetailDrawerOpen(true); }}>
                                           {feat.companiesUsing} (+{feat.overrides.length} rules)
@@ -842,18 +842,18 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               
               {/* Adoption Chart */}
-              <div className="bg-[#111827] border border-[#23324C] rounded-2xl p-4 space-y-4">
-                <h4 className="text-white font-extrabold text-xs uppercase tracking-wide">Dynamic Feature Adoption Rates</h4>
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-4">
+                <h4 className="text-slate-900 font-extrabold text-xs uppercase tracking-wide">Dynamic Feature Adoption Rates</h4>
                 <div className="space-y-3">
                   {features.slice(0, 6).map(feat => {
                     const rate = feat.analytics?.adoptionRate || 50;
                     return (
                       <div key={feat.id} className="space-y-1 text-xs">
                         <div className="flex justify-between font-semibold">
-                          <span className="text-white">{feat.name}</span>
+                          <span className="text-slate-900">{feat.name}</span>
                           <span className="text-brand-400">{rate}% adoption</span>
                         </div>
-                        <div className="w-full bg-[#0B0F19] rounded-full h-2">
+                        <div className="w-full bg-slate-50 rounded-full h-2">
                           <div className="bg-brand-500 h-full rounded-full" style={{ width: `${rate}%` }}></div>
                         </div>
                       </div>
@@ -863,18 +863,18 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
               </div>
 
               {/* License utilization rates */}
-              <div className="bg-[#111827] border border-[#23324C] rounded-2xl p-4 space-y-4">
-                <h4 className="text-white font-extrabold text-xs uppercase tracking-wide">License Utilization Index</h4>
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-4">
+                <h4 className="text-slate-900 font-extrabold text-xs uppercase tracking-wide">License Utilization Index</h4>
                 <div className="space-y-3">
                   {features.slice(6, 12).map(feat => {
                     const util = feat.analytics?.licenseUtilization || 60;
                     return (
                       <div key={feat.id} className="space-y-1 text-xs">
                         <div className="flex justify-between font-semibold">
-                          <span className="text-white">{feat.name}</span>
+                          <span className="text-slate-900">{feat.name}</span>
                           <span className="text-emerald-400">{util}% utilization</span>
                         </div>
-                        <div className="w-full bg-[#0B0F19] rounded-full h-2">
+                        <div className="w-full bg-slate-50 rounded-full h-2">
                           <div className="bg-emerald-400 h-full rounded-full" style={{ width: `${util}%` }}></div>
                         </div>
                       </div>
@@ -885,13 +885,13 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
             </div>
 
             {/* Inactive features table warning panel */}
-            <div className="bg-[#111827] border border-[#23324C] rounded-2xl p-4 space-y-3 text-xs">
-              <h4 className="text-white font-extrabold uppercase tracking-wide">Unused or Deprecated SaaS Features</h4>
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 text-xs">
+              <h4 className="text-slate-900 font-extrabold uppercase tracking-wide">Unused or Deprecated SaaS Features</h4>
               <p className="text-[10px] text-slate-500">The following modules have zero active usage and are recommended for deprecation scans.</p>
               
-              <div className="border border-[#23324C] rounded-xl overflow-hidden bg-slate-900/40">
+              <div className="border border-slate-200 rounded-xl overflow-hidden bg-slate-900/40">
                 <table className="min-w-full text-left">
-                  <thead className="bg-slate-950/60 text-[9px] font-bold uppercase tracking-wider text-slate-400">
+                  <thead className="bg-slate-950/60 text-[9px] font-bold uppercase tracking-wider text-slate-500">
                     <tr>
                       <th className="p-2.5">Feature</th>
                       <th className="p-2.5">Licensing Type</th>
@@ -900,10 +900,10 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
                       <th className="p-2.5">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#23324C]/30 text-slate-300 font-semibold">
+                  <tbody className="divide-y divide-[#23324C]/30 text-slate-600 font-semibold">
                     {features.filter(f => f.usageCount === 0 || f.status === 'Deprecated').map(f => (
-                      <tr key={f.id} className="hover:bg-slate-800/10">
-                        <td className="p-2.5 text-white">{f.name}</td>
+                      <tr key={f.id} className="hover:bg-white/10">
+                        <td className="p-2.5 text-slate-900">{f.name}</td>
                         <td className="p-2.5">{f.licensingType}</td>
                         <td className="p-2.5">{f.category}</td>
                         <td className="p-2.5 text-center font-mono font-bold text-red-400">{f.usageCount}</td>
@@ -927,9 +927,9 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
               <Button size="sm" variant="outline" icon={Download} onClick={() => triggerToast('Audit logs CSV exported.', 'success')}>Export Audits</Button>
             </div>
 
-            <div className="border border-[#23324C] rounded-2xl overflow-x-auto bg-[#161F30]/30 text-xs">
+            <div className="border border-slate-200 rounded-2xl overflow-x-auto bg-slate-50/30 text-xs">
               <table className="min-w-full text-left border-collapse">
-                <thead className="bg-[#161F30] border-b border-[#23324C] text-[10px] font-bold tracking-wider uppercase text-slate-400">
+                <thead className="bg-slate-50 border-b border-slate-200 text-[10px] font-bold tracking-wider uppercase text-slate-500">
                   <tr>
                     <th className="p-3">Action Type</th>
                     <th className="p-3">Audit Details</th>
@@ -939,11 +939,11 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
                     <th className="p-3">IP Address</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#23324C]/40 text-slate-350 font-semibold">
+                <tbody className="divide-y divide-[#23324C]/40 text-slate-500 font-semibold">
                   {audits.map(log => (
-                    <tr key={log.id} className="hover:bg-slate-800/10">
-                      <td className="p-3 text-white font-extrabold">{log.action}</td>
-                      <td className="p-3 text-slate-400">{log.detail}</td>
+                    <tr key={log.id} className="hover:bg-white/10">
+                      <td className="p-3 text-slate-900 font-extrabold">{log.action}</td>
+                      <td className="p-3 text-slate-500">{log.detail}</td>
                       <td className="p-3 italic text-[11px] text-amber-500">{log.reason || 'None specified'}</td>
                       <td className="p-3 font-mono">{log.time}</td>
                       <td className="p-3 text-brand-400">{log.user}</td>
@@ -965,10 +965,10 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
         size="md"
       >
         {selectedFeature && (
-          <div className="space-y-6 text-slate-300 text-xs text-left p-4 h-full overflow-y-auto">
+          <div className="space-y-6 text-slate-600 text-xs text-left p-4 h-full overflow-y-auto">
             
             {/* Tab indicators */}
-            <div className="flex gap-2 border-b border-[#23324C]/60 pb-2.5 font-bold">
+            <div className="flex gap-2 border-b border-slate-200 pb-2.5 font-bold">
               {[
                 { id: 'metadata', label: 'Overview' },
                 { id: 'overrides', label: 'Company Overrides' },
@@ -981,7 +981,7 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
                   className={`px-3 py-1.5 rounded-lg border transition-all text-[11px] cursor-pointer ${
                     detailTab === t.id
                       ? 'bg-brand-500 border-brand-500 text-slate-950 font-black'
-                      : 'bg-slate-900 border-[#23324C] text-slate-400 hover:text-slate-200'
+                      : 'bg-slate-900 border-slate-200 text-slate-500 hover:text-slate-700'
                   }`}
                 >
                   {t.label}
@@ -992,46 +992,46 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
             {/* Drawer Tab 1: Metadata Overview */}
             {detailTab === 'metadata' && (
               <div className="space-y-4">
-                <div className="space-y-1 bg-[#111827] border border-[#23324C] p-3 rounded-xl">
+                <div className="space-y-1 bg-white border border-slate-200 p-3 rounded-xl">
                   <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Description</span>
-                  <p className="text-white leading-relaxed">{selectedFeature.description}</p>
+                  <p className="text-slate-900 leading-relaxed">{selectedFeature.description}</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-3 bg-[#111827] border border-[#23324C] rounded-xl space-y-1">
+                  <div className="p-3 bg-white border border-slate-200 rounded-xl space-y-1">
                     <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Licensing Category</span>
-                    <strong className="text-white text-xs">{selectedFeature.category}</strong>
+                    <strong className="text-slate-900 text-xs">{selectedFeature.category}</strong>
                   </div>
-                  <div className="p-3 bg-[#111827] border border-[#23324C] rounded-xl space-y-1">
+                  <div className="p-3 bg-white border border-slate-200 rounded-xl space-y-1">
                     <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Required Modules</span>
-                    <strong className="text-white text-xs">{selectedFeature.requiredModules?.join(', ') || 'None'}</strong>
+                    <strong className="text-slate-900 text-xs">{selectedFeature.requiredModules?.join(', ') || 'None'}</strong>
                   </div>
-                  <div className="p-3 bg-[#111827] border border-[#23324C] rounded-xl space-y-1">
+                  <div className="p-3 bg-white border border-slate-200 rounded-xl space-y-1">
                     <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Est. Monthly API Load</span>
                     <strong className="text-brand-400 text-xs font-mono">{selectedFeature.apiUsage?.toLocaleString()} requests</strong>
                   </div>
-                  <div className="p-3 bg-[#111827] border border-[#23324C] rounded-xl space-y-1">
+                  <div className="p-3 bg-white border border-slate-200 rounded-xl space-y-1">
                     <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Storage Capacity Size</span>
                     <strong className="text-emerald-400 text-xs font-mono">{selectedFeature.storageUsage} GB</strong>
                   </div>
-                  <div className="p-3 bg-[#111827] border border-[#23324C] rounded-xl space-y-1">
+                  <div className="p-3 bg-white border border-slate-200 rounded-xl space-y-1">
                     <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Performance Footprint</span>
-                    <strong className={`text-xs ${selectedFeature.performanceImpact === 'High' ? 'text-red-400' : 'text-slate-200'}`}>
+                    <strong className={`text-xs ${selectedFeature.performanceImpact === 'High' ? 'text-red-400' : 'text-slate-700'}`}>
                       {selectedFeature.performanceImpact}
                     </strong>
                   </div>
-                  <div className="p-3 bg-[#111827] border border-[#23324C] rounded-xl space-y-1">
+                  <div className="p-3 bg-white border border-slate-200 rounded-xl space-y-1">
                     <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Licensing Tier Type</span>
-                    <strong className="text-white text-xs font-mono">{selectedFeature.licensingType}</strong>
+                    <strong className="text-slate-900 text-xs font-mono">{selectedFeature.licensingType}</strong>
                   </div>
                 </div>
 
-                <div className="p-3 bg-[#111827] border border-[#23324C] rounded-xl space-y-2">
+                <div className="p-3 bg-white border border-slate-200 rounded-xl space-y-2">
                   <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Feature Dependencies Matrix</span>
                   {selectedFeature.dependencies?.length > 0 ? (
                     <div className="flex flex-wrap gap-1">
                       {selectedFeature.dependencies.map(d => (
-                        <span key={d} className="bg-slate-900 border border-[#23324C] px-2 py-0.5 rounded font-mono text-[9px] text-white">
+                        <span key={d} className="bg-slate-900 border border-slate-200 px-2 py-0.5 rounded font-mono text-[9px] text-slate-900">
                           🔗 {d}
                         </span>
                       ))}
@@ -1049,13 +1049,13 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
                 
                 {/* Override list */}
                 <div className="space-y-2.5">
-                  <h5 className="font-extrabold uppercase text-[10px] text-slate-400">Assigned Company Manual Overrides</h5>
+                  <h5 className="font-extrabold uppercase text-[10px] text-slate-500">Assigned Company Manual Overrides</h5>
                   {selectedFeature.overrides?.length > 0 ? (
                     <div className="space-y-2">
                       {selectedFeature.overrides.map(override => (
-                        <div key={override.companyId} className="bg-[#111827] border border-[#23324C] p-3 rounded-xl flex justify-between items-center">
+                        <div key={override.companyId} className="bg-white border border-slate-200 p-3 rounded-xl flex justify-between items-center">
                           <div>
-                            <strong className="text-white block font-extrabold">{override.companyName}</strong>
+                            <strong className="text-slate-900 block font-extrabold">{override.companyName}</strong>
                             <span className="text-[9px] text-slate-450 block mt-0.5">{override.type} • Status: <span className="text-brand-400 font-bold">{override.status}</span></span>
                             <span className="text-[9px] text-amber-500 block italic mt-0.5">Reason: "{override.reason}"</span>
                           </div>
@@ -1069,8 +1069,8 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
                 </div>
 
                 {/* Override Form */}
-                <form onSubmit={handleAddOverride} className="bg-slate-900/60 p-4 border border-[#23324C] rounded-2xl space-y-4 pt-3">
-                  <h5 className="font-extrabold text-white text-xs uppercase tracking-wider">Create Tenant Access Override</h5>
+                <form onSubmit={handleAddOverride} className="bg-slate-900/60 p-4 border border-slate-200 rounded-2xl space-y-4 pt-3">
+                  <h5 className="font-extrabold text-slate-900 text-xs uppercase tracking-wider">Create Tenant Access Override</h5>
                   
                   <SelectInput
                     label="Target Company Workspace"
@@ -1121,25 +1121,25 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
             {detailTab === 'analytics' && (
               <div className="space-y-4">
                 <div className="grid grid-cols-3 gap-2 text-center">
-                  <div className="bg-[#111827] border border-[#23324C] p-2.5 rounded-xl">
+                  <div className="bg-white border border-slate-200 p-2.5 rounded-xl">
                     <span className="text-[9px] text-slate-500 block">Adoption</span>
-                    <strong className="text-white text-sm font-mono mt-1 block">{selectedFeature.analytics?.adoptionRate}%</strong>
+                    <strong className="text-slate-900 text-sm font-mono mt-1 block">{selectedFeature.analytics?.adoptionRate}%</strong>
                   </div>
-                  <div className="bg-[#111827] border border-[#23324C] p-2.5 rounded-xl">
+                  <div className="bg-white border border-slate-200 p-2.5 rounded-xl">
                     <span className="text-[9px] text-slate-500 block">MoM Growth</span>
                     <strong className="text-brand-400 text-sm font-mono mt-1 block">+{selectedFeature.analytics?.monthlyGrowth}%</strong>
                   </div>
-                  <div className="bg-[#111827] border border-[#23324C] p-2.5 rounded-xl">
+                  <div className="bg-white border border-slate-200 p-2.5 rounded-xl">
                     <span className="text-[9px] text-slate-500 block">Utilization</span>
                     <strong className="text-emerald-400 text-sm font-mono mt-1 block">{selectedFeature.analytics?.licenseUtilization}%</strong>
                   </div>
                 </div>
 
-                <div className="p-3 bg-[#111827] border border-[#23324C] rounded-xl space-y-2">
+                <div className="p-3 bg-white border border-slate-200 rounded-xl space-y-2">
                   <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Estimated Feature Revenue</span>
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-400">Monthly Yield:</span>
-                    <strong className="text-white font-mono text-sm">${((selectedFeature.companiesUsing || 0) * (selectedFeature.licensingType === 'Premium' ? 120 : 40)).toLocaleString()}</strong>
+                    <span className="text-slate-500">Monthly Yield:</span>
+                    <strong className="text-slate-900 font-mono text-sm">${((selectedFeature.companiesUsing || 0) * (selectedFeature.licensingType === 'Premium' ? 120 : 40)).toLocaleString()}</strong>
                   </div>
                   <span className="text-[9px] text-slate-500 block font-mono">Calculated as: Companies Using x weighted premium features value.</span>
                 </div>
@@ -1150,12 +1150,12 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
             {detailTab === 'versioning' && (
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <h5 className="font-extrabold uppercase text-[10px] text-slate-400">Release Version Logs</h5>
+                  <h5 className="font-extrabold uppercase text-[10px] text-slate-500">Release Version Logs</h5>
                   <Button size="sm" variant="primary" icon={Plus} onClick={() => setVersionFormOpen(true)}>Bump Version</Button>
                 </div>
 
                 {versionFormOpen && (
-                  <form onSubmit={handleVersionBump} className="p-3 bg-slate-900 border border-[#23324C] rounded-xl space-y-3">
+                  <form onSubmit={handleVersionBump} className="p-3 bg-slate-900 border border-slate-200 rounded-xl space-y-3">
                     <TextInput label="Target Version String" placeholder="e.g. 1.2.0" value={newVersionStr} onChange={(e) => setNewVersionStr(e.target.value)} required />
                     <TextInput label="Change Log Description" placeholder="e.g. Bug fixes and performance boost..." value={newVersionLog} onChange={(e) => setNewVersionLog(e.target.value)} required />
                     <div className="flex gap-2">
@@ -1167,11 +1167,11 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
 
                 <div className="space-y-2">
                   {selectedFeature.versionHistory?.map(history => (
-                    <div key={history.version} className="bg-[#111827] border border-[#23324C] p-3 rounded-xl flex justify-between items-start text-xs">
+                    <div key={history.version} className="bg-white border border-slate-200 p-3 rounded-xl flex justify-between items-start text-xs">
                       <div>
-                        <strong className="text-white">Version v{history.version}</strong>
+                        <strong className="text-slate-900">Version v{history.version}</strong>
                         <span className="block text-[9px] text-slate-500 font-mono mt-0.5">Published by {history.updatedBy} on {history.date}</span>
-                        <p className="text-slate-400 leading-relaxed mt-1 text-[10px]">{history.changeLog}</p>
+                        <p className="text-slate-500 leading-relaxed mt-1 text-[10px]">{history.changeLog}</p>
                       </div>
                       {history.version !== selectedFeature.releaseVersion && (
                         <Button size="sm" variant="outline" onClick={() => handleRollbackVersion(history.version)}>Rollback</Button>
@@ -1209,7 +1209,7 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
       {/* Bulk Update Modal */}
       <Modal isOpen={bulkModalOpen} onClose={() => setBulkModalOpen(false)} title="Bulk Modify Features Matrix">
         <div className="space-y-4 text-left text-xs p-2">
-          <p className="text-slate-400">Apply batch update settings parameters across the {selectedFeatureIds.length} selected features.</p>
+          <p className="text-slate-500">Apply batch update settings parameters across the {selectedFeatureIds.length} selected features.</p>
           
           {bulkAction === 'Assign' ? (
             <div className="space-y-3">
@@ -1235,7 +1235,7 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
               />
             </div>
           ) : (
-            <p className="font-bold text-white uppercase tracking-wider">Action: Bulk {bulkAction} features.</p>
+            <p className="font-bold text-slate-900 uppercase tracking-wider">Action: Bulk {bulkAction} features.</p>
           )}
 
           <div className="flex justify-end gap-2 pt-2">
@@ -1250,7 +1250,7 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
         <div className="space-y-4 text-xs text-left p-1">
           
           {/* Step indicator */}
-          <div className="flex justify-between text-[10px] text-slate-500 uppercase tracking-widest font-extrabold border-b border-[#23324C]/60 pb-2">
+          <div className="flex justify-between text-[10px] text-slate-500 uppercase tracking-widest font-extrabold border-b border-slate-200 pb-2">
             <span>Step {createStep} of 3</span>
             <span>{createStep === 1 ? 'Metadata' : createStep === 2 ? 'Dependencies' : 'Review'}</span>
           </div>
@@ -1295,7 +1295,7 @@ export default function FeatureAccess({ tenants = [], logAuditAction, triggerToa
 
           {createStep === 3 && (
             <div className="space-y-4">
-              <div className="p-3 bg-[#111827] border border-[#23324C] rounded-xl space-y-2">
+              <div className="p-3 bg-white border border-slate-200 rounded-xl space-y-2">
                 <h5 className="font-extrabold uppercase text-[10px] text-slate-500">Form Submission Review</h5>
                 <p><strong>Name:</strong> {createForm.name} ({createForm.id})</p>
                 <p><strong>Category:</strong> {createForm.category}</p>

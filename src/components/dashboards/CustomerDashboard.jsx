@@ -499,10 +499,10 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
       )}
 
       {/* Header controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#23324C]/60 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
-          <h2 className="text-xl sm:text-2xl font-black text-white capitalize">Customer Shipper Portal • {activeTab.replace('-', ' ')}</h2>
-          <p className="text-xs text-slate-400">Request load deliveries, audit invoices, download BOL papers, and track active route paths.</p>
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 capitalize">Customer Shipper Portal • {activeTab.replace('-', ' ')}</h2>
+          <p className="text-xs text-slate-500">Request load deliveries, audit invoices, download BOL papers, and track active route paths.</p>
         </div>
 
         <div className="flex gap-2">
@@ -531,12 +531,12 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
                 <StatCard title="Total Loads Shipped" value={shipments.length} description="All-time lifetime bookings" trend="Lifetime total" trendDirection="up" />
               </div>
 
-              <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left flex flex-col justify-between h-[300px] min-h-[250px]">
+              <div className="glass rounded-2xl p-5 border border-slate-200 text-left flex flex-col justify-between h-[300px] min-h-[250px]">
                 <div>
-                  <h3 className="text-sm font-extrabold text-white mb-1">Live Shipment Path Progress</h3>
+                  <h3 className="text-sm font-extrabold text-slate-900 mb-1">Live Shipment Path Progress</h3>
                   <p className="text-[10px] text-slate-500">Google map tracking dashboard.</p>
                 </div>
-                <div className="flex-grow bg-[#0B0F19] border border-[#23324C] rounded-xl flex items-center justify-center my-4 relative overflow-hidden">
+                <div className="flex-grow bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center my-4 relative overflow-hidden">
                   <div className="absolute inset-0 bg-[radial-gradient(#23324c_1px,transparent_1px)] [background-size:16px_16px] opacity-40"></div>
                   <div className="absolute top-1/3 left-1/3 w-3 h-3 bg-brand-500 rounded-full animate-ping" />
                   <div className="absolute top-1/3 left-1/3 w-2.5 h-2.5 bg-brand-500 rounded-full" />
@@ -547,10 +547,10 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
 
           {/* My Loads Screen */}
           {activeTab === 'my-loads' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+            <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
               <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-extrabold text-white">Shipped Cargo Manifests</h3>
+                  <h3 className="text-sm font-extrabold text-slate-900">Shipped Cargo Manifests</h3>
                   <button 
                     onClick={() => triggerToast('CSV Shipment history exported. Saved shipment_history.csv to downloads.')}
                     className="mt-1 text-[10px] text-brand-400 font-black hover:underline cursor-pointer"
@@ -577,9 +577,9 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
               ) : (
                 <>
                   <DataTable columns={[
-                    { key: 'loadId', label: 'Load ID', render: (row) => <span className="font-mono font-extrabold text-white">{row.loadId || row.id}</span> },
-                    { key: 'cargo', label: 'Cargo specs', render: (row) => <span className="text-slate-300 font-semibold">{row.cargo}</span> },
-                    { key: 'route', label: 'Origin/Destination Path', render: (row) => <span className="text-slate-400">{row.route}</span> },
+                    { key: 'loadId', label: 'Load ID', render: (row) => <span className="font-mono font-extrabold text-slate-900">{row.loadId || row.id}</span> },
+                    { key: 'cargo', label: 'Cargo specs', render: (row) => <span className="text-slate-600 font-semibold">{row.cargo}</span> },
+                    { key: 'route', label: 'Origin/Destination Path', render: (row) => <span className="text-slate-500">{row.route}</span> },
                     { key: 'cost', label: 'Cost', render: (row) => <span className="font-mono font-bold text-brand-400">{row.cost || '$950.00'}</span> },
                     { key: 'status', label: 'Transit State', render: (row) => <StatusBadge status={row.status} /> },
                     { key: 'actions', label: 'Actions', render: (row) => {
@@ -588,12 +588,12 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
                       return (
                         <div className="flex gap-1.5 flex-wrap">
                           <Button size="sm" variant="secondary" onClick={() => { setSelectedShipment(row); setDetailsDrawerOpen(true); }}>Inspect</Button>
-                          <button type="button" onClick={() => handleDownloadBOL(idKey)} className="px-2 py-1 text-[10px] font-bold rounded-lg border border-[#23324C] hover:border-brand-500/40 text-slate-350 hover:text-white cursor-pointer transition-colors">BOL</button>
+                          <button type="button" onClick={() => handleDownloadBOL(idKey)} className="px-2 py-1 text-[10px] font-bold rounded-lg border border-slate-200 hover:border-brand-500/40 text-slate-500 hover:text-slate-900 cursor-pointer transition-colors">BOL</button>
                           
                           {row.status === 'Delivered' && (
                             <>
                               <button type="button" onClick={() => handleDownloadPOD(idKey)} className="px-2 py-1 text-[10px] font-bold rounded-lg border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 cursor-pointer transition-colors">POD</button>
-                              <button type="button" onClick={() => { setSelectedShipment(row); setRatingModalOpen(true); }} className={`px-2 py-1 text-[10px] font-bold rounded-lg border cursor-pointer transition-colors ${hasRating ? 'border-brand-500 text-brand-400 bg-brand-500/5' : 'border-[#23324C] text-slate-350 hover:text-white'}`}>
+                              <button type="button" onClick={() => { setSelectedShipment(row); setRatingModalOpen(true); }} className={`px-2 py-1 text-[10px] font-bold rounded-lg border cursor-pointer transition-colors ${hasRating ? 'border-brand-500 text-brand-400 bg-brand-500/5' : 'border-slate-200 text-slate-500 hover:text-slate-900'}`}>
                                 {hasRating ? '★ Rated' : 'Rate'}
                               </button>
                               <button type="button" onClick={() => { setCargoName(row.cargo); setCargoWeight(row.weight || '25,000 lbs'); setRoutePath(row.route); setRebookModalOpen(true); }} className="px-2 py-1 text-[10px] font-bold rounded-lg border border-blue-500/30 text-blue-400 hover:bg-blue-500/10 cursor-pointer transition-colors">Rebook</button>
@@ -625,16 +625,16 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
                 {activeTrackingShipment ? (
                   <>
                     {/* Active Shipment Details */}
-                    <div className="glass rounded-2xl p-5 border border-[#23324C]/60 space-y-4">
+                    <div className="glass rounded-2xl p-5 border border-slate-200 space-y-4">
                       <div>
                         <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Active Tracking ID</span>
-                        <h4 className="text-sm font-extrabold text-white font-mono mt-0.5">{activeTrackingShipment.loadId || activeTrackingShipment.id}</h4>
-                        <p className="text-xs text-slate-300 mt-1 font-semibold">{activeTrackingShipment.cargo}</p>
-                        <p className="text-[11px] text-slate-400">{activeTrackingShipment.route}</p>
+                        <h4 className="text-sm font-extrabold text-slate-900 font-mono mt-0.5">{activeTrackingShipment.loadId || activeTrackingShipment.id}</h4>
+                        <p className="text-xs text-slate-600 mt-1 font-semibold">{activeTrackingShipment.cargo}</p>
+                        <p className="text-[11px] text-slate-500">{activeTrackingShipment.route}</p>
                       </div>
 
                       {/* Timeline */}
-                      <div className="pt-2 border-t border-[#23324C]/40 space-y-3">
+                      <div className="pt-2 border-t border-slate-200 space-y-3">
                         <p className="text-[10px] text-slate-500 font-bold uppercase">Shipment Timeline</p>
                         <div className="space-y-3 pl-2">
                           {[
@@ -649,8 +649,8 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
                                 <Check className="w-3 h-3" />
                               </div>
                               <div>
-                                <p className={`text-xs font-bold ${step.ok ? 'text-white' : 'text-slate-500'}`}>{step.label}</p>
-                                <p className="text-[10px] text-slate-400">{step.date}</p>
+                                <p className={`text-xs font-bold ${step.ok ? 'text-slate-900' : 'text-slate-500'}`}>{step.label}</p>
+                                <p className="text-[10px] text-slate-500">{step.date}</p>
                               </div>
                             </div>
                           ))}
@@ -658,16 +658,16 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
                       </div>
 
                       {/* Driver Details */}
-                      <div className="pt-4 border-t border-[#23324C]/40 space-y-3">
+                      <div className="pt-4 border-t border-slate-200 space-y-3">
                         <p className="text-[10px] text-slate-500 font-bold uppercase">Assigned Carrier Details</p>
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-slate-800 border border-[#23324C] flex items-center justify-center text-xs font-bold text-white">DM</div>
+                          <div className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center text-xs font-bold text-slate-900">DM</div>
                           <div>
-                            <p className="text-xs font-bold text-white">David Miller</p>
+                            <p className="text-xs font-bold text-slate-900">David Miller</p>
                             <p className="text-[10px] text-slate-500">Plate: TR-9410 | Volvo FH16</p>
                           </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-2 text-[10px] font-mono bg-[#111827] p-2.5 border border-[#23324C]/60 rounded-xl">
+                        <div className="grid grid-cols-2 gap-2 text-[10px] font-mono bg-white p-2.5 border border-slate-200 rounded-xl">
                           <div><span className="text-slate-500">ETA</span><p className="text-brand-400 font-bold">17:45 PM</p></div>
                           <div><span className="text-slate-500">SPEED</span><p className="text-emerald-400 font-bold">55 mph</p></div>
                         </div>
@@ -679,19 +679,19 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
                     </div>
                   </>
                 ) : (
-                  <div className="glass rounded-2xl p-5 border border-[#23324C]/60">
-                    <p className="text-xs text-slate-400 text-center">No active transit loads to display.</p>
+                  <div className="glass rounded-2xl p-5 border border-slate-200">
+                    <p className="text-xs text-slate-500 text-center">No active transit loads to display.</p>
                   </div>
                 )}
               </div>
 
               {/* Live Route Map (Visual coordinates) */}
-              <div className="lg:col-span-8 glass rounded-2xl p-5 border border-[#23324C]/60 flex flex-col justify-between min-h-[420px]">
+              <div className="lg:col-span-8 glass rounded-2xl p-5 border border-slate-200 flex flex-col justify-between min-h-[420px]">
                 <div>
-                  <h3 className="text-sm font-extrabold text-white mb-1">Live Shipment Route GPS</h3>
+                  <h3 className="text-sm font-extrabold text-slate-900 mb-1">Live Shipment Route GPS</h3>
                   <p className="text-[10px] text-slate-500">Live coordinates matched.</p>
                 </div>
-                <div className="flex-grow bg-[#0B0F19] border border-[#23324C] rounded-xl flex items-center justify-center my-4 relative overflow-hidden">
+                <div className="flex-grow bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-center my-4 relative overflow-hidden">
                   <div className="absolute inset-0 bg-[radial-gradient(#23324c_1px,transparent_1px)] [background-size:16px_16px] opacity-40"></div>
                   <div className="absolute top-1/2 left-1/2 w-3 h-3 bg-brand-500 rounded-full animate-ping" />
                   <div className="absolute top-1/2 left-1/2 w-2.5 h-2.5 bg-brand-500 rounded-full" />
@@ -703,12 +703,12 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
           {/* Documents Center Screen */}
           {activeTab === 'documents' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-              <div className="lg:col-span-8 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-                <h3 className="text-sm font-extrabold text-white">Secure Documents Vault</h3>
+              <div className="lg:col-span-8 glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
+                <h3 className="text-sm font-extrabold text-slate-900">Secure Documents Vault</h3>
                 
                 <DataTable columns={[
-                  { key: 'name', label: 'Document File Name', render: (row) => <span className="font-extrabold text-white">{row.name}</span> },
-                  { key: 'category', label: 'Paper Category', render: (row) => <span className="text-slate-300 font-semibold">{row.category}</span> },
+                  { key: 'name', label: 'Document File Name', render: (row) => <span className="font-extrabold text-slate-900">{row.name}</span> },
+                  { key: 'category', label: 'Paper Category', render: (row) => <span className="text-slate-600 font-semibold">{row.category}</span> },
                   { key: 'size', label: 'Size', render: (row) => <span className="font-mono text-[10px] text-slate-500">{row.size}</span> },
                   { key: 'actions', label: 'Actions', render: (row) => (
                     <Button size="sm" variant="secondary" icon={FileText} onClick={() => triggerToast(`Initiating download for ${row.name}... Completed.`)}>Download</Button>
@@ -716,8 +716,8 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
                 ]} data={documents} />
               </div>
 
-              <div className="lg:col-span-4 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-                <h3 className="text-sm font-extrabold text-white">Upload signed BOL / customs papers</h3>
+              <div className="lg:col-span-4 glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
+                <h3 className="text-sm font-extrabold text-slate-900">Upload signed BOL / customs papers</h3>
                 <FileUploader onUploadSuccess={(url, name) => {
                   setDocuments([{ name, size: '110 KB', category: 'Audit Document' }, ...documents]);
                   triggerToast('Document added to secure vaults.');
@@ -728,13 +728,13 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
 
           {/* Invoice Center & Payments screen */}
           {activeTab === 'invoices' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-              <h3 className="text-sm font-extrabold text-white">Shippers billing invoices</h3>
+            <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
+              <h3 className="text-sm font-extrabold text-slate-900">Shippers billing invoices</h3>
               
               <DataTable columns={[
-                { key: 'id', label: 'Invoice ID', render: (row) => <span className="font-mono font-extrabold text-white">{row.id}</span> },
-                { key: 'amount', label: 'Total Amount', render: (row) => <span className="font-mono font-bold text-slate-300">{row.amount}</span> },
-                { key: 'date', label: 'Due Date', render: (row) => <span className="text-slate-400 font-mono text-[11px]">{row.date}</span> },
+                { key: 'id', label: 'Invoice ID', render: (row) => <span className="font-mono font-extrabold text-slate-900">{row.id}</span> },
+                { key: 'amount', label: 'Total Amount', render: (row) => <span className="font-mono font-bold text-slate-600">{row.amount}</span> },
+                { key: 'date', label: 'Due Date', render: (row) => <span className="text-slate-500 font-mono text-[11px]">{row.date}</span> },
                 { key: 'status', label: 'State', render: (row) => <StatusBadge status={row.status} /> },
                 { key: 'actions', label: 'Actions', render: (row) => (
                   <div className="flex gap-2 items-center">
@@ -748,7 +748,7 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
                     <button
                       type="button"
                       onClick={() => handleDownloadInvoice(row.id)}
-                      className="px-2.5 py-1 text-[10px] font-bold rounded-lg border border-[#23324C] hover:border-brand-500/40 text-slate-350 hover:text-white cursor-pointer transition-colors"
+                      className="px-2.5 py-1 text-[10px] font-bold rounded-lg border border-slate-200 hover:border-brand-500/40 text-slate-500 hover:text-slate-900 cursor-pointer transition-colors"
                     >
                       Download Invoice PDF
                     </button>
@@ -760,7 +760,7 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
                         triggerToast(!isCurrentlyActive ? 'Invoice email reminders activated.' : 'Invoice reminders deactivated.');
                       }}
                       className={`px-2 py-1 text-[10px] font-bold rounded-lg border cursor-pointer transition-colors ${
-                        reminderStates[row.id] ? 'bg-brand-500 border-brand-500 text-slate-950 font-black' : 'border-[#23324C] text-slate-400 hover:text-white'
+                        reminderStates[row.id] ? 'bg-brand-500 border-brand-500 text-slate-950 font-black' : 'border-slate-200 text-slate-500 hover:text-slate-900'
                       }`}
                     >
                       {reminderStates[row.id] ? 'Reminders ON' : 'Reminders OFF'}
@@ -773,10 +773,10 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
 
           {/* Payments Screen */}
           {activeTab === 'payments' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6">
+            <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-sm font-extrabold text-white">Payments Center</h3>
+                  <h3 className="text-sm font-extrabold text-slate-900">Payments Center</h3>
                   <p className="text-xs text-slate-450 mt-1">Settle outstanding invoices, review transaction history, and configure automated billing reminders.</p>
                 </div>
                 <div className="flex gap-2">
@@ -793,10 +793,10 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
               </div>
 
               <DataTable columns={[
-                { key: 'txnId', label: 'Transaction ID', render: (row) => <span className="font-mono font-extrabold text-white">{row.txnId}</span> },
+                { key: 'txnId', label: 'Transaction ID', render: (row) => <span className="font-mono font-extrabold text-slate-900">{row.txnId}</span> },
                 { key: 'invId', label: 'Invoice ID', render: (row) => <span className="font-mono">INV-{row.invId}</span> },
                 { key: 'amount', label: 'Amount Settled', render: (row) => <span className="font-mono font-bold text-emerald-400">{row.amount}</span> },
-                { key: 'date', label: 'Payment Date', render: (row) => <span className="font-mono text-slate-400">{row.date}</span> },
+                { key: 'date', label: 'Payment Date', render: (row) => <span className="font-mono text-slate-500">{row.date}</span> },
                 { key: 'method', label: 'Billing Method', render: (row) => <span>{row.method}</span> }
               ]} data={transactions || []} />
             </div>
@@ -805,10 +805,10 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
           {/* Customer Instructions & Addresses Tab */}
           {activeTab === 'customer-instructions' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              <div className="lg:col-span-8 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+              <div className="lg:col-span-8 glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
-                    <h3 className="text-sm font-extrabold text-white">Delivery Instructions &amp; Site Requirements</h3>
+                    <h3 className="text-sm font-extrabold text-slate-900">Delivery Instructions &amp; Site Requirements</h3>
                     <p className="text-xs text-slate-450 mt-1">Manage site-specific delivery instructions, access codes, and site contacts per address.</p>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -821,9 +821,9 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
                   </div>
                 </div>
                 <DataTable columns={[
-                  { key: 'address', label: 'Delivery Address', render: (row) => <span className="font-extrabold text-white text-xs">{row.address}</span> },
-                  { key: 'contact', label: 'Site Contact', render: (row) => <span className="text-slate-300">{row.contact}</span> },
-                  { key: 'instruction', label: 'Special Instruction', render: (row) => <span className="text-slate-400 text-xs">{row.instruction}</span> },
+                  { key: 'address', label: 'Delivery Address', render: (row) => <span className="font-extrabold text-slate-900 text-xs">{row.address}</span> },
+                  { key: 'contact', label: 'Site Contact', render: (row) => <span className="text-slate-600">{row.contact}</span> },
+                  { key: 'instruction', label: 'Special Instruction', render: (row) => <span className="text-slate-500 text-xs">{row.instruction}</span> },
                   { key: 'access', label: 'Access Code', render: (row) => <span className="font-mono text-brand-400 font-bold">{row.access}</span> },
                   { key: 'actions', label: 'Actions', render: (row) => (
                     <div className="flex gap-1.5">
@@ -836,8 +836,8 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
                   )}
                 ]} data={addresses} />
               </div>
-              <div className="lg:col-span-4 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
-                <h3 className="text-sm font-extrabold text-white">Quick Actions</h3>
+              <div className="lg:col-span-4 glass rounded-2xl p-5 border border-slate-200 text-left space-y-3">
+                <h3 className="text-sm font-extrabold text-slate-900">Quick Actions</h3>
                 {[
                   { label: 'Add Delivery Address', desc: 'Save new pickup or drop-off location', onClick: () => {
                     setAddressForm({ id: null, address: '', contact: '', instruction: '', access: '' });
@@ -847,8 +847,8 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
                   { label: 'Notify Carrier', desc: 'Send updated instructions to carrier', onClick: () => triggerToast('Updated instructions dispatched to assigned carrier.') },
                 ].map(item => (
                   <button key={item.label} type="button" onClick={item.onClick}
-                    className="w-full text-left p-3 bg-[#111827]/40 border border-[#23324C] hover:border-brand-500/40 rounded-xl transition-colors group cursor-pointer">
-                    <strong className="text-white text-xs block group-hover:text-brand-400 transition-colors">{item.label}</strong>
+                    className="w-full text-left p-3 bg-white/40 border border-slate-200 hover:border-brand-500/40 rounded-xl transition-colors group cursor-pointer">
+                    <strong className="text-slate-900 text-xs block group-hover:text-brand-400 transition-colors">{item.label}</strong>
                     <span className="text-[10px] text-slate-500">{item.desc}</span>
                   </button>
                 ))}
@@ -858,10 +858,10 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
 
           {/* Load Requests Screen */}
           {activeTab === 'load-requests' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6">
+            <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h3 className="text-sm font-extrabold text-white">Load Requests & Bookings</h3>
+                  <h3 className="text-sm font-extrabold text-slate-900">Load Requests & Bookings</h3>
                   <p className="text-xs text-slate-450 mt-1">Request trailer dispatches, add location instructions, and review booking history.</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -878,9 +878,9 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
               </div>
 
               <DataTable columns={[
-                { key: 'reqId', label: 'Request ID', render: (row) => <span className="font-mono font-extrabold text-white">{row.reqId}</span> },
-                { key: 'cargo', label: 'Cargo specs', render: (row) => <span className="text-slate-300 font-semibold">{row.cargo}</span> },
-                { key: 'route', label: 'Route Path', render: (row) => <span className="text-slate-400">{row.route}</span> },
+                { key: 'reqId', label: 'Request ID', render: (row) => <span className="font-mono font-extrabold text-slate-900">{row.reqId}</span> },
+                { key: 'cargo', label: 'Cargo specs', render: (row) => <span className="text-slate-600 font-semibold">{row.cargo}</span> },
+                { key: 'route', label: 'Route Path', render: (row) => <span className="text-slate-500">{row.route}</span> },
                 { key: 'status', label: 'Request State', render: (row) => <StatusBadge status={row.status} /> }
               ]} data={[
                 { reqId: 'REQ-9912', cargo: 'Automotive components (42,000 lbs)', route: 'Chicago IL ➔ Dallas TX', status: 'Approved' },
@@ -891,10 +891,10 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
 
           {/* Notifications Tab */}
           {activeTab === 'notifications' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+            <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
               <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-extrabold text-white">Customer Notifications Log</h3>
+                  <h3 className="text-sm font-extrabold text-slate-900">Customer Notifications Log</h3>
                   <p className="text-[10px] text-slate-500">Live operational and billing status updates.</p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
@@ -915,14 +915,14 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
               ) : (
                 <div className="space-y-2">
                   {paginatedNotifications.map(n => (
-                    <div key={n.id} className={`p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors ${n.read ? 'bg-[#111827]/30 border-[#23324C]/40 text-slate-400' : 'bg-brand-500/5 border-brand-500/20 text-slate-200'}`}>
+                    <div key={n.id} className={`p-4 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors ${n.read ? 'bg-white/30 border-slate-200 text-slate-500' : 'bg-brand-500/5 border-brand-500/20 text-slate-700'}`}>
                       <div className="space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold ${n.type === 'Shipment' ? 'bg-blue-500/10 text-blue-400' : n.type === 'Invoice' ? 'bg-yellow-500/10 text-yellow-400' : 'bg-emerald-500/10 text-emerald-400'}`}>{n.type}</span>
-                          <strong className="text-white text-xs">{n.title}</strong>
+                          <strong className="text-slate-900 text-xs">{n.title}</strong>
                           <span className="text-[10px] text-slate-500 font-mono">({n.time})</span>
                         </div>
-                        <p className="text-xs text-slate-350">{n.msg}</p>
+                        <p className="text-xs text-slate-500">{n.msg}</p>
                       </div>
                       <div className="flex gap-2">
                         {!n.read && <Button size="sm" variant="secondary" onClick={() => handleMarkNotifRead(n.id)}>Mark Read</Button>}
@@ -940,18 +940,18 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
           {activeTab === 'chat' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[500px]">
               {/* Sidebar List */}
-              <div className="lg:col-span-4 glass rounded-2xl p-4 border border-[#23324C]/60 flex flex-col text-left space-y-4 h-full overflow-hidden">
+              <div className="lg:col-span-4 glass rounded-2xl p-4 border border-slate-200 flex flex-col text-left space-y-4 h-full overflow-hidden">
                 <SearchInput value={dispatcherSearch} onChange={(e) => setDispatcherSearch(e.target.value)} onClear={() => setDispatcherSearch('')} placeholder="Search dispatcher..." />
                 <div className="flex-1 overflow-y-auto space-y-2 scrollbar-hide">
                   {[
                     { id: 1, name: 'Alex Rivera (Lead Dispatch)', status: 'Online', avatar: 'AR' },
                     { id: 2, name: 'Sophia Chen (Night Shift)', status: 'Offline', avatar: 'SC' }
                   ].filter(d => d.name.toLowerCase().includes(dispatcherSearch.toLowerCase())).map(d => (
-                    <div key={d.id} onClick={() => setActiveDispatcher(d)} className={`p-3 rounded-xl flex items-center justify-between border cursor-pointer transition-colors ${d.id === activeDispatcher.id ? 'bg-brand-500/10 border-brand-500/30' : 'bg-[#111827]/40 border-[#23324C]/30 hover:border-[#23324C]'}`}>
+                    <div key={d.id} onClick={() => setActiveDispatcher(d)} className={`p-3 rounded-xl flex items-center justify-between border cursor-pointer transition-colors ${d.id === activeDispatcher.id ? 'bg-brand-500/10 border-brand-500/30' : 'bg-white/40 border-slate-200 hover:border-slate-200'}`}>
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center font-bold text-white text-xs">{d.avatar}</div>
+                        <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center font-bold text-slate-900 text-xs">{d.avatar}</div>
                         <div>
-                          <p className="text-xs font-bold text-white">{d.name}</p>
+                          <p className="text-xs font-bold text-slate-900">{d.name}</p>
                           <p className="text-[9px] text-slate-500">{d.status}</p>
                         </div>
                       </div>
@@ -962,13 +962,13 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
               </div>
 
               {/* Chat Window Panel */}
-              <div className="lg:col-span-8 glass rounded-2xl border border-[#23324C]/60 flex flex-col justify-between h-full overflow-hidden">
+              <div className="lg:col-span-8 glass rounded-2xl border border-slate-200 flex flex-col justify-between h-full overflow-hidden">
                 {/* Header */}
-                <div className="p-3 bg-[#111827]/80 border-b border-[#23324C]/60 flex justify-between items-center text-left">
+                <div className="p-3 bg-white/80 border-b border-slate-200 flex justify-between items-center text-left">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-slate-800 flex items-center justify-center font-bold text-white text-sm">{activeDispatcher.avatar}</div>
+                    <div className="w-9 h-9 rounded-full bg-white flex items-center justify-center font-bold text-slate-900 text-sm">{activeDispatcher.avatar}</div>
                     <div>
-                      <p className="text-xs font-extrabold text-white">{activeDispatcher.name}</p>
+                      <p className="text-xs font-extrabold text-slate-900">{activeDispatcher.name}</p>
                       <p className="text-[9px] text-emerald-400 font-semibold">{activeDispatcher.status === 'Online' ? 'Active chat channel' : 'Offline'}</p>
                     </div>
                   </div>
@@ -976,12 +976,12 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
                 </div>
 
                 {/* Messages Box */}
-                <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-[#0B0F19]/40 scrollbar-hide">
+                <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50/40 scrollbar-hide">
                   {chatMessages.map((msg) => {
                     const isSelf = msg.sender === 'shipper';
                     return (
                       <div key={msg.id} className={`flex ${isSelf ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[70%] p-3 rounded-2xl text-xs space-y-1 ${isSelf ? 'bg-brand-500 text-slate-950 font-semibold rounded-tr-none' : 'bg-slate-800 text-slate-200 rounded-tl-none border border-[#23324C]/50'}`}>
+                        <div className={`max-w-[70%] p-3 rounded-2xl text-xs space-y-1 ${isSelf ? 'bg-brand-500 text-slate-950 font-semibold rounded-tr-none' : 'bg-white text-slate-700 rounded-tl-none border border-slate-200/50'}`}>
                           <p>{msg.text}</p>
                           <div className="flex items-center justify-end gap-1 text-[8px] opacity-70 font-mono">
                             <span>{msg.time}</span>
@@ -993,7 +993,7 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
                   })}
                   {isTyping && (
                     <div className="flex justify-start">
-                      <div className="p-2.5 bg-slate-800 text-slate-400 text-[10px] rounded-2xl rounded-tl-none border border-[#23324C]/50 font-medium italic animate-pulse">
+                      <div className="p-2.5 bg-white text-slate-500 text-[10px] rounded-2xl rounded-tl-none border border-slate-200/50 font-medium italic animate-pulse">
                         Dispatcher is typing...
                       </div>
                     </div>
@@ -1002,21 +1002,21 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
                 </div>
 
                 {/* Input Controls */}
-                <form onSubmit={handleSendMessage} className="p-3 bg-[#111827] border-t border-[#23324C]/60 flex items-center gap-2 relative">
-                  <button type="button" onClick={() => setEmojiOpen(!emojiOpen)} className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800">
+                <form onSubmit={handleSendMessage} className="p-3 bg-white border-t border-slate-200 flex items-center gap-2 relative">
+                  <button type="button" onClick={() => setEmojiOpen(!emojiOpen)} className="p-2 text-slate-500 hover:text-slate-900 rounded-xl hover:bg-white">
                     <EmojiIcon className="w-4 h-4" />
                   </button>
                   {emojiOpen && (
-                    <div className="absolute bottom-16 left-3 bg-slate-900 border border-[#23324C] rounded-xl p-2.5 grid grid-cols-5 gap-2 z-30 shadow-2xl">
+                    <div className="absolute bottom-16 left-3 bg-slate-900 border border-slate-200 rounded-xl p-2.5 grid grid-cols-5 gap-2 z-30 shadow-2xl">
                       {['👍', '👌', '🚛', '📦', '⚠️'].map(emoji => (
                         <button type="button" key={emoji} onClick={() => { setChatInput(prev => prev + emoji); setEmojiOpen(false); }} className="text-lg hover:scale-125 transition-transform">{emoji}</button>
                       ))}
                     </div>
                   )}
-                  <button type="button" onClick={() => triggerToast('Select BOL or Customs PDF to send.')} className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800">
+                  <button type="button" onClick={() => triggerToast('Select BOL or Customs PDF to send.')} className="p-2 text-slate-500 hover:text-slate-900 rounded-xl hover:bg-white">
                     <Paperclip className="w-4 h-4" />
                   </button>
-                  <button type="button" onClick={() => triggerToast('Mic access enabled. Recording voice message...')} className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800">
+                  <button type="button" onClick={() => triggerToast('Mic access enabled. Recording voice message...')} className="p-2 text-slate-500 hover:text-slate-900 rounded-xl hover:bg-white">
                     <Mic className="w-4 h-4" />
                   </button>
                   <input 
@@ -1024,7 +1024,7 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
                     placeholder="Type a message to Dispatcher..." 
                     value={chatInput} 
                     onChange={e => setChatInput(e.target.value)} 
-                    className="flex-grow px-4 py-2.5 bg-[#0B0F19] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:border-brand-500" 
+                    className="flex-grow px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 text-xs focus:outline-none focus:border-brand-500" 
                   />
                   <button type="submit" className="p-2.5 bg-brand-500 text-slate-950 rounded-xl font-bold hover:bg-brand-400 transition-colors">
                     <Send className="w-3.5 h-3.5" />
@@ -1036,9 +1036,9 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
 
           {/* Settings Screen */}
           {activeTab === 'settings' && (
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6">
+            <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-6">
               <div>
-                <h3 className="text-sm font-extrabold text-white">Customer Profile Settings</h3>
+                <h3 className="text-sm font-extrabold text-slate-900">Customer Profile Settings</h3>
                 <p className="text-xs text-slate-450 mt-1">Update legal contact credentials, adjust invoice notifications, and manage address presets.</p>
               </div>
 
@@ -1063,27 +1063,27 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
           {activeTab === 'support' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
               {/* Ticket list */}
-              <div className="lg:col-span-8 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-                <h3 className="text-sm font-extrabold text-white">Support Tickets history</h3>
+              <div className="lg:col-span-8 glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
+                <h3 className="text-sm font-extrabold text-slate-900">Support Tickets history</h3>
                 <DataTable columns={[
-                  { key: 'id', label: 'Ticket ID', render: (row) => <span className="font-mono text-slate-400">#{row.id}</span> },
-                  { key: 'subject', label: 'Subject Heading', render: (row) => <span className="font-extrabold text-white">{row.subject}</span> },
-                  { key: 'date', label: 'Date Filed', render: (row) => <span className="text-slate-400 font-mono">{row.date}</span> },
+                  { key: 'id', label: 'Ticket ID', render: (row) => <span className="font-mono text-slate-500">#{row.id}</span> },
+                  { key: 'subject', label: 'Subject Heading', render: (row) => <span className="font-extrabold text-slate-900">{row.subject}</span> },
+                  { key: 'date', label: 'Date Filed', render: (row) => <span className="text-slate-500 font-mono">{row.date}</span> },
                   { key: 'status', label: 'State Status', render: (row) => <StatusBadge status={row.status} /> }
                 ]} data={tickets} />
               </div>
 
               {/* Submit Ticket form */}
-              <div className="lg:col-span-4 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 flex flex-col justify-between">
+              <div className="lg:col-span-4 glass rounded-2xl p-5 border border-slate-200 text-left space-y-4 flex flex-col justify-between">
                 <div>
-                  <h3 className="text-sm font-extrabold text-white mb-1">Create Support Ticket</h3>
+                  <h3 className="text-sm font-extrabold text-slate-900 mb-1">Create Support Ticket</h3>
                   <p className="text-[10px] text-slate-500 font-semibold">Request assistance from our platform support desk.</p>
                 </div>
                 <form onSubmit={handleTicketSubmit} className="space-y-4 my-2">
                   <TextInput label="Subject heading" required placeholder="e.g. Shipment update delay" value={ticketSubject} onChange={(e) => setTicketSubject(e.target.value)} />
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Problem description</label>
-                    <textarea required rows={3} placeholder="Please provide specific details..." value={ticketMsg} onChange={(e) => setTicketMsg(e.target.value)} className="block w-full px-4 py-3 bg-[#111827] border border-[#23324C] focus:border-brand-500 rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500 placeholder:text-slate-500" />
+                    <label className="block text-xs font-semibold text-slate-500 uppercase mb-1.5">Problem description</label>
+                    <textarea required rows={3} placeholder="Please provide specific details..." value={ticketMsg} onChange={(e) => setTicketMsg(e.target.value)} className="block w-full px-4 py-3 bg-white border border-slate-200 focus:border-brand-500 rounded-xl text-slate-700 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500 placeholder:text-slate-500" />
                   </div>
                   <Button type="submit" variant="primary" className="w-full">
                     Submit Support Ticket
@@ -1113,7 +1113,7 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
       <Modal isOpen={paymentModalOpen} onClose={() => setPaymentModalOpen(false)} title="Authorize Invoice payment Checkout">
         {selectedInvoice && (
           <form onSubmit={handlePaymentCheckoutSubmit} className="space-y-4 text-left">
-            <div className="p-3 bg-[#111827] border border-[#23324C] rounded-xl text-xs flex justify-between font-bold text-white mb-2">
+            <div className="p-3 bg-white border border-slate-200 rounded-xl text-xs flex justify-between font-bold text-slate-900 mb-2">
               <span>Settling Invoice {selectedInvoice.id}</span>
               <span className="text-brand-400">{selectedInvoice.amount}</span>
             </div>
@@ -1136,7 +1136,7 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
         <Modal isOpen={rescheduleModalOpen} onClose={() => setRescheduleModalOpen(false)} title={`Reschedule Pickup: ${selectedShipment.loadId || selectedShipment.id}`}>
           <form onSubmit={handleRescheduleSubmit} className="space-y-4 text-left">
             <TextInput label="Choose New Pickup Date & Time" type="datetime-local" required value={rescheduleDate} onChange={e => setRescheduleDate(e.target.value)} />
-            <div className="flex justify-end gap-2 pt-4 border-t border-[#23324C]/40">
+            <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
               <Button type="button" variant="secondary" onClick={() => setRescheduleModalOpen(false)}>Cancel</Button>
               <Button type="submit" variant="primary">Confirm Reschedule</Button>
             </div>
@@ -1148,8 +1148,8 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
       {selectedShipment && (
         <Modal isOpen={cancelModalOpen} onClose={() => setCancelModalOpen(false)} title="Cancel Shipment Booking?">
           <div className="space-y-4 text-left">
-            <p className="text-xs text-slate-300">Are you sure you want to cancel the booking for shipment <strong>{selectedShipment.loadId || selectedShipment.id}</strong>? This action will alert dispatchers and cannot be undone.</p>
-            <div className="flex justify-end gap-2 pt-4 border-t border-[#23324C]/40">
+            <p className="text-xs text-slate-600">Are you sure you want to cancel the booking for shipment <strong>{selectedShipment.loadId || selectedShipment.id}</strong>? This action will alert dispatchers and cannot be undone.</p>
+            <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
               <Button variant="secondary" onClick={() => setCancelModalOpen(false)}>No, Keep Booking</Button>
               <Button variant="danger" onClick={handleCancelBooking}>Yes, Cancel Booking</Button>
             </div>
@@ -1162,7 +1162,7 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
         <Modal isOpen={ratingModalOpen} onClose={() => setRatingModalOpen(false)} title={`Rate Delivery: ${selectedShipment.loadId || selectedShipment.id}`}>
           <form onSubmit={handleRatingSubmit} className="space-y-4 text-left">
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase mb-2">Delivery Rating (1 - 5 Stars)</label>
+              <label className="block text-xs font-semibold text-slate-500 uppercase mb-2">Delivery Rating (1 - 5 Stars)</label>
               <div className="flex gap-2">
                 {[1, 2, 3, 4, 5].map(star => (
                   <button type="button" key={star} onClick={() => setRating(star)} className="focus:outline-none transition-transform hover:scale-110">
@@ -1172,7 +1172,7 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
               </div>
             </div>
             <TextInput label="Feedback Comments" placeholder="Tell us about the delivery and driver professionalism..." value={feedback} onChange={e => setFeedback(e.target.value)} />
-            <div className="flex justify-end gap-2 pt-4 border-t border-[#23324C]/40">
+            <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
               <Button type="button" variant="secondary" onClick={() => setRatingModalOpen(false)}>Cancel</Button>
               <Button type="submit" variant="primary">Submit Feedback</Button>
             </div>
@@ -1186,7 +1186,7 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
           <TextInput label="Cargo specs" value={cargoName} onChange={e => setCargoName(e.target.value)} required />
           <TextInput label="Cargo weight" value={cargoWeight} onChange={e => setCargoWeight(e.target.value)} required />
           <TextInput label="Route origin/destination path" value={routePath} onChange={e => setRoutePath(e.target.value)} required />
-          <div className="flex justify-end gap-2 pt-4 border-t border-[#23324C]/40">
+          <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
             <Button type="button" variant="secondary" onClick={() => setRebookModalOpen(false)}>Cancel</Button>
             <Button type="submit" variant="primary">Create Booking</Button>
           </div>
@@ -1200,7 +1200,7 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
           <TextInput label="Site Contact Person *" value={addressForm.contact} onChange={e => setAddressForm({...addressForm, contact: e.target.value})} placeholder="e.g. Mike Thompson" required />
           <TextInput label="Special Delivery Instructions" value={addressForm.instruction} onChange={e => setAddressForm({...addressForm, instruction: e.target.value})} placeholder="e.g. Ring buzzer at Gate 4..." />
           <TextInput label="Site Access Code" value={addressForm.access} onChange={e => setAddressForm({...addressForm, access: e.target.value})} placeholder="e.g. GATE-102" />
-          <div className="flex justify-end gap-2 pt-4 border-t border-[#23324C]/40">
+          <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
             <Button type="button" variant="secondary" onClick={() => setAddressModalOpen(false)}>Cancel</Button>
             <Button type="submit" variant="primary">Save Address</Button>
           </div>
@@ -1210,16 +1210,16 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
       {/* Shipment details drawer */}
       <Drawer isOpen={detailsDrawerOpen} onClose={() => setDetailsDrawerOpen(false)} title="Shipment manifest Audit Inspector">
         {selectedShipment && (
-          <div className="space-y-6 text-left text-slate-300 text-xs sm:text-sm">
-            <div className="border-b border-[#23324C]/60 pb-3">
-              <h4 className="text-base font-extrabold text-white mb-1">Load ID: {selectedShipment.loadId || selectedShipment.id}</h4>
+          <div className="space-y-6 text-left text-slate-600 text-xs sm:text-sm">
+            <div className="border-b border-slate-200 pb-3">
+              <h4 className="text-base font-extrabold text-slate-900 mb-1">Load ID: {selectedShipment.loadId || selectedShipment.id}</h4>
               <StatusBadge status={selectedShipment.status} />
             </div>
 
             <div className="space-y-4">
               <div>
                 <span className="text-[10px] text-slate-500 block">Cargo specifications</span>
-                <strong className="text-white text-xs">{selectedShipment.cargo}</strong>
+                <strong className="text-slate-900 text-xs">{selectedShipment.cargo}</strong>
               </div>
               <div>
                 <span className="text-[10px] text-slate-500 block">Delivery route path</span>
@@ -1231,7 +1231,7 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
               </div>
             </div>
 
-            <div className="flex gap-2 border-t border-[#23324C]/60 pt-4 flex-wrap">
+            <div className="flex gap-2 border-t border-slate-200 pt-4 flex-wrap">
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -1267,8 +1267,8 @@ export default function CustomerDashboard({ activeTab = 'overview' }) {
         <form onSubmit={handleTicketSubmit} className="space-y-4 text-left">
           <TextInput label="Subject heading" required placeholder="e.g. Shipment update delay" value={ticketSubject} onChange={(e) => setTicketSubject(e.target.value)} />
           <div>
-            <label className="block text-xs font-semibold text-slate-400 uppercase mb-1.5">Problem description</label>
-            <textarea required rows={4} placeholder="Please provide specific details..." value={ticketMsg} onChange={(e) => setTicketMsg(e.target.value)} className="block w-full px-4 py-3 bg-[#111827] border border-[#23324C] focus:border-brand-500 rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500 placeholder:text-slate-500" />
+            <label className="block text-xs font-semibold text-slate-500 uppercase mb-1.5">Problem description</label>
+            <textarea required rows={4} placeholder="Please provide specific details..." value={ticketMsg} onChange={(e) => setTicketMsg(e.target.value)} className="block w-full px-4 py-3 bg-white border border-slate-200 focus:border-brand-500 rounded-xl text-slate-700 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500 placeholder:text-slate-500" />
           </div>
           <div className="flex gap-2 pt-4">
             <Button type="button" variant="secondary" onClick={() => setSupportDrawerOpen(false)} className="flex-1">Cancel</Button>

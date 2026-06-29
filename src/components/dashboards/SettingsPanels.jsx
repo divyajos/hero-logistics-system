@@ -76,17 +76,17 @@ export default function SettingsPanels({ activeTab = 'settings' }) {
       )}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#23324C]/60 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
-          <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
             <Settings className="h-6 w-6 text-brand-500" /> Settings
           </h2>
-          <p className="text-xs text-slate-400 font-medium">Configure company defaults, connect ELD/accounting APIs, and view security audit registries.</p>
+          <p className="text-xs text-slate-500 font-medium">Configure company defaults, connect ELD/accounting APIs, and view security audit registries.</p>
         </div>
       </div>
 
       {/* Settings Sub-tabs */}
-      <div className="flex flex-wrap border-b border-[#23324C]/40 pb-px text-xs font-bold gap-4">
+      <div className="flex flex-wrap border-b border-slate-200 pb-px text-xs font-bold gap-4">
         {[
           { id: 'profile', label: 'Company Profile', icon: Settings },
           { id: 'branding', label: 'Branding & Theme', icon: Palette },
@@ -106,7 +106,7 @@ export default function SettingsPanels({ activeTab = 'settings' }) {
               key={tab.id}
               onClick={() => setActiveSubTab(tab.id)}
               className={`flex items-center gap-2 pb-3 cursor-pointer transition-colors ${
-                isActive ? 'text-brand-500 border-b-2 border-brand-500 font-extrabold' : 'text-slate-400 hover:text-slate-200'
+                isActive ? 'text-brand-500 border-b-2 border-brand-500 font-extrabold' : 'text-slate-500 hover:text-slate-700'
               }`}
             >
               <Icon className="h-4 w-4" />
@@ -118,17 +118,17 @@ export default function SettingsPanels({ activeTab = 'settings' }) {
 
       {/* Company Profile Settings */}
       {activeSubTab === 'profile' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 max-w-xl">
-          <h3 className="text-sm font-extrabold text-white">Company Profile Settings</h3>
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4 max-w-xl">
+          <h3 className="text-sm font-extrabold text-slate-900">Company Profile Settings</h3>
           <div className="space-y-4">
             <TextInput label="Registered Company Name" defaultValue="Hero Logistics Ltd" />
             <TextInput label="Corporate Registration Number" defaultValue="ABN 48 901 029 421" />
             <TextInput label="Corporate Admin Email" defaultValue="admin@herologistics.com" />
             
-            <div className="p-4 bg-[#111827]/40 border border-[#23324C] rounded-xl text-xs space-y-2">
+            <div className="p-4 bg-white/40 border border-slate-200 rounded-xl text-xs space-y-2">
               <span className="text-[10px] font-bold text-slate-500 uppercase block">Platform Membership Subscription</span>
               <div className="flex justify-between items-center">
-                <span className="text-white font-semibold">Enterprise Tier Plan</span>
+                <span className="text-slate-900 font-semibold">Enterprise Tier Plan</span>
                 <span className="text-emerald-450 font-bold font-mono">Active</span>
               </div>
               <p className="text-slate-500 text-[10px]">Your next billing cycle date: 07/20/2026 (Monthly invoice card: visa-8812)</p>
@@ -143,13 +143,13 @@ export default function SettingsPanels({ activeTab = 'settings' }) {
 
       {/* Branding & Themes Settings */}
       {activeSubTab === 'branding' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 max-w-xl animate-fade-in">
-          <h3 className="text-sm font-extrabold text-white">Company Branding & Custom Theme</h3>
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4 max-w-xl animate-fade-in">
+          <h3 className="text-sm font-extrabold text-slate-900">Company Branding & Custom Theme</h3>
           <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">Customize the workspace color palette, layout mode, and upload your official company logo.</p>
           
           <div className="space-y-4">
             <div>
-              <span className="block text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">Primary Workspace Theme Color</span>
+              <span className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Primary Workspace Theme Color</span>
               <div className="flex gap-2.5">
                 {[
                   { name: 'Brand Cyan', hex: 'bg-brand-500', label: 'Default' },
@@ -171,11 +171,11 @@ export default function SettingsPanels({ activeTab = 'settings' }) {
               </div>
             </div>
 
-            <div className="border-t border-[#23324C]/35 pt-4">
-              <span className="block text-xs font-bold text-slate-400 uppercase tracking-wide mb-2">Company Logo Upload</span>
-              <div className="border-2 border-dashed border-[#23324C] rounded-2xl p-6 text-center hover:border-brand-500/30 transition-all cursor-pointer" onClick={() => triggerToast('Logo file selection window opened.')}>
+            <div className="border-t border-slate-200/35 pt-4">
+              <span className="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-2">Company Logo Upload</span>
+              <div className="border-2 border-dashed border-slate-200 rounded-2xl p-6 text-center hover:border-brand-500/30 transition-all cursor-pointer" onClick={() => triggerToast('Logo file selection window opened.')}>
                 <div className="text-xl">🏢</div>
-                <p className="text-xs font-bold text-slate-350 mt-1">Click or drag logo file here</p>
+                <p className="text-xs font-bold text-slate-500 mt-1">Click or drag logo file here</p>
                 <p className="text-[9px] text-slate-500">Supports SVG, PNG, JPG up to 5MB</p>
               </div>
             </div>
@@ -189,8 +189,8 @@ export default function SettingsPanels({ activeTab = 'settings' }) {
 
       {/* Business Hours Settings */}
       {activeSubTab === 'business-hours' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 max-w-xl animate-fade-in">
-          <h3 className="text-sm font-extrabold text-white">Default Terminal Business Hours</h3>
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4 max-w-xl animate-fade-in">
+          <h3 className="text-sm font-extrabold text-slate-900">Default Terminal Business Hours</h3>
           <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">Establish base operating hours across company depots. Individual depots can override these in Branch Settings.</p>
           
           <div className="space-y-3.5">
@@ -199,9 +199,9 @@ export default function SettingsPanels({ activeTab = 'settings' }) {
               { day: 'Saturday', active: true, hours: '09:00 AM - 02:00 PM' },
               { day: 'Sunday', active: false, hours: 'Closed' }
             ].map((b, i) => (
-              <div key={i} className="flex justify-between items-center p-3 bg-slate-900/60 border border-[#23324C] rounded-xl">
+              <div key={i} className="flex justify-between items-center p-3 bg-slate-900/60 border border-slate-200 rounded-xl">
                 <div>
-                  <span className="text-xs font-bold text-white block">{b.day}</span>
+                  <span className="text-xs font-bold text-slate-900 block">{b.day}</span>
                   <span className="text-[10px] font-mono text-slate-450">{b.hours}</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -226,10 +226,10 @@ export default function SettingsPanels({ activeTab = 'settings' }) {
 
       {/* Billing & Subscriptions Settings */}
       {activeSubTab === 'billing' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-5 animate-fade-in">
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-5 animate-fade-in">
           <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
             <div>
-              <h3 className="text-sm font-extrabold text-white">Billing & Subscription Management</h3>
+              <h3 className="text-sm font-extrabold text-slate-900">Billing & Subscription Management</h3>
               <p className="text-[10px] text-slate-450 mt-0.5">Manage plan subscription levels, invoices, and active payment cards.</p>
             </div>
             <span className="px-3 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full text-xs font-bold font-mono">Enterprise Tier</span>
@@ -237,12 +237,12 @@ export default function SettingsPanels({ activeTab = 'settings' }) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Active Card */}
-            <div className="p-4 bg-[#111827]/40 border border-[#23324C] rounded-2xl text-xs space-y-3">
+            <div className="p-4 bg-white/40 border border-slate-200 rounded-2xl text-xs space-y-3">
               <span className="text-[10px] font-bold text-slate-500 uppercase block">Active Payment Method</span>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-7 rounded bg-slate-800 border border-[#23324C] flex items-center justify-center text-sm font-bold text-slate-200">Visa</div>
+                <div className="w-10 h-7 rounded bg-white border border-slate-200 flex items-center justify-center text-sm font-bold text-slate-700">Visa</div>
                 <div>
-                  <strong className="text-white block font-bold text-xs">Visa ending in 8812</strong>
+                  <strong className="text-slate-900 block font-bold text-xs">Visa ending in 8812</strong>
                   <span className="text-[10px] text-slate-550 font-mono">Expires 09/2029</span>
                 </div>
               </div>
@@ -256,18 +256,18 @@ export default function SettingsPanels({ activeTab = 'settings' }) {
             </div>
 
             {/* Plan Usage */}
-            <div className="p-4 bg-[#111827]/40 border border-[#23324C] rounded-2xl text-xs space-y-2">
+            <div className="p-4 bg-white/40 border border-slate-200 rounded-2xl text-xs space-y-2">
               <span className="text-[10px] font-bold text-slate-500 uppercase block">Subscription Usage</span>
               <div className="flex justify-between">
-                <span className="text-slate-400">depots count</span>
-                <span className="text-white font-bold">2 / Unlimited</span>
+                <span className="text-slate-500">depots count</span>
+                <span className="text-slate-900 font-bold">2 / Unlimited</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">users count</span>
-                <span className="text-white font-bold">12 / Unlimited</span>
+                <span className="text-slate-500">users count</span>
+                <span className="text-slate-900 font-bold">12 / Unlimited</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-slate-400">monthly invoice value</span>
+                <span className="text-slate-500">monthly invoice value</span>
                 <span className="text-brand-400 font-bold font-mono">$499.00 / mo</span>
               </div>
             </div>
@@ -282,19 +282,19 @@ export default function SettingsPanels({ activeTab = 'settings' }) {
                 { inv: 'INV-88029', date: 'May 20, 2026', amt: '$499.00', status: 'Paid' },
                 { inv: 'INV-87002', date: 'Apr 20, 2026', amt: '$499.00', status: 'Paid' }
               ].map((row, i) => (
-                <div key={i} className="p-3 bg-slate-900/50 border border-[#23324C]/35 rounded-xl flex justify-between items-center text-xs">
+                <div key={i} className="p-3 bg-slate-900/50 border border-slate-200/35 rounded-xl flex justify-between items-center text-xs">
                   <div>
-                    <span className="font-bold text-white block">Invoice #{row.inv}</span>
+                    <span className="font-bold text-slate-900 block">Invoice #{row.inv}</span>
                     <span className="text-[9.5px] text-slate-500 font-mono">{row.date}</span>
                   </div>
                   <div className="text-right flex items-center gap-3">
                     <div>
-                      <span className="font-bold font-mono text-white block">{row.amt}</span>
+                      <span className="font-bold font-mono text-slate-900 block">{row.amt}</span>
                       <span className="text-[9px] text-emerald-450 font-bold uppercase">{row.status}</span>
                     </div>
                     <button 
                       onClick={() => triggerToast(`Downloading Invoice PDF: ${row.inv}...`)}
-                      className="px-2.5 py-1 bg-slate-800 hover:bg-slate-750 border border-[#23324C] rounded text-[10px] font-bold cursor-pointer"
+                      className="px-2.5 py-1 bg-white hover:bg-slate-750 border border-slate-200 rounded text-[10px] font-bold cursor-pointer"
                       type="button"
                     >
                       PDF
@@ -309,19 +309,19 @@ export default function SettingsPanels({ activeTab = 'settings' }) {
 
       {/* White Label Settings */}
       {activeSubTab === 'white-label' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 max-w-xl animate-fade-in">
-          <h3 className="text-sm font-extrabold text-white">White Label & Domain Setup</h3>
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4 max-w-xl animate-fade-in">
+          <h3 className="text-sm font-extrabold text-slate-900">White Label & Domain Setup</h3>
           <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">Customize the system workspace to match your own brand name and host it on your custom domain URL hostname.</p>
           
           <div className="space-y-3.5">
             <TextInput label="Custom Domain Hostname" defaultValue="logistics.herologistics.com" placeholder="e.g. logistics.yourcompany.com" />
             <TextInput label="Login Screen Welcome Header Title" defaultValue="Hero Logistics Operate System" />
             
-            <div className="space-y-2 border-t border-[#23324C]/35 pt-4">
-              <span className="block text-xs font-bold text-slate-400 uppercase tracking-wide">Brand Theme Options</span>
-              <label className="flex items-center justify-between p-3.5 bg-slate-900/60 border border-[#23324C] rounded-xl cursor-pointer select-none">
+            <div className="space-y-2 border-t border-slate-200/35 pt-4">
+              <span className="block text-xs font-bold text-slate-500 uppercase tracking-wide">Brand Theme Options</span>
+              <label className="flex items-center justify-between p-3.5 bg-slate-900/60 border border-slate-200 rounded-xl cursor-pointer select-none">
                 <div className="space-y-0.5">
-                  <span className="text-xs font-bold text-slate-200 block">Hide Hero Logistics branding labels</span>
+                  <span className="text-xs font-bold text-slate-700 block">Hide Hero Logistics branding labels</span>
                   <span className="text-[10px] text-slate-500 block">Hides all logo footers and help links in dispatcher & driver dashboards</span>
                 </div>
                 <input 
@@ -342,14 +342,14 @@ export default function SettingsPanels({ activeTab = 'settings' }) {
 
       {/* Niche Configuration Settings */}
       {activeSubTab === 'niche' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 max-w-xl">
-          <h3 className="text-sm font-extrabold text-white">Logistics Niche Configurations</h3>
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4 max-w-xl">
+          <h3 className="text-sm font-extrabold text-slate-900">Logistics Niche Configurations</h3>
           <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">Configure active niches. Toggling off a niche hides related fields and tables across all dispatch dashboards.</p>
           
           <div className="space-y-3.5">
-            <label className="flex items-center justify-between p-3.5 bg-slate-900/60 border border-[#23324C] rounded-xl cursor-pointer select-none">
+            <label className="flex items-center justify-between p-3.5 bg-slate-900/60 border border-slate-200 rounded-xl cursor-pointer select-none">
               <div className="space-y-0.5">
-                <span className="text-xs font-bold text-slate-200 block">Car Carrying & Transport</span>
+                <span className="text-xs font-bold text-slate-700 block">Car Carrying & Transport</span>
                 <span className="text-[10px] text-slate-500 block">Enables VIN / Rego details, holding yard lanes, and asset registers</span>
               </div>
               <input 
@@ -360,9 +360,9 @@ export default function SettingsPanels({ activeTab = 'settings' }) {
               />
             </label>
 
-            <label className="flex items-center justify-between p-3.5 bg-slate-900/60 border border-[#23324C] rounded-xl cursor-pointer select-none">
+            <label className="flex items-center justify-between p-3.5 bg-slate-900/60 border border-slate-200 rounded-xl cursor-pointer select-none">
               <div className="space-y-0.5">
-                <span className="text-xs font-bold text-slate-200 block">General Freight</span>
+                <span className="text-xs font-bold text-slate-700 block">General Freight</span>
                 <span className="text-[10px] text-slate-500 block">Enables Pallet Count, dimensions, cargo weight, and dry bins</span>
               </div>
               <input 
@@ -373,9 +373,9 @@ export default function SettingsPanels({ activeTab = 'settings' }) {
               />
             </label>
 
-            <label className="flex items-center justify-between p-3.5 bg-slate-900/60 border border-[#23324C] rounded-xl cursor-pointer select-none">
+            <label className="flex items-center justify-between p-3.5 bg-slate-900/60 border border-slate-200 rounded-xl cursor-pointer select-none">
               <div className="space-y-0.5">
-                <span className="text-xs font-bold text-slate-200 block">Dangerous Goods (HAZMAT)</span>
+                <span className="text-xs font-bold text-slate-700 block">Dangerous Goods (HAZMAT)</span>
                 <span className="text-[10px] text-slate-500 block">Enables UN Class, Hazchem chemical codes, and trailer placards</span>
               </div>
               <input 
@@ -406,15 +406,15 @@ export default function SettingsPanels({ activeTab = 'settings' }) {
 
       {/* GPS Providers Settings */}
       {activeSubTab === 'gps' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-          <h3 className="text-sm font-extrabold text-white">GPS Providers & ELD Integrations</h3>
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
+          <h3 className="text-sm font-extrabold text-slate-900">GPS Providers & ELD Integrations</h3>
           
           <div className="space-y-4">
             {gpsConfigs.map((config) => (
-              <div key={config.id} className="p-4 bg-[#111827]/60 border border-[#23324C] rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div key={config.id} className="p-4 bg-white/60 border border-slate-200 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="space-y-1">
                   <div className="flex gap-2 items-center">
-                    <strong className="text-white text-xs block font-bold">{config.provider}</strong>
+                    <strong className="text-slate-900 text-xs block font-bold">{config.provider}</strong>
                     <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
                       config.status === 'Connected' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
                     }`}>
@@ -427,7 +427,7 @@ export default function SettingsPanels({ activeTab = 'settings' }) {
                 <div className="flex gap-2">
                   <button 
                     onClick={() => triggerToast('Configuration edit modal opened.')}
-                    className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-xl font-bold transition-colors cursor-pointer"
+                    className="px-3.5 py-1.5 bg-white hover:bg-slate-700 text-slate-700 text-xs rounded-xl font-bold transition-colors cursor-pointer"
                   >
                     Edit API Key
                   </button>
@@ -448,15 +448,15 @@ export default function SettingsPanels({ activeTab = 'settings' }) {
 
       {/* Accounting Integration Settings */}
       {activeSubTab === 'accounting' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-          <h3 className="text-sm font-extrabold text-white">Cloud Accounting Integrations</h3>
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
+          <h3 className="text-sm font-extrabold text-slate-900">Cloud Accounting Integrations</h3>
           
           <div className="space-y-4">
             {accountingConfigs.map((config) => (
-              <div key={config.id} className="p-4 bg-[#111827]/60 border border-[#23324C] rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div key={config.id} className="p-4 bg-white/60 border border-slate-200 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="space-y-1">
                   <div className="flex gap-2 items-center">
-                    <strong className="text-white text-xs block font-bold">{config.provider}</strong>
+                    <strong className="text-slate-900 text-xs block font-bold">{config.provider}</strong>
                     <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
                       config.status === 'Connected' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
                     }`}>
@@ -499,30 +499,30 @@ export default function SettingsPanels({ activeTab = 'settings' }) {
 
       {/* Notifications Templates Settings */}
       {activeTab === 'settings' && activeSubTab === 'templates' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-          <h3 className="text-sm font-extrabold text-white">System SMS & Email Notification Templates</h3>
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
+          <h3 className="text-sm font-extrabold text-slate-900">System SMS & Email Notification Templates</h3>
           
           <div className="space-y-4">
             {templates.map((template) => (
-              <div key={template.id} className="p-4 bg-[#111827]/60 border border-[#23324C] rounded-xl space-y-2 text-xs">
+              <div key={template.id} className="p-4 bg-white/60 border border-slate-200 rounded-xl space-y-2 text-xs">
                 <div className="flex justify-between items-center">
-                  <strong className="text-white text-xs font-bold">{template.name}</strong>
-                  <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-bold uppercase text-[9px]">
+                  <strong className="text-slate-900 text-xs font-bold">{template.name}</strong>
+                  <span className="px-2 py-0.5 rounded bg-white text-slate-500 font-bold uppercase text-[9px]">
                     {template.type}
                   </span>
                 </div>
                 
                 {template.subject && (
-                  <p className="text-slate-500 font-semibold">Subject: <span className="text-slate-300 font-normal">{template.subject}</span></p>
+                  <p className="text-slate-500 font-semibold">Subject: <span className="text-slate-600 font-normal">{template.subject}</span></p>
                 )}
                 {template.body && (
-                  <p className="text-slate-500 font-semibold">Body: <span className="text-slate-300 font-normal font-mono">{template.body}</span></p>
+                  <p className="text-slate-500 font-semibold">Body: <span className="text-slate-600 font-normal font-mono">{template.body}</span></p>
                 )}
                 
-                <div className="flex gap-2 pt-2 border-t border-[#23324C]/35">
+                <div className="flex gap-2 pt-2 border-t border-slate-200/35">
                   <button 
                     onClick={() => triggerToast('Template editor loaded.')}
-                    className="px-3 py-1.5 bg-slate-850 hover:bg-slate-800 text-slate-200 rounded-lg font-bold cursor-pointer transition-colors"
+                    className="px-3 py-1.5 bg-slate-850 hover:bg-white text-slate-700 rounded-lg font-bold cursor-pointer transition-colors"
                   >
                     Edit Template
                   </button>
@@ -535,13 +535,13 @@ export default function SettingsPanels({ activeTab = 'settings' }) {
 
       {/* System Audit Logs Settings */}
       {activeSubTab === 'audit' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-          <h3 className="text-sm font-extrabold text-white">Company SaaS Security Audit Logs</h3>
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
+          <h3 className="text-sm font-extrabold text-slate-900">Company SaaS Security Audit Logs</h3>
           
           <DataTable columns={[
             { key: 'date', label: 'Timestamp', render: (row) => <span className="font-mono text-[10px] text-slate-450">{row.date}</span> },
             { key: 'user', label: 'User Node', render: (row) => <span className="text-slate-250 font-bold">{row.user}</span> },
-            { key: 'action', label: 'Event Action Description', render: (row) => <span className="font-semibold text-white">{row.action}</span> },
+            { key: 'action', label: 'Event Action Description', render: (row) => <span className="font-semibold text-slate-900">{row.action}</span> },
             { key: 'ip', label: 'IP Address', render: (row) => <span className="font-mono text-[10px] text-slate-500">{row.ip}</span> },
             { key: 'status', label: 'Auth Status', render: (row) => (
               <span className="text-emerald-450 font-semibold text-xs flex items-center gap-1">

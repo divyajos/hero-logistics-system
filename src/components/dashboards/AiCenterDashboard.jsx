@@ -91,17 +91,17 @@ export default function AiCenterDashboard() {
       )}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#23324C]/60 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
-          <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
             <Cpu className="h-6 w-6 text-brand-500" /> AI Center
           </h2>
-          <p className="text-xs text-slate-400">Manage autonomous ingestion queues, run co-pilot commands, and monitor extraction metrics.</p>
+          <p className="text-xs text-slate-500">Manage autonomous ingestion queues, run co-pilot commands, and monitor extraction metrics.</p>
         </div>
       </div>
 
       {/* Sub-tabs menu */}
-      <div className="flex border-b border-[#23324C]/40 pb-px text-xs font-bold gap-4">
+      <div className="flex border-b border-slate-200 pb-px text-xs font-bold gap-4">
         {[
           { id: 'inbox', label: 'Ingestion Queue', icon: FileText },
           { id: 'playground', label: 'AI Co-Pilot Playground', icon: Bot },
@@ -115,7 +115,7 @@ export default function AiCenterDashboard() {
               key={tab.id}
               onClick={() => setActiveSubTab(tab.id)}
               className={`flex items-center gap-2 pb-3 cursor-pointer transition-colors ${
-                isActive ? 'text-brand-500 border-b-2 border-brand-500 font-extrabold' : 'text-slate-400 hover:text-slate-200'
+                isActive ? 'text-brand-500 border-b-2 border-brand-500 font-extrabold' : 'text-slate-500 hover:text-slate-700'
               }`}
             >
               <Icon className="h-4 w-4" />
@@ -129,8 +129,8 @@ export default function AiCenterDashboard() {
       {activeSubTab === 'inbox' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
           {/* Main Ingestion Queue table */}
-          <div className="lg:col-span-8 glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-            <h3 className="text-sm font-extrabold text-white">AI Extraction Inbox</h3>
+          <div className="lg:col-span-8 glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
+            <h3 className="text-sm font-extrabold text-slate-900">AI Extraction Inbox</h3>
             <div className="space-y-4">
               {extractionQueue.length === 0 ? (
                 <div className="p-8 text-center text-slate-500 text-xs italic">
@@ -138,31 +138,31 @@ export default function AiCenterDashboard() {
                 </div>
               ) : (
                 extractionQueue.map((item) => (
-                  <div key={item.id} className="p-4 bg-[#111827]/60 border border-[#23324C] rounded-xl space-y-3.5">
-                    <div className="flex justify-between items-center border-b border-[#23324C]/50 pb-2">
+                  <div key={item.id} className="p-4 bg-white/60 border border-slate-200 rounded-xl space-y-3.5">
+                    <div className="flex justify-between items-center border-b border-slate-200/50 pb-2">
                       <div className="flex items-center gap-2">
                         <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase ${
                           item.type.includes('Load') ? 'bg-brand-500/10 text-brand-400' : 'bg-emerald-500/10 text-emerald-400'
                         }`}>
                           {item.type}
                         </span>
-                        <span className="text-[10px] text-slate-400 font-mono">{item.source}</span>
+                        <span className="text-[10px] text-slate-500 font-mono">{item.source}</span>
                       </div>
                       <span className="text-[10px] bg-brand-500/10 text-brand-400 border border-brand-500/20 px-2 py-0.5 rounded-full font-bold">
                         {item.confidence} Match Rate
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-slate-300">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs text-slate-600">
                       {item.type === 'Load Sheet' && (
                         <>
                           <div>
                             <span className="text-slate-500 block uppercase font-bold text-[8px]">Cargo Description</span>
-                            <strong className="text-white block mt-0.5">{item.data.cargo} ({item.data.weight})</strong>
+                            <strong className="text-slate-900 block mt-0.5">{item.data.cargo} ({item.data.weight})</strong>
                           </div>
                           <div>
                             <span className="text-slate-500 block uppercase font-bold text-[8px]">Route</span>
-                            <strong className="text-white block mt-0.5">{item.data.route}</strong>
+                            <strong className="text-slate-900 block mt-0.5">{item.data.route}</strong>
                           </div>
                         </>
                       )}
@@ -170,11 +170,11 @@ export default function AiCenterDashboard() {
                         <>
                           <div>
                             <span className="text-slate-500 block uppercase font-bold text-[8px]">Fuel Details</span>
-                            <strong className="text-white block mt-0.5">{item.data.item} - {item.data.fuelQty}</strong>
+                            <strong className="text-slate-900 block mt-0.5">{item.data.item} - {item.data.fuelQty}</strong>
                           </div>
                           <div>
                             <span className="text-slate-500 block uppercase font-bold text-[8px]">Financials</span>
-                            <strong className="text-white block mt-0.5">Total: {item.data.cost} (GST: {item.data.gst})</strong>
+                            <strong className="text-slate-900 block mt-0.5">Total: {item.data.cost} (GST: {item.data.gst})</strong>
                           </div>
                         </>
                       )}
@@ -182,21 +182,21 @@ export default function AiCenterDashboard() {
                         <>
                           <div>
                             <span className="text-slate-500 block uppercase font-bold text-[8px]">Vehicle ID</span>
-                            <strong className="text-white block mt-0.5">{item.data.vehicle}</strong>
+                            <strong className="text-slate-900 block mt-0.5">{item.data.vehicle}</strong>
                           </div>
                           <div>
                             <span className="text-slate-500 block uppercase font-bold text-[8px]">Odometer Reading</span>
-                            <strong className="text-white block mt-0.5 font-mono">{item.data.reading}</strong>
+                            <strong className="text-slate-900 block mt-0.5 font-mono">{item.data.reading}</strong>
                           </div>
                         </>
                       )}
                     </div>
 
                     {/* AI Buttons required by client spec */}
-                    <div className="flex flex-wrap gap-2 pt-2 border-t border-[#23324C]/45">
+                    <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-200/45">
                       <button 
                         onClick={() => triggerToast(`AI details parsed from: ${item.source}`)}
-                        className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-xl font-bold transition-colors cursor-pointer"
+                        className="px-3.5 py-2 bg-white hover:bg-slate-700 text-slate-700 text-xs rounded-xl font-bold transition-colors cursor-pointer"
                       >
                         Review AI Result
                       </button>
@@ -226,9 +226,9 @@ export default function AiCenterDashboard() {
           </div>
 
           {/* Right Ingestion side-zone */}
-          <div className="lg:col-span-4 glass rounded-2xl p-5 border border-[#23324C]/60 text-left flex flex-col justify-between">
+          <div className="lg:col-span-4 glass rounded-2xl p-5 border border-slate-200 text-left flex flex-col justify-between">
             <div>
-              <h3 className="text-sm font-extrabold text-white mb-1">OCR Document Uploader</h3>
+              <h3 className="text-sm font-extrabold text-slate-900 mb-1">OCR Document Uploader</h3>
               <p className="text-[10px] text-slate-500 font-semibold mb-3">Upload receipts, trip tickets, or manifests for automatic ingestion.</p>
               <FileUploader onUploadSuccess={(url, name) => {
                 const isPdf = name.endsWith('.pdf');
@@ -247,7 +247,7 @@ export default function AiCenterDashboard() {
               }} />
             </div>
             
-            <div className="p-3 bg-[#111827]/40 border border-[#23324C] text-[9.5px] text-slate-500 rounded-xl leading-relaxed text-center mt-4">
+            <div className="p-3 bg-white/40 border border-slate-200 text-[9.5px] text-slate-500 rounded-xl leading-relaxed text-center mt-4">
               * Files are immediately scanned using LLM vision models to categorize items.
             </div>
           </div>
@@ -256,9 +256,9 @@ export default function AiCenterDashboard() {
 
       {/* AI Playground tab */}
       {activeSubTab === 'playground' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left flex flex-col justify-between h-[500px]">
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left flex flex-col justify-between h-[500px]">
           <div>
-            <h3 className="text-sm font-extrabold text-white mb-1">Interactive AI Assistant Playground</h3>
+            <h3 className="text-sm font-extrabold text-slate-900 mb-1">Interactive AI Assistant Playground</h3>
             <p className="text-[10px] text-slate-500 mb-3">Query vehicle fleets, calculate margins, or search customer accounts using natural language prompts.</p>
           </div>
 
@@ -267,7 +267,7 @@ export default function AiCenterDashboard() {
               <div key={index} className={`p-3 rounded-xl text-xs max-w-[80%] leading-relaxed ${
                 msg.sender === 'Operator' 
                   ? 'bg-brand-500 text-slate-950 ml-auto font-semibold' 
-                  : 'bg-[#111827]/80 border border-[#23324C] text-slate-300'
+                  : 'bg-white/80 border border-slate-200 text-slate-600'
               }`}>
                 <div className="flex justify-between font-bold text-[9px] mb-1 opacity-70">
                   <span>{msg.sender}</span>
@@ -278,14 +278,14 @@ export default function AiCenterDashboard() {
             ))}
           </div>
 
-          <form onSubmit={handleChatSubmit} className="flex gap-2 border-t border-[#23324C]/40 pt-4">
+          <form onSubmit={handleChatSubmit} className="flex gap-2 border-t border-slate-200 pt-4">
             <input
               type="text"
               required
               value={currentPrompt}
               onChange={(e) => setCurrentPrompt(e.target.value)}
               placeholder="e.g. Find all trucks near Sydney or calculate net margin..."
-              className="flex-grow px-3 py-2 bg-[#111827] border border-[#23324C] focus:border-brand-500 rounded-xl text-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500 placeholder:text-slate-500"
+              className="flex-grow px-3 py-2 bg-white border border-slate-200 focus:border-brand-500 rounded-xl text-slate-700 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500 placeholder:text-slate-500"
             />
             <Button type="submit" variant="primary" icon={Send} />
           </form>
@@ -303,13 +303,13 @@ export default function AiCenterDashboard() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-2">
-              <h3 className="text-sm font-extrabold text-white">Ingested Document Volumes</h3>
+            <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-2">
+              <h3 className="text-sm font-extrabold text-slate-900">Ingested Document Volumes</h3>
               <MiniChart type="line" data={[2100, 2400, 2900, 3100, 3800, 4200]} labels={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']} />
             </div>
             
-            <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-2">
-              <h3 className="text-sm font-extrabold text-white">Extraction Processing Times (sec)</h3>
+            <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-2">
+              <h3 className="text-sm font-extrabold text-slate-900">Extraction Processing Times (sec)</h3>
               <MiniChart type="bar" data={[4.5, 4.2, 3.9, 3.5, 2.9, 2.1]} labels={['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']} />
             </div>
           </div>
@@ -318,8 +318,8 @@ export default function AiCenterDashboard() {
 
       {/* Model Configuration Tab */}
       {activeSubTab === 'settings' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 max-w-xl">
-          <h3 className="text-sm font-extrabold text-white">AI Model Configurations</h3>
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4 max-w-xl">
+          <h3 className="text-sm font-extrabold text-slate-900">AI Model Configurations</h3>
           
           <div className="space-y-4">
             <SelectInput 
@@ -345,9 +345,9 @@ export default function AiCenterDashboard() {
             />
 
             <div className="space-y-2">
-              <label className="flex items-center justify-between p-3.5 bg-slate-900/60 border border-[#23324C] rounded-xl cursor-pointer select-none">
+              <label className="flex items-center justify-between p-3.5 bg-slate-900/60 border border-slate-200 rounded-xl cursor-pointer select-none">
                 <div className="space-y-0.5">
-                  <span className="text-xs font-bold text-slate-200 block">Auto-Ingest Low Confidence Items</span>
+                  <span className="text-xs font-bold text-slate-700 block">Auto-Ingest Low Confidence Items</span>
                   <span className="text-[10px] text-slate-500 block">Ingest records below threshold into draft mode automatically</span>
                 </div>
                 <input 
@@ -358,9 +358,9 @@ export default function AiCenterDashboard() {
                 />
               </label>
 
-              <label className="flex items-center justify-between p-3.5 bg-slate-900/60 border border-[#23324C] rounded-xl cursor-pointer select-none">
+              <label className="flex items-center justify-between p-3.5 bg-slate-900/60 border border-slate-200 rounded-xl cursor-pointer select-none">
                 <div className="space-y-0.5">
-                  <span className="text-xs font-bold text-slate-200 block">Enable Driver Voice Dispatching Commands</span>
+                  <span className="text-xs font-bold text-slate-700 block">Enable Driver Voice Dispatching Commands</span>
                   <span className="text-[10px] text-slate-500 block">Allows voice-to-text dictation on compliance checklists</span>
                 </div>
                 <input 

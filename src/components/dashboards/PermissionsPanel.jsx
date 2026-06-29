@@ -262,8 +262,8 @@ export default function PermissionsPanel({ globalSearchQuery = '' }) {
           <div className="flex items-center gap-2.5">
             <span className="text-lg">⚠️</span>
             <div>
-              <p className="text-xs font-bold text-white">Unsaved Policy Mutations Detected</p>
-              <p className="text-[10px] text-slate-400 mt-0.5">You have toggled permissions or configuration parameters. Click "Save All Changes" below to write updates to database registry.</p>
+              <p className="text-xs font-bold text-slate-900">Unsaved Policy Mutations Detected</p>
+              <p className="text-[10px] text-slate-500 mt-0.5">You have toggled permissions or configuration parameters. Click "Save All Changes" below to write updates to database registry.</p>
             </div>
           </div>
           <Button variant="primary" size="sm" onClick={handleSaveAll} disabled={isSaving}>
@@ -273,11 +273,11 @@ export default function PermissionsPanel({ globalSearchQuery = '' }) {
       )}
 
       {/* Header */}
-      <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-5">
+      <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-5">
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
           <div>
-            <h3 className="text-sm font-extrabold text-white">Permission Matrix — Module-wise Access Control</h3>
-            <p className="text-xs text-slate-400 mt-0.5">Control module access, feature toggles, and branch-specific permissions per role.</p>
+            <h3 className="text-sm font-extrabold text-slate-900">Permission Matrix — Module-wise Access Control</h3>
+            <p className="text-xs text-slate-500 mt-0.5">Control module access, feature toggles, and branch-specific permissions per role.</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <div className="w-40 mr-2">
@@ -299,10 +299,10 @@ export default function PermissionsPanel({ globalSearchQuery = '' }) {
         <div className="overflow-x-auto">
           <table className="w-full text-xs min-w-[700px]">
             <thead>
-              <tr className="border-b border-[#23324C]/60">
+              <tr className="border-b border-slate-200">
                 <th className="text-left py-3 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider w-44">Module / Feature</th>
                 {roles.map(r => (
-                  <th key={r} className="text-center py-3 px-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">{r}</th>
+                  <th key={r} className="text-center py-3 px-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">{r}</th>
                 ))}
               </tr>
             </thead>
@@ -313,14 +313,14 @@ export default function PermissionsPanel({ globalSearchQuery = '' }) {
                 </tr>
               ) : filteredMatrix.map(perm => (
                 <tr key={perm.key} className="hover:bg-slate-900/20 transition-colors">
-                  <td className="py-2.5 px-3 font-semibold text-slate-300 text-xs">{perm.label}</td>
+                  <td className="py-2.5 px-3 font-semibold text-slate-600 text-xs">{perm.label}</td>
                   {roles.map(role => {
                     const pk = `${perm.key}_${role}`;
                     const on = userPermissions[pk] || false;
                     return (
                       <td key={role} className="py-2.5 px-2 text-center">
                         <button type="button" onClick={() => togglePermission(perm.key, role, perm.label)}
-                          className={`w-10 h-5 rounded-full transition-all relative cursor-pointer flex-shrink-0 ${on ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] border border-emerald-400' : 'bg-slate-800 border border-slate-700'}`}>
+                          className={`w-10 h-5 rounded-full transition-all relative cursor-pointer flex-shrink-0 ${on ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] border border-emerald-400' : 'bg-white border border-slate-700'}`}>
                           <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${on ? 'left-5.5' : 'left-0.5'}`}/>
                         </button>
                       </td>
@@ -334,19 +334,19 @@ export default function PermissionsPanel({ globalSearchQuery = '' }) {
       </div>
 
       {/* Feature Toggles */}
-      <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
-        <h3 className="text-sm font-extrabold text-white">Feature Toggles</h3>
+      <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
+        <h3 className="text-sm font-extrabold text-slate-900">Feature Toggles</h3>
         {filteredFeatures.length === 0 ? (
           <div className="text-center text-slate-500 py-4 text-xs">No features found.</div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             {filteredFeatures.map(f => (
-              <div key={f.id} className="flex items-center justify-between p-3 bg-[#111827]/50 border border-[#23324C]/40 rounded-xl">
+              <div key={f.id} className="flex items-center justify-between p-3 bg-white/50 border border-slate-200 rounded-xl">
                 <div>
-                  <p className="text-xs font-bold text-white">{f.label}</p>
+                  <p className="text-xs font-bold text-slate-900">{f.label}</p>
                   <p className="text-[10px] text-slate-500 mt-0.5">{f.desc}</p>
                 </div>
-                <button type="button" onClick={() => toggleFeature(f.id, f.label)} className={`w-10 h-5 rounded-full relative cursor-pointer flex-shrink-0 ml-3 transition-all ${f.on ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] border border-emerald-400' : 'bg-slate-800 border border-slate-700'}`}>
+                <button type="button" onClick={() => toggleFeature(f.id, f.label)} className={`w-10 h-5 rounded-full relative cursor-pointer flex-shrink-0 ml-3 transition-all ${f.on ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] border border-emerald-400' : 'bg-white border border-slate-700'}`}>
                   <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${f.on ? 'left-5.5' : 'left-0.5'}`}/>
                 </button>
               </div>
@@ -357,14 +357,14 @@ export default function PermissionsPanel({ globalSearchQuery = '' }) {
 
       {/* Branch-wise Permissions + User Groups */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
-          <h3 className="text-sm font-extrabold text-white">Branch-wise Permissions</h3>
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-3">
+          <h3 className="text-sm font-extrabold text-slate-900">Branch-wise Permissions</h3>
           <p className="text-[10px] text-slate-500">Restrict users to specific branches only.</p>
           <div className="space-y-2 max-h-[400px] overflow-y-auto scrollbar-hide">
             {branches.map(b => (
-              <div key={b.id} className="flex items-center justify-between p-3 bg-[#111827]/40 border border-[#23324C]/30 rounded-xl text-xs hover:border-[#23324C] transition-colors">
+              <div key={b.id} className="flex items-center justify-between p-3 bg-white/40 border border-slate-200 rounded-xl text-xs hover:border-slate-200 transition-colors">
                 <div>
-                  <p className="font-bold text-white">{b.branch}</p>
+                  <p className="font-bold text-slate-900">{b.branch}</p>
                   <p className="text-slate-500">{b.users} users assigned</p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -376,7 +376,7 @@ export default function PermissionsPanel({ globalSearchQuery = '' }) {
                   }`}>
                     {b.permType}
                   </span>
-                  <button type="button" onClick={() => openBranchPermEditor(b)} className="text-[10px] text-slate-400 hover:text-brand-400 transition-colors font-semibold">
+                  <button type="button" onClick={() => openBranchPermEditor(b)} className="text-[10px] text-slate-500 hover:text-brand-400 transition-colors font-semibold">
                     Edit →
                   </button>
                 </div>
@@ -385,29 +385,29 @@ export default function PermissionsPanel({ globalSearchQuery = '' }) {
           </div>
         </div>
         
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-3">
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-3">
           <div className="flex justify-between items-center">
-            <h3 className="text-sm font-extrabold text-white">User Groups</h3>
+            <h3 className="text-sm font-extrabold text-slate-900">User Groups</h3>
             <Button size="sm" variant="outline" onClick={openNewGroup}>+ New Group</Button>
           </div>
           <div className="space-y-2 max-h-[400px] overflow-y-auto scrollbar-hide">
             {filteredGroups.length === 0 ? (
               <div className="text-center text-slate-500 py-4 text-xs">No groups found.</div>
             ) : filteredGroups.map(g => (
-              <div key={g.id} className="p-3 bg-[#111827]/40 border border-[#23324C]/30 rounded-xl space-y-3">
+              <div key={g.id} className="p-3 bg-white/40 border border-slate-200 rounded-xl space-y-3">
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="font-bold text-white text-xs">{g.name}</p>
+                    <p className="font-bold text-slate-900 text-xs">{g.name}</p>
                     {g.desc && <p className="text-[10px] text-slate-500 line-clamp-1">{g.desc}</p>}
                   </div>
-                  <span className="text-[10px] bg-slate-800 text-slate-400 border border-[#23324C] px-2 py-0.5 rounded-full font-bold">{g.members} members</span>
+                  <span className="text-[10px] bg-white text-slate-500 border border-slate-200 px-2 py-0.5 rounded-full font-bold">{g.members} members</span>
                 </div>
                 <div className="flex flex-wrap gap-1">
                   {g.perms.map((p, j) => (<span key={j} className="text-[9px] bg-brand-500/10 text-brand-400 border border-brand-500/20 px-1.5 py-0.5 rounded font-bold">{p}</span>))}
                 </div>
-                <div className="flex gap-4 pt-1 border-t border-[#23324C]/30">
-                  <button type="button" onClick={() => openEditGroup(g)} className="text-[10px] text-slate-400 hover:text-brand-400 cursor-pointer transition-colors font-semibold">Edit Group</button>
-                  <button type="button" onClick={() => confirmDeleteGroup(g)} className="text-[10px] text-slate-400 hover:text-red-400 cursor-pointer transition-colors font-semibold">Delete</button>
+                <div className="flex gap-4 pt-1 border-t border-slate-200">
+                  <button type="button" onClick={() => openEditGroup(g)} className="text-[10px] text-slate-500 hover:text-brand-400 cursor-pointer transition-colors font-semibold">Edit Group</button>
+                  <button type="button" onClick={() => confirmDeleteGroup(g)} className="text-[10px] text-slate-500 hover:text-red-400 cursor-pointer transition-colors font-semibold">Delete</button>
                 </div>
               </div>
             ))}
@@ -420,7 +420,7 @@ export default function PermissionsPanel({ globalSearchQuery = '' }) {
       {/* Reset Confirm Modal */}
       <Modal isOpen={resetModalOpen} onClose={() => setResetModalOpen(false)} title="Reset Permissions?">
         <div className="space-y-4">
-          <p className="text-sm text-slate-300">Are you sure you want to reset all permissions, branches, features, and groups to their default templates? This action cannot be undone.</p>
+          <p className="text-sm text-slate-600">Are you sure you want to reset all permissions, branches, features, and groups to their default templates? This action cannot be undone.</p>
           <div className="flex justify-end gap-2 pt-4">
             <Button variant="secondary" type="button" onClick={() => setResetModalOpen(false)}>Cancel</Button>
             <Button variant="danger" type="button" onClick={handleResetDefaults}>Yes, Reset All</Button>
@@ -434,7 +434,7 @@ export default function PermissionsPanel({ globalSearchQuery = '' }) {
           <TextInput label="Permission Name *" placeholder="e.g. View Audit Logs" required value={newPerm.name} onChange={e => setNewPerm({...newPerm, name: e.target.value})} />
           
           <div>
-            <label className="block text-slate-400 font-bold uppercase text-[9px] mb-2">Enable By Default For Roles</label>
+            <label className="block text-slate-500 font-bold uppercase text-[9px] mb-2">Enable By Default For Roles</label>
             <div className="flex flex-wrap gap-2">
               {roles.map(r => {
                 const isSelected = newPerm.defaultRoles.includes(r);
@@ -442,7 +442,7 @@ export default function PermissionsPanel({ globalSearchQuery = '' }) {
                   <button 
                     key={r} type="button" 
                     onClick={() => toggleRoleForNewPerm(r)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${isSelected ? 'bg-brand-500/20 text-brand-400 border-brand-500/30' : 'bg-slate-800 text-slate-400 border-[#23324C]'}`}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-colors ${isSelected ? 'bg-brand-500/20 text-brand-400 border-brand-500/30' : 'bg-white text-slate-500 border-slate-200'}`}
                   >
                     {r.toUpperCase()}
                   </button>
@@ -450,7 +450,7 @@ export default function PermissionsPanel({ globalSearchQuery = '' }) {
               })}
             </div>
           </div>
-          <div className="flex justify-end gap-2 pt-4 border-t border-[#23324C]/40">
+          <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
             <Button variant="secondary" type="button" onClick={() => setAddPermModalOpen(false)}>Cancel</Button>
             <Button variant="primary" type="submit">Add Module</Button>
           </div>
@@ -473,11 +473,11 @@ export default function PermissionsPanel({ globalSearchQuery = '' }) {
               ]} 
             />
             {editingBranch.permType === 'Custom' && (
-              <div className="p-3 bg-[#111827] border border-[#23324C] rounded-xl text-xs text-slate-400">
+              <div className="p-3 bg-white border border-slate-200 rounded-xl text-xs text-slate-500">
                 Custom rules configuration panel would appear here.
               </div>
             )}
-            <div className="flex justify-end gap-2 pt-4 border-t border-[#23324C]/40">
+            <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
               <Button variant="secondary" type="button" onClick={() => setBranchPermModalOpen(false)}>Cancel</Button>
               <Button variant="primary" type="button" onClick={saveBranchPerms}>Save Configuration</Button>
             </div>
@@ -501,15 +501,15 @@ export default function PermissionsPanel({ globalSearchQuery = '' }) {
             <TextInput label="Description" value={editingGroup.desc} onChange={e => setEditingGroup({...editingGroup, desc: e.target.value})} />
             
             <div className="pt-2">
-              <label className="block text-slate-400 font-bold uppercase text-[9px] mb-2">Group Permissions</label>
-              <div className="flex flex-wrap gap-1.5 p-3 bg-[#111827] border border-[#23324C]/60 rounded-xl max-h-40 overflow-y-auto">
+              <label className="block text-slate-500 font-bold uppercase text-[9px] mb-2">Group Permissions</label>
+              <div className="flex flex-wrap gap-1.5 p-3 bg-white border border-slate-200 rounded-xl max-h-40 overflow-y-auto">
                 {matrix.map(m => {
                   const isSelected = editingGroup.perms.includes(m.label);
                   return (
                     <button 
                       key={m.key} type="button" 
                       onClick={() => toggleGroupPerm(m.label)}
-                      className={`px-2 py-1 rounded text-[10px] font-bold border transition-colors ${isSelected ? 'bg-brand-500/20 text-brand-400 border-brand-500/30' : 'bg-slate-800 text-slate-500 border-[#23324C]'}`}
+                      className={`px-2 py-1 rounded text-[10px] font-bold border transition-colors ${isSelected ? 'bg-brand-500/20 text-brand-400 border-brand-500/30' : 'bg-white text-slate-500 border-slate-200'}`}
                     >
                       {m.label}
                     </button>
@@ -518,7 +518,7 @@ export default function PermissionsPanel({ globalSearchQuery = '' }) {
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-4 border-t border-[#23324C]/40 mt-4">
+            <div className="flex justify-end gap-2 pt-4 border-t border-slate-200 mt-4">
               <Button variant="secondary" type="button" onClick={() => setGroupModalOpen(false)}>Cancel</Button>
               <Button variant="primary" type="submit">Save Group</Button>
             </div>
@@ -530,8 +530,8 @@ export default function PermissionsPanel({ globalSearchQuery = '' }) {
       {editingGroup && (
         <Modal isOpen={deleteGroupModalOpen} onClose={() => setDeleteGroupModalOpen(false)} title="Delete Group?">
           <div className="space-y-4">
-            <p className="text-sm text-slate-300">Are you sure you want to delete the group <strong>{editingGroup.name}</strong>? This action cannot be undone and {editingGroup.members} members will lose these specific roles.</p>
-            <div className="flex justify-end gap-2 pt-4 border-t border-[#23324C]/40">
+            <p className="text-sm text-slate-600">Are you sure you want to delete the group <strong>{editingGroup.name}</strong>? This action cannot be undone and {editingGroup.members} members will lose these specific roles.</p>
+            <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
               <Button variant="secondary" type="button" onClick={() => setDeleteGroupModalOpen(false)}>Cancel</Button>
               <Button variant="danger" type="button" onClick={deleteGroup}>Delete Group</Button>
             </div>

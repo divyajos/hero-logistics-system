@@ -56,7 +56,7 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-12">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center cursor-pointer" onClick={() => navigate('/')}>
-            <div className="mr-2.5 px-2 py-1 bg-neutral-900 rounded-xl border border-[#2E2E2E] shadow-lg shadow-black/20 flex items-center justify-center hover:scale-105 transition-transform duration-300">
+            <div className="mr-2.5 px-2 py-1 bg-neutral-900 rounded-xl border border-slate-200 shadow-lg shadow-black/20 flex items-center justify-center hover:scale-105 transition-transform duration-300">
               <img src={heroLogo} alt="Hero Logistics Logo" className="h-9 w-auto object-contain" />
             </div>
             <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-white via-slate-100 to-brand-500 bg-clip-text text-transparent">
@@ -71,7 +71,7 @@ export default function Navbar() {
                 key={link.name}
                 href={link.href}
                 onClick={(e) => handleLinkClick(e, link.href)}
-                className="px-3.5 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/40 transition-all duration-200"
+                className="px-3.5 py-2 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-white/40 transition-all duration-200"
               >
                 {link.name}
               </a>
@@ -84,7 +84,7 @@ export default function Navbar() {
               onClick={() => navigate('/login')}
               className={`px-4 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${location.pathname === '/login'
                   ? 'text-brand-500 bg-brand-500/10'
-                  : 'text-slate-300 hover:text-white hover:bg-slate-800/40'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/40'
                 }`}
             >
               Login
@@ -92,7 +92,7 @@ export default function Navbar() {
             <a
               href="#contact"
               onClick={(e) => handleLinkClick(e, '#contact')}
-              className="px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white border border-[#2E2E2E] hover:border-brand-500/50 rounded-lg transition-all duration-200"
+              className="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-900 border border-slate-200 hover:border-brand-500/50 rounded-lg transition-all duration-200"
             >
               Book Demo
             </a>
@@ -109,7 +109,7 @@ export default function Navbar() {
           <div className="lg:hidden flex items-center">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800/60 focus:outline-none transition-all"
+              className="inline-flex items-center justify-center p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-white/60 focus:outline-none transition-all"
             >
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -119,28 +119,28 @@ export default function Navbar() {
 
       <div className={`lg:hidden transition-all duration-300 overflow-hidden ${isOpen ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0 pointer-events-none'
         }`}>
-        <div className="px-2 pt-2 pb-4 space-y-1 bg-[#141414]/95 border-b border-[#2E2E2E] backdrop-blur-lg shadow-inner">
+        <div className="px-2 pt-2 pb-4 space-y-1 bg-[#141414]/95 border-b border-slate-200 backdrop-blur-lg shadow-inner">
           {navLinks.map((link) => (
             <a
               key={link.name}
               href={link.href}
               onClick={(e) => handleLinkClick(e, link.href)}
-              className="block px-4 py-3 rounded-lg text-base font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition-all"
+              className="block px-4 py-3 rounded-lg text-base font-medium text-slate-600 hover:text-slate-900 hover:bg-white/60 transition-all"
             >
               {link.name}
             </a>
           ))}
-          <div className="pt-4 pb-2 border-t border-[#2E2E2E] px-4 space-y-3">
+          <div className="pt-4 pb-2 border-t border-slate-200 px-4 space-y-3">
             <button
               onClick={() => { setIsOpen(false); navigate('/login'); }}
-              className="w-full text-center py-2.5 text-base font-semibold text-slate-300 hover:text-white bg-slate-800/40 hover:bg-slate-800 rounded-lg transition-all"
+              className="w-full text-center py-2.5 text-base font-semibold text-slate-600 hover:text-slate-900 bg-white/40 hover:bg-white rounded-lg transition-all"
             >
               Login
             </button>
             <a
               href="#contact"
               onClick={(e) => handleLinkClick(e, '#contact')}
-              className="block w-full text-center py-2.5 text-base font-semibold text-slate-300 hover:text-white border border-[#2E2E2E] rounded-lg transition-all"
+              className="block w-full text-center py-2.5 text-base font-semibold text-slate-600 hover:text-slate-900 border border-slate-200 rounded-lg transition-all"
             >
               Book Demo
             </a>

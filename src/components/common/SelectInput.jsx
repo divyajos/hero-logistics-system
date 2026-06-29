@@ -14,7 +14,7 @@ export default function SelectInput({
       {label && (
         <label 
           htmlFor={id} 
-          className="block text-xs font-semibold text-slate-400 uppercase tracking-wide"
+          className="block text-xs font-semibold text-slate-500 uppercase tracking-wide"
         >
           {label}
         </label>
@@ -22,10 +22,10 @@ export default function SelectInput({
       <select
         id={id}
         className={`
-          block w-full px-4 py-3 bg-[#111827] text-slate-200 text-xs rounded-xl focus:outline-none cursor-pointer transition-all duration-200
+          block w-full px-4 py-3 bg-white text-slate-700 text-xs rounded-xl focus:outline-none cursor-pointer transition-all duration-200
           ${error 
             ? 'border border-red-500/50 focus:ring-1 focus:ring-red-500 focus:border-red-500' 
-            : 'border border-[#23324C] focus:border-brand-500 focus:ring-1 focus:ring-brand-500'
+            : 'border border-slate-200 focus:border-brand-500 focus:ring-1 focus:ring-brand-500'
           }
         `}
         {...props}

@@ -876,63 +876,63 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
       
       {/* 8 KPI Cards Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="glass rounded-2xl p-4 border border-[#23324C]/60 flex flex-col justify-between hover:scale-[1.02] transition-all">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Total Licensing Plans</span>
-          <strong className="text-xl sm:text-2xl font-black text-white mt-2 block">{plans.length}</strong>
+        <div className="glass rounded-2xl p-4 border border-slate-200 flex flex-col justify-between hover:scale-[1.02] transition-all">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Total Licensing Plans</span>
+          <strong className="text-xl sm:text-2xl font-black text-slate-900 mt-2 block">{plans.length}</strong>
           <span className="text-[9px] font-semibold text-emerald-400 block mt-1.5">+1 added version v1.2</span>
         </div>
-        <div className="glass rounded-2xl p-4 border border-[#23324C]/60 flex flex-col justify-between hover:scale-[1.02] transition-all">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Active Subscribers</span>
-          <strong className="text-xl sm:text-2xl font-black text-white mt-2 block">{activeSubscribersCount}</strong>
+        <div className="glass rounded-2xl p-4 border border-slate-200 flex flex-col justify-between hover:scale-[1.02] transition-all">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Active Subscribers</span>
+          <strong className="text-xl sm:text-2xl font-black text-slate-900 mt-2 block">{activeSubscribersCount}</strong>
           <span className="text-[9px] font-semibold text-brand-400 block mt-1.5">{tenants.filter(t => t.status === 'Hold').length} suspended instances held</span>
         </div>
-        <div className="glass rounded-2xl p-4 border border-[#23324C]/60 flex flex-col justify-between hover:scale-[1.02] transition-all">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Trial Subscribers</span>
-          <strong className="text-xl sm:text-2xl font-black text-white mt-2 block">{trialSubscribersCount}</strong>
+        <div className="glass rounded-2xl p-4 border border-slate-200 flex flex-col justify-between hover:scale-[1.02] transition-all">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Trial Subscribers</span>
+          <strong className="text-xl sm:text-2xl font-black text-slate-900 mt-2 block">{trialSubscribersCount}</strong>
           <span className="text-[9px] font-semibold text-amber-500 block mt-1.5">3 trial expiries soon</span>
         </div>
-        <div className="glass rounded-2xl p-4 border border-[#23324C]/60 flex flex-col justify-between hover:scale-[1.02] transition-all">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Monthly Revenue (MRR)</span>
+        <div className="glass rounded-2xl p-4 border border-slate-200 flex flex-col justify-between hover:scale-[1.02] transition-all">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Monthly Revenue (MRR)</span>
           <strong className="text-xl sm:text-2xl font-black text-brand-400 mt-2 block">${calculatedMrrVal.toLocaleString()}</strong>
           <span className="text-[9px] font-semibold text-emerald-400 block mt-1.5">ARR projected: ${calculatedArrVal.toLocaleString()}</span>
         </div>
-        <div className="glass rounded-2xl p-4 border border-[#23324C]/60 flex flex-col justify-between hover:scale-[1.02] transition-all">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Upgrade Rate</span>
-          <strong className="text-xl sm:text-2xl font-black text-white mt-2 block">12.5%</strong>
+        <div className="glass rounded-2xl p-4 border border-slate-200 flex flex-col justify-between hover:scale-[1.02] transition-all">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Upgrade Rate</span>
+          <strong className="text-xl sm:text-2xl font-black text-slate-900 mt-2 block">12.5%</strong>
           <span className="text-[9px] font-semibold text-emerald-400 block mt-1.5">+2.1% upgrade speed</span>
         </div>
-        <div className="glass rounded-2xl p-4 border border-[#23324C]/60 flex flex-col justify-between hover:scale-[1.02] transition-all">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Downgrade Rate</span>
-          <strong className="text-xl sm:text-2xl font-black text-white mt-2 block">1.8%</strong>
+        <div className="glass rounded-2xl p-4 border border-slate-200 flex flex-col justify-between hover:scale-[1.02] transition-all">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Downgrade Rate</span>
+          <strong className="text-xl sm:text-2xl font-black text-slate-900 mt-2 block">1.8%</strong>
           <span className="text-[9px] font-semibold text-emerald-400 block mt-1.5">Stable vs Q1 limits</span>
         </div>
-        <div className="glass rounded-2xl p-4 border border-[#23324C]/60 flex flex-col justify-between hover:scale-[1.02] transition-all">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Churn Rate</span>
+        <div className="glass rounded-2xl p-4 border border-slate-200 flex flex-col justify-between hover:scale-[1.02] transition-all">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Churn Rate</span>
           <strong className="text-xl sm:text-2xl font-black text-red-400 mt-2 block">2.4%</strong>
           <span className="text-[9px] font-semibold text-emerald-400 block mt-1.5">Historical low</span>
         </div>
-        <div className="glass rounded-2xl p-4 border border-[#23324C]/60 flex flex-col justify-between hover:scale-[1.02] transition-all">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Growth Index</span>
-          <strong className="text-xl sm:text-2xl font-black text-white mt-2 block">94.8%</strong>
+        <div className="glass rounded-2xl p-4 border border-slate-200 flex flex-col justify-between hover:scale-[1.02] transition-all">
+          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Growth Index</span>
+          <strong className="text-xl sm:text-2xl font-black text-slate-900 mt-2 block">94.8%</strong>
           <span className="text-[9px] font-semibold text-brand-400 block mt-1.5">SaaS scale health: Excellent</span>
         </div>
       </div>
 
       {/* Subscription Pricing Grid */}
-      <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-[#23324C]/40 pb-4">
+      <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-slate-200 pb-4">
           <div>
-            <h3 className="text-sm font-extrabold text-white">Active Licensing Plans Overview</h3>
+            <h3 className="text-sm font-extrabold text-slate-900">Active Licensing Plans Overview</h3>
             <p className="text-[10px] text-slate-450 mt-0.5">Toggle billing terms and manage configurations of operational plan tires.</p>
           </div>
           
           <div className="flex items-center gap-3">
             {/* Monthly / Annual Toggle */}
-            <div className="bg-[#0B0F19] border border-[#23324C] p-1 rounded-xl flex items-center text-xs font-semibold">
+            <div className="bg-slate-50 border border-slate-200 p-1 rounded-xl flex items-center text-xs font-semibold">
               <button
                 onClick={() => setBillingPeriod('monthly')}
                 className={`px-3 py-1.5 rounded-lg cursor-pointer transition-all ${
-                  billingPeriod === 'monthly' ? 'bg-brand-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'
+                  billingPeriod === 'monthly' ? 'bg-brand-500 text-slate-950 font-bold' : 'text-slate-500 hover:text-slate-900'
                 }`}
               >
                 Monthly Billing
@@ -940,7 +940,7 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
               <button
                 onClick={() => setBillingPeriod('annual')}
                 className={`px-3 py-1.5 rounded-lg cursor-pointer transition-all ${
-                  billingPeriod === 'annual' ? 'bg-brand-500 text-slate-950 font-bold' : 'text-slate-400 hover:text-white'
+                  billingPeriod === 'annual' ? 'bg-brand-500 text-slate-950 font-bold' : 'text-slate-500 hover:text-slate-900'
                 }`}
               >
                 Annual Billing (Save 15%)
@@ -966,7 +966,7 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                 className={`p-4 rounded-2xl border flex flex-col justify-between h-[360px] transition-all relative overflow-hidden group hover:scale-[1.01] ${
                   plan.status === 'Published' 
                     ? 'bg-brand-500/5 border-brand-500/25 hover:border-brand-500/40' 
-                    : 'bg-[#111827]/40 border-[#23324C]/60 hover:border-[#23324C]/90'
+                    : 'bg-white/40 border-slate-200 hover:border-slate-200/90'
                 }`}
               >
                 {/* Decorative glow */}
@@ -975,9 +975,9 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                 )}
                 
                 <div>
-                  <div className="flex justify-between items-start border-b border-[#23324C]/45 pb-3">
+                  <div className="flex justify-between items-start border-b border-slate-200/45 pb-3">
                     <div>
-                      <h4 className="text-white text-xs font-black uppercase tracking-wide">{plan.name}</h4>
+                      <h4 className="text-slate-900 text-xs font-black uppercase tracking-wide">{plan.name}</h4>
                       <span className="text-[9px] text-slate-500 font-mono block mt-0.5">Version v{plan.version} • {plan.status}</span>
                     </div>
                     <span className={`px-2 py-0.5 rounded text-[8px] font-bold ${
@@ -985,27 +985,27 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                     }`}>{plan.status}</span>
                   </div>
 
-                  <div className="mt-3.5 space-y-1 text-slate-400 text-[10px]">
-                    <div className="flex justify-between"><span>Active Users:</span><strong className="text-white">{plan.limits.users}</strong></div>
-                    <div className="flex justify-between"><span>Drivers capacity:</span><strong className="text-white">{plan.limits.drivers}</strong></div>
-                    <div className="flex justify-between"><span>Fleet Vehicles:</span><strong className="text-white">{plan.limits.vehicles}</strong></div>
-                    <div className="flex justify-between"><span>Cloud Storage:</span><strong className="text-white">{plan.limits.storage} GB</strong></div>
-                    <div className="flex justify-between"><span>Trial Days:</span><strong className="text-white">{plan.trialDays} Days</strong></div>
+                  <div className="mt-3.5 space-y-1 text-slate-500 text-[10px]">
+                    <div className="flex justify-between"><span>Active Users:</span><strong className="text-slate-900">{plan.limits.users}</strong></div>
+                    <div className="flex justify-between"><span>Drivers capacity:</span><strong className="text-slate-900">{plan.limits.drivers}</strong></div>
+                    <div className="flex justify-between"><span>Fleet Vehicles:</span><strong className="text-slate-900">{plan.limits.vehicles}</strong></div>
+                    <div className="flex justify-between"><span>Cloud Storage:</span><strong className="text-slate-900">{plan.limits.storage} GB</strong></div>
+                    <div className="flex justify-between"><span>Trial Days:</span><strong className="text-slate-900">{plan.trialDays} Days</strong></div>
                   </div>
 
-                  <div className="mt-3.5 border-t border-[#23324C]/30 pt-3">
+                  <div className="mt-3.5 border-t border-slate-200 pt-3">
                     <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Key Modules</span>
-                    <div className="flex flex-wrap gap-1 text-[8px] font-bold text-slate-300">
-                      {plan.features.dispatch && <span className="bg-[#111827] border border-[#23324C] px-1.5 py-0.5 rounded">Dispatch</span>}
-                      {plan.features.fleet && <span className="bg-[#111827] border border-[#23324C] px-1.5 py-0.5 rounded">Fleet</span>}
-                      {plan.features.gps && <span className="bg-[#111827] border border-[#23324C] px-1.5 py-0.5 rounded">GPS</span>}
-                      {plan.features.driverApp && <span className="bg-[#111827] border border-[#23324C] px-1.5 py-0.5 rounded">Driver App</span>}
+                    <div className="flex flex-wrap gap-1 text-[8px] font-bold text-slate-600">
+                      {plan.features.dispatch && <span className="bg-white border border-slate-200 px-1.5 py-0.5 rounded">Dispatch</span>}
+                      {plan.features.fleet && <span className="bg-white border border-slate-200 px-1.5 py-0.5 rounded">Fleet</span>}
+                      {plan.features.gps && <span className="bg-white border border-slate-200 px-1.5 py-0.5 rounded">GPS</span>}
+                      {plan.features.driverApp && <span className="bg-white border border-slate-200 px-1.5 py-0.5 rounded">Driver App</span>}
                       {plan.features.ai && <span className="bg-brand-500/10 text-brand-400 border border-brand-500/20 px-1.5 py-0.5 rounded">AI dispatch</span>}
                     </div>
                   </div>
                 </div>
 
-                <div className="border-t border-[#23324C]/35 pt-4 mt-3">
+                <div className="border-t border-slate-200/35 pt-4 mt-3">
                   <div className="flex justify-between items-center mb-3">
                     <div>
                       <h5 className="text-lg font-black text-brand-400">${price.toLocaleString()}<span className="text-[10px] text-slate-450 font-semibold">/{periodLabel}</span></h5>
@@ -1026,10 +1026,10 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
       </div>
 
       {/* Main Workspace Navigation Panels Tabs */}
-      <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+      <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
         
         {/* Navigation Tabs Bar */}
-        <div className="flex gap-1.5 border-b border-[#23324C]/45 pb-3 overflow-x-auto scrollbar-none text-xs font-semibold">
+        <div className="flex gap-1.5 border-b border-slate-200/45 pb-3 overflow-x-auto scrollbar-none text-xs font-semibold">
           {[
             { id: 'registry', label: 'Plan Registry', icon: Layers },
             { id: 'matrix', label: 'Feature Matrix', icon: Shield },
@@ -1050,7 +1050,7 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                 className={`px-3 py-2 rounded-xl border flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
                   activeSubTab === tab.id
                     ? 'bg-brand-500 border-brand-500 text-slate-950 font-black shadow-md'
-                    : 'bg-slate-900/60 border-[#23324C]/70 text-slate-400 hover:text-slate-200 hover:bg-slate-800/30'
+                    : 'bg-slate-900/60 border-slate-200/70 text-slate-500 hover:text-slate-700 hover:bg-white/30'
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -1090,14 +1090,14 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                   {showColDropdown && (
                     <>
                       <div className="fixed inset-0 z-30" onClick={() => setShowColDropdown(false)}></div>
-                      <div className="absolute left-0 mt-1 w-48 bg-[#161F30] border border-[#23324C] rounded-xl shadow-2xl p-2 z-40 text-xs text-slate-300">
+                      <div className="absolute left-0 mt-1 w-48 bg-slate-50 border border-slate-200 rounded-xl shadow-2xl p-2 z-40 text-xs text-slate-600">
                         {Object.keys(visibleColumns).map(col => (
-                          <label key={col} className="flex items-center gap-2 px-2.5 py-1.5 hover:bg-slate-800/40 rounded-lg cursor-pointer">
+                          <label key={col} className="flex items-center gap-2 px-2.5 py-1.5 hover:bg-white/40 rounded-lg cursor-pointer">
                             <input 
                               type="checkbox" 
                               checked={visibleColumns[col]} 
                               onChange={() => toggleColumn(col)}
-                              className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-3.5 w-3.5" 
+                              className="rounded bg-slate-50 border-slate-200 text-brand-500 h-3.5 w-3.5" 
                             />
                             <span className="capitalize">{col.replace(/([A-Z])/g, ' $1')}</span>
                           </label>
@@ -1116,13 +1116,13 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
 
             {/* Price Ranges filters subbar */}
             {showFilters && (
-              <div className="p-3 bg-[#111827] border border-[#23324C] rounded-xl grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs items-end animate-fade-in">
+              <div className="p-3 bg-white border border-slate-200 rounded-xl grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs items-end animate-fade-in">
                 <div>
                   <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">State Lifecycle</label>
                   <select
                     value={filterStatus}
                     onChange={(e) => setFilterStatus(e.target.value)}
-                    className="w-full bg-[#0B0F19] border border-[#23324C] rounded-lg p-2 text-slate-300 outline-none"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-slate-600 outline-none"
                   >
                     <option value="All">All States</option>
                     <option value="Draft">Draft</option>
@@ -1147,7 +1147,7 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
 
             {/* Bulk actions drawer */}
             {selectedPlanIds.length > 0 && (
-              <div className="bg-[#111827] border border-[#23324C] rounded-xl p-3 flex justify-between items-center text-xs animate-fade-in">
+              <div className="bg-white border border-slate-200 rounded-xl p-3 flex justify-between items-center text-xs animate-fade-in">
                 <span className="text-brand-400 font-bold">{selectedPlanIds.length} plans selected</span>
                 <div className="flex gap-2">
                   <Button size="sm" variant="success" onClick={() => handleBulkStateChange('Published')}>Bulk Publish</Button>
@@ -1159,9 +1159,9 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
             )}
 
             {/* Plans Table */}
-            <div className="border border-[#23324C] rounded-2xl overflow-x-auto bg-[#161F30]/30">
+            <div className="border border-slate-200 rounded-2xl overflow-x-auto bg-slate-50/30">
               <table className="min-w-full text-left border-collapse text-xs">
-                <thead className="bg-[#161F30] border-b border-[#23324C] text-[10px] font-bold tracking-wider uppercase text-slate-400">
+                <thead className="bg-slate-50 border-b border-slate-200 text-[10px] font-bold tracking-wider uppercase text-slate-500">
                   <tr>
                     <th className="p-3 w-10 text-center">
                       <input
@@ -1174,19 +1174,19 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                             setSelectedPlanIds([]);
                           }
                         }}
-                        className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-4 w-4 cursor-pointer"
+                        className="rounded bg-slate-50 border-slate-200 text-brand-500 h-4 w-4 cursor-pointer"
                       />
                     </th>
                     {visibleColumns.id && (
                       <th className="p-3">
-                        <button onClick={() => { setSortField('id'); setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); }} className="flex items-center gap-1 font-extrabold text-slate-400 hover:text-white focus:outline-none">
+                        <button onClick={() => { setSortField('id'); setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); }} className="flex items-center gap-1 font-extrabold text-slate-500 hover:text-slate-900 focus:outline-none">
                           Plan ID{sortField === 'id' && (sortOrder === 'asc' ? ' ▲' : ' ▼')}
                         </button>
                       </th>
                     )}
                     {visibleColumns.name && (
                       <th className="p-3">
-                        <button onClick={() => { setSortField('name'); setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); }} className="flex items-center gap-1 font-extrabold text-slate-400 hover:text-white focus:outline-none">
+                        <button onClick={() => { setSortField('name'); setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); }} className="flex items-center gap-1 font-extrabold text-slate-500 hover:text-slate-900 focus:outline-none">
                           Plan Name{sortField === 'name' && (sortOrder === 'asc' ? ' ▲' : ' ▼')}
                         </button>
                       </th>
@@ -1195,7 +1195,7 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                     {visibleColumns.status && <th className="p-3">Status</th>}
                     {visibleColumns.pricing && (
                       <th className="p-3">
-                        <button onClick={() => { setSortField(billingPeriod === 'monthly' ? 'monthlyPrice' : 'annualPrice'); setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); }} className="flex items-center gap-1 font-extrabold text-slate-400 hover:text-white focus:outline-none">
+                        <button onClick={() => { setSortField(billingPeriod === 'monthly' ? 'monthlyPrice' : 'annualPrice'); setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); }} className="flex items-center gap-1 font-extrabold text-slate-500 hover:text-slate-900 focus:outline-none">
                           Pricing{sortField === (billingPeriod === 'monthly' ? 'monthlyPrice' : 'annualPrice') && (sortOrder === 'asc' ? ' ▲' : ' ▼')}
                         </button>
                       </th>
@@ -1203,14 +1203,14 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                     {visibleColumns.trialDays && <th className="p-3">Trial Days</th>}
                     {visibleColumns.subscribers && (
                       <th className="p-3">
-                        <button onClick={() => { setSortField('subscribers'); setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); }} className="flex items-center gap-1 font-extrabold text-slate-400 hover:text-white focus:outline-none">
+                        <button onClick={() => { setSortField('subscribers'); setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); }} className="flex items-center gap-1 font-extrabold text-slate-500 hover:text-slate-900 focus:outline-none">
                           Subscribers{sortField === 'subscribers' && (sortOrder === 'asc' ? ' ▲' : ' ▼')}
                         </button>
                       </th>
                     )}
                     {visibleColumns.revenue && (
                       <th className="p-3">
-                        <button onClick={() => { setSortField('revenue'); setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); }} className="flex items-center gap-1 font-extrabold text-slate-400 hover:text-white focus:outline-none">
+                        <button onClick={() => { setSortField('revenue'); setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); }} className="flex items-center gap-1 font-extrabold text-slate-500 hover:text-slate-900 focus:outline-none">
                           Revenue (MRR){sortField === 'revenue' && (sortOrder === 'asc' ? ' ▲' : ' ▼')}
                         </button>
                       </th>
@@ -1218,7 +1218,7 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                     {visibleColumns.createdBy && <th className="p-3">Created By</th>}
                     {visibleColumns.lastUpdated && (
                       <th className="p-3">
-                        <button onClick={() => { setSortField('lastUpdated'); setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); }} className="flex items-center gap-1 font-extrabold text-slate-400 hover:text-white focus:outline-none">
+                        <button onClick={() => { setSortField('lastUpdated'); setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc'); }} className="flex items-center gap-1 font-extrabold text-slate-500 hover:text-slate-900 focus:outline-none">
                           Last Updated{sortField === 'lastUpdated' && (sortOrder === 'asc' ? ' ▲' : ' ▼')}
                         </button>
                       </th>
@@ -1232,7 +1232,7 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                     const isSelected = selectedPlanIds.includes(plan.id);
 
                     return (
-                      <tr key={plan.id} className={`transition-colors hover:bg-slate-800/10 ${isSelected ? 'bg-brand-500/5' : ''}`}>
+                      <tr key={plan.id} className={`transition-colors hover:bg-white/10 ${isSelected ? 'bg-brand-500/5' : ''}`}>
                         <td className="p-3 text-center">
                           <input
                             type="checkbox"
@@ -1244,18 +1244,18 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                                 setSelectedPlanIds(prev => prev.filter(id => id !== plan.id));
                               }
                             }}
-                            className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-4 w-4 cursor-pointer"
+                            className="rounded bg-slate-50 border-slate-200 text-brand-500 h-4 w-4 cursor-pointer"
                           />
                         </td>
-                        {visibleColumns.id && <td className="p-3 font-mono text-slate-400">{plan.id}</td>}
-                        {visibleColumns.name && <td className="p-3 text-white font-extrabold">{plan.name}</td>}
+                        {visibleColumns.id && <td className="p-3 font-mono text-slate-500">{plan.id}</td>}
+                        {visibleColumns.name && <td className="p-3 text-slate-900 font-extrabold">{plan.name}</td>}
                         {visibleColumns.version && <td className="p-3 font-mono">v{plan.version}</td>}
                         {visibleColumns.status && (
                           <td className="p-3">
                             <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
                               plan.status === 'Published' ? 'bg-emerald-500/10 text-emerald-400' :
                               plan.status === 'Draft' ? 'bg-amber-500/10 text-amber-400' :
-                              plan.status === 'Archived' ? 'bg-red-500/10 text-red-400' : 'bg-slate-800 text-slate-400'
+                              plan.status === 'Archived' ? 'bg-red-500/10 text-red-400' : 'bg-white text-slate-500'
                             }`}>{plan.status}</span>
                           </td>
                         )}
@@ -1265,10 +1265,10 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                           </td>
                         )}
                         {visibleColumns.trialDays && <td className="p-3 font-mono">{plan.trialDays} days</td>}
-                        {visibleColumns.subscribers && <td className="p-3 font-mono font-bold text-white">{metrics.subscribers}</td>}
+                        {visibleColumns.subscribers && <td className="p-3 font-mono font-bold text-slate-900">{metrics.subscribers}</td>}
                         {visibleColumns.revenue && <td className="p-3 font-bold font-mono text-emerald-400">${metrics.revenue.toLocaleString()}</td>}
-                        {visibleColumns.createdBy && <td className="p-3 text-slate-400 font-medium">{plan.createdBy}</td>}
-                        {visibleColumns.lastUpdated && <td className="p-3 text-slate-400 font-mono">{plan.lastUpdated}</td>}
+                        {visibleColumns.createdBy && <td className="p-3 text-slate-500 font-medium">{plan.createdBy}</td>}
+                        {visibleColumns.lastUpdated && <td className="p-3 text-slate-500 font-mono">{plan.lastUpdated}</td>}
                         {visibleColumns.actions && (
                           <td className="p-3">
                             <div className="flex flex-wrap gap-1">
@@ -1304,13 +1304,13 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
 
         {/* Tab 2: Feature Matrix */}
         {activeSubTab === 'matrix' && (
-          <div className="space-y-4 text-slate-300">
-            <div className="border border-[#23324C] rounded-2xl overflow-hidden">
+          <div className="space-y-4 text-slate-600">
+            <div className="border border-slate-200 rounded-2xl overflow-hidden">
               <table className="min-w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="bg-[#161F30] border-b border-[#23324C] text-[10px] font-bold tracking-wider uppercase text-slate-400">
+                  <tr className="bg-slate-50 border-b border-slate-200 text-[10px] font-bold tracking-wider uppercase text-slate-500">
                     <th className="p-3 w-1/3">Service Module Feature</th>
-                    {plans.map(p => <th key={p.id} className="p-3 text-center text-white">{p.name}</th>)}
+                    {plans.map(p => <th key={p.id} className="p-3 text-center text-slate-900">{p.name}</th>)}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#23324C]/40 font-semibold">
@@ -1326,8 +1326,8 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                     { key: 'customerPortal', label: 'White-Label Shipper Portal Gateway' },
                     { key: 'integrations', label: 'Third-Party Brokers TMS Integration Connectors' }
                   ].map(row => (
-                    <tr key={row.key} className="hover:bg-slate-800/10">
-                      <td className="p-3 text-white">{row.label}</td>
+                    <tr key={row.key} className="hover:bg-white/10">
+                      <td className="p-3 text-slate-900">{row.label}</td>
                       {plans.map(plan => {
                         const enabled = plan.features[row.key];
                         return (
@@ -1343,12 +1343,12 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                     </tr>
                   ))}
                   {/* Usage capacity matrix rows */}
-                  <tr className="bg-[#161F30]/20 font-black"><td className="p-3 text-brand-400 uppercase tracking-widest text-[9px]" colSpan={plans.length + 1}>Capacity Allocation Thresholds</td></tr>
+                  <tr className="bg-slate-50/20 font-black"><td className="p-3 text-brand-400 uppercase tracking-widest text-[9px]" colSpan={plans.length + 1}>Capacity Allocation Thresholds</td></tr>
                   {['users', 'drivers', 'vehicles', 'branches', 'storage', 'apiCalls'].map(lim => (
-                    <tr key={lim} className="hover:bg-slate-800/10 text-slate-400">
-                      <td className="p-3 text-white capitalize">{lim.replace(/([A-Z])/g, ' $1')} Limit</td>
+                    <tr key={lim} className="hover:bg-white/10 text-slate-500">
+                      <td className="p-3 text-slate-900 capitalize">{lim.replace(/([A-Z])/g, ' $1')} Limit</td>
                       {plans.map(plan => (
-                        <td key={plan.id} className="p-3 text-center font-mono font-bold text-white">
+                        <td key={plan.id} className="p-3 text-center font-mono font-bold text-slate-900">
                           {plan.limits[lim]} {lim === 'storage' ? 'GB' : ''}
                         </td>
                       ))}
@@ -1376,9 +1376,9 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
               </Button>
             </div>
 
-            <div className="border border-[#23324C] rounded-2xl overflow-x-auto bg-[#161F30]/30 text-xs">
+            <div className="border border-slate-200 rounded-2xl overflow-x-auto bg-slate-50/30 text-xs">
               <table className="min-w-full text-left border-collapse">
-                <thead className="bg-[#161F30] border-b border-[#23324C] text-[10px] font-bold tracking-wider uppercase text-slate-400">
+                <thead className="bg-slate-50 border-b border-slate-200 text-[10px] font-bold tracking-wider uppercase text-slate-500">
                   <tr>
                     <th className="p-3">Promo Code</th>
                     <th className="p-3">Campaign Name</th>
@@ -1397,10 +1397,10 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                     .map(coupon => {
                       const pct = Math.min((coupon.usageCount / coupon.redemptionLimit) * 100, 100);
                       return (
-                        <tr key={coupon.id} className="hover:bg-slate-800/10 text-slate-300">
+                        <tr key={coupon.id} className="hover:bg-white/10 text-slate-600">
                           <td className="p-3 font-mono font-black text-brand-400">{coupon.code}</td>
-                          <td className="p-3 font-semibold text-white">{coupon.campaign}</td>
-                          <td className="p-3 font-medium text-slate-400">{coupon.type}</td>
+                          <td className="p-3 font-semibold text-slate-900">{coupon.campaign}</td>
+                          <td className="p-3 font-medium text-slate-500">{coupon.type}</td>
                           <td className="p-3 font-bold font-mono">
                             {coupon.type === 'Percentage Discount' ? `${coupon.discount}% off` : 
                              coupon.type === 'Trial Extension' ? `${coupon.discount} extra days` : `$${coupon.discount} off`}
@@ -1435,9 +1435,9 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
         {/* Tab 4: Trial Management */}
         {activeSubTab === 'trials' && (
           <div className="space-y-4">
-            <div className="border border-[#23324C] rounded-2xl overflow-x-auto bg-[#161F30]/30 text-xs">
+            <div className="border border-slate-200 rounded-2xl overflow-x-auto bg-slate-50/30 text-xs">
               <table className="min-w-full text-left border-collapse">
-                <thead className="bg-[#161F30] border-b border-[#23324C] text-[10px] font-bold tracking-wider uppercase text-slate-400">
+                <thead className="bg-slate-50 border-b border-slate-200 text-[10px] font-bold tracking-wider uppercase text-slate-500">
                   <tr>
                     <th className="p-3">Tenant Company</th>
                     <th className="p-3">Workspace Admin</th>
@@ -1455,17 +1455,17 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                     const isExpiring = diffDays <= 7;
 
                     return (
-                      <tr key={tenant.id} className="hover:bg-slate-800/10 text-slate-300">
-                        <td className="p-3 font-extrabold text-white">{tenant.name}</td>
+                      <tr key={tenant.id} className="hover:bg-white/10 text-slate-600">
+                        <td className="p-3 font-extrabold text-slate-900">{tenant.name}</td>
                         <td className="p-3">{tenant.manager || 'admin@trial.com'}</td>
                         <td className="p-3 font-mono font-bold">{tenant.trialExpiry || '07/15/2026'}</td>
                         <td className="p-3 font-mono font-bold">
-                          <span className={isExpiring ? 'text-red-400 animate-pulse' : 'text-slate-350'}>
+                          <span className={isExpiring ? 'text-red-400 animate-pulse' : 'text-slate-500'}>
                             {diffDays > 0 ? `${diffDays} Days` : 'Expired'}
                           </span>
                         </td>
                         <td className="p-3">
-                          <span className="text-[10px] font-semibold font-mono text-slate-400">
+                          <span className="text-[10px] font-semibold font-mono text-slate-500">
                             Users: {tenant.users}/3 • Drivers: {tenant.drivers}/5
                           </span>
                         </td>
@@ -1493,13 +1493,13 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
 
         {/* Tab 5: Revenue Intelligence */}
         {activeSubTab === 'revenue' && (
-          <div className="space-y-6 text-slate-300 text-xs">
+          <div className="space-y-6 text-slate-600 text-xs">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
               
               {/* MRR Trend Chart Container */}
-              <div className="lg:col-span-8 bg-[#111827] border border-[#23324C] rounded-2xl p-4 space-y-4">
+              <div className="lg:col-span-8 bg-white border border-slate-200 rounded-2xl p-4 space-y-4">
                 <div className="flex justify-between items-center">
-                  <h4 className="text-white font-extrabold">Dynamic MRR Expansion Timeline (USD)</h4>
+                  <h4 className="text-slate-900 font-extrabold">Dynamic MRR Expansion Timeline (USD)</h4>
                   <span className="text-[9px] font-bold text-slate-500 font-mono">Q1-Q2 Audited cash flow</span>
                 </div>
                 
@@ -1544,9 +1544,9 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
               </div>
 
               {/* Plans Subscriber Breakdown */}
-              <div className="lg:col-span-4 bg-[#111827] border border-[#23324C] rounded-2xl p-4 flex flex-col justify-between">
+              <div className="lg:col-span-4 bg-white border border-slate-200 rounded-2xl p-4 flex flex-col justify-between">
                 <div>
-                  <h4 className="text-white font-extrabold mb-1">Subscriber Mix Analytics</h4>
+                  <h4 className="text-slate-900 font-extrabold mb-1">Subscriber Mix Analytics</h4>
                   <p className="text-[10px] text-slate-500">Distribution index of operational licensing accounts.</p>
                 </div>
 
@@ -1558,21 +1558,21 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                     <circle cx="50" cy="50" r="40" fill="none" stroke="#10b981" strokeWidth="12" strokeDasharray="251.2" strokeDashoffset="188.4" />
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center flex-col">
-                    <strong className="text-white text-sm font-black">{tenants.length}</strong>
+                    <strong className="text-slate-900 text-sm font-black">{tenants.length}</strong>
                     <span className="text-[8px] text-slate-500 uppercase tracking-widest font-bold">Tenants</span>
                   </div>
                 </div>
 
                 <div className="space-y-1.5 text-[9px] font-bold">
-                  <div className="flex justify-between items-center text-slate-350">
+                  <div className="flex justify-between items-center text-slate-500">
                     <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#0ea5e9]"></span> Professional Plan</div>
                     <span className="font-mono">40% mix</span>
                   </div>
-                  <div className="flex justify-between items-center text-slate-350">
+                  <div className="flex justify-between items-center text-slate-500">
                     <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-[#10b981]"></span> Starter Plan</div>
                     <span className="font-mono">40% mix</span>
                   </div>
-                  <div className="flex justify-between items-center text-slate-350">
+                  <div className="flex justify-between items-center text-slate-500">
                     <div className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-indigo-500"></span> Enterprise Plan</div>
                     <span className="font-mono">20% mix</span>
                   </div>
@@ -1582,17 +1582,17 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
 
             {/* Additional Revenue Intelligence Metrics grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-[#111827] border border-[#23324C] rounded-2xl p-4 text-left">
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 text-left">
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Customer Lifetime Value (LTV)</span>
-                <strong className="text-lg font-black text-white mt-1 block">$18,450.00</strong>
+                <strong className="text-lg font-black text-slate-900 mt-1 block">$18,450.00</strong>
                 <span className="text-[9px] text-emerald-400 block mt-0.5">LTV to CAC ratio: 4.8x (Excellent)</span>
               </div>
-              <div className="bg-[#111827] border border-[#23324C] rounded-2xl p-4 text-left">
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 text-left">
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Customer Acquisition Cost (CAC)</span>
-                <strong className="text-lg font-black text-white mt-1 block">$3,840.00</strong>
+                <strong className="text-lg font-black text-slate-900 mt-1 block">$3,840.00</strong>
                 <span className="text-[9px] text-brand-400 block mt-0.5">Payback period: 7.8 months</span>
               </div>
-              <div className="bg-[#111827] border border-[#23324C] rounded-2xl p-4 text-left">
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 text-left">
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Revenue Churn Rate (MRR Churn)</span>
                 <strong className="text-lg font-black text-red-400 mt-1 block">1.4% / mo</strong>
                 <span className="text-[9px] text-slate-500 block mt-0.5">Net Revenue Retention (NRR): 108.5%</span>
@@ -1606,7 +1606,7 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
               <div>
-                <h4 className="text-white text-xs font-black uppercase tracking-wide">Usage Limit Violations & Overage Auditor</h4>
+                <h4 className="text-slate-900 text-xs font-black uppercase tracking-wide">Usage Limit Violations & Overage Auditor</h4>
                 <p className="text-[10px] text-slate-450 mt-0.5">Real-time scan to identify overages and automatically queue invoices to the billing ledger.</p>
               </div>
               
@@ -1615,9 +1615,9 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
               </Button>
             </div>
 
-            <div className="border border-[#23324C] rounded-2xl overflow-x-auto bg-[#161F30]/30 text-xs">
+            <div className="border border-slate-200 rounded-2xl overflow-x-auto bg-slate-50/30 text-xs">
               <table className="min-w-full text-left border-collapse">
-                <thead className="bg-[#161F30] border-b border-[#23324C] text-[10px] font-bold tracking-wider uppercase text-slate-400">
+                <thead className="bg-slate-50 border-b border-slate-200 text-[10px] font-bold tracking-wider uppercase text-slate-500">
                   <tr>
                     <th className="p-3">Company Workspace</th>
                     <th className="p-3">Plan Level</th>
@@ -1651,8 +1651,8 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                     if (vehiclesOver) cost += (tenant.vehicles - Number(vehicleLimit)) * overageRates.vehicles;
 
                     return (
-                      <tr key={tenant.id} className="hover:bg-slate-800/10 text-slate-300">
-                        <td className="p-3 font-extrabold text-white">{tenant.name}</td>
+                      <tr key={tenant.id} className="hover:bg-white/10 text-slate-600">
+                        <td className="p-3 font-extrabold text-slate-900">{tenant.name}</td>
                         <td className="p-3">{tenant.plan}</td>
                         <td className={`p-3 font-mono font-bold ${usersOver ? 'text-red-400 font-black' : ''}`}>
                           {tenant.users} / {userLimit}
@@ -1670,7 +1670,7 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                             <span className="px-2 py-0.5 rounded text-[8px] font-bold bg-emerald-500/10 text-emerald-400">Within limits</span>
                           )}
                         </td>
-                        <td className="p-3 font-mono font-bold text-white">
+                        <td className="p-3 font-mono font-bold text-slate-900">
                           {cost > 0 ? (
                             <span className="text-red-400">+${cost.toLocaleString()}/mo</span>
                           ) : (
@@ -1689,18 +1689,18 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
         {/* Tab 7: Payment Gateway Configurations */}
         {activeSubTab === 'gateways' && (
           <form onSubmit={handleGatewaySave} className="space-y-6 text-xs text-left max-w-2xl">
-            <h4 className="text-white text-xs font-black uppercase tracking-wide border-b border-[#23324C]/40 pb-2">Global Payment Gateways Credentials</h4>
+            <h4 className="text-slate-900 text-xs font-black uppercase tracking-wide border-b border-slate-200 pb-2">Global Payment Gateways Credentials</h4>
             
             <div className="space-y-4">
               {/* Stripe Config */}
-              <div className="bg-[#111827] border border-[#23324C] rounded-2xl p-4 space-y-3.5">
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3.5">
                 <div className="flex justify-between items-center">
-                  <label className="flex items-center gap-2 font-extrabold text-white cursor-pointer text-xs">
+                  <label className="flex items-center gap-2 font-extrabold text-slate-900 cursor-pointer text-xs">
                     <input 
                       type="checkbox" 
                       checked={gatewayForm.stripeEnabled} 
                       onChange={(e) => setGatewayForm(prev => ({ ...prev, stripeEnabled: e.target.checked }))}
-                      className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-4 w-4 cursor-pointer" 
+                      className="rounded bg-slate-50 border-slate-200 text-brand-500 h-4 w-4 cursor-pointer" 
                     />
                     Stripe Credit Card Gateway Integration
                   </label>
@@ -1715,13 +1715,13 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
               </div>
 
               {/* PayPal Config */}
-              <div className="bg-[#111827] border border-[#23324C] rounded-2xl p-4 space-y-3.5">
-                <label className="flex items-center gap-2 font-extrabold text-white cursor-pointer text-xs">
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3.5">
+                <label className="flex items-center gap-2 font-extrabold text-slate-900 cursor-pointer text-xs">
                   <input 
                     type="checkbox" 
                     checked={gatewayForm.paypalEnabled} 
                     onChange={(e) => setGatewayForm(prev => ({ ...prev, paypalEnabled: e.target.checked }))}
-                    className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-4 w-4 cursor-pointer" 
+                    className="rounded bg-slate-50 border-slate-200 text-brand-500 h-4 w-4 cursor-pointer" 
                   />
                   PayPal Checkout Express
                 </label>
@@ -1734,13 +1734,13 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
               </div>
 
               {/* ACH Config */}
-              <div className="bg-[#111827] border border-[#23324C] rounded-2xl p-4 space-y-3.5">
-                <label className="flex items-center gap-2 font-extrabold text-white cursor-pointer text-xs">
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3.5">
+                <label className="flex items-center gap-2 font-extrabold text-slate-900 cursor-pointer text-xs">
                   <input 
                     type="checkbox" 
                     checked={gatewayForm.achEnabled} 
                     onChange={(e) => setGatewayForm(prev => ({ ...prev, achEnabled: e.target.checked }))}
-                    className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-4 w-4 cursor-pointer" 
+                    className="rounded bg-slate-50 border-slate-200 text-brand-500 h-4 w-4 cursor-pointer" 
                   />
                   ACH Electronic Direct Bank Deposit (Plaid Secure Node)
                 </label>
@@ -1753,13 +1753,13 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
               </div>
 
               {/* Wire Transfer Config */}
-              <div className="bg-[#111827] border border-[#23324C] rounded-2xl p-4 space-y-3.5">
-                <label className="flex items-center gap-2 font-extrabold text-white cursor-pointer text-xs">
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3.5">
+                <label className="flex items-center gap-2 font-extrabold text-slate-900 cursor-pointer text-xs">
                   <input 
                     type="checkbox" 
                     checked={gatewayForm.wireEnabled} 
                     onChange={(e) => setGatewayForm(prev => ({ ...prev, wireEnabled: e.target.checked }))}
-                    className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-4 w-4 cursor-pointer" 
+                    className="rounded bg-slate-50 border-slate-200 text-brand-500 h-4 w-4 cursor-pointer" 
                   />
                   Corporate Wire Bank Transfer
                 </label>
@@ -1773,13 +1773,13 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
               </div>
 
               {/* Manual Billing instructions */}
-              <div className="bg-[#111827] border border-[#23324C] rounded-2xl p-4 space-y-2">
-                <label className="flex items-center gap-2 font-extrabold text-white cursor-pointer text-xs">
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-2">
+                <label className="flex items-center gap-2 font-extrabold text-slate-900 cursor-pointer text-xs">
                   <input 
                     type="checkbox" 
                     checked={gatewayForm.manualEnabled} 
                     onChange={(e) => setGatewayForm(prev => ({ ...prev, manualEnabled: e.target.checked }))}
-                    className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-4 w-4 cursor-pointer" 
+                    className="rounded bg-slate-50 border-slate-200 text-brand-500 h-4 w-4 cursor-pointer" 
                   />
                   Manual Invoicing & Purchase Order Terms
                 </label>
@@ -1789,7 +1789,7 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                     <textarea 
                       value={gatewayForm.manualBillingInstructions}
                       onChange={(e) => setGatewayForm(prev => ({ ...prev, manualBillingInstructions: e.target.value }))}
-                      className="block w-full px-4 py-3 bg-[#111827]/80 text-slate-200 text-xs rounded-xl focus:outline-none transition-all border border-[#23324C] focus:border-brand-500" 
+                      className="block w-full px-4 py-3 bg-white/80 text-slate-700 text-xs rounded-xl focus:outline-none transition-all border border-slate-200 focus:border-brand-500" 
                       rows={2} 
                     />
                   </div>
@@ -1808,12 +1808,12 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
         {activeSubTab === 'migration' && (
           <div className="space-y-6 text-xs text-left max-w-3xl">
             <div>
-              <h4 className="text-white text-xs font-black uppercase tracking-wide">Bulk Subscriber Plan Migrator</h4>
+              <h4 className="text-slate-900 text-xs font-black uppercase tracking-wide">Bulk Subscriber Plan Migrator</h4>
               <p className="text-[10px] text-slate-500 mt-0.5">Move cohorts of active subscribers between plan tiers. Reallocation triggers automated validations, overage reviews, and ledger updates.</p>
             </div>
 
             {/* Migration wizard steps UI */}
-            <div className="bg-[#111827] border border-[#23324C] rounded-2xl p-5 space-y-5">
+            <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-5">
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <SelectInput 
@@ -1855,14 +1855,14 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                   </div>
 
                   {/* Validation results logs */}
-                  <div className="bg-slate-900 border border-[#23324C] p-3 rounded-xl space-y-2">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block border-b border-[#23324C]/45 pb-1">Capacity Verification Check Report</span>
+                  <div className="bg-slate-900 border border-slate-200 p-3 rounded-xl space-y-2">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block border-b border-slate-200/45 pb-1">Capacity Verification Check Report</span>
                     {migrationValidation.length > 0 ? (
                       <div className="space-y-2">
                         <div className="flex items-center gap-1 text-amber-500 font-extrabold">
                           <AlertCircle className="h-4 w-4" /> Usage overflow warning: {migrationValidation.length} accounts will exceed limits on target plan level.
                         </div>
-                        <div className="max-h-32 overflow-y-auto space-y-1 pl-5 list-disc text-slate-350">
+                        <div className="max-h-32 overflow-y-auto space-y-1 pl-5 list-disc text-slate-500">
                           {migrationValidation.map((warn, i) => (
                             <div key={i}>
                               <strong>{warn.tenantName}</strong>: current usage exceeds limits for {warn.violations.join(', ')}.
@@ -1877,9 +1877,9 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                     )}
                   </div>
                   
-                  <div className="border-t border-[#23324C]/35 pt-4 flex justify-between items-center">
-                    <div className="text-slate-400">
-                      Cohort size matched: <strong className="text-white">{tenants.filter(t => t.plan === migrationSource).length} active accounts</strong>.
+                  <div className="border-t border-slate-200/35 pt-4 flex justify-between items-center">
+                    <div className="text-slate-500">
+                      Cohort size matched: <strong className="text-slate-900">{tenants.filter(t => t.plan === migrationSource).length} active accounts</strong>.
                     </div>
                     <Button variant="primary" onClick={handleMigrateExecute} loading={isMigrating}>
                       Execute Cohort Migration
@@ -1909,7 +1909,7 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                 <select
                   value={ledgerStatusFilter}
                   onChange={(e) => setLedgerStatusFilter(e.target.value)}
-                  className="bg-[#0B0F19] border border-[#23324C] text-slate-200 p-2 rounded-xl focus:outline-none cursor-pointer text-xs"
+                  className="bg-slate-50 border border-slate-200 text-slate-700 p-2 rounded-xl focus:outline-none cursor-pointer text-xs"
                 >
                   <option value="All">All Invoices</option>
                   <option value="Paid">Paid</option>
@@ -1919,9 +1919,9 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
               </div>
             </div>
 
-            <div className="border border-[#23324C] rounded-2xl overflow-x-auto bg-[#161F30]/30">
+            <div className="border border-slate-200 rounded-2xl overflow-x-auto bg-slate-50/30">
               <table className="min-w-full text-left border-collapse">
-                <thead className="bg-[#161F30] border-b border-[#23324C] text-[10px] font-bold tracking-wider uppercase text-slate-400">
+                <thead className="bg-slate-50 border-b border-slate-200 text-[10px] font-bold tracking-wider uppercase text-slate-500">
                   <tr>
                     <th className="p-3">Invoice Number</th>
                     <th className="p-3">Company Workspace</th>
@@ -1936,11 +1936,11 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                 </thead>
                 <tbody className="divide-y divide-[#23324C]/40">
                   {billingInvoices.map((inv, idx) => (
-                    <tr key={idx} className="hover:bg-slate-800/10 text-slate-300">
-                      <td className="p-3 font-mono font-bold text-slate-400">{inv.id}</td>
-                      <td className="p-3 font-extrabold text-white">{inv.company}</td>
-                      <td className="p-3 font-medium text-slate-350">{inv.plan}</td>
-                      <td className="p-3 text-slate-400 truncate max-w-[180px]" title={inv.period}>{inv.period}</td>
+                    <tr key={idx} className="hover:bg-white/10 text-slate-600">
+                      <td className="p-3 font-mono font-bold text-slate-500">{inv.id}</td>
+                      <td className="p-3 font-extrabold text-slate-900">{inv.company}</td>
+                      <td className="p-3 font-medium text-slate-500">{inv.plan}</td>
+                      <td className="p-3 text-slate-500 truncate max-w-[180px]" title={inv.period}>{inv.period}</td>
                       <td className="p-3 font-mono">{inv.date}</td>
                       <td className="p-3">
                         <span className={`px-2 py-0.5 rounded text-[8px] font-bold ${
@@ -1948,7 +1948,7 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                         }`}>{inv.status}</span>
                       </td>
                       <td className="p-3 text-[10px] text-slate-450">{inv.paymentMethod}</td>
-                      <td className="p-3 font-mono font-bold text-white">${inv.amount.toLocaleString()}</td>
+                      <td className="p-3 font-mono font-bold text-slate-900">${inv.amount.toLocaleString()}</td>
                       <td className="p-3">
                         <Button size="sm" variant="secondary" onClick={() => { setSelectedInvoice(inv); setInvoiceDetailsModal(true); }}>
                           Inspect Receipt
@@ -1976,15 +1976,15 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
               <span className="text-[10px] text-slate-500 font-mono font-bold">{planAudits.length} ledger operations logged</span>
             </div>
 
-            <div className="border border-[#23324C] rounded-2xl p-4 bg-[#161F30]/30 max-h-[380px] overflow-y-auto divide-y divide-[#23324C]/35 text-xs text-left">
+            <div className="border border-slate-200 rounded-2xl p-4 bg-slate-50/30 max-h-[380px] overflow-y-auto divide-y divide-[#23324C]/35 text-xs text-left">
               {planAudits
                 .filter(log => log.action.toLowerCase().includes(auditSearch.toLowerCase()) || log.detail.toLowerCase().includes(auditSearch.toLowerCase()))
                 .map((log) => (
                   <div key={log.id} className="py-2.5 first:pt-0 last:pb-0">
                     <div className="flex justify-between items-start gap-2">
                       <div>
-                        <strong className="text-white block font-bold">{log.action}</strong>
-                        <p className="text-slate-400 mt-0.5 leading-normal">{log.detail}</p>
+                        <strong className="text-slate-900 block font-bold">{log.action}</strong>
+                        <p className="text-slate-500 mt-0.5 leading-normal">{log.detail}</p>
                       </div>
                       <span className="text-[9px] text-slate-500 font-mono whitespace-nowrap">{log.time}</span>
                     </div>
@@ -2006,19 +2006,19 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
       {/* --- WIZARD / DRAWERS MODALS --- */}
       {/* 5-Step Create Plan Wizard Modal */}
       <Modal isOpen={wizardOpen} onClose={() => setWizardOpen(false)} title={wizardEditingPlanId ? "Configure Plan Licensing Rules" : "SaaS License Provisioning Wizard"}>
-        <div className="space-y-5 text-left text-xs text-slate-300">
+        <div className="space-y-5 text-left text-xs text-slate-600">
           
           {/* Progress bar steps */}
-          <div className="flex justify-between items-center border-b border-[#23324C]/45 pb-3">
+          <div className="flex justify-between items-center border-b border-slate-200/45 pb-3">
             {[1, 2, 3, 4, 5].map(step => (
               <div key={step} className="flex items-center gap-1 font-bold">
                 <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
                   wizardStep === step ? 'bg-brand-500 text-slate-950 font-black' : 
-                  wizardStep > step ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-900 border border-[#23324C] text-slate-500'
+                  wizardStep > step ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-900 border border-slate-200 text-slate-500'
                 }`}>
                   {step}
                 </span>
-                <span className={`hidden sm:inline ${wizardStep === step ? 'text-white' : 'text-slate-500'}`}>
+                <span className={`hidden sm:inline ${wizardStep === step ? 'text-slate-900' : 'text-slate-500'}`}>
                   {step === 1 ? 'Info' : step === 2 ? 'Limits' : step === 3 ? 'Features' : step === 4 ? 'Billing' : 'Review'}
                 </span>
               </div>
@@ -2049,7 +2049,7 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                     value={planForm.description}
                     onChange={(e) => setPlanForm(prev => ({ ...prev, description: e.target.value }))}
                     placeholder="Provide description outline of licensing rules..."
-                    className="block w-full px-4 py-3 bg-[#111827]/80 text-slate-200 text-xs rounded-xl focus:outline-none transition-all border border-[#23324C] focus:border-brand-500" 
+                    className="block w-full px-4 py-3 bg-white/80 text-slate-700 text-xs rounded-xl focus:outline-none transition-all border border-slate-200 focus:border-brand-500" 
                     rows={2}
                   />
                 </div>
@@ -2077,7 +2077,7 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                       type="checkbox" 
                       checked={planForm.features[feat]} 
                       onChange={(e) => setPlanForm(prev => ({ ...prev, features: { ...prev.features, [feat]: e.target.checked } }))}
-                      className="rounded bg-[#0B0F19] border-[#23324C] text-brand-500 h-4 w-4 cursor-pointer" 
+                      className="rounded bg-slate-50 border-slate-200 text-brand-500 h-4 w-4 cursor-pointer" 
                     />
                     <span className="capitalize">{feat.replace(/([A-Z])/g, ' $1')}</span>
                   </label>
@@ -2099,7 +2099,7 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                 </div>
                 
                 {/* Overages definitions */}
-                <div className="border-t border-[#23324C]/45 pt-3.5 space-y-2">
+                <div className="border-t border-slate-200/45 pt-3.5 space-y-2">
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block">Granular Overage Rates ($ / unit / mo)</span>
                   <div className="grid grid-cols-3 gap-2 text-xs">
                     <TextInput label="User Overage" value={planForm.overages.users} onChange={(e) => setPlanForm(prev => ({ ...prev, overages: { ...prev.overages, users: e.target.value } }))} />
@@ -2113,24 +2113,24 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
             {/* Step 5: Review & Publish */}
             {wizardStep === 5 && (
               <div className="space-y-4 animate-fade-in text-xs">
-                <div className="bg-[#111827] border border-[#23324C]/45 rounded-xl p-3.5 space-y-2">
-                  <h5 className="font-extrabold text-white text-sm uppercase">{planForm.name}</h5>
-                  <p className="text-slate-400 italic">"{planForm.description || 'No plan description provided.'}"</p>
+                <div className="bg-white border border-slate-200/45 rounded-xl p-3.5 space-y-2">
+                  <h5 className="font-extrabold text-slate-900 text-sm uppercase">{planForm.name}</h5>
+                  <p className="text-slate-500 italic">"{planForm.description || 'No plan description provided.'}"</p>
                   
-                  <div className="border-t border-[#23324C]/35 pt-2 grid grid-cols-2 gap-2 text-[10px] text-slate-350">
-                    <div>Pricing: <strong className="text-white">${planForm.monthlyPrice}/mo or ${planForm.annualPrice}/yr</strong></div>
-                    <div>Trial Days: <strong className="text-white">{planForm.trialDays} days</strong></div>
+                  <div className="border-t border-slate-200/35 pt-2 grid grid-cols-2 gap-2 text-[10px] text-slate-500">
+                    <div>Pricing: <strong className="text-slate-900">${planForm.monthlyPrice}/mo or ${planForm.annualPrice}/yr</strong></div>
+                    <div>Trial Days: <strong className="text-slate-900">{planForm.trialDays} days</strong></div>
                     <div>Status: <strong className="text-brand-400">{planForm.status}</strong></div>
-                    <div>Version: <strong className="text-white">v{planForm.version}</strong></div>
+                    <div>Version: <strong className="text-slate-900">v{planForm.version}</strong></div>
                   </div>
                 </div>
 
-                <div className="bg-[#111827] border border-[#23324C]/45 rounded-xl p-3.5 space-y-1">
+                <div className="bg-white border border-slate-200/45 rounded-xl p-3.5 space-y-1">
                   <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest block mb-1">Capacity allocations</span>
                   <div className="grid grid-cols-3 gap-1 text-[10px]">
-                    <div>Users: <strong className="text-slate-200">{planForm.limits.users}</strong></div>
-                    <div>Drivers: <strong className="text-slate-200">{planForm.limits.drivers}</strong></div>
-                    <div>Vehicles: <strong className="text-slate-200">{planForm.limits.vehicles}</strong></div>
+                    <div>Users: <strong className="text-slate-700">{planForm.limits.users}</strong></div>
+                    <div>Drivers: <strong className="text-slate-700">{planForm.limits.drivers}</strong></div>
+                    <div>Vehicles: <strong className="text-slate-700">{planForm.limits.vehicles}</strong></div>
                   </div>
                 </div>
               </div>
@@ -2139,7 +2139,7 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
           </div>
 
           {/* Action buttons controls */}
-          <div className="flex gap-2 justify-end border-t border-[#23324C]/40 pt-4">
+          <div className="flex gap-2 justify-end border-t border-slate-200 pt-4">
             {wizardStep > 1 && (
               <Button variant="secondary" onClick={() => setWizardStep(prev => prev - 1)}>Back</Button>
             )}
@@ -2158,11 +2158,11 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
       {/* Plan Version History Drawer */}
       <Drawer isOpen={versionDrawerOpen} onClose={() => setVersionDrawerOpen(false)} title="Version Control Center">
         {selectedPlan && (
-          <div className="space-y-6 text-slate-300 text-left text-xs sm:text-sm">
-            <div className="border-b border-[#23324C]/50 pb-3 flex justify-between items-start">
+          <div className="space-y-6 text-slate-600 text-left text-xs sm:text-sm">
+            <div className="border-b border-slate-200/50 pb-3 flex justify-between items-start">
               <div>
-                <h4 className="text-base font-black text-white">{selectedPlan.name}</h4>
-                <span className="text-[10px] font-mono text-slate-400">Current version v{selectedPlan.version}</span>
+                <h4 className="text-base font-black text-slate-900">{selectedPlan.name}</h4>
+                <span className="text-[10px] font-mono text-slate-500">Current version v{selectedPlan.version}</span>
               </div>
               <span className="bg-brand-500/10 text-brand-400 font-extrabold text-[10px] px-2 py-0.5 rounded-full">{selectedPlan.status}</span>
             </div>
@@ -2173,10 +2173,10 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
               
               <div className="space-y-3.5 max-h-60 overflow-y-auto pr-1">
                 {(selectedPlan.versionHistory || []).map((history, i) => (
-                  <div key={i} className="bg-[#111827] border border-[#23324C]/45 p-3 rounded-xl flex justify-between items-center text-xs">
+                  <div key={i} className="bg-white border border-slate-200/45 p-3 rounded-xl flex justify-between items-center text-xs">
                     <div>
-                      <strong className="text-white block font-bold">Version v{history.version}</strong>
-                      <span className="text-[10px] text-slate-400 block mt-0.5">{history.changeLog}</span>
+                      <strong className="text-slate-900 block font-bold">Version v{history.version}</strong>
+                      <span className="text-[10px] text-slate-500 block mt-0.5">{history.changeLog}</span>
                       <span className="text-[9px] text-slate-500 font-mono block mt-1">{history.date} • {history.updatedBy}</span>
                     </div>
                     {history.version !== selectedPlan.version && (
@@ -2190,7 +2190,7 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
             </div>
 
             {/* Version comparison wizard */}
-            <form onSubmit={handleCompareSubmit} className="border-t border-[#23324C]/40 pt-4 space-y-3">
+            <form onSubmit={handleCompareSubmit} className="border-t border-slate-200 pt-4 space-y-3">
               <span className="text-[10px] font-bold text-slate-550 uppercase tracking-widest block">Compare Versions side-by-side</span>
               <div className="grid grid-cols-2 gap-3">
                 <SelectInput 
@@ -2225,33 +2225,33 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
 
       {/* Compare version side-by-side Modal */}
       <Modal isOpen={compareModalOpen} onClose={() => setCompareModalOpen(false)} title={`Compare Versions: ${selectedPlan?.name}`}>
-        <div className="grid grid-cols-2 gap-4 text-xs text-left text-slate-300">
-          <div className="bg-[#111827] border border-[#23324C] rounded-2xl p-4 space-y-3">
-            <h4 className="text-white text-sm font-black uppercase text-center border-b border-[#23324C]/40 pb-2">Version v{compareVersion1}</h4>
+        <div className="grid grid-cols-2 gap-4 text-xs text-left text-slate-600">
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3">
+            <h4 className="text-slate-900 text-sm font-black uppercase text-center border-b border-slate-200 pb-2">Version v{compareVersion1}</h4>
             {p1HistoryLimits ? (
               <div className="space-y-1 font-semibold text-[11px]">
-                <div className="flex justify-between border-b border-[#23324C]/25 py-1"><span>Users Limit:</span><strong className="text-white">{p1HistoryLimits.users}</strong></div>
-                <div className="flex justify-between border-b border-[#23324C]/25 py-1"><span>Drivers Limit:</span><strong className="text-white">{p1HistoryLimits.drivers}</strong></div>
-                <div className="flex justify-between border-b border-[#23324C]/25 py-1"><span>Vehicles Limit:</span><strong className="text-white">{p1HistoryLimits.vehicles}</strong></div>
-                <div className="flex justify-between border-b border-[#23324C]/25 py-1"><span>Branches Limit:</span><strong className="text-white">{p1HistoryLimits.branches}</strong></div>
-                <div className="flex justify-between border-b border-[#23324C]/25 py-1"><span>Storage Limit:</span><strong className="text-white">{p1HistoryLimits.storage} GB</strong></div>
-                <div className="flex justify-between border-b border-[#23324C]/25 py-1"><span>API Limit:</span><strong className="text-white">{p1HistoryLimits.apiCalls}</strong></div>
+                <div className="flex justify-between border-b border-slate-200/25 py-1"><span>Users Limit:</span><strong className="text-slate-900">{p1HistoryLimits.users}</strong></div>
+                <div className="flex justify-between border-b border-slate-200/25 py-1"><span>Drivers Limit:</span><strong className="text-slate-900">{p1HistoryLimits.drivers}</strong></div>
+                <div className="flex justify-between border-b border-slate-200/25 py-1"><span>Vehicles Limit:</span><strong className="text-slate-900">{p1HistoryLimits.vehicles}</strong></div>
+                <div className="flex justify-between border-b border-slate-200/25 py-1"><span>Branches Limit:</span><strong className="text-slate-900">{p1HistoryLimits.branches}</strong></div>
+                <div className="flex justify-between border-b border-slate-200/25 py-1"><span>Storage Limit:</span><strong className="text-slate-900">{p1HistoryLimits.storage} GB</strong></div>
+                <div className="flex justify-between border-b border-slate-200/25 py-1"><span>API Limit:</span><strong className="text-slate-900">{p1HistoryLimits.apiCalls}</strong></div>
               </div>
             ) : (
               <div className="text-center text-slate-500 italic py-8">Select version.</div>
             )}
           </div>
 
-          <div className="bg-[#111827] border border-[#23324C] rounded-2xl p-4 space-y-3">
-            <h4 className="text-white text-sm font-black uppercase text-center border-b border-[#23324C]/40 pb-2">Version v{compareVersion2}</h4>
+          <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3">
+            <h4 className="text-slate-900 text-sm font-black uppercase text-center border-b border-slate-200 pb-2">Version v{compareVersion2}</h4>
             {p2HistoryLimits ? (
               <div className="space-y-1 font-semibold text-[11px]">
-                <div className="flex justify-between border-b border-[#23324C]/25 py-1"><span>Users Limit:</span><strong className="text-white">{p2HistoryLimits.users}</strong></div>
-                <div className="flex justify-between border-b border-[#23324C]/25 py-1"><span>Drivers Limit:</span><strong className="text-white">{p2HistoryLimits.drivers}</strong></div>
-                <div className="flex justify-between border-b border-[#23324C]/25 py-1"><span>Vehicles Limit:</span><strong className="text-white">{p2HistoryLimits.vehicles}</strong></div>
-                <div className="flex justify-between border-b border-[#23324C]/25 py-1"><span>Branches Limit:</span><strong className="text-white">{p2HistoryLimits.branches}</strong></div>
-                <div className="flex justify-between border-b border-[#23324C]/25 py-1"><span>Storage Limit:</span><strong className="text-white">{p2HistoryLimits.storage} GB</strong></div>
-                <div className="flex justify-between border-b border-[#23324C]/25 py-1"><span>API Limit:</span><strong className="text-white">{p2HistoryLimits.apiCalls}</strong></div>
+                <div className="flex justify-between border-b border-slate-200/25 py-1"><span>Users Limit:</span><strong className="text-slate-900">{p2HistoryLimits.users}</strong></div>
+                <div className="flex justify-between border-b border-slate-200/25 py-1"><span>Drivers Limit:</span><strong className="text-slate-900">{p2HistoryLimits.drivers}</strong></div>
+                <div className="flex justify-between border-b border-slate-200/25 py-1"><span>Vehicles Limit:</span><strong className="text-slate-900">{p2HistoryLimits.vehicles}</strong></div>
+                <div className="flex justify-between border-b border-slate-200/25 py-1"><span>Branches Limit:</span><strong className="text-slate-900">{p2HistoryLimits.branches}</strong></div>
+                <div className="flex justify-between border-b border-slate-200/25 py-1"><span>Storage Limit:</span><strong className="text-slate-900">{p2HistoryLimits.storage} GB</strong></div>
+                <div className="flex justify-between border-b border-slate-200/25 py-1"><span>API Limit:</span><strong className="text-slate-900">{p2HistoryLimits.apiCalls}</strong></div>
               </div>
             ) : (
               <div className="text-center text-slate-500 italic py-8">Select version.</div>
@@ -2290,11 +2290,11 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
       {/* Invoice details Receipt Modal */}
       <Modal isOpen={invoiceDetailsModal} onClose={() => setInvoiceDetailsModal(false)} title="Billing Invoice Audit Receipt">
         {selectedInvoice && (
-          <div className="space-y-5 text-xs text-slate-300 text-left">
-            <div className="border-b border-[#23324C]/45 pb-3 flex justify-between items-start">
+          <div className="space-y-5 text-xs text-slate-600 text-left">
+            <div className="border-b border-slate-200/45 pb-3 flex justify-between items-start">
               <div>
-                <span className="text-[9px] font-mono font-black bg-[#111827] px-2 py-0.5 rounded text-slate-450 border border-[#23324C]/60 uppercase tracking-widest">SaaS Invoice Ledger Receipt</span>
-                <h4 className="text-white text-base font-extrabold mt-2">{selectedInvoice.company}</h4>
+                <span className="text-[9px] font-mono font-black bg-white px-2 py-0.5 rounded text-slate-450 border border-slate-200 uppercase tracking-widest">SaaS Invoice Ledger Receipt</span>
+                <h4 className="text-slate-900 text-base font-extrabold mt-2">{selectedInvoice.company}</h4>
                 <span className="text-[10px] text-slate-455 block mt-1">Invoice ID: #{selectedInvoice.id} • Issued: {selectedInvoice.date}</span>
               </div>
               <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
@@ -2303,7 +2303,7 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
             </div>
 
             {/* Calculations items receipt */}
-            <div className="bg-[#111827] border border-[#23324C]/45 p-4 rounded-xl space-y-3">
+            <div className="bg-white border border-slate-200/45 p-4 rounded-xl space-y-3">
               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Line Items billing</span>
               <div className="space-y-2.5 font-semibold">
                 <div className="flex justify-between">
@@ -2319,7 +2319,7 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
                   <span>-$0.00</span>
                 </div>
                 
-                <div className="border-t border-[#23324C]/35 pt-2 flex justify-between text-white font-extrabold text-sm">
+                <div className="border-t border-slate-200/35 pt-2 flex justify-between text-slate-900 font-extrabold text-sm">
                   <span>Total Amount Invoiced</span>
                   <span className="text-brand-400">${selectedInvoice.amount.toLocaleString()}</span>
                 </div>
@@ -2328,8 +2328,8 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
 
             {/* Gateway Payment details receipt */}
             <div className="space-y-1.5 text-[10px]">
-              <div>Integration Node: <strong className="text-white">{selectedInvoice.paymentMethod}</strong></div>
-              <div>Period billing duration: <span className="text-slate-400 font-semibold">{selectedInvoice.period}</span></div>
+              <div>Integration Node: <strong className="text-slate-900">{selectedInvoice.paymentMethod}</strong></div>
+              <div>Period billing duration: <span className="text-slate-500 font-semibold">{selectedInvoice.period}</span></div>
             </div>
 
             <Button variant="secondary" className="w-full" onClick={() => triggerToast(`Receipt INV-${selectedInvoice.id} download initiated.`)}>
@@ -2342,19 +2342,19 @@ export default function MembershipPlans({ tenants = [], logAuditAction, triggerT
       {/* Lifecycle transition confirmation Modal */}
       <Modal isOpen={transitionConfirmOpen} onClose={() => setTransitionConfirmOpen(false)} title="Validate State Lifecycle Transition">
         {transitionPlan && (
-          <div className="space-y-4 text-xs text-slate-300 text-left">
+          <div className="space-y-4 text-xs text-slate-600 text-left">
             <div className="bg-brand-500/5 border border-brand-500/20 p-3 rounded-xl space-y-1">
-              <strong className="text-white block font-bold">Lifecycle State Transition Validation Rule Check</strong>
-              <p className="text-[11px] text-slate-400">
+              <strong className="text-slate-900 block font-bold">Lifecycle State Transition Validation Rule Check</strong>
+              <p className="text-[11px] text-slate-500">
                 You are transitioning licensing plan level <strong>"{transitionPlan.name}"</strong> to state <strong>"{transitionTargetState}"</strong>.
               </p>
             </div>
 
-            <p className="text-slate-400 leading-relaxed font-semibold">
+            <p className="text-slate-500 leading-relaxed font-semibold">
               This transition will update the plan state across all registry nodes and is tracked under audit log history. Are you sure you wish to continue?
             </p>
 
-            <div className="flex gap-2 justify-end border-t border-[#23324C]/40 pt-3.5">
+            <div className="flex gap-2 justify-end border-t border-slate-200 pt-3.5">
               <Button variant="secondary" onClick={() => setTransitionConfirmOpen(false)}>Cancel</Button>
               <Button variant="success" onClick={executeTransition}>Confirm Transition</Button>
             </div>

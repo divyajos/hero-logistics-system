@@ -494,24 +494,24 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
       )}
 
       {/* Header with Switcher & Operations */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#23324C]/60 pb-5">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
-          <h2 className="text-xl sm:text-2xl font-black text-white capitalize">Warehouse & Yard Workspace</h2>
-          <p className="text-xs text-slate-400 font-medium">Manage stock allocations, print asset tags, and spot load lanes.</p>
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 capitalize">Warehouse & Yard Workspace</h2>
+          <p className="text-xs text-slate-500 font-medium">Manage stock allocations, print asset tags, and spot load lanes.</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
           {/* Logistics Niche Toggle */}
-          <div className="flex bg-[#111827] border border-[#23324C] rounded-xl p-1 text-xs font-bold">
+          <div className="flex bg-white border border-slate-200 rounded-xl p-1 text-xs font-bold">
             <button
               onClick={() => { setLogisticsMode('car_carrying'); }}
-              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${logisticsMode === 'car_carrying' ? 'bg-brand-500 text-slate-950 font-black' : 'text-slate-400 hover:text-slate-200'}`}
+              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${logisticsMode === 'car_carrying' ? 'bg-brand-500 text-slate-950 font-black' : 'text-slate-500 hover:text-slate-700'}`}
             >
               Car Carrying Yard
             </button>
             <button
               onClick={() => { setLogisticsMode('general_freight'); }}
-              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${logisticsMode === 'general_freight' ? 'bg-brand-500 text-slate-950 font-black' : 'text-slate-400 hover:text-slate-200'}`}
+              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${logisticsMode === 'general_freight' ? 'bg-brand-500 text-slate-950 font-black' : 'text-slate-500 hover:text-slate-700'}`}
             >
               General Freight
             </button>
@@ -540,9 +540,9 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
           </div>
 
           {/* Visual Storage capacity occupancy indicators */}
-          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
+          <div className="glass rounded-2xl p-5 border border-slate-200 text-left grid grid-cols-1 lg:grid-cols-3 gap-6 items-center">
             <div className="lg:col-span-2 space-y-4">
-              <h3 className="text-sm font-extrabold text-white">Zone Allocations & Limits</h3>
+              <h3 className="text-sm font-extrabold text-slate-900">Zone Allocations & Limits</h3>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="p-4 bg-emerald-500/5 border border-emerald-500/20 rounded-xl text-center">
                   <span className="text-[10px] text-slate-500 font-bold block uppercase">Lane A (Pickup)</span>
@@ -563,7 +563,7 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
               </div>
             </div>
             <div className="flex flex-col items-center">
-              <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Capacity Allocation</h4>
+              <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Capacity Allocation</h4>
               <PieChartWidget
                 data={[
                   { name: 'Lane A', value: 92 },
@@ -591,10 +591,10 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
              <StatCard title="Missing Items" value={(logisticsMode === 'car_carrying' ? carStock : freightStock).filter(x => x.status === 'Missing').length} description="Flagged incidents" />
           </div>
 
-          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+          <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                <div>
-                 <h3 className="text-sm font-extrabold text-white">Current Stock Inventory</h3>
+                 <h3 className="text-sm font-extrabold text-slate-900">Current Stock Inventory</h3>
                  <p className="text-xs text-slate-450 mt-1">Comprehensive view of all independent assets and staging cargo.</p>
                </div>
                <div className="flex flex-wrap gap-2 items-center w-full md:w-auto">
@@ -614,12 +614,12 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
              <div className="overflow-x-auto w-full">
                <DataTable 
                  columns={logisticsMode === 'car_carrying' ? [
-                   { key: 'id', label: 'VIN', render: (row) => <span className="font-mono text-white font-semibold">{row.vin}</span> },
-                   { key: 'desc', label: 'Rego / Make', render: (row) => <span className="text-slate-300 text-[10px]">{row.rego} | {row.model}</span> },
-                   { key: 'stockNo', label: 'Stock No', render: (row) => <span className="text-slate-400">{row.stockNo}</span> },
+                   { key: 'id', label: 'VIN', render: (row) => <span className="font-mono text-slate-900 font-semibold">{row.vin}</span> },
+                   { key: 'desc', label: 'Rego / Make', render: (row) => <span className="text-slate-600 text-[10px]">{row.rego} | {row.model}</span> },
+                   { key: 'stockNo', label: 'Stock No', render: (row) => <span className="text-slate-500">{row.stockNo}</span> },
                    { key: 'customer', label: 'Customer', render: (row) => <span className="text-brand-300 font-bold">{row.customer}</span> },
                    { key: 'loc', label: 'Location / Bay', render: (row) => <span className="text-emerald-400 font-mono text-[10px] bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">{row.location}</span> },
-                   { key: 'lane', label: 'Load Lane', render: (row) => <span className="text-slate-400">{row.lane}</span> },
+                   { key: 'lane', label: 'Load Lane', render: (row) => <span className="text-slate-500">{row.lane}</span> },
                    { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> },
                    { key: 'actions', label: 'Actions', render: (row) => (
                      <div className="flex gap-1.5 flex-wrap min-w-[280px]">
@@ -642,11 +642,11 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
                      </div>
                    )}
                  ] : [
-                   { key: 'id', label: 'Item Number', render: (row) => <span className="font-mono text-white font-semibold">{row.itemNo}</span> },
-                   { key: 'barcode', label: 'Barcode', render: (row) => <span className="text-slate-300 font-mono text-xs">{row.barcode}</span> },
-                   { key: 'palletCount', label: 'Pallet / Dim', render: (row) => <span className="text-slate-400 text-[10px]">{row.palletCount} Plts | {row.dimensions}</span> },
+                   { key: 'id', label: 'Item Number', render: (row) => <span className="font-mono text-slate-900 font-semibold">{row.itemNo}</span> },
+                   { key: 'barcode', label: 'Barcode', render: (row) => <span className="text-slate-600 font-mono text-xs">{row.barcode}</span> },
+                   { key: 'palletCount', label: 'Pallet / Dim', render: (row) => <span className="text-slate-500 text-[10px]">{row.palletCount} Plts | {row.dimensions}</span> },
                    { key: 'customer', label: 'Customer', render: (row) => <span className="text-brand-300 font-bold">{row.customer}</span> },
-                   { key: 'zone', label: 'Zone', render: (row) => <span className="text-slate-400">{row.zone}</span> },
+                   { key: 'zone', label: 'Zone', render: (row) => <span className="text-slate-500">{row.zone}</span> },
                    { key: 'loc', label: 'Holding Area / Bin', render: (row) => <span className="text-emerald-400 font-mono text-[10px] bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">{row.aisleBin}</span> },
                    { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> },
                    { key: 'actions', label: 'Actions', render: (row) => (
@@ -682,10 +682,10 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
 
           {/* LEFT COLUMN: Stock list table (3/12) */}
-          <div className="lg:col-span-4 glass rounded-2xl p-4 border border-[#23324C]/60 text-left space-y-4 flex flex-col justify-between">
+          <div className="lg:col-span-4 glass rounded-2xl p-4 border border-slate-200 text-left space-y-4 flex flex-col justify-between">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-xs font-bold text-white uppercase tracking-wider">Independent Assets</h3>
+                <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Independent Assets</h3>
                 <span className="text-[10px] bg-brand-500/10 text-brand-400 border border-brand-500/25 px-2 py-0.5 rounded-full font-bold">
                   {filteredAssets.length} Units
                 </span>
@@ -714,17 +714,17 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
                           else setSelectedFreightId(item.id);
                         }}
                         className={`p-3 rounded-xl border transition-all cursor-pointer text-xs space-y-1.5 ${isSelected
-                            ? 'bg-[#161F30] border-brand-500 shadow-md shadow-brand-500/10'
-                            : 'bg-[#111827]/40 border-[#23324C] hover:border-[#23324C]/80'
+                            ? 'bg-slate-50 border-brand-500 shadow-md shadow-brand-500/10'
+                            : 'bg-white/40 border-slate-200 hover:border-slate-200/80'
                           }`}
                       >
                         <div className="flex justify-between items-center">
-                          <strong className="text-white font-mono uppercase">
+                          <strong className="text-slate-900 font-mono uppercase">
                             {logisticsMode === 'car_carrying' ? item.vin : item.itemNo}
                           </strong>
                           <StatusBadge status={item.status} />
                         </div>
-                        <div className="flex justify-between text-slate-400 text-[10px]">
+                        <div className="flex justify-between text-slate-500 text-[10px]">
                           <span>{logisticsMode === 'car_carrying' ? item.model : `${item.palletCount} Pallets • ${item.weight}`}</span>
                           <span className="text-brand-400 font-bold font-mono">
                             {logisticsMode === 'car_carrying' ? item.location : item.aisleBin}
@@ -737,7 +737,7 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
               </div>
             </div>
 
-            <div className="pt-3 border-t border-[#23324C]/40 text-center">
+            <div className="pt-3 border-t border-slate-200 text-center">
               <span className="text-[10px] text-slate-550 leading-relaxed block">
                 * Assets exist independently of load bookings.
               </span>
@@ -745,10 +745,10 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
           </div>
 
           {/* CENTRE COLUMN: Yard / Warehouse Map (6/12) */}
-          <div className="lg:col-span-5 glass rounded-2xl p-4 border border-[#23324C]/60 text-left flex flex-col justify-between">
+          <div className="lg:col-span-5 glass rounded-2xl p-4 border border-slate-200 text-left flex flex-col justify-between">
             <div>
               <div className="flex justify-between items-center mb-3">
-                <h3 className="text-xs font-bold text-white uppercase tracking-wider">Yard / Warehouse Allocation Map</h3>
+                <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Yard / Warehouse Allocation Map</h3>
                 <div className="flex gap-2">
                   <button
                     onClick={() => { setAddLocationModalOpen(true); setNewLocType('Bay'); }}
@@ -772,7 +772,7 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
               </div>
 
               {/* Grid map overlay */}
-              <div className="bg-[#0B0F19] border border-[#23324C] rounded-2xl p-4 min-h-[380px] grid grid-cols-2 sm:grid-cols-3 gap-3 relative overflow-hidden">
+              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 min-h-[380px] grid grid-cols-2 sm:grid-cols-3 gap-3 relative overflow-hidden">
                 <div className="absolute inset-0 bg-[radial-gradient(#23324c_1px,transparent_1px)] [background-size:16px_16px] opacity-40"></div>
 
                 {locations.filter(l =>
@@ -796,16 +796,16 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
                       className={`p-3 rounded-xl border flex flex-col justify-between min-h-[90px] cursor-pointer transition-all ${isItemHere
                           ? 'bg-brand-500/10 border-brand-500 shadow-lg shadow-brand-500/10 animate-pulse'
                           : relocationTarget === loc.name
-                            ? 'bg-slate-800/60 border-[#23324C]/90 text-white'
-                            : 'bg-[#111827]/40 border-[#23324C]/60 hover:border-slate-800'
+                            ? 'bg-white/60 border-slate-200/90 text-slate-900'
+                            : 'bg-white/40 border-slate-200 hover:border-slate-800'
                         }`}
                     >
                       <div className="flex justify-between items-center">
                         <span className="text-[9px] text-slate-500 font-bold block uppercase tracking-wide">{loc.type}</span>
                         {isItemHere && <MapPin className="h-3 w-3 text-brand-400" />}
                       </div>
-                      <strong className="text-white text-xs block truncate">{loc.name}</strong>
-                      <span className="text-[8px] text-slate-400 truncate">
+                      <strong className="text-slate-900 text-xs block truncate">{loc.name}</strong>
+                      <span className="text-[8px] text-slate-500 truncate">
                         {isItemHere
                           ? (logisticsMode === 'car_carrying' ? selectedAsset.model : selectedAsset.itemNo)
                           : 'Empty Spot'}
@@ -830,13 +830,13 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
           </div>
 
           {/* RIGHT COLUMN: Selected Item Details & Actions (3/12) */}
-          <div className="lg:col-span-3 glass rounded-2xl p-4 border border-[#23324C]/60 text-left flex flex-col justify-between">
+          <div className="lg:col-span-3 glass rounded-2xl p-4 border border-slate-200 text-left flex flex-col justify-between">
             {selectedAsset ? (
               <div className="space-y-4">
-                <div className="border-b border-[#23324C]/60 pb-3 flex justify-between items-start">
+                <div className="border-b border-slate-200 pb-3 flex justify-between items-start">
                   <div>
                     <span className="text-[10px] text-slate-500 block uppercase font-bold">Active Stock Detail</span>
-                    <h4 className="text-sm font-extrabold text-white font-mono mt-0.5">
+                    <h4 className="text-sm font-extrabold text-slate-900 font-mono mt-0.5">
                       {logisticsMode === 'car_carrying' ? selectedAsset.vin : selectedAsset.itemNo}
                     </h4>
                   </div>
@@ -848,16 +848,16 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
                     <>
                       <div>
                         <span className="text-slate-500 block text-[9px] uppercase font-bold">Make / Model / Trim</span>
-                        <strong className="text-slate-200 block mt-0.5">{selectedAsset.model}</strong>
+                        <strong className="text-slate-700 block mt-0.5">{selectedAsset.model}</strong>
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <div>
                           <span className="text-slate-500 block text-[9px] uppercase font-bold">Rego Plate</span>
-                          <span className="text-slate-300 font-semibold font-mono">{selectedAsset.rego}</span>
+                          <span className="text-slate-600 font-semibold font-mono">{selectedAsset.rego}</span>
                         </div>
                         <div>
                           <span className="text-slate-500 block text-[9px] uppercase font-bold">Stock Number</span>
-                          <span className="text-slate-300 font-semibold font-mono">{selectedAsset.stockNo}</span>
+                          <span className="text-slate-600 font-semibold font-mono">{selectedAsset.stockNo}</span>
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-2">
@@ -867,7 +867,7 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
                         </div>
                         <div>
                           <span className="text-slate-500 block text-[9px] uppercase font-bold">Load Lane</span>
-                          <span className="text-slate-300 font-semibold font-mono">{selectedAsset.lane}</span>
+                          <span className="text-slate-600 font-semibold font-mono">{selectedAsset.lane}</span>
                         </div>
                       </div>
                     </>
@@ -875,16 +875,16 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
                     <>
                       <div>
                         <span className="text-slate-500 block text-[9px] uppercase font-bold">Pallet Count</span>
-                        <strong className="text-slate-200 block mt-0.5">{selectedAsset.palletCount} Pallets</strong>
+                        <strong className="text-slate-700 block mt-0.5">{selectedAsset.palletCount} Pallets</strong>
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <div>
                           <span className="text-slate-500 block text-[9px] uppercase font-bold">Weight</span>
-                          <span className="text-slate-300 font-semibold font-mono">{selectedAsset.weight}</span>
+                          <span className="text-slate-600 font-semibold font-mono">{selectedAsset.weight}</span>
                         </div>
                         <div>
                           <span className="text-slate-500 block text-[9px] uppercase font-bold">Dimensions</span>
-                          <span className="text-slate-300 font-semibold font-mono">{selectedAsset.dimensions}</span>
+                          <span className="text-slate-600 font-semibold font-mono">{selectedAsset.dimensions}</span>
                         </div>
                       </div>
                       <div className="grid grid-cols-2 gap-2">
@@ -894,27 +894,27 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
                         </div>
                         <div>
                           <span className="text-slate-500 block text-[9px] uppercase font-bold">Zone</span>
-                          <span className="text-slate-300 font-semibold">{selectedAsset.zone}</span>
+                          <span className="text-slate-600 font-semibold">{selectedAsset.zone}</span>
                         </div>
                       </div>
                       <div>
                         <span className="text-slate-500 block text-[9px] uppercase font-bold">Barcode / QR</span>
-                        <span className="text-slate-300 font-mono font-semibold">{selectedAsset.barcode}</span>
+                        <span className="text-slate-600 font-mono font-semibold">{selectedAsset.barcode}</span>
                       </div>
                     </>
                   )}
 
-                  <div className="border-t border-[#23324C]/40 pt-2.5">
+                  <div className="border-t border-slate-200 pt-2.5">
                     <span className="text-slate-500 block text-[9px] uppercase font-bold">Customer Account</span>
-                    <span className="text-slate-300 font-semibold">{selectedAsset.customer}</span>
+                    <span className="text-slate-600 font-semibold">{selectedAsset.customer}</span>
                   </div>
                   <div>
                     <span className="text-slate-500 block text-[9px] uppercase font-bold">Destination Delivery</span>
-                    <span className="text-slate-300 font-semibold">{selectedAsset.destination}</span>
+                    <span className="text-slate-600 font-semibold">{selectedAsset.destination}</span>
                   </div>
                 </div>
 
-                <div className="space-y-2 border-t border-[#23324C]/40 pt-3">
+                <div className="space-y-2 border-t border-slate-200 pt-3">
                   <Button size="sm" variant="secondary" className="w-full justify-start" icon={Move} onClick={handleAssignToLane}>
                     Assign to Load Lane
                   </Button>
@@ -922,13 +922,13 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={() => handlePrintLabel(false)}
-                      className="py-2 bg-[#161F30] border border-[#23324C] hover:bg-[#23324C] text-slate-300 rounded-xl font-bold flex items-center justify-center gap-1.5 cursor-pointer text-[10px]"
+                      className="py-2 bg-slate-50 border border-slate-200 hover:bg-[#23324C] text-slate-600 rounded-xl font-bold flex items-center justify-center gap-1.5 cursor-pointer text-[10px]"
                     >
                       <Printer className="h-3 w-3" /> Print Label
                     </button>
                     <button
                       onClick={() => handlePrintLabel(true)}
-                      className="py-2 bg-[#161F30] border border-[#23324C] hover:bg-[#23324C] text-slate-300 rounded-xl font-bold flex items-center justify-center gap-1.5 cursor-pointer text-[10px]"
+                      className="py-2 bg-slate-50 border border-slate-200 hover:bg-[#23324C] text-slate-600 rounded-xl font-bold flex items-center justify-center gap-1.5 cursor-pointer text-[10px]"
                     >
                       <RefreshCw className="h-3 w-3" /> Reprint
                     </button>
@@ -936,7 +936,7 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
 
                   <button
                     onClick={() => setHistoryDrawerOpen(true)}
-                    className="w-full py-2 bg-slate-800/40 hover:bg-slate-800 text-slate-300 rounded-xl font-bold text-center cursor-pointer text-[10px] block"
+                    className="w-full py-2 bg-white/40 hover:bg-white text-slate-600 rounded-xl font-bold text-center cursor-pointer text-[10px] block"
                   >
                     View Asset History
                   </button>
@@ -955,7 +955,7 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
               </div>
             )}
 
-            <div className="pt-4 border-t border-[#23324C]/40">
+            <div className="pt-4 border-t border-slate-200">
               <button
                 onClick={() => setMovementDrawerOpen(true)}
                 className="w-full py-2.5 bg-brand-500 hover:bg-brand-600 text-slate-950 text-xs rounded-xl font-black cursor-pointer transition-colors text-center block"
@@ -970,10 +970,10 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
 
       {/* Holding Areas Tab */}
       {activeTab === 'holding-areas' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6 animate-fade-in">
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-6 animate-fade-in">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
              <div>
-               <h3 className="text-sm font-extrabold text-white">Holding Area Management</h3>
+               <h3 className="text-sm font-extrabold text-slate-900">Holding Area Management</h3>
                <p className="text-xs text-slate-450 mt-1">Manage intermediate holding zones and assigned staging assets.</p>
              </div>
              <div className="flex gap-2">
@@ -983,11 +983,11 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
-              <h4 className="text-xs font-bold text-white uppercase tracking-wider">Holding Zones Status</h4>
+              <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Holding Zones Status</h4>
               <DataTable 
                 columns={[
-                  { key: 'name', label: 'Holding Area', render: (row) => <span className="font-bold text-white">{row.name}</span> },
-                  { key: 'capacity', label: 'Capacity', render: (row) => <span className="text-slate-300">{row.assetsCount} / 50</span> },
+                  { key: 'name', label: 'Holding Area', render: (row) => <span className="font-bold text-slate-900">{row.name}</span> },
+                  { key: 'capacity', label: 'Capacity', render: (row) => <span className="text-slate-600">{row.assetsCount} / 50</span> },
                   { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.assetsCount >= 50 ? 'Full' : 'Available'} /> }
                 ]}
                 data={locations.filter(l => l.type === 'Holding Area').map(loc => {
@@ -1000,10 +1000,10 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
             </div>
 
             <div className="space-y-4">
-              <h4 className="text-xs font-bold text-white uppercase tracking-wider">Assets in Holding</h4>
+              <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Assets in Holding</h4>
               <DataTable 
                 columns={[
-                  { key: 'id', label: 'Asset Code', render: (row) => <span className="font-mono text-white font-semibold">{logisticsMode === 'car_carrying' ? row.vin : row.itemNo}</span> },
+                  { key: 'id', label: 'Asset Code', render: (row) => <span className="font-mono text-slate-900 font-semibold">{logisticsMode === 'car_carrying' ? row.vin : row.itemNo}</span> },
                   { key: 'loc', label: 'Holding Area', render: (row) => <span className="text-brand-400 font-mono">{logisticsMode === 'car_carrying' ? row.location : row.aisleBin}</span> },
                   { key: 'actions', label: 'Actions', render: (row) => (
                     <div className="flex gap-2">
@@ -1028,10 +1028,10 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
 
       {/* Load Lanes Tab */}
       {activeTab === 'load-lanes' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6 animate-fade-in">
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-6 animate-fade-in">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
              <div>
-               <h3 className="text-sm font-extrabold text-white">Load Lane Management</h3>
+               <h3 className="text-sm font-extrabold text-slate-900">Load Lane Management</h3>
                <p className="text-xs text-slate-450 mt-1">Manage outbound dispatch loading queues and lane spotting.</p>
              </div>
              <div className="flex gap-2">
@@ -1041,10 +1041,10 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
-              <h4 className="text-xs font-bold text-white uppercase tracking-wider">Active Load Lanes</h4>
+              <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Active Load Lanes</h4>
               <DataTable 
                 columns={[
-                  { key: 'name', label: 'Load Lane', render: (row) => <span className="font-bold text-white">{row.name}</span> },
+                  { key: 'name', label: 'Load Lane', render: (row) => <span className="font-bold text-slate-900">{row.name}</span> },
                   { key: 'assigned', label: 'Assigned Assets', render: (row) => <span className="text-brand-400 font-mono">{row.assetsCount} Units</span> },
                   { key: 'status', label: 'Lane Status', render: (row) => <StatusBadge status={row.assetsCount > 0 ? 'Loading' : 'Ready To Load'} /> }
                 ]}
@@ -1058,10 +1058,10 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
             </div>
 
             <div className="space-y-4">
-              <h4 className="text-xs font-bold text-white uppercase tracking-wider">Queueing Assets</h4>
+              <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Queueing Assets</h4>
               <DataTable 
                 columns={[
-                  { key: 'id', label: 'Asset Code', render: (row) => <span className="font-mono text-white font-semibold">{logisticsMode === 'car_carrying' ? row.vin : row.itemNo}</span> },
+                  { key: 'id', label: 'Asset Code', render: (row) => <span className="font-mono text-slate-900 font-semibold">{logisticsMode === 'car_carrying' ? row.vin : row.itemNo}</span> },
                   { key: 'lane', label: 'Assigned Lane', render: (row) => <span className="text-brand-400 font-mono">{logisticsMode === 'car_carrying' ? (row.lane === 'Unassigned' ? row.location : row.lane) : row.aisleBin}</span> },
                   { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> },
                   { key: 'actions', label: 'Actions', render: (row) => (
@@ -1083,13 +1083,13 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
 
       {/* Inbound Screen */}
       {activeTab === 'inbound' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 animate-fade-in">
-          <h3 className="text-sm font-extrabold text-white">Inbound Staging Queue</h3>
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4 animate-fade-in">
+          <h3 className="text-sm font-extrabold text-slate-900">Inbound Staging Queue</h3>
           <DataTable
             columns={[
-              { key: 'id', label: 'Receipt ID', render: (row) => <span className="font-mono font-extrabold text-white">{row.id}</span> },
-              { key: 'carrier', label: 'Carrier Partner', render: (row) => <span className="text-slate-300 font-semibold">{row.carrier}</span> },
-              { key: 'cargo', label: 'Inbound Cargo Specs', render: (row) => <span className="text-slate-400">{row.cargo}</span> },
+              { key: 'id', label: 'Receipt ID', render: (row) => <span className="font-mono font-extrabold text-slate-900">{row.id}</span> },
+              { key: 'carrier', label: 'Carrier Partner', render: (row) => <span className="text-slate-600 font-semibold">{row.carrier}</span> },
+              { key: 'cargo', label: 'Inbound Cargo Specs', render: (row) => <span className="text-slate-500">{row.cargo}</span> },
               { key: 'lane', label: 'Spotted Lane', render: (row) => <span className="text-brand-400 font-bold font-mono">{row.lane}</span> },
               {
                 key: 'actions', label: 'Staged Actions', render: (row) => (
@@ -1114,13 +1114,13 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
 
       {/* Outbound Screen */}
       {activeTab === 'outbound' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 animate-fade-in">
-          <h3 className="text-sm font-extrabold text-white">Outbound Loading Queue</h3>
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4 animate-fade-in">
+          <h3 className="text-sm font-extrabold text-slate-900">Outbound Loading Queue</h3>
           <DataTable
             columns={[
-              { key: 'id', label: 'Outbound ID', render: (row) => <span className="font-mono font-extrabold text-white">{row.id}</span> },
-              { key: 'carrier', label: 'Transport Carrier', render: (row) => <span className="text-slate-300 font-semibold">{row.carrier}</span> },
-              { key: 'cargo', label: 'Outbound Cargo Specs', render: (row) => <span className="text-slate-400">{row.cargo}</span> },
+              { key: 'id', label: 'Outbound ID', render: (row) => <span className="font-mono font-extrabold text-slate-900">{row.id}</span> },
+              { key: 'carrier', label: 'Transport Carrier', render: (row) => <span className="text-slate-600 font-semibold">{row.carrier}</span> },
+              { key: 'cargo', label: 'Outbound Cargo Specs', render: (row) => <span className="text-slate-500">{row.cargo}</span> },
               { key: 'lane', label: 'Dock Gate Lane', render: (row) => <span className="text-brand-400 font-bold font-mono">{row.lane}</span> },
               {
                 key: 'actions', label: 'Loading Actions', render: (row) => (
@@ -1144,15 +1144,15 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
 
       {/* Scanning Terminal View */}
       {activeTab === 'scanning' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6 animate-fade-in">
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-6 animate-fade-in">
           <div>
-            <h3 className="text-sm font-extrabold text-white">Warehouse Scanning Terminal</h3>
+            <h3 className="text-sm font-extrabold text-slate-900">Warehouse Scanning Terminal</h3>
             <p className="text-xs text-slate-450 mt-1">Scan physical barcodes, register stock tags, and log movements.</p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="p-5 bg-[#111827]/60 border border-[#23324C] rounded-2xl space-y-4">
-              <strong className="text-xs text-slate-200 block">Scan Action Simulator</strong>
+            <div className="p-5 bg-white/60 border border-slate-200 rounded-2xl space-y-4">
+              <strong className="text-xs text-slate-700 block">Scan Action Simulator</strong>
               <TextInput label="Barcode Input Tag" placeholder="Enter barcode or QR code..." />
 
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -1174,9 +1174,9 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
               </div>
             </div>
 
-            <div className="p-5 bg-[#111827]/40 border border-[#23324C] rounded-2xl flex flex-col justify-between items-center text-center">
+            <div className="p-5 bg-white/40 border border-slate-200 rounded-2xl flex flex-col justify-between items-center text-center">
               <div className="text-left w-full">
-                <strong className="text-xs text-slate-200 block">Device Status</strong>
+                <strong className="text-xs text-slate-700 block">Device Status</strong>
                 <span className="text-[10px] text-slate-555 block">Zebra Scanner handheld connected.</span>
               </div>
               <div className="my-6 p-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold rounded-xl">
@@ -1202,10 +1202,10 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
              <StatCard title="Reprinted Labels" value={mockLabels.filter(l => l.printStatus === 'Reprinted').length} description="Duplicate tags" />
           </div>
 
-          <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+          <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                <div>
-                 <h3 className="text-sm font-extrabold text-white">Label Management</h3>
+                 <h3 className="text-sm font-extrabold text-slate-900">Label Management</h3>
                  <p className="text-xs text-slate-450 mt-1">Manage and track generated asset barcode tags.</p>
                </div>
                <div className="flex flex-wrap gap-2 items-center w-full md:w-auto">
@@ -1225,14 +1225,14 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
              <div className="overflow-x-auto w-full">
                <DataTable 
                  columns={[
-                   { key: 'labelId', label: 'Label ID', render: (row) => <span className="font-mono text-white font-bold">{row.labelId}</span> },
-                   { key: 'barcode', label: 'Barcode / QR', render: (row) => <span className="text-slate-300 font-mono text-xs">{row.barcode}</span> },
+                   { key: 'labelId', label: 'Label ID', render: (row) => <span className="font-mono text-slate-900 font-bold">{row.labelId}</span> },
+                   { key: 'barcode', label: 'Barcode / QR', render: (row) => <span className="text-slate-600 font-mono text-xs">{row.barcode}</span> },
                    { key: 'vinItem', label: 'VIN / Item No', render: (row) => <span className="text-brand-300 font-semibold">{row.vinItem}</span> },
-                   { key: 'stockNo', label: 'Stock No', render: (row) => <span className="text-slate-400">{row.stockNo}</span> },
-                   { key: 'customer', label: 'Customer', render: (row) => <span className="text-slate-200">{row.customer}</span> },
-                   { key: 'type', label: 'Asset Type', render: (row) => <span className="text-slate-400">{row.assetType}</span> },
+                   { key: 'stockNo', label: 'Stock No', render: (row) => <span className="text-slate-500">{row.stockNo}</span> },
+                   { key: 'customer', label: 'Customer', render: (row) => <span className="text-slate-700">{row.customer}</span> },
+                   { key: 'type', label: 'Asset Type', render: (row) => <span className="text-slate-500">{row.assetType}</span> },
                    { key: 'location', label: 'Location', render: (row) => <span className="text-emerald-400 font-mono text-[10px] bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">{row.location}</span> },
-                   { key: 'generated', label: 'Generated', render: (row) => <span className="text-slate-400 text-xs">{row.generatedDate}</span> },
+                   { key: 'generated', label: 'Generated', render: (row) => <span className="text-slate-500 text-xs">{row.generatedDate}</span> },
                    { key: 'printStatus', label: 'Print Status', render: (row) => <StatusBadge status={row.printStatus} /> },
                    { key: 'actions', label: 'Actions', render: (row) => (
                      <div className="flex gap-1.5 flex-wrap min-w-[280px]">
@@ -1254,13 +1254,13 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
 
       {/* Movements Log View */}
       {activeTab === 'movements' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4 animate-fade-in">
-          <h3 className="text-sm font-extrabold text-white">Inventory Movements & Custody Ledger</h3>
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4 animate-fade-in">
+          <h3 className="text-sm font-extrabold text-slate-900">Inventory Movements & Custody Ledger</h3>
           <DataTable
             columns={[
-              { key: 'id', label: 'ID', render: (row) => <span className="font-mono text-white font-bold">{row.id}</span> },
-              { key: 'action', label: 'Activity Logged', render: (row) => <span className="text-slate-300 font-semibold">{row.action}</span> },
-              { key: 'user', label: 'Staff member', render: (row) => <span className="text-slate-400">{row.user}</span> },
+              { key: 'id', label: 'ID', render: (row) => <span className="font-mono text-slate-900 font-bold">{row.id}</span> },
+              { key: 'action', label: 'Activity Logged', render: (row) => <span className="text-slate-600 font-semibold">{row.action}</span> },
+              { key: 'user', label: 'Staff member', render: (row) => <span className="text-slate-500">{row.user}</span> },
               { key: 'time', label: 'Timestamp', render: (row) => <span className="font-mono text-[10px] text-slate-500">{row.time}</span> }
             ]}
             data={assetHistory}
@@ -1270,10 +1270,10 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
 
       {/* Reports View */}
       {activeTab === 'reports' && (
-        <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-6 animate-fade-in">
+        <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-6 animate-fade-in">
           <div className="flex justify-between items-center">
             <div>
-              <h3 className="text-sm font-extrabold text-white">Capacity & Staging Reports</h3>
+              <h3 className="text-sm font-extrabold text-slate-900">Capacity & Staging Reports</h3>
               <p className="text-xs text-slate-450 mt-1">Export manifest registries, monitor occupancy thresholds, and evaluate warehouse productivity.</p>
             </div>
             <Button variant="primary" icon={Download} onClick={handleExportStock}>
@@ -1287,9 +1287,9 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
             <StatCard title="Fulfillment Accuracy" value="99.94%" description="Picker scan matching checks" progress={99} />
           </div>
 
-          <div className="p-4 bg-[#111827]/40 border border-[#23324C]/60 rounded-xl space-y-2 text-xs">
-            <strong className="text-white block font-bold">Monthly Stock Turnover Analytics Report</strong>
-            <p className="text-slate-400">Total processed volume for June 2026: 4,890 pallets incoming, 4,620 outbound, net inventory stock growth: +270 units.</p>
+          <div className="p-4 bg-white/40 border border-slate-200 rounded-xl space-y-2 text-xs">
+            <strong className="text-slate-900 block font-bold">Monthly Stock Turnover Analytics Report</strong>
+            <p className="text-slate-500">Total processed volume for June 2026: 4,890 pallets incoming, 4,620 outbound, net inventory stock growth: +270 units.</p>
           </div>
         </div>
       )}
@@ -1399,7 +1399,7 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
             </>
           )}
 
-          <div className="grid grid-cols-2 gap-4 border-t border-[#23324C]/45 pt-3">
+          <div className="grid grid-cols-2 gap-4 border-t border-slate-200/45 pt-3">
             <TextInput label="Billing Customer" placeholder="e.g. Toyota Australia" value={manualCust} onChange={(e) => setManualCust(e.target.value)} />
             <TextInput label="Destination Delivery" placeholder="e.g. Brisbane Port" value={manualDest} onChange={(e) => setManualDest(e.target.value)} />
           </div>
@@ -1441,8 +1441,8 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
       <Drawer isOpen={historyDrawerOpen} onClose={() => setHistoryDrawerOpen(false)} title="Asset Custody History Log">
         <div className="space-y-4 text-left text-xs">
           {selectedAsset && (
-            <div className="border-b border-[#23324C]/40 pb-3">
-              <strong className="text-white block text-sm font-mono">{logisticsMode === 'car_carrying' ? selectedAsset.vin : selectedAsset.itemNo}</strong>
+            <div className="border-b border-slate-200 pb-3">
+              <strong className="text-slate-900 block text-sm font-mono">{logisticsMode === 'car_carrying' ? selectedAsset.vin : selectedAsset.itemNo}</strong>
               <span className="text-[10px] text-slate-500">Asset chain of custody log</span>
             </div>
           )}
@@ -1451,12 +1451,12 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
               <p className="text-slate-500 italic py-4 text-center">No movement logs registered for this asset.</p>
             ) : (
               assetHistory.filter(h => h.itemId === (selectedAsset?.id)).map(h => (
-                <div key={h.id} className="p-3 bg-[#111827]/40 border border-[#23324C]/60 rounded-xl space-y-1">
+                <div key={h.id} className="p-3 bg-white/40 border border-slate-200 rounded-xl space-y-1">
                   <div className="flex justify-between font-bold text-[10px]">
                     <span className="text-brand-400">{h.action}</span>
                     <span className="text-slate-500 font-mono">{h.time}</span>
                   </div>
-                  <p className="text-[10px] text-slate-400">Operated by: {h.user}</p>
+                  <p className="text-[10px] text-slate-500">Operated by: {h.user}</p>
                 </div>
               ))
             )}
@@ -1469,8 +1469,8 @@ export default function WarehouseDashboard({ activeTab = 'overview' }) {
         <div className="space-y-4 text-left text-xs">
           <DataTable
             columns={[
-              { key: 'itemId', label: 'Asset Code', render: (row) => <span className="font-mono text-white font-semibold">{row.itemId}</span> },
-              { key: 'action', label: 'Action Logged', render: (row) => <span className="text-slate-350">{row.action}</span> },
+              { key: 'itemId', label: 'Asset Code', render: (row) => <span className="font-mono text-slate-900 font-semibold">{row.itemId}</span> },
+              { key: 'action', label: 'Action Logged', render: (row) => <span className="text-slate-500">{row.action}</span> },
               { key: 'time', label: 'Timestamp', render: (row) => <span className="font-mono text-[9px] text-slate-500">{row.time}</span> }
             ]}
             data={assetHistory}

@@ -31,7 +31,7 @@ export default function Toast({
 
   return (
     <div className={`
-      flex items-center gap-3 px-4 py-3 border rounded-xl shadow-xl animate-slide-in text-xs font-semibold text-slate-200 select-none backdrop-blur-md
+      flex items-center gap-3 px-4 py-3 border rounded-xl shadow-xl animate-slide-in text-xs font-semibold text-slate-700 select-none backdrop-blur-md
       ${borders[type]} ${className}
     `}>
       <div className="flex-shrink-0">{icons[type]}</div>
@@ -39,7 +39,7 @@ export default function Toast({
       {onClose && (
         <button
           onClick={onClose}
-          className="flex-shrink-0 p-1 hover:bg-slate-800/40 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer"
+          className="flex-shrink-0 p-1 hover:bg-white/40 rounded-lg text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
         >
           <X className="h-3.5 w-3.5" />
         </button>

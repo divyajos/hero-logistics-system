@@ -158,11 +158,11 @@ export default function AlertsReminders({ globalSearchQuery = '', addAlertModalO
     <div className="space-y-5 animate-fade-in">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h2 className="text-xl font-black text-white flex items-center gap-2">
+          <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
             <Bell className="h-6 w-6 text-brand-500" />
             Alerts & Reminders
           </h2>
-          <p className="text-xs text-slate-400 mt-1">Manage all operational reminders and critical alerts across the company.</p>
+          <p className="text-xs text-slate-500 mt-1">Manage all operational reminders and critical alerts across the company.</p>
         </div>
       </div>
 
@@ -172,7 +172,7 @@ export default function AlertsReminders({ globalSearchQuery = '', addAlertModalO
         <StatCard title="Pending Action" value={activeAlerts.length - criticalAlerts.length} icon={<Clock className="text-amber-400 h-5 w-5" />} trend="Requires review" />
       </div>
 
-      <div className="glass rounded-2xl p-5 border border-[#23324C]/60 text-left space-y-4">
+      <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
         {/* Filters */}
         <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
@@ -203,7 +203,7 @@ export default function AlertsReminders({ globalSearchQuery = '', addAlertModalO
         
         {/* Alerts Grid (Same styling as requested) */}
         {displayedAlerts.length === 0 ? (
-          <div className="py-12 text-center text-slate-400 text-sm font-medium">No alerts found.</div>
+          <div className="py-12 text-center text-slate-500 text-sm font-medium">No alerts found.</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-3.5">
             {displayedAlerts.map(rem => (
@@ -212,7 +212,7 @@ export default function AlertsReminders({ globalSearchQuery = '', addAlertModalO
                   ? 'border-emerald-500/20 bg-emerald-500/5 opacity-60' 
                   : rem.status === 'Overdue' || rem.severity === 'critical'
                   ? 'border-red-500/30 bg-red-500/5 shadow-md shadow-red-500/5'
-                  : 'border-[#23324C]/60 bg-slate-900/40 hover:border-brand-500/20'
+                  : 'border-slate-200 bg-slate-900/40 hover:border-brand-500/20'
               }`}>
                 <div className="space-y-1">
                   <div className="flex justify-between items-start gap-2">
@@ -227,15 +227,15 @@ export default function AlertsReminders({ globalSearchQuery = '', addAlertModalO
                       {rem.dueDate}
                     </span>
                   </div>
-                  <strong className="block text-slate-200 text-xs truncate mt-1">{rem.title}</strong>
-                  <p className="text-[10px] text-slate-400 leading-normal line-clamp-2 h-7">{rem.desc}</p>
+                  <strong className="block text-slate-700 text-xs truncate mt-1">{rem.title}</strong>
+                  <p className="text-[10px] text-slate-500 leading-normal line-clamp-2 h-7">{rem.desc}</p>
                   {rem.amount !== null && (
-                    <strong className="block text-white text-xs mt-1 font-mono">${rem.amount.toLocaleString()}</strong>
+                    <strong className="block text-slate-900 text-xs mt-1 font-mono">${rem.amount.toLocaleString()}</strong>
                   )}
                 </div>
                 
                 {rem.status !== 'Resolved' ? (
-                  <div className="flex gap-1.5 pt-1.5 border-t border-[#23324C]/30 mt-1 text-[9px]">
+                  <div className="flex gap-1.5 pt-1.5 border-t border-slate-200 mt-1 text-[9px]">
                     <button 
                       type="button"
                       onClick={() => handleAction(rem.id, 'resolve', rem)}
@@ -246,27 +246,27 @@ export default function AlertsReminders({ globalSearchQuery = '', addAlertModalO
                     <button 
                       type="button"
                       onClick={() => handleAction(rem.id, 'edit', rem)}
-                      className="py-1.5 px-2 bg-slate-800 text-slate-300 font-bold rounded-lg cursor-pointer hover:bg-slate-700 transition-all border border-[#23324C]"
+                      className="py-1.5 px-2 bg-white text-slate-600 font-bold rounded-lg cursor-pointer hover:bg-slate-700 transition-all border border-slate-200"
                     >
                       Edit
                     </button>
                     <button 
                       type="button"
                       onClick={() => handleAction(rem.id, 'delay', rem)}
-                      className="py-1.5 px-2 bg-slate-800 text-slate-300 font-bold rounded-lg cursor-pointer hover:bg-slate-700 transition-all border border-[#23324C]"
+                      className="py-1.5 px-2 bg-white text-slate-600 font-bold rounded-lg cursor-pointer hover:bg-slate-700 transition-all border border-slate-200"
                     >
                       Delay
                     </button>
                     <button 
                       type="button"
                       onClick={() => handleAction(rem.id, 'dismiss', rem)}
-                      className="py-1.5 px-2 bg-slate-800/40 text-slate-500 hover:text-red-400 font-bold rounded-lg cursor-pointer hover:bg-red-500/5 transition-all border border-[#23324C]/40"
+                      className="py-1.5 px-2 bg-white/40 text-slate-500 hover:text-red-400 font-bold rounded-lg cursor-pointer hover:bg-red-500/5 transition-all border border-slate-200"
                     >
                       ✕
                     </button>
                   </div>
                 ) : (
-                  <div className="py-1.5 bg-[#1F2937]/20 text-slate-500 text-[10px] font-bold rounded-lg text-center select-none border border-[#23324C]/25">
+                  <div className="py-1.5 bg-[#1F2937]/20 text-slate-500 text-[10px] font-bold rounded-lg text-center select-none border border-slate-200/25">
                     ✓ Resolved
                   </div>
                 )}
@@ -276,7 +276,7 @@ export default function AlertsReminders({ globalSearchQuery = '', addAlertModalO
         )}
 
         {totalPages > 1 && (
-          <div className="pt-4 border-t border-[#23324C]/40 flex justify-center">
+          <div className="pt-4 border-t border-slate-200 flex justify-center">
             <Pagination 
               currentPage={currentPage} 
               totalPages={totalPages} 
@@ -289,8 +289,8 @@ export default function AlertsReminders({ globalSearchQuery = '', addAlertModalO
       <Modal isOpen={addAlertModalOpen} onClose={() => setAddAlertModalOpen(false)} title="Create New Alert">
         <form onSubmit={handleSaveAlert} className="space-y-4 max-h-[70vh] overflow-y-auto px-1 scrollbar-hide">
           
-          <div className="space-y-4 bg-[#111827]/40 p-4 rounded-xl border border-[#23324C]/60">
-            <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 border-b border-[#23324C]/60 pb-1">General</h4>
+          <div className="space-y-4 bg-white/40 p-4 rounded-xl border border-slate-200">
+            <h4 className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2 border-b border-slate-200 pb-1">General</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <TextInput label="Alert Title" required value={newAlert.title} onChange={e => setNewAlert({...newAlert, title: e.target.value})} placeholder="e.g. DOT Inspection Due" />
               <SelectInput label="Alert Category" required value={newAlert.category} onChange={e => setNewAlert({...newAlert, category: e.target.value})} options={[
@@ -307,12 +307,12 @@ export default function AlertsReminders({ globalSearchQuery = '', addAlertModalO
               ]} />
             </div>
             <div>
-              <label className="block text-slate-400 font-bold uppercase text-[9px] mb-1">Description *</label>
-              <textarea required className="w-full px-3 py-2 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:border-brand-500 min-h-[60px]" placeholder="Details of the alert..." value={newAlert.desc} onChange={e => setNewAlert({...newAlert, desc: e.target.value})}></textarea>
+              <label className="block text-slate-500 font-bold uppercase text-[9px] mb-1">Description *</label>
+              <textarea required className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-700 text-xs focus:outline-none focus:border-brand-500 min-h-[60px]" placeholder="Details of the alert..." value={newAlert.desc} onChange={e => setNewAlert({...newAlert, desc: e.target.value})}></textarea>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#111827]/40 p-4 rounded-xl border border-[#23324C]/60">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-white/40 p-4 rounded-xl border border-slate-200">
             <SelectInput label="Priority" value={newAlert.priority} onChange={e => setNewAlert({...newAlert, priority: e.target.value})} options={[
               { value: 'Critical', label: 'Critical' },
               { value: 'High', label: 'High' },
@@ -329,8 +329,8 @@ export default function AlertsReminders({ globalSearchQuery = '', addAlertModalO
             ]} />
           </div>
 
-          <div className="space-y-4 bg-[#111827]/40 p-4 rounded-xl border border-[#23324C]/60">
-            <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2 border-b border-[#23324C]/60 pb-1">Assignment & Dates</h4>
+          <div className="space-y-4 bg-white/40 p-4 rounded-xl border border-slate-200">
+            <h4 className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2 border-b border-slate-200 pb-1">Assignment & Dates</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <SelectInput label="Assign To" value={newAlert.assignTo} onChange={e => setNewAlert({...newAlert, assignTo: e.target.value})} options={[
                 { value: 'Company', label: 'Company' },
@@ -350,12 +350,12 @@ export default function AlertsReminders({ globalSearchQuery = '', addAlertModalO
               ]} />
             </div>
             <div>
-              <label className="block text-slate-400 font-bold uppercase text-[9px] mb-1">Internal Notes</label>
-              <textarea className="w-full px-3 py-2 bg-[#111827] border border-[#23324C] rounded-xl text-slate-200 text-xs focus:outline-none focus:border-brand-500 min-h-[50px]" placeholder="Optional internal notes..." value={newAlert.notes} onChange={e => setNewAlert({...newAlert, notes: e.target.value})}></textarea>
+              <label className="block text-slate-500 font-bold uppercase text-[9px] mb-1">Internal Notes</label>
+              <textarea className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-700 text-xs focus:outline-none focus:border-brand-500 min-h-[50px]" placeholder="Optional internal notes..." value={newAlert.notes} onChange={e => setNewAlert({...newAlert, notes: e.target.value})}></textarea>
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-4 border-t border-[#23324C]/40">
+          <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
             <Button type="button" variant="secondary" onClick={() => setAddAlertModalOpen(false)}>Cancel</Button>
             <Button type="submit" variant="primary" disabled={isSavingAlert || !newAlert.title || !newAlert.category || !newAlert.desc || !newAlert.dueDate}>
               {isSavingAlert ? 'Saving...' : 'Save Alert'}

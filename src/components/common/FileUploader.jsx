@@ -108,7 +108,7 @@ export default function FileUploader({
 
   return (
     <div className="space-y-2 text-left">
-      <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wide">
+      <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide">
         {label}
       </label>
 
@@ -124,7 +124,7 @@ export default function FileUploader({
             ? 'border-red-500/50 bg-red-500/5'
             : uploadStatus === 'success'
             ? 'border-green-500/50 bg-green-500/5'
-            : 'border-[#23324C] hover:border-brand-500/60 bg-[#111827]/40 hover:bg-[#111827]/80'
+            : 'border-slate-200 hover:border-brand-500/60 bg-white/40 hover:bg-white/80'
         }`}
       >
         <input
@@ -141,8 +141,8 @@ export default function FileUploader({
               <UploadCloud className="h-6 w-6" />
             </div>
             <div className="space-y-1">
-              <p className="text-xs font-bold text-white">Drag & drop file or click to select</p>
-              <p className="text-[10px] text-slate-400">
+              <p className="text-xs font-bold text-slate-900">Drag & drop file or click to select</p>
+              <p className="text-[10px] text-slate-500">
                 Supports {allowedTypes.join(', ').toUpperCase()} (Max {maxSizeMb}MB)
               </p>
             </div>
@@ -151,20 +151,20 @@ export default function FileUploader({
 
         {uploadStatus === 'uploading' && (
           <div className="w-full space-y-3 px-4">
-            <div className="flex items-center justify-between text-xs font-bold text-white">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-900">
               <div className="flex items-center gap-2">
                 <FileText className="h-4 w-4 text-brand-400 animate-pulse" />
                 <span className="truncate max-w-[180px]">{file?.name}</span>
               </div>
               <span className="font-mono text-brand-400">{uploadProgress}%</span>
             </div>
-            <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+            <div className="w-full bg-white rounded-full h-1.5 overflow-hidden">
               <div 
                 className="bg-brand-500 h-full rounded-full transition-all duration-150" 
                 style={{ width: `${uploadProgress}%` }}
               />
             </div>
-            <p className="text-[10px] text-slate-400 animate-pulse text-center">Uploading to secured storage node...</p>
+            <p className="text-[10px] text-slate-500 animate-pulse text-center">Uploading to secured storage node...</p>
           </div>
         )}
 
@@ -172,7 +172,7 @@ export default function FileUploader({
           <>
             <button 
               onClick={handleRemove}
-              className="absolute top-3 right-3 p-1.5 hover:bg-[#1F2937] text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
+              className="absolute top-3 right-3 p-1.5 hover:bg-[#1F2937] text-slate-500 hover:text-slate-900 rounded-lg transition-colors cursor-pointer"
             >
               <X className="h-4 w-4" />
             </button>
@@ -180,7 +180,7 @@ export default function FileUploader({
               <CheckCircle className="h-6 w-6" />
             </div>
             <div className="space-y-1">
-              <p className="text-xs font-bold text-white">Upload Complete</p>
+              <p className="text-xs font-bold text-slate-900">Upload Complete</p>
               <p className="text-[10px] text-green-400 font-mono truncate max-w-[240px]">{file?.name}</p>
             </div>
           </>
@@ -190,7 +190,7 @@ export default function FileUploader({
           <>
             <button 
               onClick={handleRemove}
-              className="absolute top-3 right-3 p-1.5 hover:bg-[#1F2937] text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
+              className="absolute top-3 right-3 p-1.5 hover:bg-[#1F2937] text-slate-500 hover:text-slate-900 rounded-lg transition-colors cursor-pointer"
             >
               <X className="h-4 w-4" />
             </button>
@@ -199,7 +199,7 @@ export default function FileUploader({
             </div>
             <div className="space-y-1">
               <p className="text-xs font-bold text-red-400">Upload Failed</p>
-              <p className="text-[10px] text-slate-400">{errorMessage}</p>
+              <p className="text-[10px] text-slate-500">{errorMessage}</p>
             </div>
           </>
         )}
