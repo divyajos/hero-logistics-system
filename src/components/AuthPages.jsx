@@ -14,7 +14,7 @@ const ROLES = [
   { label: "Super Admin",       icon: Shield,        route: "/super-admin-dashboard",     color: "#a855f7", bg: "rgba(168,85,247,0.12)" },
   { label: "Sales",             icon: BarChart3,     route: "/sales-dashboard",            color: "#f59e0b", bg: "rgba(245,158,11,0.12)" },
   { label: "Company Admin",     icon: Building,      route: "/company-admin-dashboard",    color: "#0ea5e9", bg: "rgba(14,165,233,0.12)" },
-  { label: "Dispatcher",        icon: ClipboardList, route: "/dispatcher-dashboard",       color: "#10b981", bg: "rgba(16,185,129,0.12)" },
+  { label: "Dispatcher",        icon: ClipboardList, route: "/dispatch",       color: "#10b981", bg: "rgba(16,185,129,0.12)" },
   { label: "Driver",            icon: Truck,         route: "/driver-dashboard",           color: "#f97316", bg: "rgba(249,115,22,0.12)" },
   { label: "Warehouse Manager", icon: Warehouse,     route: "/warehouse-dashboard",        color: "#06b6d4", bg: "rgba(6,182,212,0.12)" },
   { label: "Yard Attendant",    icon: Package,       route: "/yard-attendant-dashboard",   color: "#84cc16", bg: "rgba(132,204,22,0.12)" },

@@ -38,7 +38,7 @@ const ROLE_ROUTES = {
   'Super Admin': '/super-admin-dashboard',
   'Sales': '/sales-dashboard',
   'Company Admin': '/company-admin-dashboard',
-  'Dispatcher': '/dispatcher-dashboard',
+  'Dispatcher': '/dispatch',
   'Driver': '/driver-dashboard',
   'Warehouse Manager': '/warehouse-dashboard',
   'Yard Attendant': '/yard-attendant-dashboard',

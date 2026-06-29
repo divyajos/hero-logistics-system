@@ -74,19 +74,16 @@ export default function Sidebar({ activeTab, setActiveTab, mobileOpen, setMobile
         ];
       case 'Dispatcher':
         return [
-          { id: 'overview', label: 'Dispatch Dashboard', icon: LayoutDashboard },
-          { id: 'create-load', label: 'Create Load', icon: Plus },
-          { id: 'ai-inbox', label: 'Load Inbox', icon: QrCode },
-          { id: 'active-loads', label: 'Active Loads', icon: Layers },
-          { id: 'planning-board', label: 'Planning Board', icon: Layers },
-          { id: 'tracking', label: 'Live GPS Map', icon: Navigation },
-          { id: 'drivers', label: 'Drivers', icon: Users },
-          { id: 'vehicles-trailers', label: 'Vehicles / Trailers', icon: Truck },
-          { id: 'customers', label: 'Customers', icon: Briefcase },
-          { id: 'yard-warehouse', label: 'Yard / Warehouse', icon: Home },
-          { id: 'workforce-availability', label: 'Workforce Availability', icon: Calendar },
-          { id: 'messages', label: 'Messages', icon: MessageSquare },
-          { id: 'reports', label: 'Reports', icon: BarChart3 }
+          { id: 'overview', label: 'Command Center', icon: LayoutDashboard },
+          { id: 'loads', label: 'Loads', icon: Layers },
+          { id: 'inbox', label: 'Load Inbox', icon: QrCode },
+          { id: 'terminal-workspace', label: 'Terminal Workspace', icon: Home },
+          { id: 'fleet-monitor', label: 'Fleet Monitor', icon: Navigation },
+          { id: 'fleet-assets', label: 'Fleet Assets', icon: Truck },
+          { id: 'asset-inventory', label: 'Asset Inventory', icon: Layers },
+          { id: 'roster-control', label: 'Roster Control', icon: Users },
+          { id: 'communication-depot', label: 'Communication Depot', icon: MessageSquare },
+          { id: 'system-settings', label: 'System Settings', icon: Settings }
         ];
       case 'Driver':
         return [
@@ -193,6 +190,24 @@ export default function Sidebar({ activeTab, setActiveTab, mobileOpen, setMobile
             {collapsed ? <ChevronRight className="h-4.5 w-4.5" /> : <ChevronLeft className="h-4.5 w-4.5" />}
           </button>
         </div>
+
+        {user.role === 'Dispatcher' && !collapsed && (
+          <div className="px-4.5 py-3 border-b border-[#2E2E2E]/40 text-left">
+            <style>{`
+              .force-white-text {
+                color: #ffffff !important;
+              }
+              .force-light-gray-text {
+                color: #94a3b8 !important;
+              }
+            `}</style>
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block">DISPATCHER</span>
+            <div className="mt-2 p-3 bg-neutral-950/80 border border-[#2E2E2E] rounded-xl text-xs space-y-0.5">
+              <span className="text-[9px] force-light-gray-text block font-bold uppercase tracking-wider">TERMINAL</span>
+              <strong className="force-white-text block font-sans">Sydney Central Depot</strong>
+            </div>
+          </div>
+        )}
 
         {/* Sidebar Menu Items */}
         <nav className="p-3.5 space-y-1.5 flex-grow overflow-y-auto max-h-[calc(100vh-140px)] scrollbar-none">

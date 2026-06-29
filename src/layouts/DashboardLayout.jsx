@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Sidebar from '../components/common/Sidebar';
 import TopNavbar from '../components/common/TopNavbar';
 import NotificationCenter from '../components/common/NotificationCenter';
 import CommandCenter from '../components/common/CommandCenter';
 import { useSelector } from 'react-redux';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import SuperAdminDashboard from '../components/dashboards/SuperAdminDashboard';
 import SalesDashboard from '../components/dashboards/SalesDashboard';
@@ -23,7 +24,10 @@ import SearchResultsDashboard from '../components/dashboards/SearchResultsDashbo
 export default function DashboardLayout({ role: roleProp }) {
   const { user } = useAuth();
   const { unreadCount } = useSelector((state) => state.notifications);
-  const [activeTab, setActiveTab] = useState('overview');
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const [localActiveTab, setLocalActiveTab] = useState('overview');
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
@@ -31,6 +35,50 @@ export default function DashboardLayout({ role: roleProp }) {
 
   // Use role from route prop, fallback to user.role
   const activeRole = roleProp || user.role;
+  const isDispatcher = activeRole === 'Dispatcher';
+
+  const tabToUrl = (tab) => {
+    const mapping = {
+      overview: '',
+      loads: 'loads',
+      inbox: 'inbox',
+      'terminal-workspace': 'terminal',
+      'fleet-monitor': 'tracking',
+      'fleet-assets': 'fleet',
+      'asset-inventory': 'vehicle-registry',
+      'roster-control': 'drivers',
+      'communication-depot': 'messages',
+      'system-settings': 'settings'
+    };
+    return mapping[tab] !== undefined ? mapping[tab] : tab;
+  };
+  const urlToTab = (url) => {
+    const mapping = {
+      '': 'overview',
+      loads: 'loads',
+      inbox: 'inbox',
+      terminal: 'terminal-workspace',
+      tracking: 'fleet-monitor',
+      fleet: 'fleet-assets',
+      'vehicle-registry': 'asset-inventory',
+      drivers: 'roster-control',
+      messages: 'communication-depot',
+      settings: 'system-settings'
+    };
+    return mapping[url || ''] || url;
+  };
+
+  const pathParts = location.pathname.split('/');
+  const activeTabFromUrl = isDispatcher ? (urlToTab(pathParts[2]) || 'overview') : null;
+  const activeTab = isDispatcher ? activeTabFromUrl : localActiveTab;
+
+  const setActiveTab = (tab) => {
+    if (isDispatcher) {
+      navigate(`/dispatch/${tabToUrl(tab)}`);
+    } else {
+      setLocalActiveTab(tab);
+    }
+  };
 
   // Render role dashboard component
   const renderDashboard = (role, tab) => {

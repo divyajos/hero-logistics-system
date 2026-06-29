@@ -20,7 +20,8 @@ export default function Drawer({ isOpen, onClose, title, children }) {
     <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-[#0B0F19]/60 backdrop-blur-xs transition-opacity"
+        className="absolute inset-0 backdrop-blur-xs transition-opacity"
+        style={{ backgroundColor: 'rgba(11, 15, 25, 0.6)' }}
         onClick={onClose}
       ></div>
 

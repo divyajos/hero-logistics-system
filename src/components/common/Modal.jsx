@@ -21,7 +21,8 @@ export default function Modal({ isOpen, onClose, title, children }) {
     <div className="fixed inset-0 h-screen max-h-screen z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-[#0B0F19]/80 backdrop-blur-sm transition-opacity" 
+        className="fixed inset-0 backdrop-blur-xs transition-opacity" 
+        style={{ backgroundColor: 'rgba(11, 15, 25, 0.8)' }}
         onClick={onClose}
       ></div>
  

@@ -94,7 +94,7 @@ function App() {
             }
           />
           <Route
-            path="/dispatcher-dashboard/*"
+            path="/dispatch/*"
             element={
               <ProtectedRoute allowedRoles={['Dispatcher']}>
                 <DashboardLayout role="Dispatcher" />
