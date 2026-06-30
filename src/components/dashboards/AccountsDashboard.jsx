@@ -1,3 +1,4 @@
+
 import { useParams } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,8 +17,8 @@ import Modal from '../common/Modal';
 import Drawer from '../common/Drawer';
 import MiniChart from '../common/MiniChart';
 import { KpiGridSkeleton, TableSkeleton } from '../common/Skeletons';
-import { 
-  Layers, MapPin, Database, Award, Check, DollarSign, 
+import {
+  Layers, MapPin, Database, Award, Check, DollarSign,
   Trash2, Edit2, Download, TrendingUp, Users, Calendar, Plus
 } from 'lucide-react';
 import { useLogistics } from '../../context/LogisticsContext';
@@ -66,7 +67,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
     { id: 'REC-901', source: 'Shell Fuel Station', date: '06/22/2026', parsedData: { item: 'Diesel Fuel', fuelQty: '140 Gal', fuelCost: '$546.00', gst: '$54.60', total: '$600.60' }, status: 'pending' },
     { id: 'REC-902', source: 'Penske Fleet Services', date: '06/21/2026', parsedData: { item: 'Engine Oil Change', fuelQty: 'N/A', fuelCost: '$0.00', gst: '$32.00', total: '$352.00' }, status: 'pending' }
   ]);
-  
+
   const [ledgerSpreadsheet, setLedgerSpreadsheet] = useState([
     { id: 'L-1', date: '06/20/2026', desc: 'Caltex Diesel Ingest', category: 'Fuel', amount: '$450.00', gst: '$45.00', total: '$495.00', method: 'AI Extracted' },
     { id: 'L-2', date: '06/19/2026', desc: 'Volvo Workshop Repair', category: 'Maintenance', amount: '$1,200.00', gst: '$120.00', total: '$1,320.00', method: 'Manual' },
@@ -137,7 +138,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
     const q = search.toLowerCase();
     return list.filter(item => {
       if (!item) return false;
-      return Object.values(item).some(val => 
+      return Object.values(item).some(val =>
         val !== null && val !== undefined && String(val).toLowerCase().includes(q)
       );
     });
@@ -292,7 +293,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
   const dynamicMaintenance = localLedgers.filter(l => l.category === 'Maintenance' || l.payee.toLowerCase().includes('penske') || l.payee.toLowerCase().includes('workshop') || l.payee.toLowerCase().includes('service')).reduce((sum, l) => sum + getAmt(l.amount), 0);
 
   const dynamicExpenses = dynamicPayroll + dynamicContractor + dynamicVehicleCosts + dynamicFuel + dynamicMaintenance;
-  
+
   // Margin / Profits
   const dynamicGrossProfit = dynamicRevenue - (dynamicPayroll + dynamicContractor);
   const dynamicNetProfit = dynamicRevenue - dynamicExpenses;
@@ -303,7 +304,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
 
   return (
     <div className="space-y-6">
-      
+
       {/* Toast notifications */}
       {toastMessage && (
         <div className="fixed bottom-6 right-6 z-50 animate-slide-in">
@@ -343,18 +344,18 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
             <div className="space-y-6">
               {/* Top 4 KPI Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard title="Factored Funding" value={`$${factoringFunding.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description="Active invoice reserves" trend="Factored" trendDirection="neutral" />
+                <StatCard title="Factored Funding" value={`$${factoringFunding.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} description="Active invoice reserves" trend="Factored" trendDirection="neutral" />
                 <StatCard title="Driver Payroll" value={`${localLedgers.filter(l => (l.type === 'Driver Pay' || l.type === 'Wages') && l.status === 'Pending').length} Pending`} description="Awaiting payment runs" trend={`$${dynamicPayroll.toLocaleString()} paid`} trendDirection="neutral" />
-                <StatCard title="Outstanding Invoices" value={`$${outstandingInvoices.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description="Open balances ledger" trend="Awaiting Customer" trendDirection="up" />
-                <StatCard title="Net Profit Margin" value={`$${dynamicNetProfit.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description={`Margin: ${dynamicMargin}%`} trend={`Revenue: $${dynamicRevenue.toLocaleString()}`} trendDirection="up" />
+                <StatCard title="Outstanding Invoices" value={`$${outstandingInvoices.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} description="Open balances ledger" trend="Awaiting Customer" trendDirection="up" />
+                <StatCard title="Net Profit Margin" value={`$${dynamicNetProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} description={`Margin: ${dynamicMargin}%`} trend={`Revenue: $${dynamicRevenue.toLocaleString()}`} trendDirection="up" />
               </div>
 
               {/* Bottom 4 KPI Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard title="Total Revenue" value={`$${dynamicRevenue.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description="From paid shipper invoices" trend="Revenue" trendDirection="up" />
-                <StatCard title="Total Expenses" value={`$${dynamicExpenses.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description="Payroll + Fuel + Maintenance" trend="Costs" trendDirection="neutral" />
-                <StatCard title="Gross Profit" value={`$${dynamicGrossProfit.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description="After labour costs" trend="Before overheads" trendDirection="up" />
-                <StatCard title="Contractor Pay" value={`$${dynamicContractor.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description="Subcontractor settlements" trend="Brokerage costs" trendDirection="neutral" />
+                <StatCard title="Total Revenue" value={`$${dynamicRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} description="From paid shipper invoices" trend="Revenue" trendDirection="up" />
+                <StatCard title="Total Expenses" value={`$${dynamicExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} description="Payroll + Fuel + Maintenance" trend="Costs" trendDirection="neutral" />
+                <StatCard title="Gross Profit" value={`$${dynamicGrossProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} description="After labour costs" trend="Before overheads" trendDirection="up" />
+                <StatCard title="Contractor Pay" value={`$${dynamicContractor.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} description="Subcontractor settlements" trend="Brokerage costs" trendDirection="neutral" />
               </div>
 
               {/* Quick Actions Strip */}
@@ -379,10 +380,10 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                       {dynamicExpenses > 0 ? Math.round((dynamicFuel / dynamicExpenses) * 100) : 0}% of expenses
                     </span>
                   </div>
-                  <strong className="text-slate-900 text-xl font-black block">${dynamicFuel.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</strong>
+                  <strong className="text-slate-900 text-xl font-black block">${dynamicFuel.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                   <MiniChart type="bar" data={[2100, 2400, 2300, 2500, dynamicFuel > 0 ? dynamicFuel : 2790]} labels={['Jan', 'Feb', 'Mar', 'Apr', 'Current']} />
                 </div>
-                
+
                 <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-bold text-slate-500 uppercase">Driver Wages & Payroll</span>
@@ -390,10 +391,10 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                       {dynamicExpenses > 0 ? Math.round((dynamicPayroll / dynamicExpenses) * 100) : 0}% of expenses
                     </span>
                   </div>
-                  <strong className="text-slate-900 text-xl font-black block">${dynamicPayroll.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</strong>
+                  <strong className="text-slate-900 text-xl font-black block">${dynamicPayroll.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                   <MiniChart type="line" data={[3200, 3400, 3600, 3800, dynamicPayroll > 0 ? dynamicPayroll : 4100]} labels={['Jan', 'Feb', 'Mar', 'Apr', 'Current']} />
                 </div>
-                
+
                 <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-xs font-bold text-slate-500 uppercase">Vehicle Maintenance</span>
@@ -401,7 +402,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                       {dynamicExpenses > 0 ? Math.round((dynamicMaintenance / dynamicExpenses) * 100) : 0}% of expenses
                     </span>
                   </div>
-                  <strong className="text-slate-900 text-xl font-black block">${dynamicMaintenance.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}</strong>
+                  <strong className="text-slate-900 text-xl font-black block">${dynamicMaintenance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
                   <MiniChart type="bar" data={[1200, 1500, 1100, 1400, dynamicMaintenance > 0 ? dynamicMaintenance : 1600]} labels={['Jan', 'Feb', 'Mar', 'Apr', 'Current']} />
                 </div>
               </div>
@@ -428,7 +429,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                   <Button size="sm" variant="secondary" onClick={() => triggerToast("Opening inline invoice editor panel.")}>
                     Edit Invoice
                   </Button>
-                  <Button size="sm" variant="primary" disabled={isRestricted} onClick={() => handleAction('approveInvoice', selectedInvoice || invoices.find(i=>i.status==='Draft')?.id, 'Invoice approved and moved to Sent queue.')}>
+                  <Button size="sm" variant="primary" disabled={isRestricted} onClick={() => handleAction('approveInvoice', selectedInvoice || invoices.find(i => i.status === 'Draft')?.id, 'Invoice approved and moved to Sent queue.')}>
                     Approve Invoice
                   </Button>
                 </div>
@@ -454,7 +455,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                   <p className="text-xs text-slate-450 mt-1">Audit dispatched invoices, track aging, export tax documents, and issue statements.</p>
                 </div>
                 <div className="flex gap-2">
-                  <Button size="sm" variant="primary" disabled={isRestricted} onClick={() => handleAction('sendInvoice', invoices.find(i=>i.status==='Sent')?.id, 'Re-sent invoice mailer to shipper.')}>
+                  <Button size="sm" variant="primary" disabled={isRestricted} onClick={() => handleAction('sendInvoice', invoices.find(i => i.status === 'Sent')?.id, 'Re-sent invoice mailer to shipper.')}>
                     Send Invoice
                   </Button>
                   <Button size="sm" variant="secondary" onClick={() => handleExport('PDF Invoice')}>
@@ -488,7 +489,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                   <p className="text-xs text-slate-450 mt-1">Record incoming client check deposits, match bank transactions, and cancel bad debts.</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <Button size="sm" variant="primary" disabled={isRestricted} onClick={() => handleAction('recordPayment', invoices.find(i=>i.status==='Sent')?.id, 'Invoice settled.')}>
+                  <Button size="sm" variant="primary" disabled={isRestricted} onClick={() => handleAction('recordPayment', invoices.find(i => i.status === 'Sent')?.id, 'Invoice settled.')}>
                     Mark Paid
                   </Button>
                   <Button size="sm" variant="secondary" onClick={() => triggerToast("Manual payment record logged.")}>
@@ -537,7 +538,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                   <Button size="sm" variant="secondary" onClick={() => triggerToast("Auditing pending operational expense receipts.")}>
                     Review Expense
                   </Button>
-                  <Button size="sm" variant="primary" disabled={isRestricted} onClick={() => handleAction('approveExpense', expenses.find(e=>e.status==='Pending')?.id, 'Expense approved and posted to general ledger.')}>
+                  <Button size="sm" variant="primary" disabled={isRestricted} onClick={() => handleAction('approveExpense', expenses.find(e => e.status === 'Pending')?.id, 'Expense approved and posted to general ledger.')}>
                     Approve Expense
                   </Button>
                   <Button size="sm" variant="success" onClick={() => triggerToast("AI OCR receipt scan confirmed.")}>
@@ -546,10 +547,10 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                   <Button size="sm" variant="danger" onClick={() => triggerToast("AI OCR receipt scan rejected.")}>
                     Reject AI Receipt
                   </Button>
-                  <Button size="sm" variant="primary" disabled={isRestricted} onClick={() => handleAction('processContractorPay', payroll.find(p=>p.workerType==='Driver' && p.status==='Pending')?.id, 'Brokerage contractor pay run executed.')}>
+                  <Button size="sm" variant="primary" disabled={isRestricted} onClick={() => handleAction('processContractorPay', payroll.find(p => p.workerType === 'Driver' && p.status === 'Pending')?.id, 'Brokerage contractor pay run executed.')}>
                     Process Contractor Pay
                   </Button>
-                  <Button size="sm" variant="primary" disabled={isRestricted} onClick={() => handleAction('processEmployeePay', payroll.find(p=>p.workerType==='Employee' && p.status==='Pending')?.id, 'Depot employee salary deposits cleared.')}>
+                  <Button size="sm" variant="primary" disabled={isRestricted} onClick={() => handleAction('processEmployeePay', payroll.find(p => p.workerType === 'Employee' && p.status === 'Pending')?.id, 'Depot employee salary deposits cleared.')}>
                     Process Employee Pay
                   </Button>
                   <Button size="sm" variant="secondary" onClick={() => triggerToast("Payroll bank files exported.")}>
@@ -565,10 +566,10 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard title="Dynamic Revenue" value={`$${dynamicRevenue.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description="Paid shipper invoices" progress={100} />
-                <StatCard title="Total Expenses" value={`$${dynamicExpenses.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description="Payroll, Fuel, Maintenance" progress={75} />
-                <StatCard title="Gross Margin" value={`$${dynamicGrossProfit.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description="Trips profitability" progress={85} />
-                <StatCard title="Net Profit Margin" value={`$${dynamicNetProfit.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`} description={`Margin: ${dynamicMargin}%`} progress={95} />
+                <StatCard title="Dynamic Revenue" value={`$${dynamicRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} description="Paid shipper invoices" progress={100} />
+                <StatCard title="Total Expenses" value={`$${dynamicExpenses.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} description="Payroll, Fuel, Maintenance" progress={75} />
+                <StatCard title="Gross Margin" value={`$${dynamicGrossProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} description="Trips profitability" progress={85} />
+                <StatCard title="Net Profit Margin" value={`$${dynamicNetProfit.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} description={`Margin: ${dynamicMargin}%`} progress={95} />
               </div>
             </div>
           )}
@@ -576,7 +577,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
           {/* Invoices List */}
           {activeTab === 'invoices' && (
             <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
-              
+
               {/* Sub tabs list */}
               <div className="flex border-b border-slate-200/45 pb-px text-xs font-bold gap-4 text-left mb-2">
                 <button
@@ -620,22 +621,24 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                     { key: 'amount', label: 'Amount', render: (row) => <span className="font-mono font-bold">{row.amount}</span> },
                     { key: 'date', label: 'Due Date', render: (row) => <span className="text-slate-500 font-mono text-[11px]">{row.date}</span> },
                     { key: 'status', label: 'State', render: (row) => <StatusBadge status={row.status} /> },
-                    { key: 'actions', label: 'Ledger Actions', render: (row) => (
-                      <div className="flex gap-2">
-                        {row.status === 'Draft' && (
-                          <Button size="sm" variant="primary" onClick={() => {
-                            dispatch(updateLedgerStatus({ id: row.id, status: 'Paid' }));
-                            triggerToast('Draft Invoice approved and marked Paid.');
-                          }}>Approve & Pay</Button>
-                        )}
-                        {row.status === 'Pending' && (
-                          <Button size="sm" variant="secondary" onClick={() => handlePayInvoice(row.id)}>Pay</Button>
-                        )}
-                        <Button size="sm" variant="secondary" onClick={() => { setSelectedInvoice(row); setDetailsDrawerOpen(true); }}>Inspect</Button>
-                      </div>
-                    )}
+                    {
+                      key: 'actions', label: 'Ledger Actions', render: (row) => (
+                        <div className="flex gap-2">
+                          {row.status === 'Draft' && (
+                            <Button size="sm" variant="primary" onClick={() => {
+                              dispatch(updateLedgerStatus({ id: row.id, status: 'Paid' }));
+                              triggerToast('Draft Invoice approved and marked Paid.');
+                            }}>Approve & Pay</Button>
+                          )}
+                          {row.status === 'Pending' && (
+                            <Button size="sm" variant="secondary" onClick={() => handlePayInvoice(row.id)}>Pay</Button>
+                          )}
+                          <Button size="sm" variant="secondary" onClick={() => { setSelectedInvoice(row); setDetailsDrawerOpen(true); }}>Inspect</Button>
+                        </div>
+                      )
+                    }
                   ]} data={paginatedLedgers} />
-                  
+
                   <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
                 </>
               )}
@@ -654,19 +657,19 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                   <Button size="sm" variant="outline" onClick={() => setPayRateModalOpen(true)}>
                     Configure Worker Pay Rate
                   </Button>
-                  <button 
+                  <button
                     onClick={() => triggerToast('Global payroll items approved and locked.')}
                     className="px-3.5 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-slate-900 text-[11px] rounded-xl font-bold transition-all cursor-pointer"
                   >
                     Approve Payroll
                   </button>
-                  <button 
+                  <button
                     onClick={() => triggerToast('Bank disbursements transaction batch queued.')}
                     className="px-3.5 py-1.5 bg-brand-500 hover:bg-brand-600 text-slate-950 text-[11px] rounded-xl font-black transition-all cursor-pointer"
                   >
                     Process Payroll
                   </button>
-                  <button 
+                  <button
                     onClick={() => handleExport('ABA Payroll Manifest')}
                     className="px-3.5 py-1.5 bg-white hover:bg-slate-750 text-slate-700 text-[11px] rounded-xl font-bold transition-all cursor-pointer"
                   >
@@ -678,7 +681,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
               {/* Sub tabs list */}
               <div className="flex border-b border-slate-200/45 pb-px text-xs font-bold gap-4 text-left">
                 {['Driver Payroll', 'Employee Base Salaries', 'Contractor Settlements', 'Payroll History'].map(st => (
-                  <button 
+                  <button
                     key={st}
                     onClick={() => setPayrollTab(st)}
                     className={`capitalize pb-2 transition-colors cursor-pointer ${payrollTab === st ? 'text-brand-400 border-b-2 border-brand-500 font-extrabold' : 'text-slate-500 hover:text-slate-700'}`}
@@ -691,19 +694,21 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
               {payrollTab === 'Driver Payroll' && (
                 <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
                   <h3 className="text-sm font-extrabold text-slate-900">Driver Pay & Trip Commissions</h3>
-                  
+
                   <DataTable columns={[
                     { key: 'driver', label: 'Driver Node', render: (row) => <span className="font-extrabold text-slate-900">{row.workerName}</span> },
                     { key: 'trips', label: 'Trips Done', render: (row) => <span className="font-mono text-xs">{row.trips} runs</span> },
                     { key: 'amount', label: 'Pay Due', render: (row) => <span className="font-mono font-bold text-brand-400">{row.amount}</span> },
                     { key: 'status', label: 'State', render: (row) => <StatusBadge status={row.status} /> },
-                    { key: 'actions', label: 'Disburse', render: (row) => (
-                      row.status === 'Pending' ? (
-                        <Button size="sm" variant="secondary" onClick={() => handlePayDriver(row.id)}>Pay Direct</Button>
-                      ) : (
-                        <span className="text-[11px] font-semibold text-slate-550">Direct Deposited</span>
+                    {
+                      key: 'actions', label: 'Disburse', render: (row) => (
+                        row.status === 'Pending' ? (
+                          <Button size="sm" variant="secondary" onClick={() => handlePayDriver(row.id)}>Pay Direct</Button>
+                        ) : (
+                          <span className="text-[11px] font-semibold text-slate-550">Direct Deposited</span>
+                        )
                       )
-                    )}
+                    }
                   ]} data={driverPayroll || []} />
                 </div>
               )}
@@ -711,20 +716,22 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
               {payrollTab === 'Employee Base Salaries' && (
                 <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
                   <h3 className="text-sm font-extrabold text-slate-900">Office staff & Yard Salaries</h3>
-                  
+
                   <DataTable columns={[
                     { key: 'name', label: 'Employee', render: (row) => <span className="font-extrabold text-slate-900">{row.workerName}</span> },
                     { key: 'role', label: 'Position', render: (row) => <span className="text-slate-500">{row.position}</span> },
                     { key: 'rate', label: 'Hourly/Salaried', render: (row) => <span className="font-mono text-xs">{row.rateType}</span> },
                     { key: 'salary', label: 'Salary Net', render: (row) => <span className="font-mono font-bold text-slate-600">{row.amount}</span> },
                     { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> },
-                    { key: 'actions', label: 'Disburse', render: (row) => (
-                      row.status === 'Pending' ? (
-                        <Button size="sm" variant="secondary" onClick={() => handlePayEmployee(row.id)}>Pay Staff</Button>
-                      ) : (
-                        <span className="text-[11px] font-semibold text-slate-550">Direct Deposited</span>
+                    {
+                      key: 'actions', label: 'Disburse', render: (row) => (
+                        row.status === 'Pending' ? (
+                          <Button size="sm" variant="secondary" onClick={() => handlePayEmployee(row.id)}>Pay Staff</Button>
+                        ) : (
+                          <span className="text-[11px] font-semibold text-slate-550">Direct Deposited</span>
+                        )
                       )
-                    )}
+                    }
                   ]} data={employeePayments || []} />
                 </div>
               )}
@@ -736,13 +743,15 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                     { key: 'contractor', label: 'External Contractor Service', render: (row) => <span className="font-extrabold text-slate-900">{row.workerName}</span> },
                     { key: 'amount', label: 'Settlement Amount', render: (row) => <span className="font-mono font-bold text-brand-400">{row.amount}</span> },
                     { key: 'status', label: 'State', render: (row) => <StatusBadge status={row.status} /> },
-                    { key: 'actions', label: 'Disburse', render: (row) => (
-                      row.status === 'Pending' ? (
-                        <Button size="sm" variant="secondary" onClick={() => handlePayContractor(row.id)}>Pay Broker</Button>
-                      ) : (
-                        <span className="text-[11px] font-semibold text-slate-550">Disbursed</span>
+                    {
+                      key: 'actions', label: 'Disburse', render: (row) => (
+                        row.status === 'Pending' ? (
+                          <Button size="sm" variant="secondary" onClick={() => handlePayContractor(row.id)}>Pay Broker</Button>
+                        ) : (
+                          <span className="text-[11px] font-semibold text-slate-550">Disbursed</span>
+                        )
                       )
-                    )}
+                    }
                   ]} data={contractorPayments || []} />
                 </div>
               )}
@@ -814,13 +823,15 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                   { key: 'contractor', label: 'External Contractor Service', render: (row) => <span className="font-extrabold text-slate-900">{row.workerName}</span> },
                   { key: 'amount', label: 'Settlement Amount', render: (row) => <span className="font-mono font-bold text-brand-400">{row.amount}</span> },
                   { key: 'status', label: 'State', render: (row) => <StatusBadge status={row.status} /> },
-                  { key: 'actions', label: 'Disburse', render: (row) => (
-                    row.status === 'Pending' ? (
-                      <Button size="sm" variant="secondary" disabled={isRestricted} onClick={() => handlePayContractor(row.id)}>Pay Broker</Button>
-                    ) : (
-                      <span className="text-[11px] font-semibold text-slate-550">Disbursed</span>
+                  {
+                    key: 'actions', label: 'Disburse', render: (row) => (
+                      row.status === 'Pending' ? (
+                        <Button size="sm" variant="secondary" disabled={isRestricted} onClick={() => handlePayContractor(row.id)}>Pay Broker</Button>
+                      ) : (
+                        <span className="text-[11px] font-semibold text-slate-550">Disbursed</span>
+                      )
                     )
-                  )}
+                  }
                 ]} data={applySearch(contractorPayments || [])} />
               </div>
             </div>
@@ -845,13 +856,15 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                   { key: 'rate', label: 'Hourly/Salaried', render: (row) => <span className="font-mono text-xs">{row.rateType}</span> },
                   { key: 'salary', label: 'Salary Net', render: (row) => <span className="font-mono font-bold text-slate-600">{row.amount}</span> },
                   { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> },
-                  { key: 'actions', label: 'Disburse', render: (row) => (
-                    row.status === 'Pending' ? (
-                      <Button size="sm" variant="secondary" disabled={isRestricted} onClick={() => handlePayEmployee(row.id)}>Pay Staff</Button>
-                    ) : (
-                      <span className="text-[11px] font-semibold text-slate-550">Direct Deposited</span>
+                  {
+                    key: 'actions', label: 'Disburse', render: (row) => (
+                      row.status === 'Pending' ? (
+                        <Button size="sm" variant="secondary" disabled={isRestricted} onClick={() => handlePayEmployee(row.id)}>Pay Staff</Button>
+                      ) : (
+                        <span className="text-[11px] font-semibold text-slate-550">Direct Deposited</span>
+                      )
                     )
-                  )}
+                  }
                 ]} data={applySearch(employeePayments || [])} />
               </div>
             </div>
@@ -870,20 +883,20 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                 {[
-                   { title: 'Tax Report', desc: 'Q2 GST and PAYG Summaries', action: 'Tax Report PDF' },
-                   { title: 'Profitability Report', desc: 'Per-load net margin & Vehicle Costs', action: 'Costing Reports' },
-                   { title: 'P&L Statement', desc: 'Income vs Expense master ledger', action: 'P&L Spreadsheet' },
-                   { title: 'Payroll Manifest', desc: 'Consolidated driver & employee pay', action: 'ABA Payroll Manifest' }
-                 ].map((r, i) => (
-                    <div key={i} className="glass p-4 rounded-xl border border-slate-200 flex flex-col justify-between h-32 text-left">
-                       <div>
-                         <h4 className="text-sm font-extrabold text-slate-900">{r.title}</h4>
-                         <span className="text-[10px] text-slate-500">{r.desc}</span>
-                       </div>
-                       <Button size="sm" variant="secondary" onClick={() => handleExport(r.action)} className="mt-2 w-full text-xs">Download CSV</Button>
+                {[
+                  { title: 'Tax Report', desc: 'Q2 GST and PAYG Summaries', action: 'Tax Report PDF' },
+                  { title: 'Profitability Report', desc: 'Per-load net margin & Vehicle Costs', action: 'Costing Reports' },
+                  { title: 'P&L Statement', desc: 'Income vs Expense master ledger', action: 'P&L Spreadsheet' },
+                  { title: 'Payroll Manifest', desc: 'Consolidated driver & employee pay', action: 'ABA Payroll Manifest' }
+                ].map((r, i) => (
+                  <div key={i} className="glass p-4 rounded-xl border border-slate-200 flex flex-col justify-between h-32 text-left">
+                    <div>
+                      <h4 className="text-sm font-extrabold text-slate-900">{r.title}</h4>
+                      <span className="text-[10px] text-slate-500">{r.desc}</span>
                     </div>
-                 ))}
+                    <Button size="sm" variant="secondary" onClick={() => handleExport(r.action)} className="mt-2 w-full text-xs">Download CSV</Button>
+                  </div>
+                ))}
               </div>
               <div className="glass rounded-2xl p-5 border border-slate-200 text-left space-y-4 mt-6">
                 <h3 className="text-sm font-extrabold text-slate-900">Generated Reports History</h3>
@@ -892,9 +905,11 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                   { key: 'type', label: 'Report Type', render: (row) => <span className="text-slate-600 font-semibold">{row.type}</span> },
                   { key: 'generatedBy', label: 'Generated By', render: (row) => <span className="text-slate-500 text-xs">{row.generatedBy}</span> },
                   { key: 'date', label: 'Generation Date', render: (row) => <span className="font-mono text-xs text-slate-500">{row.date}</span> },
-                  { key: 'actions', label: 'Action', render: (row) => (
+                  {
+                    key: 'actions', label: 'Action', render: (row) => (
                       <Button size="sm" variant="outline" onClick={() => handleExport(row.type)}>Download</Button>
-                  )}
+                    )
+                  }
                 ]} data={applySearch(reports || [])} />
               </div>
             </div>
@@ -937,7 +952,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
                 <div className="lg:col-span-8 glass rounded-2xl p-5 border border-slate-200 text-left space-y-4">
                   <h3 className="text-sm font-extrabold text-slate-900">Vehicle Profitability Matrix</h3>
-                  
+
                   <DataTable columns={[
                     { key: 'plate', label: 'Vehicle Plate', render: (row) => <span className="font-mono font-extrabold text-slate-900">{row.plate}</span> },
                     { key: 'revenue', label: 'Revenue Generated', render: (row) => <span className="text-emerald-450 font-bold font-mono">{row.revenue}</span> },
@@ -953,7 +968,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                     <h3 className="text-sm font-extrabold text-slate-900">Cost Distribution Analysis</h3>
                     <p className="text-[10px] text-slate-500 font-semibold mb-4">Breakdown of operational spend across vehicles.</p>
                   </div>
-                  
+
                   <div className="space-y-4 my-2 text-xs">
                     <div className="space-y-1">
                       <div className="flex justify-between font-semibold text-slate-500">
@@ -984,7 +999,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                     </div>
                   </div>
 
-                  <button 
+                  <button
                     onClick={() => handleExport('Costing Reports')}
                     className="w-full py-2 bg-white hover:bg-slate-750 text-slate-700 text-xs rounded-xl font-bold transition-all cursor-pointer"
                   >
@@ -1002,7 +1017,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
               <div className="flex flex-wrap gap-3 justify-between items-center bg-white/40 p-4 border border-slate-200/45 rounded-xl text-xs font-bold">
                 <div className="flex gap-2">
                   {['Q1 (Jan-Mar)', 'Q2 (Apr-Jun)', 'Q3 (Jul-Sep)', 'Q4 (Oct-Dec)'].map(q => (
-                    <button 
+                    <button
                       key={q}
                       onClick={() => triggerToast(`Tax period filtered: ${q}`)}
                       className="px-3.5 py-1.5 bg-slate-50 hover:bg-white border border-slate-200 text-slate-600 rounded-lg cursor-pointer"
@@ -1011,7 +1026,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                     </button>
                   ))}
                 </div>
-                <button 
+                <button
                   onClick={() => handleExport('Tax Report PDF')}
                   className="px-3.5 py-1.5 bg-brand-500 hover:bg-brand-600 text-slate-950 rounded-lg font-black cursor-pointer"
                 >
@@ -1174,11 +1189,10 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                           <td className="py-3 px-3 font-mono text-[11px]">{row.date}</td>
                           <td className="py-3 px-3 font-semibold text-slate-900">{row.desc}</td>
                           <td className="py-3 px-3">
-                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${
-                              row.category === 'Fuel' ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 
-                              row.category === 'Wages' ? 'bg-brand-500/10 text-brand-400 border border-brand-500/20' : 
-                              'bg-yellow-500/10 text-yellow-405 border border-yellow-500/20'
-                            }`}>
+                            <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold ${row.category === 'Fuel' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
+                                row.category === 'Wages' ? 'bg-brand-500/10 text-brand-400 border border-brand-500/20' :
+                                  'bg-yellow-500/10 text-yellow-405 border border-yellow-500/20'
+                              }`}>
                               {row.category}
                             </span>
                           </td>
@@ -1208,9 +1222,8 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                   <button
                     key={subTab.id}
                     onClick={() => setRatesSubTab(subTab.id)}
-                    className={`pb-2.5 cursor-pointer transition-colors ${
-                      ratesSubTab === subTab.id ? 'text-brand-500 border-b-2 border-brand-500 font-extrabold' : 'text-slate-500 hover:text-slate-700'
-                    }`}
+                    className={`pb-2.5 cursor-pointer transition-colors ${ratesSubTab === subTab.id ? 'text-brand-500 border-b-2 border-brand-500 font-extrabold' : 'text-slate-500 hover:text-slate-700'
+                      }`}
                   >
                     {subTab.label}
                   </button>
@@ -1226,17 +1239,19 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                     { key: 'flatRate', label: 'Flat Booking Fee', render: (row) => <span className="font-mono">{row.flatRate}</span> },
                     { key: 'kmRate', label: 'Per Km Rate', render: (row) => <span className="font-mono text-brand-400">{row.kmRate}</span> },
                     { key: 'palletRate', label: 'Per Pallet Unit', render: (row) => <span className="font-mono">{row.palletRate}</span> },
-                    { key: 'actions', label: 'Actions', render: (row) => (
-                      <button 
-                        onClick={() => {
-                          setCustomerRates(customerRates.filter(c => c.id !== row.id));
-                          triggerToast(`Deleted rate settings for ${row.name}`, 'warning');
-                        }}
-                        className="p-1 hover:bg-red-500/10 text-red-400 rounded-lg transition-colors cursor-pointer"
-                      >
-                        Delete
-                      </button>
-                    )}
+                    {
+                      key: 'actions', label: 'Actions', render: (row) => (
+                        <button
+                          onClick={() => {
+                            setCustomerRates(customerRates.filter(c => c.id !== row.id));
+                            triggerToast(`Deleted rate settings for ${row.name}`, 'warning');
+                          }}
+                          className="p-1 hover:bg-red-500/10 text-red-400 rounded-lg transition-colors cursor-pointer"
+                        >
+                          Delete
+                        </button>
+                      )
+                    }
                   ]} data={customerRates} />
                 </div>
               )}
@@ -1248,17 +1263,19 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                     { key: 'name', label: 'Carrier Contractor', render: (row) => <span className="font-extrabold text-slate-900">{row.name}</span> },
                     { key: 'flatRate', label: 'Flat Fee', render: (row) => <span className="font-mono">{row.flatRate}</span> },
                     { key: 'costPerKm', label: 'Cost Per Km', render: (row) => <span className="font-mono text-brand-400">{row.costPerKm}</span> },
-                    { key: 'actions', label: 'Actions', render: (row) => (
-                      <button 
-                        onClick={() => {
-                          setCarrierRates(carrierRates.filter(c => c.id !== row.id));
-                          triggerToast(`Deleted rate for ${row.name}`, 'warning');
-                        }}
-                        className="p-1 hover:bg-red-500/10 text-red-400 rounded-lg transition-colors cursor-pointer"
-                      >
-                        Delete
-                      </button>
-                    )}
+                    {
+                      key: 'actions', label: 'Actions', render: (row) => (
+                        <button
+                          onClick={() => {
+                            setCarrierRates(carrierRates.filter(c => c.id !== row.id));
+                            triggerToast(`Deleted rate for ${row.name}`, 'warning');
+                          }}
+                          className="p-1 hover:bg-red-500/10 text-red-400 rounded-lg transition-colors cursor-pointer"
+                        >
+                          Delete
+                        </button>
+                      )
+                    }
                   ]} data={carrierRates} />
                 </div>
               )}
@@ -1270,17 +1287,19 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                     { key: 'threshold', label: 'Diesel Index Threshold', render: (row) => <span className="font-extrabold text-slate-900">{row.threshold}</span> },
                     { key: 'surcharge', label: 'Surcharge Percentage', render: (row) => <span className="font-mono text-brand-400 font-bold">{row.surcharge}</span> },
                     { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> },
-                    { key: 'actions', label: 'Actions', render: (row) => (
-                      <button 
-                        onClick={() => {
-                          setFuelSurcharges(fuelSurcharges.filter(f => f.id !== row.id));
-                          triggerToast(`Deleted fuel threshold ${row.threshold}`, 'warning');
-                        }}
-                        className="p-1 hover:bg-red-500/10 text-red-400 rounded-lg transition-colors cursor-pointer"
-                      >
-                        Delete
-                      </button>
-                    )}
+                    {
+                      key: 'actions', label: 'Actions', render: (row) => (
+                        <button
+                          onClick={() => {
+                            setFuelSurcharges(fuelSurcharges.filter(f => f.id !== row.id));
+                            triggerToast(`Deleted fuel threshold ${row.threshold}`, 'warning');
+                          }}
+                          className="p-1 hover:bg-red-500/10 text-red-400 rounded-lg transition-colors cursor-pointer"
+                        >
+                          Delete
+                        </button>
+                      )
+                    }
                   ]} data={fuelSurcharges} />
                 </div>
               )}
@@ -1292,17 +1311,19 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
                     { key: 'type', label: 'Accessorial Service Type', render: (row) => <span className="font-extrabold text-slate-900">{row.type}</span> },
                     { key: 'fee', label: 'Standard Charge Rate', render: (row) => <span className="font-mono text-brand-400 font-bold">{row.fee}</span> },
                     { key: 'status', label: 'Status', render: (row) => <StatusBadge status={row.status} /> },
-                    { key: 'actions', label: 'Actions', render: (row) => (
-                      <button 
-                        onClick={() => {
-                          setAccessorials(accessorials.filter(a => a.id !== row.id));
-                          triggerToast(`Deleted accessorial fee for ${row.type}`, 'warning');
-                        }}
-                        className="p-1 hover:bg-red-500/10 text-red-400 rounded-lg transition-colors cursor-pointer"
-                      >
-                        Delete
-                      </button>
-                    )}
+                    {
+                      key: 'actions', label: 'Actions', render: (row) => (
+                        <button
+                          onClick={() => {
+                            setAccessorials(accessorials.filter(a => a.id !== row.id));
+                            triggerToast(`Deleted accessorial fee for ${row.type}`, 'warning');
+                          }}
+                          className="p-1 hover:bg-red-500/10 text-red-400 rounded-lg transition-colors cursor-pointer"
+                        >
+                          Delete
+                        </button>
+                      )
+                    }
                   ]} data={accessorials} />
                 </div>
               )}
@@ -1368,45 +1389,45 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
       {/* Record Rate Settings Modal (Priority 4) */}
       <Modal isOpen={rateModalOpen} onClose={() => setRateModalOpen(false)} title={`Add ${ratesSubTab === 'customer' ? 'Customer Rate' : ratesSubTab === 'carrier' ? 'Carrier Rate' : ratesSubTab === 'fuel' ? 'Fuel Surcharge' : 'Accessorial Fee'}`}>
         <form onSubmit={handleAddRate} className="space-y-4">
-          <TextInput 
-            label={ratesSubTab === 'customer' ? 'Customer / Shipper Name' : ratesSubTab === 'carrier' ? 'Carrier Partner Name' : ratesSubTab === 'fuel' ? 'Fuel Threshold (Index per L)' : 'Accessorial Type Name'} 
-            required 
-            placeholder={ratesSubTab === 'customer' ? 'e.g. Memphis Shippers Inc' : ratesSubTab === 'carrier' ? 'e.g. Apex Fuel Network' : ratesSubTab === 'fuel' ? 'e.g. $1.90/L' : 'e.g. Waiting Time'} 
-            value={newRateName} 
-            onChange={(e) => setNewRateName(e.target.value)} 
+          <TextInput
+            label={ratesSubTab === 'customer' ? 'Customer / Shipper Name' : ratesSubTab === 'carrier' ? 'Carrier Partner Name' : ratesSubTab === 'fuel' ? 'Fuel Threshold (Index per L)' : 'Accessorial Type Name'}
+            required
+            placeholder={ratesSubTab === 'customer' ? 'e.g. Memphis Shippers Inc' : ratesSubTab === 'carrier' ? 'e.g. Apex Fuel Network' : ratesSubTab === 'fuel' ? 'e.g. $1.90/L' : 'e.g. Waiting Time'}
+            value={newRateName}
+            onChange={(e) => setNewRateName(e.target.value)}
           />
-          
-          <TextInput 
-            label={ratesSubTab === 'fuel' ? 'Surcharge Percentage (%)' : 'Flat Booking Fee ($)'} 
-            required 
-            type="number" 
-            step="0.01" 
-            placeholder={ratesSubTab === 'fuel' ? 'e.g. 15' : 'e.g. 250.00'} 
-            value={newRateFlat} 
-            onChange={(e) => setNewRateFlat(e.target.value)} 
+
+          <TextInput
+            label={ratesSubTab === 'fuel' ? 'Surcharge Percentage (%)' : 'Flat Booking Fee ($)'}
+            required
+            type="number"
+            step="0.01"
+            placeholder={ratesSubTab === 'fuel' ? 'e.g. 15' : 'e.g. 250.00'}
+            value={newRateFlat}
+            onChange={(e) => setNewRateFlat(e.target.value)}
           />
 
           {(ratesSubTab === 'customer' || ratesSubTab === 'carrier') && (
-            <TextInput 
-              label="Per Km Surcharge Rate ($)" 
-              required 
-              type="number" 
-              step="0.01" 
-              placeholder="e.g. 1.85" 
-              value={newRateKm} 
-              onChange={(e) => setNewRateKm(e.target.value)} 
+            <TextInput
+              label="Per Km Surcharge Rate ($)"
+              required
+              type="number"
+              step="0.01"
+              placeholder="e.g. 1.85"
+              value={newRateKm}
+              onChange={(e) => setNewRateKm(e.target.value)}
             />
           )}
 
           {ratesSubTab === 'customer' && (
-            <TextInput 
-              label="Per Pallet Unit Charge Rate ($)" 
-              required 
-              type="number" 
-              step="0.01" 
-              placeholder="e.g. 15.00" 
-              value={newRatePallet} 
-              onChange={(e) => setNewRatePallet(e.target.value)} 
+            <TextInput
+              label="Per Pallet Unit Charge Rate ($)"
+              required
+              type="number"
+              step="0.01"
+              placeholder="e.g. 15.00"
+              value={newRatePallet}
+              onChange={(e) => setNewRatePallet(e.target.value)}
             />
           )}
 
@@ -1418,7 +1439,7 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
 
       {/* Configure Worker Pay Rate Modal */}
       <Modal isOpen={payRateModalOpen} onClose={() => setPayRateModalOpen(false)} title="Configure Worker Pay Rate">
-        <form 
+        <form
           onSubmit={(e) => {
             e.preventDefault();
             triggerToast('Worker pay rate configured successfully.');
@@ -1426,25 +1447,25 @@ export default function AccountsDashboard({ activeTab = 'overview' }) {
           }}
           className="space-y-4"
         >
-          <SelectInput 
-            label="Select Worker / Employee" 
+          <SelectInput
+            label="Select Worker / Employee"
             options={[
               { value: 'John D.', label: 'John D. (Driver)' },
               { value: 'Sarah R.', label: 'Sarah R. (Driver)' },
               { value: 'Adam K.', label: 'Adam K. (Yard Manager)' },
               { value: 'Julie B.', label: 'Julie B. (Accountant)' }
-            ]} 
+            ]}
           />
-          <SelectInput 
-            label="Rate Classification Type" 
+          <SelectInput
+            label="Rate Classification Type"
             options={[
               { value: 'Hourly', label: 'Hourly Rate ($/hr)' },
               { value: 'Per Mile', label: 'Per Mile Commission ($/mile)' },
               { value: 'Flat Run', label: 'Flat Rate per Trip Run ($/load)' }
-            ]} 
+            ]}
           />
           <TextInput label="Rate Value Amount ($)" required placeholder="e.g. 45.00" type="number" step="0.01" />
-          
+
           <Button type="submit" variant="primary" disabled={isRestricted} className="w-full">
             Save Pay Rate
           </Button>

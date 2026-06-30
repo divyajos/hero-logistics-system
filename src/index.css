@@ -427,3 +427,16 @@ input[type=number] {
     line-height: 1.4 !important;
   }
 }
+
+/* Sidebar Custom Overrides to bypass light mode */
+.sidebar-link-white {
+  color: #ffffff !important;
+}
+.sidebar-link-gray {
+  color: #8ba3b8 !important;
+}
+.sidebar-link-gray:hover,
+.group:hover .sidebar-link-gray,
+button:hover > .sidebar-link-gray {
+  color: #ffffff !important;
+}

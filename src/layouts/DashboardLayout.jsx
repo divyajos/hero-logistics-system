@@ -39,13 +39,19 @@ export default function DashboardLayout({ role: roleProp }) {
   // Use role from route prop, fallback to user.role
   const activeRole = roleProp || user.role;
 
+  useEffect(() => {
+    if (activeRole === 'Company Admin' && activeTab === 'overview') {
+      setActiveTab('command-center');
+    }
+  }, [activeRole, activeTab]);
+
   // Render role dashboard component
   const renderDashboard = (role, tab) => {
     // Company Admin handles its own tabs inline
     if (role === 'Company Admin') {
       if (tab === 'search-results') return <SearchResultsDashboard activeTab={tab} setActiveTab={setActiveTab} />;
       if (tab === 'settings') return <SettingsPanels activeTab={tab} />;
-      return <CompanyAdminDashboard activeTab={tab} />;
+      return <CompanyAdminDashboard activeTab={tab} setActiveTab={setActiveTab} />;
     }
     if (role === 'Sales') {
       return <SalesDashboard activeTab={tab} />;
@@ -74,7 +80,7 @@ export default function DashboardLayout({ role: roleProp }) {
   };
 
   return (
-    <div className="min-h-screen flex bg-white text-slate-900">
+    <div className="h-screen flex bg-white text-slate-900 overflow-hidden">
       <CommandCenter setActiveTab={setActiveTab} />
 
       {mobileSidebarOpen && (
