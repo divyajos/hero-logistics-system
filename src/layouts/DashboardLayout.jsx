@@ -68,7 +68,7 @@ export default function DashboardLayout({ role: roleProp }) {
       case 'Super Admin': return <SuperAdminDashboard activeTab={tab} setActiveTab={setActiveTab} />;
       case 'Sales': return <SalesDashboard activeTab={tab} />;
       case 'Company Admin': return <CompanyAdminDashboard activeTab={tab} />;
-      case 'Dispatcher': return <DispatchDashboard activeTab={tab} />;
+      case 'Dispatcher': return <DispatchDashboard activeTab={tab} setActiveTab={setActiveTab} />;
       case 'Driver': return <DriverDashboard activeTab={tab} />;
       case 'Warehouse Manager': return <WarehouseDashboard activeTab={tab} />;
       case 'Yard Attendant': return <YardAttendantDashboard activeTab={tab} />;

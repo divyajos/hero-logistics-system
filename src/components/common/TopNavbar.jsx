@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { Bell, Search, HelpCircle, ChevronDown, User, LogOut, Shield, Loader, FileText, Truck, ArrowRight, Sun, Moon, Menu, Clock, Briefcase } from 'lucide-react';
+import { Bell, Search, HelpCircle, ChevronDown, User, LogOut, Shield, Loader, FileText, Truck, ArrowRight, Menu } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import { useLogistics } from '../../context/LogisticsContext';
 
 export default function TopNavbar({ onNotificationClick, notificationCount = 3, onMenuClick, activeTab, setActiveTab }) {
   const { user, logout } = useAuth();
-  const { toggleTheme, isDark } = useTheme();
   const [profileOpen, setProfileOpen] = useState(false);
   const { 
     selectedNiche, 
@@ -54,14 +53,6 @@ export default function TopNavbar({ onNotificationClick, notificationCount = 3, 
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery]);
 
-  // Format shift elapsed timer HH:MM:SS
-  const formatTimer = (totalSeconds) => {
-    const hrs = Math.floor(totalSeconds / 3600).toString().padStart(2, '0');
-    const mins = Math.floor((totalSeconds % 3600) / 60).toString().padStart(2, '0');
-    const secs = (totalSeconds % 60).toString().padStart(2, '0');
-    return `${hrs}:${mins}:${secs}`;
-  };
-
   const handleSearchSubmit = () => {
     if (setActiveTab) {
       localStorage.setItem('hero_global_search_query', searchQuery);
@@ -74,7 +65,6 @@ export default function TopNavbar({ onNotificationClick, notificationCount = 3, 
     if (setActiveTab) {
       localStorage.setItem('hero_global_search_query', title);
       
-      // Add to recent searches
       try {
         const saved = localStorage.getItem('hero_recent_searches');
         const recent = saved ? JSON.parse(saved) : [];
@@ -91,25 +81,46 @@ export default function TopNavbar({ onNotificationClick, notificationCount = 3, 
 
   if (!user) return null;
 
-  return (
-    <header className="bg-white border-b border-slate-200 h-16 flex items-center justify-between px-6 sticky top-0 z-40">
-      {/* Mobile Sidebar Hamburger Toggle */}
-      <button
-        onClick={onMenuClick}
-        className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg md:hidden mr-2 transition-all cursor-pointer flex items-center justify-center"
-        title="Toggle Menu"
-      >
-        <Menu className="h-5 w-5" />
-      </button>
+  const isDispatcher = user.role === 'Dispatcher';
+  const displayInitials = isDispatcher ? 'SM' : (user.name.split(' ').map(n => n[0]).join('').toUpperCase() || 'U');
 
-      {/* Search Header Bar */}
-      <div className="flex-grow max-w-md hidden md:block relative">
+  return (
+    <header className="bg-white border-b border-slate-200/80 h-16 flex items-center justify-between px-6 sticky top-0 z-40">
+      
+      {/* Left: Mobile Toggle & Breadcrumbs */}
+      <div className="flex items-center">
+        <button
+          onClick={onMenuClick}
+          className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-lg md:hidden mr-2 transition-all cursor-pointer flex items-center justify-center"
+          title="Toggle Menu"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+
+        {isDispatcher ? (
+          <div className="text-left select-none animate-fade-in hidden md:block">
+            <span className="text-[9px] text-gray-405 font-bold tracking-widest uppercase block leading-none">
+              DISPATCHER
+            </span>
+            <span className="text-xs text-gray-950 font-black tracking-widest uppercase block mt-1">
+              LIVE DISPATCH OPERATIONS
+            </span>
+          </div>
+        ) : (
+          <div className="text-left font-black tracking-wide text-xs text-slate-700 select-none">
+            {user.company || 'HERO LOGISTICS'}
+          </div>
+        )}
+      </div>
+
+      {/* Middle: Centered Search Input */}
+      <div className="flex-grow max-w-sm mx-4 relative">
         <div className="relative">
-          <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500 pointer-events-none">
+          <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 pointer-events-none">
             {searchLoading ? (
-              <Loader className="h-4 w-4 animate-spin text-brand-400" />
+              <Loader className="h-3.5 w-3.5 animate-spin text-[#FFB200]" />
             ) : (
-              <Search className="h-4 w-4" />
+              <Search className="h-3.5 w-3.5" />
             )}
           </span>
           <input
@@ -119,16 +130,21 @@ export default function TopNavbar({ onNotificationClick, notificationCount = 3, 
             onFocus={() => setSearchFocused(true)}
             onBlur={() => setTimeout(() => setSearchFocused(false), 250)}
             onKeyDown={(e) => { if (e.key === 'Enter') handleSearchSubmit(); }}
-            placeholder="Search loads, drivers, or fleet plates..."
-            className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 hover:border-brand-500/30 text-slate-900 text-xs rounded-xl focus:outline-none focus:ring-1 focus:ring-brand-500 focus:border-brand-500 transition-all placeholder:text-slate-400 font-sans"
+            placeholder={isDispatcher ? "Quick Search..." : "Search loads, drivers, or fleet plates..."}
+            className="w-full pl-9 pr-14 py-2 bg-slate-50 border border-slate-200 hover:border-slate-300 focus:border-[#FFB200] text-slate-800 text-xs rounded-xl focus:outline-none transition-all placeholder:text-slate-400 placeholder:font-medium font-sans"
           />
+          {isDispatcher && (
+            <span className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-[9px] font-black text-gray-400 bg-white border border-gray-200/80 px-1.5 py-0.5 rounded-md my-2">
+              ⌘ K
+            </span>
+          )}
         </div>
 
-        {/* Global Search Results Dropdown Dropdown */}
+        {/* Global Search Results Dropdown */}
         {searchFocused && searchQuery.trim() && (
           <div className="absolute left-0 right-0 mt-2 bg-[#161F30] border border-[#23324C] rounded-2xl shadow-2xl py-3 z-50 animate-fade-in text-xs space-y-1 max-h-80 overflow-y-auto">
             <div className="px-4 pb-2 border-b border-[#23324C]/60 flex justify-between items-center">
-              <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider">Search Results</span>
+              <span className="text-[10px] text-slate-550 uppercase font-black tracking-wider">Search Results</span>
               <span className="text-[9px] text-slate-400 font-mono">{searchResults.length} matches</span>
             </div>
 
@@ -148,7 +164,7 @@ export default function TopNavbar({ onNotificationClick, notificationCount = 3, 
                       <div className={`p-2 rounded-lg ${
                         item.type === 'Vehicle' 
                           ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20' 
-                          : 'bg-brand-500/10 text-brand-400 border border-brand-500/20'
+                          : 'bg-[#FFB200]/10 text-[#FFB200] border border-[#FFB200]/20'
                       }`}>
                         {item.type === 'Vehicle' ? <Truck className="h-4 w-4" /> : <FileText className="h-4 w-4" />}
                       </div>
@@ -166,18 +182,13 @@ export default function TopNavbar({ onNotificationClick, notificationCount = 3, 
         )}
       </div>
 
-      <div className="flex-1 md:hidden"></div>
-
-      {/* Header Actions */}
-      <div className="flex items-center space-x-4">
-
-
-
-
-        {/* Help docs link */}
+      {/* Right: Actions & Profile */}
+      <div className="flex items-center space-x-3.5">
+        
+        {/* Help Link */}
         <a 
           href="#docs" 
-          className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all hidden sm:block"
+          className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-xl transition-all hidden sm:block"
           title="Documentation"
         >
           <HelpCircle className="h-4.5 w-4.5" />
@@ -186,12 +197,12 @@ export default function TopNavbar({ onNotificationClick, notificationCount = 3, 
         {/* Notifications Trigger */}
         <button
           onClick={onNotificationClick}
-          className="p-2 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl relative transition-all cursor-pointer"
+          className="p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-xl relative transition-all cursor-pointer"
           title="System Logs"
         >
           <Bell className="h-4.5 w-4.5" />
           {notificationCount > 0 && (
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-brand-500 border-2 border-[#161F30] rounded-full"></span>
+            <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-[#FFB200] border-2 border-white rounded-full"></span>
           )}
         </button>
 
@@ -201,49 +212,66 @@ export default function TopNavbar({ onNotificationClick, notificationCount = 3, 
         <div className="relative">
           <button
             onClick={() => setProfileOpen(!profileOpen)}
-            className="flex items-center space-x-2 text-left cursor-pointer group p-1.5 hover:bg-slate-100 rounded-xl transition-all"
+            className="flex items-center space-x-3 text-left cursor-pointer group p-1 hover:bg-slate-50 rounded-xl transition-all"
           >
-            <div className="w-8 h-8 rounded-lg bg-brand-500/10 border border-brand-500/20 text-brand-400 flex items-center justify-center font-bold text-xs">
-              {user.name.charAt(0)}
-            </div>
-            <div className="hidden sm:block">
-              <h5 className="text-xs font-bold text-slate-700 group-hover:text-slate-900">
-                {user.role === 'Super Admin' ? 'Role: Super Admin' : user.name}
-              </h5>
-              <span className="text-[9px] text-slate-500 font-semibold uppercase">
-                {user.role === 'Super Admin' ? 'Platform Owner' : user.role}
-              </span>
-            </div>
-            <ChevronDown className="h-3.5 w-3.5 text-slate-400 group-hover:text-slate-200 transition-transform" />
+            {isDispatcher ? (
+              <div className="flex items-center space-x-3">
+                <div className="hidden sm:block text-right">
+                  <h5 className="text-[11px] font-black text-slate-950 uppercase tracking-wider">
+                    SARAH MITCHELL
+                  </h5>
+                  <span className="text-[9px] text-slate-500 font-extrabold tracking-wider block mt-0.5">
+                    DISPATCHER
+                  </span>
+                </div>
+                <div className="w-8.5 h-8.5 rounded-full bg-[#FFB200] text-black flex items-center justify-center font-extrabold text-xs shadow-sm hover:scale-105 transition-transform">
+                  {displayInitials}
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="w-8 h-8 rounded-lg bg-[#FFB200]/10 border border-[#FFB200]/20 text-[#FFB200] flex items-center justify-center font-bold text-xs">
+                  {displayInitials.charAt(0)}
+                </div>
+                <div className="hidden sm:block">
+                  <h5 className="text-xs font-bold text-slate-700 group-hover:text-slate-900">
+                    {user.role === 'Super Admin' ? 'Role: Super Admin' : user.name}
+                  </h5>
+                  <span className="text-[9px] text-slate-550 font-semibold uppercase">
+                    {user.role === 'Super Admin' ? 'Platform Owner' : user.role}
+                  </span>
+                </div>
+              </>
+            )}
+            <ChevronDown className="h-3.5 w-3.5 text-slate-400 group-hover:text-slate-650 transition-transform" />
           </button>
 
           {profileOpen && (
             <>
-              {/* Overlay to close profile */}
               <div className="fixed inset-0 z-40" onClick={() => setProfileOpen(false)}></div>
               
-              <div className="absolute right-0 mt-2.5 w-52 bg-[#161F30] border border-[#23324C] rounded-xl shadow-xl shadow-black/40 py-2.5 z-50 animate-fade-in text-xs">
+              <div className="absolute right-0 mt-2 w-52 bg-[#161F30] border border-[#23324C] rounded-xl shadow-xl shadow-black/40 py-2 z-50 animate-fade-in text-xs">
                 <div className="px-4 py-2 border-b border-[#23324C]/60 mb-2">
-                  <span className="text-slate-500 font-bold block text-[10px] uppercase">My Workspace</span>
+                  <span className="text-slate-550 font-bold block text-[10px] uppercase">My Workspace</span>
                   <span className="text-slate-300 font-semibold truncate block">{user.company}</span>
                 </div>
 
                 <a 
                   href="#profile" 
-                  onClick={(e) => { e.preventDefault(); setProfileOpen(false); }}
+                  onClick={(e) => { e.preventDefault(); setProfileOpen(false); if (setActiveTab) setActiveTab('profile'); }}
                   className="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-800/40 transition-colors"
                 >
-                  <User className="h-4 w-4 mr-2.5 text-slate-500" />
-                  My Settings
+                  <User className="h-4 w-4 mr-2.5 text-slate-550" />
+                  My Profile
                 </a>
                 
                 <a 
-                  href="#security" 
-                  onClick={(e) => { e.preventDefault(); setProfileOpen(false); }}
+                  href="#settings" 
+                  onClick={(e) => { e.preventDefault(); setProfileOpen(false); if (setActiveTab) setActiveTab('company-settings'); }}
                   className="flex items-center px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-800/40 transition-colors"
                 >
-                  <Shield className="h-4 w-4 mr-2.5 text-slate-500" />
-                  2FA & Auditing
+                  <Shield className="h-4 w-4 mr-2.5 text-slate-550" />
+                  Company Settings
                 </a>
 
                 <div className="border-t border-[#23324C]/60 my-2"></div>

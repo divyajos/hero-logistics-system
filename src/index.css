@@ -439,4 +439,15 @@ input[type=number] {
 .group:hover .sidebar-link-gray,
 button:hover > .sidebar-link-gray {
   color: #ffffff !important;
+}
+
+/* Scrollbar Utility to hide scrollbars */
+.scrollbar-none::-webkit-scrollbar,
+.scrollbar-hide::-webkit-scrollbar {
+  display: none !important;
+}
+.scrollbar-none,
+.scrollbar-hide {
+  -ms-overflow-style: none !important;  /* IE and Edge */
+  scrollbar-width: none !important;  /* Firefox */
 }
